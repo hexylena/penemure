@@ -47,6 +47,8 @@ AuDHD Academics :sparkle: (in general just overwhelmed academics with wishlists 
 
 ## System Design
 
+### Git Based
+
 Consider taking from [git-bug's](https://github.com/MichaelMure/git-bug/blob/master/doc/model.md)
 model which meets the non-goals of offline-first, fast local experiences which
 isn't really part of most project management tools but would make my boss happy
@@ -67,12 +69,43 @@ to clone a repo, you have permission to modify all the issues in it, access
 everything. Want to delegate only a sub-set of tasks? Great, put them in a
 separate repo.
 
-How do you see all your tasks? That's where the server comes in, once that's
+How do you see all your tasks in the future? That's where the server comes in, once that's
 written you'll list your projects that are using this system, and it'll
 aggregate everything you can access in one nice display. 
+
+### Internal Structure
+
+Is it possible (useful?) to make this recursive? Tasks all the way down with different flavours of tasks?
+
+```
+project (it's a task!)
+└── list/group of tasks (It's also a task!)
+    └── task
+        └── (sub)task
+            └── ...
+```
+
+yeah that actually sounds sensible weirdly.
 
 ## Roadmap
 
 - v0 - schemas that can be edited by shitty cli tools so we can get *something* functional.
 - v1 - git-bug backing, so they can be synced
 - v2 - the server implementation
+
+## CLI
+
+iT's CRUDdy bAbY
+
+```
+pm project list
+pm project add
+pm project remove <id>
+pm project edit <id>
+pm project show <id>
+pm task list
+pm task add
+pm task remove <id>
+pm task edit <id>
+pm task show <id>
+```
