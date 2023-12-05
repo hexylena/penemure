@@ -36,6 +36,11 @@ AuDHD Academics :sparkle: (in general just overwhelmed academics with wishlists 
     - [ ] projects: multiple selection (v0)
     - [ ] in project: Group of Tasks - ibid, does it mean like, lists within a project? can this be modelled as a task?
 
+- [ ] Time Tracking (v1)
+    - [ ] Easily enter a task and start it
+    - [ ] Back date time
+    - [ ] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks')
+
 - [ ] People
     - [ ] Allow assigning people without them existing in the system. (v0)
 
