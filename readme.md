@@ -42,6 +42,7 @@ AuDHD Academics :sparkle: (in general just overwhelmed academics with wishlists 
     - [ ] from a 'template'?
     - [ ] given a 'parent' task, does it generate subsequent ones? Are they real (existing on disk) or synthetic.
     - [ ] if we didn't want a 'full' version of properly calendered repeating events we could go for the 'cheap' version of schedule N future copies of this, without the ability to edit one/all future events
+    - [ ] That's calendaring. That's just fucking calendaring, you're insane. stop it.
 
 - [ ] Time Tracking (v1)
     - [ ] Easily enter a task and start it
