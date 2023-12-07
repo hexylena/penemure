@@ -36,19 +36,41 @@ AuDHD Academics :sparkle: (in general just overwhelmed academics with wishlists 
     - [ ] projects: multiple selection (v0)
     - [ ] in project: Group of Tasks - ibid, does it mean like, lists within a project? can this be modelled as a task?
 
+- [ ] repeating tasks
+    - [ ] daily/weekly/etc.
+    - [ ] decide behaviour on completion/missing (does it just disappear? is it tracked?)
+    - [ ] from a 'template'?
+    - [ ] given a 'parent' task, does it generate subsequent ones? Are they real (existing on disk) or synthetic.
+    - [ ] if we didn't want a 'full' version of properly calendered repeating events we could go for the 'cheap' version of schedule N future copies of this, without the ability to edit one/all future events
+
 - [ ] Time Tracking (v1)
     - [ ] Easily enter a task and start it
     - [ ] Back date time
-    - [ ] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks')
+    - [ ] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks', just a 'quick subtask')
 
 - [ ] People
     - [ ] Allow assigning people without them existing in the system. (v0)
+
+- [ ] Teams
+    - [ ] Create arbitrary sub-groups of teams.
 
 - [ ] Workflows
     - [ ] Move tasks around, modify them. Re-assign, etc. (v2)
 
 - [ ] Forms
     - [ ] Basically simplified issue creation with mandatory fields. Really only needed on the 'hosting' server, less important locally. (v2)
+
+## User Stories
+
+- I want to track a project, split it into subprojects (maybe work packages)
+    - i'd like to add subtasks
+    - At relative dates from the start of the project / subproject (e.g. M1/Q1/Y1/Y1Q3)
+    - And have those tasks repeat (e.g. Q2 every year.)
+- I want to start a timer when I start working, it should record what I'm working on that I manually enter
+    - when I switch tasks I'll enter the new task
+    - maybe it should suggest a list of parent tasks it should be associated with?
+- Grocery list
+- Daily habits/chores
 
 ## System Design
 
@@ -91,6 +113,70 @@ project (it's a task!)
 ```
 
 yeah that actually sounds sensible weirdly.
+
+### Data Model
+
+```yaml
+id: 6af26813-27e6-4f6b-9f20-324320a7d923
+title: My Page
+_meta:
+  icon: 0.png
+_tags:
+  - title: URL
+    icon: 1.png
+    type: text
+    value: https://example.com
+  - title: Asignee
+    icon: 1.png
+    type: people
+    values: [jane, bob, @f90db3bd-0fee-4320-855d-7ec3451f48dc]
+  - title: Parent
+    type: link
+    values: [@8c7b8634-445b-4efc-894c-314030ae0e16]
+_blocks:
+ - type: h1
+   contents: blah
+ - type: p
+   contents: blah
+```
+
+#### Types
+
+markdown:
+
+- h1/2/3 {4/5/6}
+- todo list (automatically registers as sub-tasks
+- table
+- bullet/numbered
+- details/summary
+- blockquote
+- code
+- divider
+- TeX
+
+advanced:
+
+- url (link preview?)
+- image
+- file
+
+database links/queries:
+
+- table
+- kanban board
+- gallery
+- list
+- calendar
+- timeline
+
+misc:
+
+- breadcrumbs
+- 2/3/4/5 columns
+- mermaid
+- link to person/page/date
+- @ a day/time, and then have that show up in queries somehow????
+- embed pdf
 
 ## Roadmap
 
