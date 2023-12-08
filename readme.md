@@ -117,12 +117,13 @@ yeah that actually sounds sensible weirdly.
 
 ### Data Model
 
+Here's a task
+
 ```yaml
-@id: 6af26813-27e6-4f6b-9f20-324320a7d923
-@title: My Page
-@parents: [8c7b8634-445b-4efc-894c-314030ae0e16]
+id: 6af26813-27e6-4f6b-9f20-324320a7d923
+title: My Task
 _meta:
-  icon: 0.png
+  icon: task
 _tags:
   - title: URL
     icon: 1.png
@@ -137,6 +138,49 @@ _blocks:
    contents: blah
  - type: p
    contents: blah
+```
+
+And a page with a 'view'
+
+```yaml
+id: 6af26813-27e6-4f6b-9f20-324320a7d923
+title: Tasks
+_meta:
+  icon: page
+_tags:
+  - title: Parent
+    type: link
+    values: [@8c7b8634-445b-4efc-894c-314030ae0e16]
+_blocks:
+ - type: h1
+   contents: Tasks
+ - type: list
+   contents: 'select * from tasks group by project' # TODO
+```
+
+And a simple 'note' page
+
+```yaml
+id: 4b42389c-4b63-4c4b-ab73-9950d4affeae
+title: My Page
+_meta:
+  icon: 0.png
+_tags:
+  - title: URL
+    icon: 1.png
+    type: text
+    value: https://example.com
+  - title: Verified
+    type: verified
+    values: true
+  - title: Parent
+    type: link
+    values: [@8c7b8634-445b-4efc-894c-314030ae0e16]
+_blocks:
+ - type: h1
+   contents: Heading
+ - type: p
+   contents: here is a short story about my nightmares. mainly date-times.
 ```
 
 #### Types
