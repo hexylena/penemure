@@ -1,11 +1,7 @@
 require './store.rb'
 
 
-class ProjectManager
-  def initialize
-    @store = JsonAdapter.new 'projects'
-  end
-
+class Note
   def discover_type(title)
     case title
     when 'URL'
@@ -25,17 +21,34 @@ class ProjectManager
     end
   end
 
-  def note(title, parents, tags, blocks)
+  def initialize(title, parents, tags, blocks)
     if tags.is_a? Hash
       tags = tags.map { |t| { 'title' => t[0], 'value' => t[1], 'type' => discover_type(title), 'icon' => nil  } }
     end
-
-    note = {
+    @n = {
       'title' => title,
+      'created' => Time.now.to_i,
       'parents' => parents || nil,
       '_tags' => tags,
       '_blocks' => blocks,
     }
+    p @n
+  end
+
+  def to_json
+    @n.to_json
+  end
+
+  def to_h
+    @n
+  end
+
+end
+
+
+class ProjectManager
+  def initialize
+    @store = JsonAdapter.new 'projects'
   end
 
   # Create a new note
@@ -45,7 +58,8 @@ class ProjectManager
   # @param [String] blocks
   def create_note(title, parents, tags, blocks)
     # Should we do validation?
-    @store.create(note(title, parents, tags, blocks))
+    q = Note.new(title, parents, tags, blocks)
+    @store.create(q.to_h)
   end
 
   def list_top_level
@@ -55,8 +69,8 @@ class ProjectManager
       table << [
         note['id'],
         note['title'],
-        note['_tags'].select{|t| t['title'] == 'Status'}.first['value'],
-        note['_tags'].select{|t| t['title'] == 'Tags'}.first['value'].join(', '),
+        (note['_tags'] || []).select{|t| t['title'] == 'Status'}.first['value'],
+        ((note['_tags'] || []).select{|t| t['title'] == 'Tags'}.first['value'] || []).join(', '),
       ]
     end
     puts table.render(:unicode)
@@ -144,7 +158,8 @@ class ProjectManager
 
       (id, title, parents, tags, parsed_blocks) = parse_markdown_note(text)
 
-      @store.update(id, note(title, parents, tags, parsed_blocks))
+      n = Note.new(title, parents, tags, parsed_blocks)
+      @store.update(id, n.to_h)
     end
   end
 
@@ -169,7 +184,36 @@ class ProjectManager
       require 'tty-markdown'
       puts TTY::Markdown.parse(render_markdown(n['_blocks']))
     end
+  end
 
+  def notion_import(path)
+    # Find the '_all.csv' file
+    require 'csv'
+
+    csv_fn = Dir.glob("#{path}/*_all.csv").first
+    csv = CSV.read(csv_fn, headers: true)
+    csv.each do |row|
+      # RIP
+      title = row['﻿Task']
+      parents = row['Parent-task']
+      tags ={
+        'Status' => row['Status'],
+        'Project' => row['Project'],
+        'Tags' => row['Tags'],
+        'Priority' => row['Priority'],
+        'Due' => row['Due'],
+        'Assignee' => row['Assignee'],
+        # 'Sub-tasks' => row['Sub-tasks'],
+        'Blocked by' => row['Blocked by'],
+        # 'Blocking' => row['Blocking'],
+        'Estimates' => row['Estimates'],
+        'ID' => row['ID'],
+        'URL' => row['URL'],
+      }
+      blocks = nil
+
+      create_note(title, parents, tags, blocks)
+    end
   end
 
 end

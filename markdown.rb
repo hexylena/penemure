@@ -193,7 +193,7 @@ def parse_markdown(str)
 end
 
 def render_markdown(blocks)
-  blocks.map do |block|
+  (blocks || []).map do |block|
     block = block.transform_keys(&:to_sym)
     puts "Rendering #{block}"
     BlockRenderer.new.render(block)

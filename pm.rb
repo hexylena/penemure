@@ -50,6 +50,11 @@ class PmCLI < Thor
     PMZ.delete(id)
   end
 
+  desc "notion_import path", "notion_import <id>"
+  def notion_import(id)
+    PMZ.notion_import(id)
+  end
+
   desc "new_note", "new notes"
   def new_note
     blocks = ""
