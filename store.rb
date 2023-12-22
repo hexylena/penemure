@@ -47,6 +47,13 @@ class JsonAdapter
     Dir["#{@location}/**/*"].select { |f| File.file?(f) }.map{ |x| File.basename x }
   end
 
+  # List top level notes, those without an @parent
+  def list_top_level
+    list
+      .map { |id| read(id) }
+      .select { |note| note['@parents'] == nil || note['@parents'].empty? }
+  end
+
   private
   def id_to_path(id)
     "#{@location}/#{id[0]}/#{id[1]}/#{id}"

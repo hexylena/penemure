@@ -4,7 +4,7 @@ the one system to replace all of the rest. (ofc it's not, it's just option #15.)
 
 ## Explicit Target Audience
 
-AuDHD Academics :sparkle: (in general just overwhelmed academics with wishlists and deadlines.)
+AuDHD Academic girlies :sparkle: (in general just overwhelmed academics with wishlists and deadlines.)
 
 ## Required features
 
@@ -118,8 +118,9 @@ yeah that actually sounds sensible weirdly.
 ### Data Model
 
 ```yaml
-id: 6af26813-27e6-4f6b-9f20-324320a7d923
-title: My Page
+@id: 6af26813-27e6-4f6b-9f20-324320a7d923
+@title: My Page
+@parents: [8c7b8634-445b-4efc-894c-314030ae0e16]
 _meta:
   icon: 0.png
 _tags:
@@ -130,10 +131,7 @@ _tags:
   - title: Asignee
     icon: 1.png
     type: people
-    values: [jane, bob, @f90db3bd-0fee-4320-855d-7ec3451f48dc]
-  - title: Parent
-    type: link
-    values: [@8c7b8634-445b-4efc-894c-314030ae0e16]
+    values: [jane, bob, f90db3bd-0fee-4320-855d-7ec3451f48dc]
 _blocks:
  - type: h1
    contents: blah
