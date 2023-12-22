@@ -1,9 +1,7 @@
 #!/usr/bin/env ruby
 require 'yaml'
-require 'tempfile'
 require 'thor'
 require './projects'
-require './markdown'
 
 PMZ = ProjectManager.new
 
@@ -34,16 +32,33 @@ class PmCLI < Thor
 
   desc "show", "show notes <id>"
   def show(id)
-    PMZ.show_project(id)
+    PMZ.show_note(id)
   end
 
-  desc "new_note TITLE", "new notes <title>"
-  def new_note(title)
+  desc "edit ID", "edit note <id>"
+  def edit(id)
+    PMZ.edit_note(id)
+  end
+
+  desc "debug ID", "debug note <id>"
+  def debug(id)
+    PMZ.debug(id)
+  end
+
+  desc "delete ID", "delete note <id>"
+  def delete(id)
+    PMZ.delete(id)
+  end
+
+  desc "new_note", "new notes"
+  def new_note
     blocks = ""
     # Get a tempfile
+    require 'tempfile'
     Tempfile.open('pm') do |f|
       # Initialize the tempfile with the template
       f.write("---\n")
+      f.write("title: New Note\n")
       f.write("tags:\n")
       f.write("#   Asignee: []\n")
       f.write("#   Status: \"not started\"\n")
@@ -63,17 +78,14 @@ class PmCLI < Thor
 
       blocks = f.read
     end
-    p blocks
-    # Split up the blocks, first the metadata
-    parts = blocks.split("---\n")
-    clean_yaml = parts[1].strip.split("\n").reject { |l| l.start_with?('#') }.join("\n")
-    puts "#{clean_yaml}"
-    # parse metadata as yaml
-    meta = YAML.load(clean_yaml)
-    # parse the rest as markdown
-    blocks = parts[2..-1].join("---\n")
-    parsed_blocks = parse_markdown(blocks)
-    PMZ.create_note(title, nil, meta, parsed_blocks)
+
+    (_, title, parents, tags, parsed_blocks) = PMZ.parse_markdown_note blocks
+    pp "title: #{title}"
+    pp "parents: #{parents}"
+    pp "tags: #{tags}"
+    pp "parsed_blocks: #{parsed_blocks}"
+
+    PMZ.create_note(title, parents, tags, parsed_blocks)
   end
 end
 

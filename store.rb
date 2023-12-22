@@ -1,4 +1,3 @@
-require 'securerandom'
 require 'json'
 require 'fileutils'
 
@@ -14,6 +13,7 @@ class JsonAdapter
   # @param [Hash] note
   # @return [str] id of the note
   def create(note)
+    require 'securerandom'
     id = SecureRandom.uuid
     # Create the folder if needed
     unless File.exist?(File.dirname(id_to_path(id)))
@@ -21,7 +21,7 @@ class JsonAdapter
     end
 
     File.open(id_to_path(id), 'w') do |file|
-      note['@id'] = id
+      note['id'] = id
       file.write(note.to_json)
     end
     id
@@ -38,7 +38,7 @@ class JsonAdapter
   end
 
   def read(id)
-    JSON.parse(File.read(id_to_path(id)))
+    JSON.parse(File.read(id_to_path(id))).update({ 'id' => id })
   end
 
   # List all notes
@@ -51,7 +51,7 @@ class JsonAdapter
   def list_top_level
     list
       .map { |id| read(id) }
-      .select { |note| note['@parents'] == nil || note['@parents'].empty? }
+      .select { |note| note['parents'] == nil || note['parents'].empty? }
   end
 
   private

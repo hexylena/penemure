@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
 gem 'thor'
-gem 'console_table'
+gem "tty-table"
 gem 'tty-markdown'
 gem 'redcarpet'
