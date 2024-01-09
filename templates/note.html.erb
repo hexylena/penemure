@@ -23,7 +23,19 @@
       <a href="/">Thingetje</a> / <%= note.id %>
     </header>
     <main>
+      <hgroup>
       <h1><%= note.title %></h1>
+      <p><%= note.type %></p>
+      </hgroup>
+
+      <% if note.parents.length.positive? %>
+      <h2>Parents</h2>
+      <ul>
+        <% note.parents.each do |parent| %>
+        <li><a href="/notes/<%= parent %>"><%= @store.read(parent).title %></a></li>
+        <% end %>
+      </ul>
+      <% end %>
 
       <h2>Metadata</h2>
       <table>
@@ -42,9 +54,43 @@
 
       <% if note.blocks.length.positive? %>
       <h2>Contents</h2>
-
       <%= render_markdown_html(note.blocks) %>
       <% end %>
+
+      <% if note.children(@store).length.positive? %>
+      <h2>Children</h2>
+      <ul>
+        <% note.children(@store).each do |child| %>
+        <li><a href="/notes/<%= child.id %>"><%= child.title %></a></li>
+        <% end %>
+      </ul>
+      <% end %>
+
+      <% if note.type == "project" %>
+        <h2>All Project Contents</h2>
+        <table>
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Tags</th>
+            <th>Assignee</th>
+            <th>Size</th>
+          </tr>
+          <% @store.list_notes.select{|n| n.get('Project') == note.title }.each do |note| %>
+            <tr>
+              <td><a href="/notes/<%= note.id %>"><%= note.title %></a></td>
+              <td><%= note.type %></td>
+              <td><%= note.get('Status') %></td>
+              <td><%= note.get('Tags')  %></td>
+              <td><%= note.get('Assignee')  %></td>
+              <td><%= note.blocks.length %></td>
+            </tr>
+          <% end %>
+        </table>
+      <% end %>
+
+
     </main>
 
   </body>

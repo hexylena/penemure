@@ -31,17 +31,17 @@
           <th>Status</th>
           <th>Project</th>
           <th>Tags</th>
-          <th>Asignee</th>
+          <th>Assignee</th>
           <th>Size</th>
         </tr>
         <% notes.each do |note| %>
           <tr>
             <td><a href="/notes/<%= note.id %>"><%= note.title %></a></td>
-            <td><%= note.get('Type') %></td>
+            <td><%= note.type %></td>
             <td><%= note.get('Status') %></td>
             <td><%= note.get('Project') %></td>
             <td><%= note.get('Tags')  %></td>
-            <td><%= note.get('Asignee')  %></td>
+            <td><%= note.get('Assignee')  %></td>
             <td><%= note.blocks.length %></td>
           </tr>
         <% end %>

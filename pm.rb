@@ -70,7 +70,7 @@ class PmCLI < Thor
       f.write("---\n")
       f.write("title: New Note\n")
       f.write("tags:\n")
-      f.write("#   Asignee: []\n")
+      f.write("#   Assignee: []\n")
       f.write("#   Status: \"not started\"\n")
       f.write("#   Due: null\n")
       f.write("#   Priority: null\n")

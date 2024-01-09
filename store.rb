@@ -1,5 +1,6 @@
 require 'json'
 require 'fileutils'
+require './types.rb'
 
 # Store notes in a json file
 class JsonAdapter
@@ -37,8 +38,13 @@ class JsonAdapter
     File.delete(id_to_path(id))
   end
 
-  def read(id)
+  def _read(id)
     JSON.parse(File.read(id_to_path(id))).update({ 'id' => id })
+  end
+
+  def read(id)
+    n = _read(id)
+    Note.new(n['title'], n['parents'], n['_tags'], n['_blocks'], n['id'], n['type'])
   end
 
   # List all notes
@@ -47,11 +53,22 @@ class JsonAdapter
     Dir["#{@location}/**/*"].select { |f| File.file?(f) }.map{ |x| File.basename x }
   end
 
-  # List top level notes, those without an @parent
-  def list_top_level
+  def list_notes
     list
       .map { |id| read(id) }
-      .select { |note| note['parents'] == nil || note['parents'].empty? }
+  end
+
+  # List top level notes, those without an @parent
+  def list_top_level
+    list_notes
+      .select { |note| note.parents.empty? }
+  end
+
+  def find_by_title(title)
+    list
+      .map { |id| read(id) }
+      .select { |note| note.title == title }
+      .first
   end
 
   private

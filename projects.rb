@@ -1,80 +1,6 @@
 require './store.rb'
 
 
-class Note
-  def discover_type(title)
-    case title
-    when 'URL'
-      'url'
-    when 'Status'
-      'select'
-    when 'Priority'
-      'select'
-    when 'Due'
-      'date'
-    when 'Tags'
-      'list'
-    when 'Assignee'
-      'list'
-    else
-      'text'
-    end
-  end
-
-  def initialize(title, parents, tags, blocks, id=nil)
-    if tags.is_a? Hash
-      tags = tags.map { |t| { 'title' => t[0], 'value' => t[1], 'type' => discover_type(title), 'icon' => nil  } }
-    end
-    @n = {
-      'title' => title,
-      'created' => Time.now.to_i,
-      'parents' => parents || nil,
-      '_tags' => tags,
-      '_blocks' => blocks,
-      'id' => id,
-    }
-    p @n
-  end
-
-  def self.from_store(n)
-    @n = n
-  end
-
-  def to_json
-    @n.to_json
-  end
-
-  def to_h
-    @n
-  end
-
-  def id
-    @n['id']
-  end
-
-  def title
-    @n['title']
-  end
-
-  def tags
-    @n['_tags'] || []
-  end
-
-  def blocks
-    @n['_blocks'] || []
-  end
-
-  def get(key)
-    begin
-      @n['_tags'].select { |t| t['title'] == key }.first['value']
-    rescue
-      nil
-    end
-  end
-
-end
-
-
 class ProjectManager
   def initialize
     @store = JsonAdapter.new 'projects'
@@ -85,21 +11,22 @@ class ProjectManager
   # @param [Array] parents
   # @param [Hash] tags (1 level deep only)
   # @param [String] blocks
-  def create_note(title, parents, tags, blocks)
+  def create_note(title, parents, tags, blocks, type)
     # Should we do validation?
-    q = Note.new(title, parents, tags, blocks)
+    q = Note.new(title, parents, tags, blocks, type)
     @store.create(q.to_h)
   end
 
   def list_top_level
     require 'tty-table'
-    table = TTY::Table.new(header: ['ID', 'Title', 'Status', 'Tags'])
+    table = TTY::Table.new(header: ['Type', 'ID', 'Title', 'Status', 'Tags'])
     @store.list_top_level.each do |note|
       table << [
-        note['id'],
-        note['title'],
-        (note['_tags'] || []).select{|t| t['title'] == 'Status'}.first['value'],
-        ((note['_tags'] || []).select{|t| t['title'] == 'Tags'}.first['value'] || []).join(', '),
+        note.type,
+        note.id,
+        note.title,
+        note.get('Status'),
+        note.get('Tags').join(', '),
       ]
     end
     puts table.render(:unicode)
@@ -120,19 +47,22 @@ class ProjectManager
     id = meta['id']
     title = meta['title']
     parents = meta['parents']
+    type = meta['type']
     # Cleanup
     meta.delete('id')
     meta.delete('title')
     meta.delete('parents')
+    meta.delete('type')
     tags = meta['tags'] || meta['_tags']
 
-    [id, title, parents, tags, parsed_blocks]
+    [id, title, parents, tags, parsed_blocks, type]
   end
 
   def render_markdown_note(n)
     res = ""
     res += {
         'id' => n['id'],
+        'type' => n['type'],
         'title' => n['title'],
         'parents' => n['parents'],
         'tags' => (n['_tags'] || []).map{|x| [x['title'], x['value']]}.to_h,
@@ -164,7 +94,8 @@ class ProjectManager
     if id_partial.nil?
       n = {
         'title' => 'New Note',
-        'parents' => nil,
+        'parents' => [],
+        'type' => 'note',
         '_tags' => nil,
         '_blocks' => nil,
       }
@@ -179,15 +110,15 @@ class ProjectManager
       f.flush
 
       # open vim for the user
-      system("vim +3 #{f.path}")
+      system("vim +4 #{f.path}")
 
       # Back to the beginning
       f.rewind
       text = f.read
 
-      (id, title, parents, tags, parsed_blocks) = parse_markdown_note(text)
+      (id, title, parents, tags, parsed_blocks, type) = parse_markdown_note(text)
 
-      n = Note.new(title, parents, tags, parsed_blocks)
+      n = Note.new(title, parents, tags, parsed_blocks, type=type)
       @store.update(id, n.to_h)
     end
   end
@@ -200,8 +131,8 @@ class ProjectManager
   def show_note(id_partial)
     n = get_note_by_partial_id(id_partial)
     puts "Title: #{n['title']}"
-    if n['parents']
-      puts "Parents: #{n['parents']}"
+    if n.parents
+      puts "Parents: #{n.parents}"
     end
     if n['_tags']
       n['_tags'].each do |tag|
@@ -220,16 +151,29 @@ class ProjectManager
     # Find the '_all.csv' file
     require 'csv'
 
+    def clean_notion(s)
+      if ! s.nil?
+        if s.include?(" (")
+          s[0 .. s.rindex(" (") - 1]
+        else
+          s
+        end
+      else
+        s
+      end
+    end
+
     csv_fn = Dir.glob("#{path}/*_all.csv").first
     csv = CSV.read(csv_fn, headers: true)
+    to_process = []
     csv.each do |row|
-      # RIP
-      title = row['﻿Task']
-      parents = row['Parent-task']
-      tags ={
+      title = row['﻿Task'] # RIP
+      # Find the task by ID
+      parent_title = row['Parent-task']
+      tags = {
         'Status' => row['Status'],
-        'Project' => row['Project'],
-        'Tags' => row['Tags'],
+        'Project' => clean_notion(row['Project']),
+        'Tags' => (row['Tags'] || '').split(',').push('notion-import'),
         'Priority' => row['Priority'],
         'Due' => row['Due'],
         'Assignee' => row['Assignee'],
@@ -242,8 +186,33 @@ class ProjectManager
       }
       blocks = nil
 
-      create_note(title, parents, tags, blocks)
+      to_process << [title, parent_title, tags, blocks, 'task']
     end
+
+    # Parentless
+    to_process.select{|x| x[1].nil?}.each do |(title, parent_title, tags, blocks, type)|
+      parents = []
+      if tags['Project']
+        q = @store.find_by_title(tags['Project'])
+        if q.nil?
+          p "Adding project: #{clean_notion(tags['Project'])}"
+          parents.push(create_note(
+            clean_notion(tags['Project']), [], {'Tags' => ['notion-import']}, nil, 'project'))
+        end
+      end
+
+      create_note(title, parents, tags, blocks, type)
+    end
+
+    # p '==='
+    # With parents
+    to_process.reject{|x| x[1].nil?}.each do |(title, parent_title, tags, blocks, type)|
+      parent_title = clean_notion(parent_title)
+      parent_node = @store.find_by_title(parent_title)
+      create_note(title, [parent_node.id], tags, blocks, type)
+    end
+
+
   end
 
   def export
@@ -251,7 +220,7 @@ class ProjectManager
     # Load templates/list.html
     template = File.read('templates/list.html.erb')
     # Get all the notes
-    notes = @store.list_top_level.map{|n| Note.new(n['title'], n['parents'], n['_tags'], n['_blocks'], n['id'])}
+    notes = @store.list_notes
     # Render the template
     renderer = ERB.new(template)
     p renderer
@@ -267,10 +236,8 @@ class ProjectManager
     template = File.read('templates/note.html.erb')
     renderer = ERB.new(template)
     Dir.mkdir('output/notes') unless Dir.exist?('output/notes')
-    @store.list.each do |note_id|
-      n = @store.read(note_id)
-      note = Note.new(n['title'], n['parents'], n['_tags'], n['_blocks'], n['id'])
-      File.open("output/notes/#{note_id}.html", 'w') do |f|
+    @store.list_notes.each do |note|
+      File.open("output/notes/#{note.id}.html", 'w') do |f|
         f.write(renderer.result(binding))
       end
     end
