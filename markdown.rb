@@ -193,9 +193,20 @@ def parse_markdown(str)
 end
 
 def render_markdown(blocks)
+  bl = BlockRenderer.new
   (blocks || []).map do |block|
     block = block.transform_keys(&:to_sym)
     puts "Rendering #{block}"
-    BlockRenderer.new.render(block)
+    bl.render(block)
+  end.join("\n")
+end
+
+def render_markdown_html(blocks)
+  renderer = Redcarpet::Render::HTML.new
+  markdown = Redcarpet::Markdown.new(renderer, extensions = {})
+  (blocks || []).map do |block|
+    block = block.transform_keys(&:to_sym)
+    puts "Rendering 2 html #{block}"
+    markdown.render(BlockRenderer.new.render(block))
   end.join("\n")
 end

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Note <%= note.title %></title>
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+    <link rel="stylesheet" href="https://unpkg.com/concrete.css@2.0.3/concrete.css">
+    <style>
+      main, header {
+        margin: auto;
+        max-width: 80%;
+        padding: 0 1rem;
+        width: 100%;
+      }
+      header {
+        padding: 3rem 0;
+      }
+
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/">Thingetje</a> / <%= note.id %>
+    </header>
+    <main>
+      <h1><%= note.title %></h1>
+
+      <h2>Metadata</h2>
+      <table>
+        <tr>
+          <th>Key</th>
+          <th>Value</th>
+        </tr>
+
+        <% note.tags.each do |tag| %>
+        <tr>
+          <td><%= tag['title'] %></td>
+          <td><%= tag['value'] %></td>
+        </tr>
+        <% end %>
+      </table>
+
+      <% if note.blocks.length.positive? %>
+      <h2>Contents</h2>
+
+      <%= render_markdown_html(note.blocks) %>
+      <% end %>
+    </main>
+
+  </body>
+</html>

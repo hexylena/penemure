@@ -55,6 +55,11 @@ class PmCLI < Thor
     PMZ.notion_import(id)
   end
 
+  desc "export", "export"
+  def export
+    PMZ.export
+  end
+
   desc "new_note", "new notes"
   def new_note
     blocks = ""

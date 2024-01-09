@@ -21,7 +21,7 @@ class Note
     end
   end
 
-  def initialize(title, parents, tags, blocks)
+  def initialize(title, parents, tags, blocks, id=nil)
     if tags.is_a? Hash
       tags = tags.map { |t| { 'title' => t[0], 'value' => t[1], 'type' => discover_type(title), 'icon' => nil  } }
     end
@@ -31,8 +31,13 @@ class Note
       'parents' => parents || nil,
       '_tags' => tags,
       '_blocks' => blocks,
+      'id' => id,
     }
     p @n
+  end
+
+  def self.from_store(n)
+    @n = n
   end
 
   def to_json
@@ -41,6 +46,30 @@ class Note
 
   def to_h
     @n
+  end
+
+  def id
+    @n['id']
+  end
+
+  def title
+    @n['title']
+  end
+
+  def tags
+    @n['_tags'] || []
+  end
+
+  def blocks
+    @n['_blocks'] || []
+  end
+
+  def get(key)
+    begin
+      @n['_tags'].select { |t| t['title'] == key }.first['value']
+    rescue
+      nil
+    end
   end
 
 end
@@ -182,6 +211,7 @@ class ProjectManager
 
     if n['_blocks']
       require 'tty-markdown'
+      require './markdown.rb'
       puts TTY::Markdown.parse(render_markdown(n['_blocks']))
     end
   end
@@ -213,6 +243,36 @@ class ProjectManager
       blocks = nil
 
       create_note(title, parents, tags, blocks)
+    end
+  end
+
+  def export
+    require 'erb'
+    # Load templates/list.html
+    template = File.read('templates/list.html.erb')
+    # Get all the notes
+    notes = @store.list_top_level.map{|n| Note.new(n['title'], n['parents'], n['_tags'], n['_blocks'], n['id'])}
+    # Render the template
+    renderer = ERB.new(template)
+    p renderer
+
+    # Store in output/ directory which may not exist
+    Dir.mkdir('output') unless Dir.exist?('output')
+    File.open('output/index.html', 'w') do |f|
+      f.write(renderer.result(binding))
+    end
+
+    require './markdown.rb'
+
+    template = File.read('templates/note.html.erb')
+    renderer = ERB.new(template)
+    Dir.mkdir('output/notes') unless Dir.exist?('output/notes')
+    @store.list.each do |note_id|
+      n = @store.read(note_id)
+      note = Note.new(n['title'], n['parents'], n['_tags'], n['_blocks'], n['id'])
+      File.open("output/notes/#{note_id}.html", 'w') do |f|
+        f.write(renderer.result(binding))
+      end
     end
   end
 

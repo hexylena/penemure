@@ -4,3 +4,4 @@ gem 'thor'
 gem "tty-table"
 gem 'tty-markdown'
 gem 'redcarpet'
+gem 'erb'
