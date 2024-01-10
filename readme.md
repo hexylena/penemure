@@ -61,6 +61,9 @@ AuDHD Academic girlies :sparkle: (in general just overwhelmed academics with wis
 - [ ] Forms
     - [ ] Basically simplified issue creation with mandatory fields. Really only needed on the 'hosting' server, less important locally. (v2)
 
+- [ ] Import
+    - [ ] import from calendar, generate an associated task that follows a calendar event around / can automatically have reminders.
+
 ## User Stories
 
 - I want to track a project, split it into subprojects (maybe work packages)
