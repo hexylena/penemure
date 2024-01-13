@@ -95,7 +95,7 @@ class PmCLI < Thor
     pp "tags: #{tags}"
     pp "parsed_blocks: #{parsed_blocks}"
 
-    PMZ.create_note(title, parents, tags, parsed_blocks)
+    PMZ.create_note(title, parents, tags, parsed_blocks, 'note')
   end
 end
 

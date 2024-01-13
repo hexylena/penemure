@@ -61,24 +61,24 @@ class ProjectManager
   def render_markdown_note(n)
     res = ""
     res += {
-        'id' => n['id'],
-        'type' => n['type'],
-        'title' => n['title'],
-        'parents' => n['parents'],
-        'tags' => (n['_tags'] || []).map{|x| [x['title'], x['value']]}.to_h,
+      'id' => n.id,
+      'type' => n.type,
+      'title' => n.title,
+      'parents' => n.parents,
+      'tags' => n.tags.map{|x| [x['title'], x['value']]}.to_h,
       }.to_yaml
     res += "---\n\n"
     require './markdown.rb'
-    res += render_markdown(n['_blocks'])
+    res += render_markdown(n.blocks)
     res
   end
 
   def get_note_by_partial_id(id_partial)
-    matches = @store.list_top_level.select { |x| x['id'].start_with?(id_partial) }
+    matches = @store.list_top_level.select { |x| x.id.start_with?(id_partial) }
     if matches.length == 1
-      n = @store.read(matches[0]['id'])
+      n = @store.read(matches[0].id)
     elsif matches.length > 1
-      raise "Multiple matches found, please restrict your ID. [#{matches.map{|x|x['id']}}]"
+      raise "Multiple matches found, please restrict your ID. [#{matches.map{|x|x.id}}]"
     else
       raise "No matches found"
     end
