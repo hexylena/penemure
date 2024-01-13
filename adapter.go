@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 	pmm "github.com/hexylena/pm/models"
 	"os"
 	"path/filepath"
@@ -31,6 +31,22 @@ func LoadNotes() {
 		// Get filename component of path
 		filename := filepath.Base(path)
 		n.NoteId = filename
+
+		fmt.Printf("Address of i=%p\n", &n)
 		globalNotes.AddNote(n)
+	}
+}
+
+func id2path(id string) string {
+	return fmt.Sprintf("./projects/%s/%s/%s", id[:1], id[1:2], id)
+}
+
+func SaveNotes() {
+	// Save all notes to the notes directory
+	for _, note := range globalNotes.GetNotes() {
+		if note.IsModified() {
+			fmt.Println("Saving note", note.Title)
+			note.SaveNote(id2path(note.NoteId))
+		}
 	}
 }

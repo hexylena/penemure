@@ -21,4 +21,5 @@ func main() {
 	// db := pmm.InitDB()
 	// tui.StartTea()
 	cmd.Execute(globalNotes)
+	SaveNotes()
 }

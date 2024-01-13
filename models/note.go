@@ -1,22 +1,21 @@
 package models
 
 import (
-	"strings"
+	// "bufio"
 	"encoding/json"
 	"fmt"
-	"bufio"
 	"io/ioutil"
 	"os"
-	// "os/exec"
+	// "strings"
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"gopkg.in/yaml.v3"
-	"github.com/charmbracelet/glamour"
+	"os/exec"
 	// "github.com/gomarkdown/markdown"
 	// "github.com/gomarkdown/markdown/ast"
 	// "github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
-
+	// "github.com/gomarkdown/markdown/parser"
 )
 
 // const (
@@ -32,7 +31,7 @@ const (
 	H1 BlockType = "h1"
 	H2 BlockType = "h2"
 	H3 BlockType = "h3"
-	P BlockType = "p"
+	P  BlockType = "p"
 )
 
 type NoteId string
@@ -52,13 +51,14 @@ type Meta struct {
 }
 
 type Note struct {
-	Created int      `json:"created"`
-	NoteId  string   `yaml:"id" json:"id"`
-	Title   string   `json:"title"`
-	Type    string   `json:"type"`
-	Parents []NoteId `json:"parents"`
-	Blocks  []Block  `json:"_blocks" yaml:"-"`
-	Meta    []Meta   `json:"_tags" yaml:"tags"`
+	Created  int      `json:"created"`
+	NoteId   string   `yaml:"id" json:"id"`
+	Title    string   `json:"title"`
+	Type     string   `json:"type"`
+	Parents  []NoteId `json:"parents"`
+	Blocks   []Block  `json:"_blocks" yaml:"blocks"`
+	Meta     []Meta   `json:"_tags" yaml:"tags"`
+	modified bool
 }
 
 // Parse a note from projects/7/1/7177e07a-7701-42a5-ae4f-c2c5bc75a974.json
@@ -78,6 +78,10 @@ func (n *Note) ParseNote(path string) {
 
 	// parse the byte array
 	json.Unmarshal(byteValue, &n)
+}
+
+func (n *Note) IsModified() bool {
+	return n.modified
 }
 
 // Save note
@@ -134,18 +138,17 @@ func (n *Note) BubblePrint() {
 		// BorderStyle = lipgloss.NewStyle().Foreground(purple)
 	)
 
-
 	var h1 = lipgloss.NewStyle().
-	    Bold(true).
-	    Foreground(lipgloss.Color("#FAFAFA")).
-	    Background(lipgloss.Color("#7D56F4")).
-	    Width(32)
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Background(lipgloss.Color("#7D56F4")).
+		Width(32)
 
 	var h2 = lipgloss.NewStyle().
-	    Bold(true).
-	    Foreground(lipgloss.Color("#FAFAFA")).
-	    Background(lipgloss.Color("#9D76F4")).
-	    Width(32)
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Background(lipgloss.Color("#9D76F4")).
+		Width(32)
 
 	fmt.Println(h1.Render(n.Title))
 	fmt.Println("\n")
@@ -213,11 +216,11 @@ func (n *Note) SerialiseToFrontmatterMarkdown() string {
 	bb, _ := yaml.Marshal(n)
 	tmpfile.Write([]byte(bb))
 	tmpfile.Write([]byte("---\n\n"))
-	tmpfile.Write([]byte(n.RenderMarkdown()))
+	// tmpfile.Write([]byte(n.RenderMarkdown()))
 	return tmpfile.Name()
 }
 
-func (n *Note) ParseNoteFromMarkdown(path string) {
+func (n *Note) ParseNoteFromMarkdown(path string) Note {
 	// Read in path
 	file, err := os.Open(path)
 	if err != nil {
@@ -225,70 +228,30 @@ func (n *Note) ParseNoteFromMarkdown(path string) {
 	}
 	defer file.Close()
 
-	// Read in entire file
-	scanner := bufio.NewScanner(file)
-	contents := make([]string, 0)
+	//parse the file as yaml
+	bytes, err := ioutil.ReadAll(file)
+	var n2 Note
+	yaml.Unmarshal(bytes, &n2)
+	n2.modified = true
 
-	fronmatter_markers := make([]int, 0)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "---" {
-			fronmatter_markers = append(fronmatter_markers, len(contents))
-		}
-		contents = append(contents, line)
-	}
-
-	// slice out the frontmatter portion
-	frontmatter := contents[fronmatter_markers[0]+1:fronmatter_markers[1]]
-
-
-	// Unmarshal frontmatter
-	qq := Note{}
-	err = yaml.Unmarshal([]byte(strings.Join(frontmatter, "\n")), &qq)
-	if err != nil {
-		panic(err)
-	}
-
-	// Update our note from the note, with the fields that *can* be updated
-	// Not created
-	// Note ID
-	n.Title = qq.Title
-	n.Type = qq.Type
-	n.Parents = qq.Parents
-	n.Meta = qq.Meta
-
-	// Read in the rest of the markdown
-	markdown := contents[fronmatter_markers[1]+1:]
-
-	extensions := parser.CommonExtensions
-	p := parser.NewWithExtensions(extensions)
-	doc := p.Parse([]byte(strings.Join(markdown, "\n")))
-
-	for _, block := range doc.GetChildren() {
-		fmt.Println(block.AsLeaf())
-	}
-	// Parse the markdown
-
-
-
-	// metadata is in the frontmatter
+	// Remove the path
+	os.Remove(path)
+	return n2
 }
 
-func (n *Note) Edit() {
+func (n *Note) Edit() Note {
 	path := n.SerialiseToFrontmatterMarkdown()
-	fmt.Println(path)
 
 	// Open the editor
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
 		editor = "vim"
 	}
-	// cmd := exec.Command(editor, "+4", path)
-	// cmd.Stdin = os.Stdin
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
-	// cmd.Run()
+	cmd := exec.Command(editor, "+4", path)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
 
-	n.ParseNoteFromMarkdown(path)
+	return n.ParseNoteFromMarkdown(path)
 }

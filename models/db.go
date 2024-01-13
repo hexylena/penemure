@@ -14,18 +14,20 @@ const (
 )
 
 type GlobalNotes struct {
-	notes map[string]Note
+	notes    map[string]Note
+	modified bool
 }
 
 func (gn *GlobalNotes) Init() {
 	gn.notes = make(map[string]Note)
+	gn.modified = false
 }
 
 func (gn *GlobalNotes) GetNoteById(id string) Note {
 	return gn.notes[id]
 }
 
-func (gn *GlobalNotes) GetNoteByIdPartial(partial string) Note {
+func (gn *GlobalNotes) GetIdByPartial(partial string) string {
 	// Get all note ids
 	noteIds := []string{}
 	for _, note := range gn.notes {
@@ -43,18 +45,18 @@ func (gn *GlobalNotes) GetNoteByIdPartial(partial string) Note {
 	case 0:
 		panic("No matches found")
 	case 1:
-		return gn.notes[matches[0]]
+		return matches[0]
 	default:
 		panic("Multiple matches found")
 	}
-
-	// Return the note
-
-
 }
 
 func (gn *GlobalNotes) DbSize() int {
 	return len(gn.notes)
+}
+
+func (gn *GlobalNotes) GetNotes() map[string]Note {
+	return gn.notes
 }
 
 func (gn *GlobalNotes) AddNote(n Note) {
@@ -68,13 +70,20 @@ func NewGlobalNotes() GlobalNotes {
 }
 
 func (gn *GlobalNotes) BubbleShow(id string) {
-	note := gn.GetNoteByIdPartial(id)
+	note_id := gn.GetIdByPartial(id)
+	note := gn.notes[note_id]
 	note.BubblePrint()
 }
 
 func (gn *GlobalNotes) Edit(id string) {
-	note := gn.GetNoteByIdPartial(id)
-	note.Edit()
+	note_id := gn.GetIdByPartial(id)
+	note := gn.notes[note_id]
+	gn.notes[note_id] = note.Edit()
+	gn.modified = true
+}
+
+func (gn *GlobalNotes) Unmodified() bool {
+	return !gn.modified
 }
 
 func (gn *GlobalNotes) BubblePrint() {
