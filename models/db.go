@@ -2,9 +2,11 @@ package models
 
 import (
 	"fmt"
+	"os"
+	"text/template"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
-	"os"
 )
 
 const (
@@ -14,30 +16,32 @@ const (
 )
 
 type GlobalNotes struct {
-	notes    map[string]Note
+	notes    map[NoteId]*Note
 	modified bool
 }
 
 func (gn *GlobalNotes) Init() {
-	gn.notes = make(map[string]Note)
+	gn.notes = make(map[NoteId]*Note)
 	gn.modified = false
 }
 
-func (gn *GlobalNotes) GetNoteById(id string) Note {
+func (gn *GlobalNotes) GetNoteById(id NoteId) *Note {
 	return gn.notes[id]
 }
 
-func (gn *GlobalNotes) GetIdByPartial(partial string) string {
+func (gn *GlobalNotes) GetIdByPartial(partial PartialNoteId) NoteId {
+	s_partial := fmt.Sprint(partial)
+
 	// Get all note ids
-	noteIds := []string{}
+	noteIds := []NoteId{}
 	for _, note := range gn.notes {
 		noteIds = append(noteIds, note.NoteId)
 	}
 	// Filter for those that match the partial
-	matches := []string{}
+	matches := []NoteId{}
 	for _, noteId := range noteIds {
 		// If it starts with
-		if noteId[:len(partial)] == partial {
+		if fmt.Sprint(noteId)[:len(s_partial)] == s_partial {
 			matches = append(matches, noteId)
 		}
 	}
@@ -55,12 +59,12 @@ func (gn *GlobalNotes) DbSize() int {
 	return len(gn.notes)
 }
 
-func (gn *GlobalNotes) GetNotes() map[string]Note {
+func (gn *GlobalNotes) GetNotes() map[NoteId]*Note {
 	return gn.notes
 }
 
 func (gn *GlobalNotes) AddNote(n Note) {
-	gn.notes[n.NoteId] = n
+	gn.notes[n.NoteId] = &n
 }
 
 func NewGlobalNotes() GlobalNotes {
@@ -69,17 +73,58 @@ func NewGlobalNotes() GlobalNotes {
 	return gn
 }
 
-func (gn *GlobalNotes) BubbleShow(id string) {
+func (gn *GlobalNotes) BubbleShow(id PartialNoteId) {
 	note_id := gn.GetIdByPartial(id)
 	note := gn.notes[note_id]
 	note.BubblePrint()
 }
 
-func (gn *GlobalNotes) Edit(id string) {
+func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	note_id := gn.GetIdByPartial(id)
 	note := gn.notes[note_id]
-	gn.notes[note_id] = note.Edit()
+	newnote := note.Edit()
+	gn.notes[note_id] = &newnote
 	gn.modified = true
+}
+
+func (gn *GlobalNotes) Export() {
+	// Create export/ directory if it doesn't exist
+	if _, err := os.Stat("./export"); os.IsNotExist(err) {
+		os.Mkdir("./export", 0755)
+	}
+
+	// Read template from templates/note.html
+	list_tpl_text, err := os.ReadFile("templates/list.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Render template
+	f, err := os.Create("export/index.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = list_tpl.Execute(f, gn)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Export individual notes
+	for _, note := range gn.notes {
+		note.Export(gn)
+	}
+}
+
+func (gn *GlobalNotes) NewEdit() {
+	note := NewNote()
+	gn.notes[note.NoteId] = note
+	partial := PartialNoteId(fmt.Sprint(note.NoteId))
+	gn.Edit(partial)
 }
 
 func (gn *GlobalNotes) Unmodified() bool {
@@ -93,6 +138,8 @@ func (gn *GlobalNotes) BubblePrint() {
 			note.Type,
 			note.Id(),
 			note.Title,
+			fmt.Sprintf("%s", note.Projects),
+			fmt.Sprintf("%s", note.Parents),
 			note.GetS("Status"),
 			note.GetS("Tags"),
 		})
@@ -125,7 +172,7 @@ func (gn *GlobalNotes) BubblePrint() {
 				return OddRowStyle
 			}
 		}).
-		Headers("Type", "ID", "Title", "Status", "Tags").
+		Headers("Type", "ID", "Title", "Projects", "Parents", "Status", "Tags").
 		Rows(rows...)
 
 	// You can also add tables row-by-row

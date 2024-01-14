@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Notes</title>
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+    <link rel="stylesheet" href="https://unpkg.com/concrete.css@2.0.3/concrete.css">
+    <style>
+      main, header {
+        margin: auto;
+        max-width: 80%;
+        padding: 0 1rem;
+        width: 100%;
+      }
+      header {
+        padding: 3rem 0;
+      }
+
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="#">Thingetje</a>
+    </header>
+    <main>
+      <hgroup>
+      <h1>Notes</h1>
+      </hgroup>
+
+      <table>
+        <tr>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Projects</th>
+          <th>Status</th>
+          <th>Tags</th>
+          <th>Assignee</th>
+          <th>Size</th>
+        </tr>
+        {{ range $k, $v := .GetNotes }}
+        <tr>
+          <td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
+          <td>{{ $v.Type }}</td>
+          <td>{{ $v.Projects }}</td>
+          <td>{{ $v.GetS "Status" }}</td>
+          <td>{{ $v.GetS "Tags" }}</td>
+          <td>{{ $v.GetS "Assignee" }}</td>
+          <td>{{ $v.GetS "Size" }}</td>
+        </tr>
+        {{ end }}
+      </table>
+
+    </main>
+
+  </body>
+</html>
+

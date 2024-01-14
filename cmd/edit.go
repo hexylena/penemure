@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +15,7 @@ var editCmd = &cobra.Command{
 	Short: "edit a note",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		gn.Edit(args[0])
+		partial := pmm.PartialNoteId(args[0])
+		gn.Edit(partial)
 	},
 }

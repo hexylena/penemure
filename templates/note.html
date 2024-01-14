@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Note: {{ .Note.Title }}</title>
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+    <link rel="stylesheet" href="https://unpkg.com/concrete.css@2.0.3/concrete.css">
+    <style>
+      main, header {
+        margin: auto;
+        max-width: 80%;
+        padding: 0 1rem;
+        width: 100%;
+      }
+      header {
+        padding: 3rem 0;
+      }
+
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="index.html">Thingetje</a> / {{ .Note.NoteId }}
+    </header>
+    <main>
+      <hgroup>
+      <h1>
+              {{ .Note.GetIconHtml }}
+              {{ .Note.Title }}
+      </h1>
+      <p>type: {{ .Note.Type }}</p>
+      </hgroup>
+
+      {{ if .Note.HasParents }}
+      <h2>Parents</h2>
+      <ul>
+
+        {{ range .Note.Parents }}
+        <li><a href="/notes/{{ . }}">{{ . }}</a></li>
+        {{ end }}
+      </ul>
+      {{ end }}
+
+      <h2>Metadata</h2>
+      <table>
+        <tr>
+          <th>Key</th>
+          <th>Value</th>
+        </tr>
+
+        {{ if .Note.Projects }}
+        <tr>
+                <td>🏗 Projects</td>
+                <td>
+                        {{ range .Note.Projects }}
+                        <a href="{{ . }}.html">{{ . }}</a>
+                        {{ end }}
+                </td>
+        </tr>
+        {{ end }}
+
+        {{ range $key, $value := .Note.Meta }}
+        {{ if ne .Type "icon" }}
+        <tr>
+                <td>{{ $value.GetIconHtml }} {{ $value.Title }}</td>
+                <td>{{ $value.Value }}</td>
+        </tr>
+        {{ end }}
+        {{ end }}
+      </table>
+
+      {{ if .Note.HasBlocks }}
+      <h2>Contents</h2>
+      {{ range .Note.Blocks }}
+      {{ .ToHtml3 }}
+      {{ end }}
+      {{ end }}
+
+      {{ if eq .Note.Type "project" }}
+      <h2>Project Contents</h2>
+      <table>
+        <tr>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Tags</th>
+          <th>Assignee</th>
+          <th>Size</th>
+        </tr>
+        {{ range $key, $v := .Note.GetProjectMembers .GlobalNotes }}
+        <tr>
+          <td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
+          <td>{{ $v.Type }}</td>
+          <td>{{ $v.GetS "Status" }}</td>
+          <td>{{ $v.GetS "Tags" }}</td>
+          <td>{{ $v.GetS "Assignee" }}</td>
+          <td>{{ $v.GetS "Size" }}</td>
+        </tr>
+        {{ end }}
+      {{ end }}
+      </table>
+
+    </main>
+
+  </body>
+</html>

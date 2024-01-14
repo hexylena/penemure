@@ -25,3 +25,8 @@ build-iPhoneSimulator/
 /vendor/bundle
 /lib/bundler/man/
 .rvmrc
+projects
+asdf
+pm
+export
+server
