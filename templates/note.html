@@ -23,12 +23,16 @@
       <a href="index.html">Thingetje</a> / {{ .Note.NoteId }}
     </header>
     <main>
+      <div>
+        {{ if .Note.GetCover }}
+        <img src="{{ .Note.GetCover }}" style="display: block; object-fit: cover; border-radius: 0px; width: 100%; height: 30vh; opacity: 1; object-position: center 50%;">
+        {{ end }}
+      </div>
       <hgroup>
       <h1>
               {{ .Note.GetIconHtml }}
               {{ .Note.Title }}
       </h1>
-      <p>type: {{ .Note.Type }}</p>
       </hgroup>
 
       {{ if .Note.HasParents }}
@@ -60,7 +64,7 @@
         {{ end }}
 
         {{ range $key, $value := .Note.Meta }}
-        {{ if ne .Type "icon" }}
+        {{ if ne .Title "" }}
         <tr>
                 <td>{{ $value.GetIconHtml }} {{ $value.Title }}</td>
                 <td>{{ $value.Value }}</td>

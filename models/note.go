@@ -74,17 +74,17 @@ func (m *Meta) GetIconHtml() string {
 		return "🚫"
 	} else if m.Title == "Blocking" {
 		return "🚫"
+	} else if m.Icon == "" {
+		return "?"
 	}
 
-	if len(m.Icon) <= 10 {
-		return m.Icon
-	}
 	// Remote icons
 	if m.Icon[:4] == "http" {
 		return fmt.Sprintf("<img src=\"%s\" />", m.Icon)
+	} else if LooksLocal(m.Icon) {
+		return fmt.Sprintf("<img src=\"file://%s\" />", m.Icon)
 	}
-	// Local icons
-	return fmt.Sprintf("<img src=\"file://%s\" />", m.Icon)
+	return m.Icon
 }
 
 func (m *Meta) String() string {
@@ -164,13 +164,13 @@ func (n *Note) GetIconHtml() string {
 	if icon == "" {
 		if n.Type == "project" {
 			return "📁"
-		}
-		if n.Type == "task" {
+		}else if n.Type == "task" {
 			return "📌"
-		}
-		if n.Type == "note" {
+		} else if n.Type == "note" {
 			return "🗒"
-		}
+		} else {
+			return "?"
+			}
 	}
 
 	// Remote icons
@@ -179,10 +179,23 @@ func (n *Note) GetIconHtml() string {
 	}
 	// Local icons
 	// if it has a / and a .
-	if regexp.MustCompile(`\/.*\.`).MatchString(icon) {
+	if LooksLocal(icon) {
 		return fmt.Sprintf("<img src=\"file://%s\" />", icon)
 	}
 	return icon
+}
+
+func (n *Note) GetCover() string {
+	for _, tag := range n.Meta {
+		if tag.Type == "cover" {
+			return tag.Value.(string)
+		}
+	}
+	return ""
+}
+
+func LooksLocal(path string) bool {
+	return regexp.MustCompile(`^\.\/`).MatchString(path)
 }
 
 func (n *Note) Export(gn *GlobalNotes) {
@@ -213,6 +226,8 @@ func (n *Note) Export(gn *GlobalNotes) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	// TODO: copy icon, cover if local
 }
 
 // Save note
@@ -343,16 +358,7 @@ func (n *Note) BubblePrint() {
 func (n *Note) RenderMarkdown() string {
 	out := ""
 	for _, block := range n.Blocks {
-		switch block.Type {
-		case H1:
-			out += "# " + block.Contents + "\n\n"
-		case H2:
-			out += "## " + block.Contents + "\n\n"
-		case H3:
-			out += "### " + block.Contents + "\n\n"
-		case P:
-			out += block.Contents + "\n\n"
-		}
+		out += block.ToMarkdown() + "\n"
 	}
 	return out
 }
