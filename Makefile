@@ -1,5 +1,8 @@
 serve:
-	find *.go projects/ templates/ | entr -r bash -c "date && go fmt; go build && ./pm export"
+	find *.go */*.go projects/ templates/ | entr -r bash -c "date && go fmt; go build && ./pm export"
+
+list_go_files:
+	go list -json ./... | jq '[.Dir, .GoFiles] | .[0] + "/" + .[1][] '
 
 fmt:
-	go fmt github.com/hexylena/pm github.com/hexylena/pm/tui github.com/hexylena/pm/cmd github.com/hexylena/pm/models
+	go fmt $$(go list ./...)

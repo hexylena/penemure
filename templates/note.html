@@ -76,7 +76,7 @@
       {{ if .Note.HasBlocks }}
       <h2>Contents</h2>
       {{ range .Note.Blocks }}
-      {{ .ToHtml3 }}
+      {{ .ToHtml3 $.GlobalNotes}}
       {{ end }}
       {{ end }}
 

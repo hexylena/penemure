@@ -2,11 +2,16 @@ package models
 
 import (
 	"fmt"
+	"time"
+	"strconv"
+	"regexp"
+	"strings"
 	"os"
 	"text/template"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/hexylena/pm/sqlish"
 )
 
 const (
@@ -77,6 +82,91 @@ func (gn *GlobalNotes) BubbleShow(id PartialNoteId) {
 	note_id := gn.GetIdByPartial(id)
 	note := gn.notes[note_id]
 	note.BubblePrint()
+}
+
+func (gn *GlobalNotes) QueryToHtml(query string) string {
+	// SELECT id, title FROM tasks
+	// SELECT id, title FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7'
+	// SELECT id, title FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7' GROUP BY status
+	// match by regex.
+
+	fmt.Println("tbl_iew", query)
+	ans := sqlish.ParseSqlQuery(query)
+
+	flattened_notes := []map[string]string{}
+	for _, note := range gn.notes {
+		flattened_notes = append(flattened_notes, note.Flatten())
+	}
+
+	results := ans.FilterDocuments(flattened_notes)
+
+	// Render results as table
+	html := "<table>"
+	html += "<thead>"
+	html += "<tr>"
+	headers := ans.GetFields()
+	for _, key := range headers {
+		html += "<th>" + strings.ToTitle(key) + "</th>"
+	}
+	html += "</tr>"
+	html += "<tbody>"
+
+	for key, result := range results {
+		header := "Results"
+		if key != "__default__" {
+			// Title Case, Capitalise Each Word
+			header = strings.ToUpper(key[:1]) + key[1:]
+		}
+		html += fmt.Sprintf("<tr><td colspan=\"%d\" style=\"text-align: center;background-color: #eee;\">%s</td></tr>", len(headers), header)
+
+		for _, row := range result {
+			html += "<tr>"
+			for i, cell := range row {
+				html += "<td>" + gn.AutoFmt(headers[i], cell) + "</td>"
+			}
+			html += "</tr>"
+		}
+	}
+	html += "</tbody>"
+	html += "</table>"
+
+	fmt.Println(ans)
+	// todo? https://github.com/sidhant92/bool-parser-go
+	// todo
+	return html
+}
+
+func (gn *GlobalNotes) AutoFmt(key, value string) string {
+	// if it looks like a url, make it a link
+	if strings.Contains(value, "http") {
+		return "<a href=\"" + value + "\">" + value + "</a>"
+	}
+
+	uuid_regex := regexp.MustCompile(`^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
+	uuid_short:= regexp.MustCompile(`^[a-f0-9]{8}$`)
+
+	// if it looks like a uuid, by regex, make it a link
+	// fmt.Println(value, uuid_regex.MatchString(value), len(value))
+	if uuid_regex.MatchString(value) {
+		return "<a href=\"" + value + ".html\">" + value + "</a>"
+	}
+	if uuid_short.MatchString(value) {
+		full_value := fmt.Sprint(gn.GetIdByPartial(PartialNoteId(value)))
+		return "<a href=\"" + full_value + ".html\">" + value + "</a>"
+	}
+
+	if key == "created" || key == "modified" {
+		// parse unix time
+		i, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		t := time.Unix(i, 0)
+
+		return t.Format("2006-01-02 15:04:05")
+	}
+	
+	return value
 }
 
 func (gn *GlobalNotes) Edit(id PartialNoteId) {

@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"text/template"
 	"time"
 
@@ -164,13 +165,13 @@ func (n *Note) GetIconHtml() string {
 	if icon == "" {
 		if n.Type == "project" {
 			return "📁"
-		}else if n.Type == "task" {
+		} else if n.Type == "task" {
 			return "📌"
 		} else if n.Type == "note" {
 			return "🗒"
 		} else {
 			return "?"
-			}
+		}
 	}
 
 	// Remote icons
@@ -432,5 +433,38 @@ func (n *Note) GetProjectMembers(gn GlobalNotes) []Note {
 		}
 	}
 
+	return out
+}
+
+type FlatNote map[string]string
+
+func (n *Note) Flatten() FlatNote {
+	out := FlatNote{
+		"short_id": n.Id(),
+		"id":       fmt.Sprint(n.NoteId),
+		"title":    n.Title,
+		"type":     n.Type,
+		"created":  fmt.Sprint(n.CreatedAt),
+		"modified": fmt.Sprint(n.ModifiedAt),
+		// Separate with unicode Record Separator
+		"project":  strings.Join(StringifyNoteIds(n.Projects), "\u001E"),
+		"parent":   strings.Join(StringifyNoteIds(n.Parents), "\u001E"),
+		"blocking": strings.Join(StringifyNoteIds(n.Blocking), "\u001E"),
+	}
+	for _, tag := range n.Meta {
+		if tag.Title != "" {
+			out[tag.Title] = fmt.Sprintf("%v", tag.Value)
+		} else {
+			out[tag.Type] = fmt.Sprintf("%v", tag.Value)
+		}
+	}
+	return out
+}
+
+func StringifyNoteIds(nid []NoteId) []string {
+	out := make([]string, len(nid))
+	for i, id := range nid {
+		out[i] = fmt.Sprint(id)
+	}
 	return out
 }

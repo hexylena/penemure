@@ -22,6 +22,6 @@ var debugCmd = &cobra.Command{
 		fmt.Println(note)
 		_ = note.GetProjectMembers(gn)
 
-                fmt.Println(note.RenderMarkdown())
+		fmt.Println(note.RenderMarkdown())
 	},
 }
