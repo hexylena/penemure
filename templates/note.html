@@ -96,8 +96,10 @@
           <td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
           <td>{{ $v.Type }}</td>
           <td>{{ $v.GetS "Status" }}</td>
-          <td>{{ $v.GetS "Tags" }}</td>
-          <td>{{ $v.GetS "Assignee" }}</td>
+          <td>
+                  {{ range $qq := $v.GetL "Tags" }}
+                  .
+                  {{ end }}
           <td>{{ $v.GetS "Size" }}</td>
         </tr>
         {{ end }}

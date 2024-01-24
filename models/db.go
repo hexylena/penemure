@@ -136,6 +136,11 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	return html
 }
 
+func (gn *GlobalNotes) ToHtmlTags(value []string) string {
+	fmt.Println("to html tags", value)
+	return ""
+}
+
 func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	// if it looks like a url, make it a link
 	if strings.Contains(value, "http") {

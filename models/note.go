@@ -283,6 +283,20 @@ func (n *Note) GetS(key string) string {
 	return ""
 }
 
+func (n *Note) GetL(key string) []string {
+	for _, tag := range n.Meta {
+		if tag.Title == key {
+			switch tag.Value.(type) {
+			case []string:
+				return tag.Value.([]string)
+			default:
+				return []string{tag.Value.(string)}
+			}
+		}
+	}
+	return []string{}
+}
+
 func (n *Note) GetMeta() [][]string {
 	rows := [][]string{}
 	for _, tag := range n.Meta {
@@ -320,7 +334,7 @@ func (n *Note) BubblePrint() {
 		Width(32)
 
 	fmt.Println(h1.Render(n.Title))
-	fmt.Println("\n")
+	fmt.Print("\n\n")
 	fmt.Println(h2.Render("Meta"))
 
 	rows := n.GetMeta()
@@ -343,7 +357,7 @@ func (n *Note) BubblePrint() {
 
 	fmt.Println(t)
 
-	fmt.Println("\n")
+	fmt.Print("\n\n")
 	fmt.Println(h2.Render("Contents"))
 
 	md := n.RenderMarkdown()
