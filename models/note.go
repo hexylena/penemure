@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -92,6 +93,40 @@ func (m *Meta) GetIconHtml() string {
 
 func (m *Meta) String() string {
 	return fmt.Sprintf("%s=%s", m.Title, m.Value)
+}
+
+func (m *Meta) AutoFmt() string {
+	value := fmt.Sprintf("%v", m.Value)
+	// if it looks like a url, make it a link
+	if strings.Contains(value, "http") {
+		return "<a href=\"" + value + "\">" + value + "</a>"
+	}
+
+	uuid_regex := regexp.MustCompile(`^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
+	// uuid_short := regexp.MustCompile(`^[a-f0-9]{8}$`)
+
+	// if it looks like a uuid, by regex, make it a link
+	// fmt.Println(value, uuid_regex.MatchString(value), len(value))
+	if uuid_regex.MatchString(value) {
+		return "<a href=\"" + value + ".html\">" + value + "</a>"
+	}
+	// if uuid_short.MatchString(value) {
+	// 	full_value := fmt.Sprint(gn.GetIdByPartial(PartialNoteId(value)))
+	// 	return "<a href=\"" + full_value + ".html\">" + value + "</a>"
+	// }
+
+	if m.Title == "created" || m.Title == "modified" || m.Title == "start_time" || m.Title == "end_time" {
+		// parse unix time
+		i, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		t := time.Unix(i, 0)
+
+		return t.Format("2006-01-02 15:04:05")
+	}
+
+	return value
 }
 
 type Note struct {
@@ -196,6 +231,8 @@ func (n *Note) GetIconHtml() string {
 			return "📌"
 		} else if n.Type == "note" {
 			return "🗒"
+		} else if n.Type == "log" {
+			return "⏰"
 		} else {
 			return "?"
 		}

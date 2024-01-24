@@ -116,8 +116,8 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 		if key != "__default__" {
 			// Title Case, Capitalise Each Word
 			header = strings.ToUpper(key[:1]) + key[1:]
+			html += fmt.Sprintf("<tr><td colspan=\"%d\" style=\"text-align: center;background-color: #eee;\">%s</td></tr>", len(headers), header)
 		}
-		html += fmt.Sprintf("<tr><td colspan=\"%d\" style=\"text-align: center;background-color: #eee;\">%s</td></tr>", len(headers), header)
 
 		for _, row := range result {
 			html += "<tr>"
@@ -160,7 +160,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 		return "<a href=\"" + full_value + ".html\">" + value + "</a>"
 	}
 
-	if key == "created" || key == "modified" {
+	if key == "created" || key == "modified" || key == "start_time" || key == "end_time" {
 		// parse unix time
 		i, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {

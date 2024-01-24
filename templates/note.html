@@ -67,10 +67,23 @@
         {{ if ne .Title "" }}
         <tr>
                 <td>{{ $value.GetIconHtml }} {{ $value.Title }}</td>
-                <td>{{ $value.Value }}</td>
+                <td>{{ $value.AutoFmt }}</td>
         </tr>
         {{ end }}
         {{ end }}
+
+        <tr>
+                <td>Created</td>
+		<td>{{ .Note.CreatedAt }}</td>
+        </tr>
+
+	{{ if ne .Note.CreatedAt .Note.ModifiedAt }}
+        <tr>
+                <td>Modified</td>
+		<td>{{ .Note.ModifiedAt }}</td>
+        </tr>
+	{{ end }}
+
       </table>
 
       {{ if .Note.HasBlocks }}

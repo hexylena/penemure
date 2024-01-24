@@ -6,9 +6,9 @@ import (
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 	"log"
-	"time"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -51,14 +51,14 @@ const (
 	title = iota
 	tags
 	project
-	// start
-	// end
+	start
+	end
 	// button_go
 	// button_edit
 )
 
-func initialiseNewInput(m *model) {
-	var newInput []textinput.Model = make([]textinput.Model, 3)
+func generateNewInput() []textinput.Model {
+	var newInput []textinput.Model = make([]textinput.Model, 5)
 
 	newInput[title] = textinput.New()
 	newInput[title].Placeholder = "Meeting with Alice"
@@ -73,6 +73,19 @@ func initialiseNewInput(m *model) {
 	newInput[project].Placeholder = "Project"
 	newInput[project].Width = 15
 
+	newInput[start] = textinput.New()
+	newInput[start].Placeholder = "--:--"
+	newInput[start].Width = 6
+
+	newInput[end] = textinput.New()
+	newInput[end].Placeholder = "--:--"
+	newInput[end].Width = 6
+
+	return newInput
+}
+
+func initialiseNewInput(m *model) {
+	newInput := generateNewInput()
 	m.newInput = newInput
 	m.newStartTime = 0
 }
@@ -87,6 +100,7 @@ func initialModel() model {
 	initialiseNewInput(&m)
 
 	m.oldData = make([][]textinput.Model, 0)
+	m.oldData = append(m.oldData, generateNewInput())
 	// todo: initalise old inputs
 
 	return m
@@ -139,11 +153,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		// for row := range m.inputs {
 		for col := range m.newInput {
 			m.newInput[col].Blur()
 		}
-		// }
+
+		for row := range m.oldData {
+			for col := range m.oldData[row] {
+				m.oldData[row][col].Blur()
+			}
+		}
 
 		if m.focusedRow == 0 {
 			m.newInput[m.focusedCol].Focus()
@@ -204,6 +222,17 @@ func (m model) View() string {
 		}
 	}
 	out += fmt.Sprintf("\n\n%s\n\n", *button)
+
+	for row := range m.oldData {
+		out += fmt.Sprintf(
+			`%s %s %s %s %s`,
+			m.oldData[row][title].View(),
+			m.oldData[row][tags].View(),
+			m.oldData[row][project].View(),
+			m.oldData[row][start].View(),
+			m.oldData[row][end].View(),
+		) + "\n"
+	}
 
 	return out
 }
