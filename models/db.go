@@ -2,12 +2,12 @@ package models
 
 import (
 	"fmt"
-	"time"
-	"strconv"
-	"regexp"
-	"strings"
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 	"text/template"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
@@ -148,7 +148,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	}
 
 	uuid_regex := regexp.MustCompile(`^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
-	uuid_short:= regexp.MustCompile(`^[a-f0-9]{8}$`)
+	uuid_short := regexp.MustCompile(`^[a-f0-9]{8}$`)
 
 	// if it looks like a uuid, by regex, make it a link
 	// fmt.Println(value, uuid_regex.MatchString(value), len(value))
@@ -170,7 +170,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 
 		return t.Format("2006-01-02 15:04:05")
 	}
-	
+
 	return value
 }
 
@@ -217,9 +217,13 @@ func (gn *GlobalNotes) Export() {
 
 func (gn *GlobalNotes) NewEdit() {
 	note := NewNote()
-	gn.notes[note.NoteId] = note
+	gn.RegisterNote(note)
 	partial := PartialNoteId(fmt.Sprint(note.NoteId))
 	gn.Edit(partial)
+}
+
+func (gn *GlobalNotes) RegisterNote(n *Note) {
+	gn.notes[n.NoteId] = n
 }
 
 func (gn *GlobalNotes) Unmodified() bool {

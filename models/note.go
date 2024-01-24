@@ -55,6 +55,8 @@ func (m *Meta) GetIconHtml() string {
 		return "📅"
 	} else if m.Title == "Estimate" {
 		return "⏱"
+	} else if m.Type == "time" {
+		return "⏱"
 	} else if m.Title == "Priority" {
 		return "🔥"
 	} else if m.Title == "Effort" {
@@ -132,11 +134,36 @@ func (n *Note) Touch() {
 	n.modified = true
 }
 
+func (n *Note) AddTag(t string) {
+	n.Meta = append(n.Meta, &Meta{
+		Type:  "tag",
+		Title: "Tags",
+		Value: t,
+	})
+}
+
+func (n *Note) AddMetaTag(k string, v string) {
+	n.Meta = append(n.Meta, &Meta{
+		Type:  "tag",
+		Title: k,
+		Value: v,
+	})
+}
+
+func (n *Note) AddMeta(typ string, k string, v string) {
+	n.Meta = append(n.Meta, &Meta{
+		Type:  typ,
+		Title: k,
+		Value: v,
+	})
+}
+
 func NewNote() *Note {
 	n := &Note{
 		CreatedAt:  int(time.Now().Unix()),
 		ModifiedAt: int(time.Now().Unix()),
 		NoteId:     NoteId(uuid.New().String()),
+		modified:   true,
 	}
 	return n
 }
