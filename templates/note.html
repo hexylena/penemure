@@ -74,13 +74,13 @@
 
         <tr>
                 <td>Created</td>
-		<td>{{ .Note.CreatedAt }}</td>
+		<td>{{ $.GlobalNotes.FmtTimeI .Note.CreatedAt }}</td>
         </tr>
 
 	{{ if ne .Note.CreatedAt .Note.ModifiedAt }}
         <tr>
                 <td>Modified</td>
-		<td>{{ .Note.ModifiedAt }}</td>
+		<td>{{ $.GlobalNotes.FmtTimeI .Note.ModifiedAt }}</td>
         </tr>
 	{{ end }}
 
@@ -89,7 +89,7 @@
       {{ if .Note.HasBlocks }}
       <h2>Contents</h2>
       {{ range .Note.Blocks }}
-      {{ .ToHtml3 $.GlobalNotes}}
+      {{ $.GlobalNotes.BlockToHtml3 . }}
       {{ end }}
       {{ end }}
 
@@ -110,9 +110,11 @@
           <td>{{ $v.Type }}</td>
           <td>{{ $v.GetS "Status" }}</td>
           <td>
-                  {{ range $qq := $v.GetL "Tags" }}
-                  .
-                  {{ end }}
+          {{ range $qq := $v.GetL "Tags" }}
+          .
+          {{ end }}
+          </td>
+          <td>{{ $v.GetS "Assignee" }}</td>
           <td>{{ $v.GetS "Size" }}</td>
         </tr>
         {{ end }}

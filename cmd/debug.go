@@ -19,9 +19,8 @@ var debugCmd = &cobra.Command{
 		partial := pmm.PartialNoteId(args[0])
 		note_id := gn.GetIdByPartial(partial)
 		note := gn.GetNoteById(note_id)
-		fmt.Println(note)
 		_ = note.GetProjectMembers(gn)
 
-		fmt.Println(note.RenderMarkdown())
+		fmt.Println(note.RenderFrontmatterMarkdown())
 	},
 }

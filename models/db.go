@@ -11,6 +11,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	pmd "github.com/hexylena/pm/md"
 	"github.com/hexylena/pm/sqlish"
 )
 
@@ -66,6 +67,16 @@ func (gn *GlobalNotes) DbSize() int {
 
 func (gn *GlobalNotes) GetNotes() map[NoteId]*Note {
 	return gn.notes
+}
+
+func (gn *GlobalNotes) GetTopLevelNotes() map[NoteId]*Note {
+	top_level_notes := make(map[NoteId]*Note)
+	for _, note := range gn.notes {
+		if len(note.Parents) == 0 && len(note.Projects) == 0 {
+			top_level_notes[note.NoteId] = note
+		}
+	}
+	return top_level_notes
 }
 
 func (gn *GlobalNotes) AddNote(n Note) {
@@ -141,6 +152,21 @@ func (gn *GlobalNotes) ToHtmlTags(value []string) string {
 	return ""
 }
 
+func (gn *GlobalNotes) FmtTimeI(i int) string {
+	t := time.Unix(int64(i), 0)
+	return t.Format("2006-01-02 15:04:05")
+}
+
+func (gn *GlobalNotes) FmtTime(value string) string {
+	i, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	t := time.Unix(i, 0)
+
+	return t.Format("2006-01-02 15:04:05")
+}
+
 func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	// if it looks like a url, make it a link
 	if strings.Contains(value, "http") {
@@ -161,14 +187,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	}
 
 	if key == "created" || key == "modified" || key == "start_time" || key == "end_time" {
-		// parse unix time
-		i, err := strconv.ParseInt(value, 10, 64)
-		if err != nil {
-			panic(err)
-		}
-		t := time.Unix(i, 0)
-
-		return t.Format("2006-01-02 15:04:05")
+		gn.FmtTime(value)
 	}
 
 	return value
@@ -276,4 +295,12 @@ func (gn *GlobalNotes) BubblePrint() {
 
 	// You can also add tables row-by-row
 	fmt.Println(t)
+}
+
+func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
+	return b.Html()
+}
+
+func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
+	return b.Html()
 }

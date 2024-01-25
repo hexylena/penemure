@@ -31,21 +31,17 @@
         <tr>
           <th>Title</th>
           <th>Type</th>
-          <th>Projects</th>
           <th>Status</th>
           <th>Tags</th>
           <th>Assignee</th>
-          <th>Size</th>
         </tr>
-        {{ range $k, $v := .GetNotes }}
+        {{ range $k, $v := .GetTopLevelNotes }}
         <tr>
           <td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
           <td>{{ $v.Type }}</td>
-          <td>{{ $v.Projects }}</td>
           <td>{{ $v.GetS "Status" }}</td>
           <td>{{ $v.GetS "Tags" }}</td>
           <td>{{ $v.GetS "Assignee" }}</td>
-          <td>{{ $v.GetS "Size" }}</td>
         </tr>
         {{ end }}
       </table>

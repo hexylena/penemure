@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,6 +24,8 @@ import (
 	// "github.com/gomarkdown/markdown/ast"
 	// "github.com/gomarkdown/markdown/html"
 	// "github.com/gomarkdown/markdown/parser"
+
+	pmd "github.com/hexylena/pm/md"
 )
 
 // const (
@@ -138,11 +141,171 @@ type Note struct {
 	Parents  []NoteId `json:"parents"`
 	Blocking []NoteId `json:"blocking"`
 
-	Blocks     []*Block `json:"_blocks" yaml:"contents"`
-	Meta       []*Meta  `json:"_tags" yaml:"tags"`
-	CreatedAt  int      `json:"created"`
-	ModifiedAt int      `json:"modified"`
+	Blocks     []pmd.SyntaxNode `json:"_blocks" yaml:"-"`
+	Meta       []*Meta          `json:"_tags" yaml:"tags"`
+	CreatedAt  int              `json:"created"`
+	ModifiedAt int              `json:"modified"`
 	modified   bool
+}
+
+func (ce *Note) UnmarshalJSON(b []byte) error {
+	// First, deserialize everything into a map of map
+	var objMap map[string]*json.RawMessage
+	err := json.Unmarshal(b, &objMap)
+	if err != nil {
+		return err
+	}
+
+	// Must manually deserialise each item
+	if objMap["id"] != nil {
+		err = json.Unmarshal(*objMap["id"], &ce.NoteId)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["title"] != nil {
+		err = json.Unmarshal(*objMap["title"], &ce.Title)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["type"] != nil {
+		err = json.Unmarshal(*objMap["type"], &ce.Type)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["projects"] != nil {
+		err = json.Unmarshal(*objMap["projects"], &ce.Projects)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["parents"] != nil {
+		err = json.Unmarshal(*objMap["parents"], &ce.Parents)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["blocking"] != nil {
+		err = json.Unmarshal(*objMap["blocking"], &ce.Blocking)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["created"] != nil {
+		err = json.Unmarshal(*objMap["created"], &ce.CreatedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["modified"] != nil {
+		err = json.Unmarshal(*objMap["modified"], &ce.ModifiedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_tags"] != nil {
+		err = json.Unmarshal(*objMap["_tags"], &ce.Meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_blocks"] != nil {
+		var rawMessagesBlocks []*json.RawMessage
+		err = json.Unmarshal(*objMap["_blocks"], &rawMessagesBlocks)
+		if err != nil {
+			fmt.Println("error unmarshalling _blocks", err)
+			return err
+		}
+
+		// Let's add a place to store our de-serialized Plant and Animal structs
+		ce.Blocks = make([]pmd.SyntaxNode, len(rawMessagesBlocks))
+
+		var m map[string]interface{}
+		for index, rawMessage := range rawMessagesBlocks {
+			err = json.Unmarshal(*rawMessage, &m)
+			if err != nil {
+				return err
+			}
+
+			// Depending on the type, we can run json.Unmarshal again on the same byte slice
+			// But this time, we'll pass in the appropriate struct instead of a map
+			if m["type"] == "heading" {
+				var p pmd.Heading
+				err := json.Unmarshal(*rawMessage, &p)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &p
+			} else if m["type"] == "paragraph" {
+				var a pmd.Paragraph
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &a
+			} else if m["type"] == "image" {
+				var a pmd.Image
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "list" {
+				var a pmd.List
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "horizontal_rule" {
+				var a pmd.HorizontalRule
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "table_view" {
+				var a pmd.TableView
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "code" {
+				var a pmd.Code
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "link" {
+				var a pmd.Link
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else {
+				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+			}
+		}
+	}
+
+	// That's it!  We made it the whole way with no errors, so we can return `nil`
+	return nil
 }
 
 // Parse a note from projects/7/1/7177e07a-7701-42a5-ae4f-c2c5bc75a974.json
@@ -161,7 +324,15 @@ func (n *Note) ParseNote(path string) {
 	}
 
 	// parse the byte array
-	json.Unmarshal(byteValue, &n)
+	err = json.Unmarshal(byteValue, &n)
+	if err != nil {
+		fmt.Println(path, err)
+	}
+
+	if path == "projects/4/f/4fca94d6-cdd9-4540-8b0e-6370eba448b7" {
+		fmt.Println("Parsing", path)
+		fmt.Println(n)
+	}
 }
 
 func (n *Note) Touch() {
@@ -354,7 +525,7 @@ func (n *Note) GetL(key string) []string {
 			case []string:
 				return tag.Value.([]string)
 			default:
-				return []string{tag.Value.(string)}
+				return []string{fmt.Sprintf("%v", tag.Value)}
 			}
 		}
 	}
@@ -437,7 +608,19 @@ func (n *Note) BubblePrint() {
 func (n *Note) RenderMarkdown() string {
 	out := ""
 	for _, block := range n.Blocks {
-		out += block.ToMarkdown() + "\n"
+		out += block.Md() + "\n\n"
+	}
+	return out
+}
+
+func (n *Note) RenderFrontmatterMarkdown() string {
+	out := "---\n"
+	bb, _ := yaml.Marshal(n)
+	out += string(bb)
+	out += "---\n"
+	for _, block := range n.Blocks {
+		fmt.Println(block)
+		out += block.Md() + "\n\n"
 	}
 	return out
 }
@@ -450,11 +633,11 @@ func (n *Note) SerialiseToFrontmatterMarkdown() string {
 	}
 	defer tmpfile.Close()
 
-	// tmpfile.Write([]byte("---\n"))
+	tmpfile.Write([]byte("---\n"))
 	bb, _ := yaml.Marshal(n)
 	tmpfile.Write([]byte(bb))
-	// tmpfile.Write([]byte("---\n\n"))
-	// tmpfile.Write([]byte(n.RenderMarkdown()))
+	tmpfile.Write([]byte("---\n\n"))
+	tmpfile.Write([]byte(n.RenderMarkdown()))
 	return tmpfile.Name()
 }
 
@@ -466,14 +649,47 @@ func (n *Note) ParseNoteFromMarkdown(path string) Note {
 	}
 	defer file.Close()
 
-	//parse the file as yaml
-	bytes, err := ioutil.ReadAll(file)
+	// Read in entire file
+	scanner := bufio.NewScanner(file)
+	contents := make([]string, 0)
+
+	fronmatter_markers := make([]int, 0)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "---" {
+			fronmatter_markers = append(fronmatter_markers, len(contents))
+		}
+		contents = append(contents, line)
+	}
+
+	// slice out the frontmatter portion
+	frontmatter := contents[fronmatter_markers[0]+1 : fronmatter_markers[1]]
+
+	// Read in the rest of the markdown
+	markdown := contents[fronmatter_markers[1]+1:]
+
+	// Unmarshal frontmatter
 	var n2 Note
-	yaml.Unmarshal(bytes, &n2)
+	err = yaml.Unmarshal([]byte(strings.Join(frontmatter, "\n")), &n2)
+	if err != nil {
+		panic(err)
+	}
+
+	// Parse markdown
+	// fmt.Println("Parsing markdown", markdown)
+	n2.Blocks = pmd.MdToBlocks([]byte(strings.Join(markdown, "\n")))
+	// fmt.Println("Parsed markdown", n2.Blocks)
+	// for _, block := range n2.Blocks {
+	// 	fmt.Println("Block", block.Html())
+	// }
+
 	n2.Touch()
 
 	// Remove the path
 	os.Remove(path)
+
+	// return *n
 	return n2
 }
 
