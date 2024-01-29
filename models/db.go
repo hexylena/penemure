@@ -79,6 +79,51 @@ func (gn *GlobalNotes) GetTopLevelNotes() map[NoteId]*Note {
 	return top_level_notes
 }
 
+func (gn *GlobalNotes) GetTasks() map[NoteId]*Note {
+	tasks := make(map[NoteId]*Note)
+	for _, note := range gn.notes {
+		if note.Type == "task" {
+			tasks[note.NoteId] = note
+		}
+	}
+	return tasks
+}
+
+func (gn *GlobalNotes) NoteHasChildren(note *Note) bool {
+	for _, note := range gn.notes {
+		if note.HasParent(note.NoteId) {
+			return true
+		}
+		if note.HasProject(note.NoteId) {
+			return true
+		}
+	}
+	return false
+}
+
+func (gn *GlobalNotes) GetChildren(note *Note) []*Note {
+	children := []*Note{}
+	for _, note := range gn.notes {
+		if note.HasParent(note.NoteId) {
+			children = append(children, note)
+		}
+		if note.HasProject(note.NoteId) {
+			children = append(children, note)
+		}
+	}
+	return children
+}
+
+func (gn *GlobalNotes) GetProjects() map[NoteId]*Note {
+	projects := make(map[NoteId]*Note)
+	for _, note := range gn.notes {
+		if note.Type == "project" {
+			projects[note.NoteId] = note
+		}
+	}
+	return projects
+}
+
 func (gn *GlobalNotes) AddNote(n Note) {
 	gn.notes[n.NoteId] = &n
 }
@@ -302,5 +347,9 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 }
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
+	if b.Type() == pmd.TABLE_VIEW {
+		b := b.(*pmd.TableView)
+		return gn.QueryToHtml(b.Query)
+	}
 	return b.Html()
 }

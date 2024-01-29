@@ -118,8 +118,11 @@
           <td>{{ $v.GetS "Size" }}</td>
         </tr>
         {{ end }}
-      {{ end }}
       </table>
+      {{ end }}
+
+      {{ if .GlobalNotes.NoteHasChildren .Note }}
+      {{ end }}
 
     </main>
 

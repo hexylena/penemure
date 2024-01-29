@@ -2,13 +2,13 @@ package md
 
 import (
 	"encoding/json"
-	"fmt"
 	"errors"
+	"fmt"
 	"testing"
 )
 
 type ColorfulEcosystem struct {
-	Title string `json:"title"`
+	Title  string       `json:"title"`
 	Things []SyntaxNode `json:"things"`
 }
 
@@ -110,7 +110,7 @@ func (ce *ColorfulEcosystem) UnmarshalJSON(b []byte) error {
 
 func TestSerialisation(t *testing.T) {
 	b1 := &Heading{Level: "1", Contents: "Heading 1"}
-	b2 := &Paragraph{Contents: "Paragraph 1",}
+	b2 := &Paragraph{Contents: "Paragraph 1"}
 	b3 := &List{
 		Contents: []string{"List 1", "List 2"},
 		Ordered:  false,
@@ -135,7 +135,7 @@ func TestSerialisation(t *testing.T) {
 	mmm := ColorfulEcosystem{
 		Title: "asdf",
 		Things: []SyntaxNode{
-			b1, b2,b3, b4, b5, b6, b7, b8,
+			b1, b2, b3, b4, b5, b6, b7, b8,
 		},
 	}
 

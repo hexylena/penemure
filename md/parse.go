@@ -65,7 +65,7 @@ func parseBlock(node ast.Node) []SyntaxNode {
 		case *ast.Paragraph:
 			out_c := ""
 			blocks := make([]SyntaxNode, 0)
-			
+
 			// If there's a link by itself, treat it a a 'fancy' link
 			// It's similar to what we do with images, but there we let them interrupt the text flow
 			// I'm not sure we can distinguish in-line links and standalone links, so we'll just
@@ -80,7 +80,7 @@ func parseBlock(node ast.Node) []SyntaxNode {
 
 							block := &Link{
 								Contents: link_text,
-								Url: string(link_url),
+								Url:      string(link_url),
 							}
 							blocks = append(blocks, block)
 							return blocks
@@ -151,8 +151,7 @@ func parseBlock(node ast.Node) []SyntaxNode {
 				},
 			}
 		default:
-			panic("Unhandled container type")
-			return []SyntaxNode{}
+			panic(fmt.Sprintf("Unhandled container type %T", v))
 		}
 	} else {
 		switch v := node.(type) {

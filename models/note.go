@@ -341,11 +341,13 @@ func (n *Note) Touch() {
 }
 
 func (n *Note) AddTag(t string) {
-	n.Meta = append(n.Meta, &Meta{
-		Type:  "tag",
-		Title: "Tags",
-		Value: t,
-	})
+	if len(n.GetL("Tags")) == 0 {
+		n.Meta = append(n.Meta, &Meta{
+			Type:  "tag",
+			Title: "Tags",
+			Value: t,
+		})
+	}
 }
 
 func (n *Note) AddMetaTag(k string, v string) {
@@ -380,6 +382,24 @@ func (n *Note) IsModified() bool {
 
 func (n *Note) HasParents() bool {
 	return len(n.Parents) > 0
+}
+
+func (n *Note) HasParent(o NoteId) bool {
+	for _, p := range n.Parents {
+		if p == o {
+			return true
+		}
+	}
+	return false
+}
+
+func (n *Note) HasProject(o NoteId) bool {
+	for _, p := range n.Projects {
+		if p == o {
+			return true
+		}
+	}
+	return false
 }
 
 func (n *Note) HasBlocks() bool {

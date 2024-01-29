@@ -10,6 +10,7 @@ import (
 type SyntaxNode interface {
 	Html() string
 	Md() string
+	Type() string
 }
 
 type Heading struct {
@@ -18,13 +19,19 @@ type Heading struct {
 }
 
 func (h *Heading) Html() string {
-	return fmt.Sprintf("<h%s>%s</h%s>", h.Level, h.Contents, h.Level)
+	i, _ := strconv.ParseInt(h.Level, 10, 64)
+	i += 2
+	return fmt.Sprintf("<h%d>%s</h%d>", i, h.Contents, i)
 }
 
 func (h *Heading) Md() string {
 	// adjust from h.Level
 	i, _ := strconv.ParseInt(h.Level, 10, 64)
 	return fmt.Sprintf("%s %s", strings.Repeat("#", int(i)), h.Contents)
+}
+
+func (h *Heading) Type() string {
+	return "heading"
 }
 
 func (h *Heading) MarshalJSON() (b []byte, e error) {
@@ -52,6 +59,10 @@ func (p *Paragraph) MarshalJSON() ([]byte, error) {
 	m["contents"] = p.Contents
 	m["type"] = "paragraph"
 	return json.Marshal(m)
+}
+
+func (p *Paragraph) Type() string {
+	return "paragraph"
 }
 
 type List struct {
@@ -90,6 +101,10 @@ func (l *List) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
+func (l *List) Type() string {
+	return "list"
+}
+
 type Image struct {
 	AltText string `json:"alt_text"`
 	Url     string `json:"url"`
@@ -111,6 +126,10 @@ func (i *Image) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
+func (i *Image) Type() string {
+	return "image"
+}
+
 type HorizontalRule struct{}
 
 func (h *HorizontalRule) Html() string {
@@ -127,7 +146,12 @@ func (h *HorizontalRule) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
+func (h *HorizontalRule) Type() string {
+	return "horizontal_rule"
+}
+
 const TABLE_VIEW = "table_view"
+
 type TableView struct {
 	Query string `json:"query"`
 }
@@ -145,6 +169,10 @@ func (t *TableView) MarshalJSON() ([]byte, error) {
 	m["query"] = t.Query
 	m["type"] = TABLE_VIEW
 	return json.Marshal(m)
+}
+
+func (t *TableView) Type() string {
+	return TABLE_VIEW
 }
 
 type Code struct {
@@ -168,6 +196,10 @@ func (c *Code) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
+func (c *Code) Type() string {
+	return "code"
+}
+
 type Link struct {
 	Url      string `json:"url"`
 	Contents string `json:"contents"`
@@ -187,6 +219,10 @@ func (l *Link) MarshalJSON() ([]byte, error) {
 	m["contents"] = l.Contents
 	m["type"] = "link"
 	return json.Marshal(m)
+}
+
+func (l *Link) Type() string {
+	return "link"
 }
 
 // type BlockType string
