@@ -750,6 +750,20 @@ func (n *Note) GetProjectMembers(gn GlobalNotes) []Note {
 	return out
 }
 
+func (n *Note) GetStartEndTime(t string) (time.Time, error) {
+	unix_time_string := n.GetS(fmt.Sprintf("%s_time", t))
+	if unix_time_string == "" {
+		return time.Time{}, errors.New(fmt.Sprintf("No %s time", t))
+	}
+
+	unix_time, err := strconv.ParseInt(unix_time_string, 10, 64)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return time.Unix(unix_time, 0), nil
+}
+
 type FlatNote map[string]string
 
 func (n *Note) Flatten() FlatNote {

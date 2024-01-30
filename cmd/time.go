@@ -6,6 +6,7 @@ import (
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -53,12 +54,13 @@ const (
 	project
 	start
 	end
+	internal_id
 	// button_go
 	// button_edit
 )
 
 func generateNewInput() []textinput.Model {
-	var newInput []textinput.Model = make([]textinput.Model, 5)
+	var newInput []textinput.Model = make([]textinput.Model, 6)
 
 	newInput[title] = textinput.New()
 	newInput[title].Placeholder = "Meeting with Alice"
@@ -90,6 +92,64 @@ func initialiseNewInput(m *model) {
 	m.newStartTime = 0
 }
 
+func obtainOldData(m *model) {
+	m.oldData = make([][]textinput.Model, 0)
+	times := gn.GetNotesOfType("log")
+
+	grouped_items := make(map[string][]*pmm.Note)
+	for _, t := range times {
+		start, _ := t.GetStartEndTime("start")
+		// end, _ := t.GetStartEndTime("end")
+
+		day := start.Format("2006-01-02")
+		grouped_items[day] = append(grouped_items[day], t)
+	}
+
+	day_keys := make([]string, 0)
+	for k := range grouped_items {
+		day_keys = append(day_keys, k)
+	}
+
+	// Reverse Sort the days
+	sort.Slice(day_keys, func(i, j int) bool {
+		return day_keys[i] > day_keys[j]
+	})
+
+	for _, day := range day_keys {
+		items := grouped_items[day]
+
+		for _, t := range items {
+			newInput := generateNewInput()
+			newInput[title].SetValue(t.Title)
+			newInput[tags].SetValue(t.GetS("tags"))
+
+			t1, _ := t.GetStartEndTime("start")
+			t2, _ := t.GetStartEndTime("end")
+
+			hh_mm1 := t1.Format("15:04")
+			hh_mm2 := t2.Format("15:04")
+
+			newInput[start].SetValue(hh_mm1)
+			newInput[end].SetValue(hh_mm2)
+
+			newInput[internal_id].SetValue(fmt.Sprint(t.NoteId))
+
+			m.oldData = append(m.oldData, newInput)
+		}
+	}
+
+	// for _, t := range times {
+	// 	// projects := gn.GetProjectsForNote(t)
+	// 	newInput := generateNewInput()
+	// 	newInput[title].SetValue(t.Title)
+	// 	newInput[tags].SetValue(t.GetS("tags"))
+	// 	// newInput[project].SetValue(t.Projects[0])
+	// 	// newInput[start].SetValue(t.GetS("start_time"))
+	// 	// newInput[end].SetValue(t.GetS("end_time"))
+	// 	m.oldData = append(m.oldData, newInput)
+	// }
+}
+
 func initialModel() model {
 	m := model{
 		focusedRow: 0,
@@ -99,8 +159,8 @@ func initialModel() model {
 	}
 	initialiseNewInput(&m)
 
-	m.oldData = make([][]textinput.Model, 0)
-	m.oldData = append(m.oldData, generateNewInput())
+	obtainOldData(&m)
+	// m.oldData = append(m.oldData, generateNewInput())
 	// todo: initalise old inputs
 
 	return m
@@ -182,7 +242,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	out := ""
+	out := fmt.Sprintf("%d %d\n", m.focusedRow, m.focusedCol)
 
 	// for row := range m.inputs {
 	out += fmt.Sprintf(
@@ -223,7 +283,17 @@ func (m model) View() string {
 	}
 	out += fmt.Sprintf("\n\n%s\n\n", *button)
 
+	previous_day := ""
 	for row := range m.oldData {
+		note := gn.GetNoteById(pmm.NoteId(m.oldData[row][internal_id].Value()))
+		start_time, _ := note.GetStartEndTime("start")
+		start_date := start_time.Format("2006-01-02")
+
+		if start_date != previous_day {
+			out += fmt.Sprintf("\n%s\n", start_date)
+			previous_day = start_date
+		}
+
 		out += fmt.Sprintf(
 			`%s %s %s %s %s`,
 			m.oldData[row][title].View(),
@@ -246,10 +316,25 @@ func (m *model) nextInput() {
 		} else {
 			m.focusedCol++
 		}
+	} else if m.focusedRow == 1 {
+		if len(m.oldData) == 0 {
+			m.focusedRow = 0
+			m.focusedCol = 0
+		} else {
+			m.focusedRow++
+		}
 	} else {
-		// wrap around
-		m.focusedCol = 0
-		m.focusedRow = 0
+		if m.focusedRow == len(m.oldData)+1 {
+			m.focusedRow = 0
+			m.focusedCol = 0
+		} else {
+			if m.focusedCol+1 == 4 {
+				m.focusedCol = 0
+				m.focusedRow++
+			} else {
+				m.focusedCol++
+			}
+		}
 	}
 }
 
@@ -276,6 +361,7 @@ var timeCmd = &cobra.Command{
 	Short: "time a note",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		// WithAltScreen ⇒ 'fullscreen'
 		p := tea.NewProgram(initialModel(), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			log.Fatal(err)

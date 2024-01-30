@@ -69,6 +69,16 @@ func (gn *GlobalNotes) GetNotes() map[NoteId]*Note {
 	return gn.notes
 }
 
+func (gn *GlobalNotes) GetNotesOfType(noteType string) map[NoteId]*Note {
+	notes := make(map[NoteId]*Note)
+	for _, note := range gn.notes {
+		if note.Type == noteType {
+			notes[note.NoteId] = note
+		}
+	}
+	return notes
+}
+
 func (gn *GlobalNotes) GetTopLevelNotes() map[NoteId]*Note {
 	top_level_notes := make(map[NoteId]*Note)
 	for _, note := range gn.notes {
@@ -87,6 +97,41 @@ func (gn *GlobalNotes) GetTasks() map[NoteId]*Note {
 		}
 	}
 	return tasks
+}
+
+type AncestorType int
+
+const (
+	AT_Parent AncestorType = iota
+	AT_Project
+)
+
+func (gn *GlobalNotes) GetAncestorChain(note *Note, at_type AncestorType) []*Note {
+	parents := []*Note{}
+	parents = make([]*Note, 0)
+
+	// type is either "parent" or "project"
+	if at_type == AT_Parent {
+		if len(note.Parents) > 0 {
+			parent := gn.GetAncestorChain(gn.GetNoteById(note.Parents[0]), at_type)
+			parents = append(parents, parent...)
+		}
+	} else if at_type == AT_Project {
+		if len(note.Projects) > 0 {
+			parent := gn.GetAncestorChain(gn.GetNoteById(note.Projects[0]), at_type)
+			parents = append(parents, parent...)
+		}
+	}
+
+	return parents
+}
+
+func (gn *GlobalNotes) GetProjectsForNote(note *Note) map[NoteId]*Note {
+	projects := make(map[NoteId]*Note)
+	for _, project := range note.Projects {
+		projects[project] = gn.GetNoteById(project)
+	}
+	return projects
 }
 
 func (gn *GlobalNotes) NoteHasChildren(note *Note) bool {
