@@ -16,9 +16,9 @@ AuDHD Academic girlies :sparkle: (in general just overwhelmed academics with wis
 
 ## Required features
 
-- [ ] projects (v0)
-    - [ ] title (v0)
-    - [ ] description (v0)
+- [x] projects (v0)
+    - [x] title (v0)
+    - [x] description (v0)
     - [ ] roles (v0)
     - [ ] start/end dates (use this when showing date pickers) (v0)
     - [ ] key resources (docs/pdfs/logos/etc.) (v1)
@@ -26,22 +26,22 @@ AuDHD Academic girlies :sparkle: (in general just overwhelmed academics with wis
     - [ ] filter out blocked. (v0)
     - [ ] Groups of Tasks - what did she mean by this? The world will never know.
     - [ ] Views
-        - [ ] List (v0)
+        - [x] List (v0)
         - [ ] Timeline (v1)
         - [ ] Board (v1)
         - [ ] Calendar (v1)
         - [ ] workflows (v2)
         - [ ] dashboards (low) (v2)
 
-- [ ] tasks (v0)
-    - [ ] title (v0)
-    - [ ] description (v0)
+- [x] tasks (v0)
+    - [x] title (v0)
+    - [x] description (v0)
     - [ ] start/end (exact or relative to project, e.g. M1/Q1) (v0)
-    - [ ] tags (v0)
-    - [ ] assignees (v0)
+    - [x] tags (v0)
+    - [x] assignees (v0)
     - [ ] children (subtasks) (v0)
-    - [ ] blocking/blocked-by (v0)
-    - [ ] projects: multiple selection (v0)
+    - [x] blocking/blocked-by (v0)
+    - [x] projects: multiple selection (v0)
     - [ ] in project: Group of Tasks - ibid, does it mean like, lists within a project? can this be modelled as a task?
 
 - [ ] repeating tasks

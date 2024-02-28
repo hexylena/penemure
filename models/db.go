@@ -126,6 +126,31 @@ func (gn *GlobalNotes) GetAncestorChain(note *Note, at_type AncestorType) []*Not
 	return parents
 }
 
+func (gn *GlobalNotes) GetPeople(note *Note) map[string]*Note {
+	people := make(map[string]*Note)
+	// loop over all notes for type == Person
+	for _, note := range gn.notes {
+		if note.Type == "person" {
+			people[note.Title] = note
+		}
+	}
+	return people
+}
+
+func (gn *GlobalNotes) GetUserAvatar(note *Note) string {
+	if note.Type != "person" {
+		return ""
+	}
+
+	// Check GetS for GitHub
+	if note.GetS("github") != "" {
+		return fmt.Sprintf("https://github.com/%s.png", note.GetS("github"))
+	}
+
+	// no avatar found
+	return ""
+}
+
 func (gn *GlobalNotes) GetProjectsForNote(note *Note) map[NoteId]*Note {
 	projects := make(map[NoteId]*Note)
 	for _, project := range note.Projects {
@@ -279,6 +304,10 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	if key == "created" || key == "modified" || key == "start_time" || key == "end_time" {
 		gn.FmtTime(value)
 	}
+
+	// if key == "author" || key == "Assignee" || key == "owner" {
+	// 	gn.GetUserAvatar
+	// }
 
 	return value
 }
