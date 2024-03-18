@@ -50,3 +50,12 @@ func SaveNotes(gn pmm.GlobalNotes) {
 		}
 	}
 }
+
+func DeleteNote(gn pmm.GlobalNotes, note_id pmm.NoteId) {
+	gn.DeleteNote(note_id)
+
+	err := os.Remove(id2path(note_id))
+	if err != nil {
+		fmt.Println(err)
+	}
+}

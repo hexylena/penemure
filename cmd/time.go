@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	pma "github.com/hexylena/pm/adapter"
+	// "os"
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 	"log"
@@ -46,6 +47,7 @@ type model struct {
 	focusedCol   int
 	err          error
 	running      bool
+	note  *pmm.Note
 }
 
 const (
@@ -59,7 +61,7 @@ const (
 	// button_edit
 )
 
-func generateNewInput() []textinput.Model {
+func generateNewInput(n *pmm.Note, m *model) []textinput.Model {
 	var newInput []textinput.Model = make([]textinput.Model, 6)
 
 	newInput[title] = textinput.New()
@@ -79,22 +81,43 @@ func generateNewInput() []textinput.Model {
 	newInput[start].Placeholder = "--:--"
 	newInput[start].Width = 6
 
-	newInput[end] = textinput.New()
-	newInput[end].Placeholder = "--:--"
-	newInput[end].Width = 6
+	if n != nil {
+		newInput[title].SetValue(n.Title)
+		// newInput[tags] = n.Meta //TODO
+		// newInput[project] = n.Project // TODO
+		newInput[start].SetValue(fmt.Sprintf("%d", m.newStartTime))
+	}
 
 	return newInput
 }
 
 func initialiseNewInput(m *model) {
-	newInput := generateNewInput()
+	// Check if there's an open interval, and if so, use it.
+	first_open_interval := gn.GetOpenLog()
+	if first_open_interval != nil {
+		m.note = first_open_interval
+
+		start_time, err := m.note.GetStartEndTime("start")
+		if err != nil {
+			panic(err)
+		}
+
+		m.running = true
+		m.newStartTime = start_time.Unix()
+	} else {
+		m.newStartTime = 0
+	}
+
+
+
+	newInput := generateNewInput(m.note, m)
 	m.newInput = newInput
-	m.newStartTime = 0
+
 }
 
 func obtainOldData(m *model) {
 	m.oldData = make([][]textinput.Model, 0)
-	times := gn.GetNotesOfType("log")
+	times := gn.GetLogs(false, true)
 
 	grouped_items := make(map[string][]*pmm.Note)
 	for _, t := range times {
@@ -119,7 +142,7 @@ func obtainOldData(m *model) {
 		items := grouped_items[day]
 
 		for _, t := range items {
-			newInput := generateNewInput()
+			newInput := generateNewInput(nil, nil)
 			newInput[title].SetValue(t.Title)
 			newInput[tags].SetValue(t.GetS("tags"))
 
@@ -133,6 +156,12 @@ func obtainOldData(m *model) {
 			newInput[end].SetValue(hh_mm2)
 
 			newInput[internal_id].SetValue(fmt.Sprint(t.NoteId))
+
+			// Clear placeholders
+			newInput[title].Placeholder = ""
+			newInput[tags].Placeholder = ""
+			newInput[project].Placeholder = ""
+			newInput[start].Placeholder = ""
 
 			m.oldData = append(m.oldData, newInput)
 		}
@@ -157,6 +186,7 @@ func initialModel() model {
 		err:        nil,
 		running:    false,
 	}
+
 	initialiseNewInput(&m)
 
 	obtainOldData(&m)
@@ -167,6 +197,7 @@ func initialModel() model {
 }
 
 func (m model) Init() tea.Cmd {
+
 	return textinput.Blink
 }
 
@@ -183,30 +214,39 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyTab, tea.KeyCtrlN:
 			m.nextInput()
 		case tea.KeyEnter:
+			// If we press enter
+			// Specifically on the start button, trigger this.
 			if m.focusedRow == 1 {
 				if !m.running {
 					// Set start time to current integer time
 					m.newStartTime = time.Now().Unix()
 					m.running = true
+
+					m.note = pmm.NewNote()
+					m.note.Title = m.newInput[title].Value()
+					m.note.Type = "log"
+					tags := strings.Split(m.newInput[tags].Value(), " ")
+					for _, tag := range tags {
+						m.note.AddTag(tag)
+					}
+					m.note.AddMeta("time", "start_time", strconv.FormatInt(m.newStartTime, 10))
+					// Must be registered in the adapter or it gets lost
+					gn.RegisterNote(m.note)
+					// Must persist
+					pma.SaveNotes(gn)
 				} else {
 					m.running = false
 					// save entry
-					note := pmm.NewNote()
-					note.Title = m.newInput[title].Value()
-					note.Type = "log"
-					tags := strings.Split(m.newInput[tags].Value(), " ")
-					for _, tag := range tags {
-						note.AddTag(tag)
-					}
-					note.AddMeta("time", "start_time", strconv.FormatInt(m.newStartTime, 10))
-					note.AddMeta("time", "end_time", strconv.FormatInt(time.Now().Unix(), 10))
+					m.note.AddMeta("time", "end_time", strconv.FormatInt(time.Now().Unix(), 10))
 
-					// Must be registered in the adapter or it gets lost
-					gn.RegisterNote(note)
+					// might duplicately register but that shouldn't be an issue.
+					gn.RegisterNote(m.note)
+
 					// Must persist
 					pma.SaveNotes(gn)
 
 					m.oldData = append(m.oldData, m.newInput)
+					m.newStartTime = 0
 					// clear inputs
 					initialiseNewInput(&m)
 				}
@@ -246,7 +286,7 @@ func (m model) View() string {
 
 	// for row := range m.inputs {
 	out += fmt.Sprintf(
-		`%s %s %s %s %s`,
+		`%s %s %s %s`,
 		inputStyle.Width(30+3).Render("Title"),
 		inputStyle.Width(15+3).Render("Tags"),
 		inputStyle.Width(15+3).Render("Project"),
@@ -282,6 +322,15 @@ func (m model) View() string {
 		}
 	}
 	out += fmt.Sprintf("\n\n%s\n\n", *button)
+
+	out += fmt.Sprintf(
+		`%s %s %s %s %s`,
+		inputStyle.Width(30+3).Render("Title"),
+		inputStyle.Width(15+3).Render("Tags"),
+		inputStyle.Width(15+3).Render("Project"),
+		inputStyle.Width(6+3).Render("Start"),
+		inputStyle.Width(6+3).Render("End"),
+	) + "\n"
 
 	previous_day := ""
 	for row := range m.oldData {

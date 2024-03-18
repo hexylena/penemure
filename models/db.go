@@ -79,6 +79,10 @@ func (gn *GlobalNotes) GetNotesOfType(noteType string) map[NoteId]*Note {
 	return notes
 }
 
+func (gn *GlobalNotes) DeleteNote(nid NoteId) {
+	delete(gn.notes, nid)
+}
+
 func (gn *GlobalNotes) GetTopLevelNotes() map[NoteId]*Note {
 	top_level_notes := make(map[NoteId]*Note)
 	for _, note := range gn.notes {
@@ -90,13 +94,32 @@ func (gn *GlobalNotes) GetTopLevelNotes() map[NoteId]*Note {
 }
 
 func (gn *GlobalNotes) GetTasks() map[NoteId]*Note {
-	tasks := make(map[NoteId]*Note)
-	for _, note := range gn.notes {
-		if note.Type == "task" {
-			tasks[note.NoteId] = note
+	return gn.GetNotesOfType("task")
+}
+
+func (gn *GlobalNotes) GetLogs(open bool, closed bool) map[NoteId]*Note {
+	notes := make(map[NoteId]*Note)
+	for _, note := range gn.GetNotesOfType("log") {
+		_, err := note.GetMetaKey("end_time")
+		// Closed
+		if err == nil {
+			if closed {
+				notes[note.NoteId] = note
+			}
+		} else {
+			if open {
+				notes[note.NoteId] = note
+			}
 		}
 	}
-	return tasks
+	return notes
+}
+
+func (gn *GlobalNotes) GetOpenLog() *Note {
+	for _, note := range gn.GetLogs(true, false) {
+		return note
+	}
+	return nil
 }
 
 type AncestorType int

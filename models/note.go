@@ -341,6 +341,7 @@ func (n *Note) Touch() {
 }
 
 func (n *Note) AddTag(t string) {
+	n.Touch()
 	if len(n.GetL("Tags")) == 0 {
 		n.Meta = append(n.Meta, &Meta{
 			Type:  "tag",
@@ -351,6 +352,7 @@ func (n *Note) AddTag(t string) {
 }
 
 func (n *Note) AddMetaTag(k string, v string) {
+	n.Touch()
 	n.Meta = append(n.Meta, &Meta{
 		Type:  "tag",
 		Title: k,
@@ -359,6 +361,7 @@ func (n *Note) AddMetaTag(k string, v string) {
 }
 
 func (n *Note) AddMeta(typ string, k string, v string) {
+	n.Touch()
 	n.Meta = append(n.Meta, &Meta{
 		Type:  typ,
 		Title: k,
@@ -751,7 +754,8 @@ func (n *Note) GetProjectMembers(gn GlobalNotes) []Note {
 }
 
 func (n *Note) GetStartEndTime(t string) (time.Time, error) {
-	unix_time_string := n.GetS(fmt.Sprintf("%s_time", t))
+	time_key := fmt.Sprintf("%s_time", t)
+	unix_time_string := n.GetS(time_key)
 	if unix_time_string == "" {
 		return time.Time{}, errors.New(fmt.Sprintf("No %s time", t))
 	}
