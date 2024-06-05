@@ -28,6 +28,15 @@
       header {
         padding: 3rem 0;
       }
+      footer {
+        padding: 3rem 0;
+	margin: auto;
+	width: 100%;
+	max-width: 80%;
+	margin-top: 12rem;
+	display: flex;
+	justify-content: space-between;
+      }
 
     </style>
   </head>
@@ -60,6 +69,15 @@
       </table>
 
     </main>
+    <footer>
+	    <div>
+	    <p>Personal Project Manager</p>
+	    </div>
+	    <div>
+	    <p>AGPLv3</p>
+	    <p>Rev {{ .VcsRev 8 }}</p>
+	    </div>
+    </footer>
 
   </body>
 </html>

@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"os"
+	"runtime/debug"
 	"regexp"
 	"strconv"
 	"strings"
@@ -446,6 +447,19 @@ func (gn *GlobalNotes) serve_getArticleBySlug(w http.ResponseWriter, r *http.Req
 		render.Render(w, r, ErrNotFound)
 		return
 	}
+}
+
+func (gn *GlobalNotes) VcsRev(len int) string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return ""
+	}
+	for _, kv := range info.Settings {
+		if kv.Key == "vcs.revision" {
+			return kv.Value[:len]
+		}
+	}
+	return ""
 }
 
 func (gn *GlobalNotes) NewEdit() {

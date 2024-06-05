@@ -28,6 +28,16 @@
       header {
         padding: 3rem 0;
       }
+      footer {
+        padding: 3rem 0;
+	margin: auto;
+	width: 100%;
+	max-width: 80%;
+	border-top: 3px solid black;
+	margin-top: 12rem;
+	display: flex;
+	justify-content: space-between;
+      }
 
     </style>
   </head>
@@ -138,6 +148,15 @@
       {{ end }}
 
     </main>
+    <footer>
+	    <div>
+	    <p>Personal Project Manager</p>
+	    </div>
+	    <div>
+	    <p>AGPLv3</p>
+	    <p>Rev {{ .GlobalNotes.VcsRev 8 }}</p>
+	    </div>
+    </footer>
 
   </body>
 </html>
