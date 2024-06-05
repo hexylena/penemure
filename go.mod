@@ -3,6 +3,7 @@ module github.com/hexylena/pm
 go 1.20
 
 require (
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
@@ -15,6 +16,8 @@ require (
 	github.com/charmbracelet/lipgloss v0.9.1 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
+	github.com/go-chi/chi/v5 v5.0.12 // indirect
+	github.com/go-chi/render v1.0.3 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20231222211730-1d6d20845b47 // indirect
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect

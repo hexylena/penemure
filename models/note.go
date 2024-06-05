@@ -2,6 +2,7 @@ package models
 
 import (
 	"bufio"
+	"io"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -457,8 +458,19 @@ func LooksLocal(path string) bool {
 	return regexp.MustCompile(`^\.\/`).MatchString(path)
 }
 
-func (n *Note) Export(gn *GlobalNotes) {
+func (n *Note) ExportToFile(gn *GlobalNotes) {
 	// Save contents to ./export/<id>.html
+
+	// Save to ./export/<id>.html
+	f, err := os.Create(fmt.Sprintf("export/%s.html", n.NoteId))
+	if err != nil {
+		fmt.Println(err)
+	}
+	n.Export(gn, bufio.NewWriter(f))
+	f.Close()
+}
+
+func (n *Note) Export(gn *GlobalNotes, w io.Writer) {
 	// Read template from templates/note.html
 	tmpl_text, err := os.ReadFile("templates/note.html")
 	if err != nil {
@@ -469,23 +481,15 @@ func (n *Note) Export(gn *GlobalNotes) {
 		fmt.Println(err)
 	}
 
-	// Render template
-	// Save to ./export/<id>.html
-	f, err := os.Create(fmt.Sprintf("export/%s.html", n.NoteId))
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	type tmpstruct struct {
 		Note        *Note
 		GlobalNotes *GlobalNotes
 	}
 
-	err = tmpl.Execute(f, tmpstruct{n, gn})
+	err = tmpl.Execute(w, tmpstruct{n, gn})
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	// TODO: copy icon, cover if local
 }
 

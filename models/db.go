@@ -7,7 +7,12 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+
+	"net/http"
 	"time"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
@@ -35,7 +40,7 @@ func (gn *GlobalNotes) GetNoteById(id NoteId) *Note {
 	return gn.notes[id]
 }
 
-func (gn *GlobalNotes) GetIdByPartial(partial PartialNoteId) NoteId {
+func (gn *GlobalNotes) GetIdByPartial(partial PartialNoteId) (NoteId, error) {
 	s_partial := fmt.Sprint(partial)
 
 	// Get all note ids
@@ -53,11 +58,11 @@ func (gn *GlobalNotes) GetIdByPartial(partial PartialNoteId) NoteId {
 	}
 	switch len(matches) {
 	case 0:
-		panic("No matches found")
+		return "", fmt.Errorf("No matches found")
 	case 1:
-		return matches[0]
+		return matches[0], nil
 	default:
-		panic("Multiple matches found")
+		return "", fmt.Errorf("Multiple matches found")
 	}
 }
 
@@ -228,7 +233,10 @@ func NewGlobalNotes() GlobalNotes {
 }
 
 func (gn *GlobalNotes) BubbleShow(id PartialNoteId) {
-	note_id := gn.GetIdByPartial(id)
+	note_id, err := gn.GetIdByPartial(id)
+	if err != nil {
+		panic(err)
+	}
 	note := gn.notes[note_id]
 	note.BubblePrint()
 }
@@ -320,7 +328,9 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 		return "<a href=\"" + value + ".html\">" + value + "</a>"
 	}
 	if uuid_short.MatchString(value) {
-		full_value := fmt.Sprint(gn.GetIdByPartial(PartialNoteId(value)))
+		note_id, err := gn.GetIdByPartial(PartialNoteId(value))
+		if err != nil { panic(err) }
+		full_value := fmt.Sprint(note_id)
 		return "<a href=\"" + full_value + ".html\">" + value + "</a>"
 	}
 
@@ -336,7 +346,8 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 }
 
 func (gn *GlobalNotes) Edit(id PartialNoteId) {
-	note_id := gn.GetIdByPartial(id)
+	note_id, err := gn.GetIdByPartial(id)
+	if err != nil { panic(err) }
 	note := gn.notes[note_id]
 	newnote := note.Edit()
 	gn.notes[note_id] = &newnote
@@ -372,7 +383,68 @@ func (gn *GlobalNotes) Export() {
 
 	// Export individual notes
 	for _, note := range gn.notes {
-		note.Export(gn)
+		note.ExportToFile(gn)
+	}
+}
+
+func (gn *GlobalNotes) Serve() {
+	r := chi.NewRouter()
+
+	// A good base middleware stack
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// Set a timeout value on the request context (ctx), that will signal
+	// through ctx.Done() that the request has timed out and further
+	// processing should be stopped.
+	r.Use(middleware.Timeout(60 * time.Second))
+
+	r.Get("/", gn.serve_index)
+	r.Get("/index.html", gn.serve_index)
+	// r.Route("/notes", func(r chi.Router) {
+	// 	// r.With(paginate).Get("/", listArticles)                           // GET /notes
+	// 	// r.Get("/", gn.serve_listArticles)                           // GET /notes
+	// 	// r.Get("/search", gn.serve_searchArticles)                                  // GET /notes/search
+		r.Get("/{articleSlug:[a-f0-9-]+}.html", gn.serve_getArticleBySlug)                // GET /notes/<uuid>
+	// })
+	
+	http.ListenAndServe(":3333", r)
+}
+
+func (gn *GlobalNotes) serve_index(w http.ResponseWriter, r *http.Request) {
+	list_tpl_text, err := os.ReadFile("templates/list.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Render template
+	err = list_tpl.Execute(w, gn)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
+
+func (gn *GlobalNotes) serve_getArticleBySlug(w http.ResponseWriter, r *http.Request) {
+	if pni := chi.URLParam(r, "articleSlug"); pni != "" {
+		partial := PartialNoteId(pni)
+		note_id, err := gn.GetIdByPartial(partial)
+		if err != nil {
+			render.Render(w, r, ErrNotFound)
+			return
+		}
+		note := gn.notes[note_id]
+		note.Export(gn, w)
+	} else {
+		render.Render(w, r, ErrNotFound)
+		return
 	}
 }
 
