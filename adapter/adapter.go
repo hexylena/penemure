@@ -3,6 +3,7 @@ package adapter
 import (
 	"fmt"
 	pmm "github.com/hexylena/pm/models"
+	pml "github.com/hexylena/pm/log"
 	"os"
 	"path/filepath"
 )
@@ -19,6 +20,7 @@ func FilePathWalkDir(root string) ([]string, error) {
 }
 
 func LoadNotes(gn pmm.GlobalNotes) {
+	pml.L("adapter").Info("LoadNotes")
 	// Load all notes from the notes directory
 	// glob
 	paths, err := FilePathWalkDir("./projects")
@@ -41,9 +43,11 @@ func id2path(id pmm.NoteId) string {
 }
 
 func SaveNotes(gn pmm.GlobalNotes) {
+	pml.L("adapter").Info("SaveNotes")
 	// Save all notes to the notes directory
 	for _, note := range gn.GetNotes() {
 		if note.IsModified() {
+			pml.L("adapter").Info("SaveNotes", "note", note.Title, "id", note.NoteId)
 			// fmt.Println("Saving note", note.Title, "to", id2path(note.NoteId))
 			// fmt.Println(note)
 			note.SaveNote(id2path(note.NoteId))

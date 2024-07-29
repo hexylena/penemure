@@ -149,6 +149,10 @@ type Note struct {
 	modified   bool
 }
 
+func (n *Note) String() string {
+	return fmt.Sprintf("%s (%s)", n.Title, n.Id())
+}
+
 func (ce *Note) UnmarshalJSON(b []byte) error {
 	// First, deserialize everything into a map of map
 	var objMap map[string]*json.RawMessage
@@ -395,6 +399,16 @@ func (n *Note) HasParent(o NoteId) bool {
 		}
 	}
 	return false
+}
+
+func (n *Note) AddParent(o NoteId) {
+	n.Parents = append(n.Parents, o)
+	n.Touch()
+}
+
+func (n *Note) SetParent(o NoteId) {
+	n.Parents = []NoteId{o}
+	n.Touch()
 }
 
 func (n *Note) HasProject(o NoteId) bool {
