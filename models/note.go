@@ -2,10 +2,10 @@ package models
 
 import (
 	"bufio"
-	"io"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -28,7 +28,6 @@ import (
 
 	pmd "github.com/hexylena/pm/md"
 )
-
 
 // const (
 // 	Project Season = iota
@@ -149,7 +148,7 @@ type Note struct {
 	ModifiedAt int              `json:"modified"`
 	modified   bool
 
-	Version    int      `json:"version"`
+	Version int `json:"version"`
 }
 
 func (n *Note) String() string {
@@ -181,6 +180,13 @@ func (ce *Note) UnmarshalJSON(b []byte) error {
 
 	if objMap["type"] != nil {
 		err = json.Unmarshal(*objMap["type"], &ce.Type)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["version"] != nil {
+		err = json.Unmarshal(*objMap["version"], &ce.Version)
 		if err != nil {
 			return err
 		}

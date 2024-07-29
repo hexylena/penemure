@@ -1,15 +1,15 @@
 package models_test
 
 import (
-	"testing"
 	pmm "github.com/hexylena/pm/models"
+	"testing"
 )
 
 const minimal_v0 = `
 {
   "id": "23ab5629-1e89-49b6-b05d-ccf6b36b264c",
-  "title": "",
-  "type": "",
+  "title": "asdf",
+  "type": "project",
   "projects": [
     "00000000-0000-0000-0000-222222222222",
     "00000000-0000-0000-0000-333333333333"
@@ -21,8 +21,8 @@ const minimal_v0 = `
   "blocking": [],
   "_blocks": null,
   "_tags": [],
-  "created": 1706176264,
-  "modified": 1706176267
+  "created": 1700000000,
+  "modified": 1700001111
 }
 `
 
@@ -61,8 +61,12 @@ func TestVersion(t *testing.T) {
 }
 
 func TestMigrateToLatest(t *testing.T) {
-	v0 := pmm.Migrate([]byte(minimal_v0))
+	v0v := pmm.GetVersion([]byte(minimal_v0))
+	if v0v != 0 {
+		t.Errorf("o:«%d» != e:«%d»", v0v, 0)
+	}
 
+	v0 := pmm.Migrate([]byte(minimal_v0))
 	if v0.Version != 2 {
 		t.Errorf("o:«%d» != e:«%d»", v0.Version, 2)
 	}
@@ -86,5 +90,4 @@ func TestMigrateParents(t *testing.T) {
 			t.Errorf("o:«%s» != e:«%s»", parent, expected_parents[i])
 		}
 	}
-
 }

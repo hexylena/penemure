@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	pmd "github.com/hexylena/pm/md"
 	"io/ioutil"
 	"os"
-	pmd "github.com/hexylena/pm/md"
 )
 
 type Note0 struct {
@@ -38,7 +38,7 @@ type Note1 struct {
 	CreatedAt  int              `json:"created"`
 	ModifiedAt int              `json:"modified"`
 	modified   bool
-	Version int `json:"version"`
+	Version    int `json:"version"`
 }
 
 type Note2 struct {
@@ -54,7 +54,7 @@ type Note2 struct {
 	CreatedAt  int              `json:"created"`
 	ModifiedAt int              `json:"modified"`
 	modified   bool
-	Version int `json:"version"`
+	Version    int `json:"version"`
 }
 
 func loadJson(path string) []byte {
@@ -73,8 +73,9 @@ func loadJson(path string) []byte {
 }
 
 // Returns the latest note version
-func Migrate(bytes []byte) Note2 {
+func Migrate(bytes []byte) Note {
 	version := GetVersion(bytes)
+	logger.Debug("Parsed Version", "version", version)
 
 	var n0 Note0
 	var n1 Note1
@@ -96,34 +97,51 @@ func Migrate(bytes []byte) Note2 {
 			fmt.Println(err)
 		}
 	}
-	
+	logger.Debug("Parsed Version", "version", version, "n0", n0.NoteId, "n1", n1.NoteId, "n2", n2.NoteId)
+
 	if version == 0 {
 		n1 = migrate1(n0)
 		version = 1
 	}
 
+	logger.Debug("Parsed Version", "version", version, "n0", n0.NoteId, "n1", n1.NoteId, "n2", n2.NoteId)
+
 	if version == 1 {
 		n2 = migrate2(n1)
 		version = 2
 	}
+	logger.Debug("Parsed Version", "version", version, "n0", n0.NoteId, "n1", n1.NoteId, "n2", n2.NoteId)
 
-	return n2
+	// LATEST version is compatible with Note (no number)
+	n_bytes, err := json.Marshal(n2)
+	if err != nil {
+		fmt.Println(err)
+	}
+	logger.Debug("Marshaled", "note", n_bytes)
+
+	var n Note
+	err = json.Unmarshal(n_bytes, &n)
+	if err != nil {
+		fmt.Println(err)
+	}
+	logger.Debug("Finalised", "note", n)
+	return n
 }
 
 func migrate1(n0 Note0) Note1 {
 	n1 := Note1{
-		NoteId: n0.NoteId,
-		Title: n0.Title,
-		Type: n0.Type,
-		Projects: n0.Projects,
-		Parents: n0.Parents,
-		Blocking: n0.Blocking,
-		Blocks: n0.Blocks,
-		Meta: n0.Meta,
-		CreatedAt: n0.CreatedAt,
+		NoteId:     n0.NoteId,
+		Title:      n0.Title,
+		Type:       n0.Type,
+		Projects:   n0.Projects,
+		Parents:    n0.Parents,
+		Blocking:   n0.Blocking,
+		Blocks:     n0.Blocks,
+		Meta:       n0.Meta,
+		CreatedAt:  n0.CreatedAt,
 		ModifiedAt: n0.ModifiedAt,
-		modified: n0.modified,
-		Version: 1,
+		modified:   n0.modified,
+		Version:    1,
 	}
 
 	return n1
@@ -132,18 +150,18 @@ func migrate1(n0 Note0) Note1 {
 func migrate2(n1 Note1) Note2 {
 	n2 := Note2{
 		NoteId: n1.NoteId,
-		Title: n1.Title,
-		Type: n1.Type,
+		Title:  n1.Title,
+		Type:   n1.Type,
 		// Projects: n1.Projects,
 		// append projects to parents
-		Parents: append(n1.Parents, n1.Projects...),
-		Blocking: n1.Blocking,
-		Blocks: n1.Blocks,
-		Meta: n1.Meta,
-		CreatedAt: n1.CreatedAt,
+		Parents:    append(n1.Parents, n1.Projects...),
+		Blocking:   n1.Blocking,
+		Blocks:     n1.Blocks,
+		Meta:       n1.Meta,
+		CreatedAt:  n1.CreatedAt,
 		ModifiedAt: n1.ModifiedAt,
-		modified: n1.modified,
-		Version: 2,
+		modified:   n1.modified,
+		Version:    2,
 	}
 
 	return n2
@@ -162,7 +180,5 @@ func GetVersion(bytes []byte) int {
 		return 0
 	}
 	// parse version as int
-	// return int(objmap["version"].(float64))
-	return 1
+	return int(objmap["version"].(float64))
 }
-

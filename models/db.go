@@ -3,17 +3,17 @@ package models
 import (
 	"fmt"
 	"os"
-	"runtime/debug"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"text/template"
 
-	"net/http"
-	"time"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"net/http"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
@@ -28,7 +28,7 @@ const (
 )
 
 type GlobalNotes struct {
-	notes    map[NoteId]*Note
+	notes map[NoteId]*Note
 }
 
 func (gn *GlobalNotes) Init() {
@@ -334,7 +334,9 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	}
 	if uuid_short.MatchString(value) {
 		note_id, err := gn.GetIdByPartial(PartialNoteId(value))
-		if err != nil { panic(err) }
+		if err != nil {
+			panic(err)
+		}
 		full_value := fmt.Sprint(note_id)
 		return "<a href=\"" + full_value + ".html\">" + value + "</a>"
 	}
@@ -352,7 +354,9 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 
 func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	note_id, err := gn.GetIdByPartial(id)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	note := gn.notes[note_id]
 	newnote := note.Edit()
 	gn.notes[note_id] = &newnote
@@ -411,9 +415,9 @@ func (gn *GlobalNotes) Serve() {
 	// 	// r.With(paginate).Get("/", listArticles)                           // GET /notes
 	// 	// r.Get("/", gn.serve_listArticles)                           // GET /notes
 	// 	// r.Get("/search", gn.serve_searchArticles)                                  // GET /notes/search
-		r.Get("/{articleSlug:[a-f0-9-]+}.html", gn.serve_getArticleBySlug)                // GET /notes/<uuid>
+	r.Get("/{articleSlug:[a-f0-9-]+}.html", gn.serve_getArticleBySlug) // GET /notes/<uuid>
 	// })
-	
+
 	http.ListenAndServe(":3333", r)
 }
 

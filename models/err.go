@@ -1,4 +1,5 @@
 package models
+
 import (
 	"github.com/go-chi/render"
 	"net/http"
