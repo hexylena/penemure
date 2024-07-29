@@ -605,7 +605,6 @@ func Migrate(bytes []byte, n *Note) {
 		logger.Error("Error marshaling", "error", err)
 	}
 	logger.Debug("Marshaled", "note", n_bytes)
-	fmt.Println(string(n_bytes))
 
 	err = json.Unmarshal(n_bytes, n)
 	if err != nil {

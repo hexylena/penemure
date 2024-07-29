@@ -113,16 +113,17 @@ type Block struct {
 	Id string `json: "id"`
 	Type string `json: "type"`
 	Properties map[string]string `json: "properties"`
-	Contents []*Block `json: "contents"`
+	Content  string `json: "content"`
+	Children []*Block `json: "children"`
 }
 
 func (b *Block) Html() string {
-	content := b.Properties["content"]
-	return strings.TrimSpace(string(mdToHTML([]byte(content))))
+	content := b.Content
+	return string(mdToHTML([]byte(content)))
 }
 
 func (b *Block) Md() string {
-	return b.Properties["content"]
+	return b.Content + "\n"
 }
 
 
