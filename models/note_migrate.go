@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"errors"
 	pmd "github.com/hexylena/pm/md"
 	"io/ioutil"
 	"os"
@@ -24,6 +25,166 @@ type Note0 struct {
 	modified   bool
 }
 
+func (ce *Note0) UnmarshalJSON(b []byte) error {
+	// First, deserialize everything into a map of map
+	var objMap map[string]*json.RawMessage
+	err := json.Unmarshal(b, &objMap)
+	if err != nil {
+		return err
+	}
+
+	// Must manually deserialise each item
+	if objMap["id"] != nil {
+		err = json.Unmarshal(*objMap["id"], &ce.NoteId)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["title"] != nil {
+		err = json.Unmarshal(*objMap["title"], &ce.Title)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["type"] != nil {
+		err = json.Unmarshal(*objMap["type"], &ce.Type)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["projects"] != nil {
+		err = json.Unmarshal(*objMap["projects"], &ce.Projects)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["parents"] != nil {
+		err = json.Unmarshal(*objMap["parents"], &ce.Parents)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["blocking"] != nil {
+		err = json.Unmarshal(*objMap["blocking"], &ce.Blocking)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["created"] != nil {
+		err = json.Unmarshal(*objMap["created"], &ce.CreatedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["modified"] != nil {
+		err = json.Unmarshal(*objMap["modified"], &ce.ModifiedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_tags"] != nil {
+		err = json.Unmarshal(*objMap["_tags"], &ce.Meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_blocks"] != nil {
+		var rawMessagesBlocks []*json.RawMessage
+		err = json.Unmarshal(*objMap["_blocks"], &rawMessagesBlocks)
+		if err != nil {
+			logger.Error("error unmarshalling _blocks", "error", err)
+			return err
+		}
+
+		// Let's add a place to store our de-serialized Plant and Animal structs
+		ce.Blocks = make([]pmd.SyntaxNode, len(rawMessagesBlocks))
+
+		var m map[string]interface{}
+		for index, rawMessage := range rawMessagesBlocks {
+			err = json.Unmarshal(*rawMessage, &m)
+			if err != nil {
+				return err
+			}
+
+			// Depending on the type, we can run json.Unmarshal again on the same byte slice
+			// But this time, we'll pass in the appropriate struct instead of a map
+			if m["type"] == "heading" {
+				var p pmd.Heading
+				err := json.Unmarshal(*rawMessage, &p)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &p
+			} else if m["type"] == "paragraph" {
+				var a pmd.Paragraph
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &a
+			} else if m["type"] == "image" {
+				var a pmd.Image
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "list" {
+				var a pmd.List
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "horizontal_rule" {
+				var a pmd.HorizontalRule
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "table_view" {
+				var a pmd.TableView
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "code" {
+				var a pmd.Code
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "link" {
+				var a pmd.Link
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else {
+				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+			}
+		}
+	}
+
+	// That's it!  We made it the whole way with no errors, so we can return `nil`
+	return nil
+}
+
 type Note1 struct {
 	NoteId NoteId `yaml:"id" json:"id"`
 	Title  string `json:"title"`
@@ -39,6 +200,172 @@ type Note1 struct {
 	ModifiedAt int              `json:"modified"`
 	modified   bool
 	Version    int `json:"version"`
+}
+func (ce *Note1) UnmarshalJSON(b []byte) error {
+	// First, deserialize everything into a map of map
+	var objMap map[string]*json.RawMessage
+	err := json.Unmarshal(b, &objMap)
+	if err != nil {
+		return err
+	}
+
+	// Must manually deserialise each item
+	if objMap["id"] != nil {
+		err = json.Unmarshal(*objMap["id"], &ce.NoteId)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["title"] != nil {
+		err = json.Unmarshal(*objMap["title"], &ce.Title)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["version"] != nil {
+		err = json.Unmarshal(*objMap["version"], &ce.Version)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["type"] != nil {
+		err = json.Unmarshal(*objMap["type"], &ce.Type)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["projects"] != nil {
+		err = json.Unmarshal(*objMap["projects"], &ce.Projects)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["parents"] != nil {
+		err = json.Unmarshal(*objMap["parents"], &ce.Parents)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["blocking"] != nil {
+		err = json.Unmarshal(*objMap["blocking"], &ce.Blocking)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["created"] != nil {
+		err = json.Unmarshal(*objMap["created"], &ce.CreatedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["modified"] != nil {
+		err = json.Unmarshal(*objMap["modified"], &ce.ModifiedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_tags"] != nil {
+		err = json.Unmarshal(*objMap["_tags"], &ce.Meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_blocks"] != nil {
+		var rawMessagesBlocks []*json.RawMessage
+		err = json.Unmarshal(*objMap["_blocks"], &rawMessagesBlocks)
+		if err != nil {
+			logger.Error("error unmarshalling _blocks", "error", err)
+			return err
+		}
+
+		// Let's add a place to store our de-serialized Plant and Animal structs
+		ce.Blocks = make([]pmd.SyntaxNode, len(rawMessagesBlocks))
+
+		var m map[string]interface{}
+		for index, rawMessage := range rawMessagesBlocks {
+			err = json.Unmarshal(*rawMessage, &m)
+			if err != nil {
+				return err
+			}
+
+			// Depending on the type, we can run json.Unmarshal again on the same byte slice
+			// But this time, we'll pass in the appropriate struct instead of a map
+			if m["type"] == "heading" {
+				var p pmd.Heading
+				err := json.Unmarshal(*rawMessage, &p)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &p
+			} else if m["type"] == "paragraph" {
+				var a pmd.Paragraph
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &a
+			} else if m["type"] == "image" {
+				var a pmd.Image
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "list" {
+				var a pmd.List
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "horizontal_rule" {
+				var a pmd.HorizontalRule
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "table_view" {
+				var a pmd.TableView
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "code" {
+				var a pmd.Code
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "link" {
+				var a pmd.Link
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else {
+				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+			}
+		}
+	}
+
+	// That's it!  We made it the whole way with no errors, so we can return `nil`
+	return nil
 }
 
 type Note2 struct {
@@ -56,24 +383,184 @@ type Note2 struct {
 	modified   bool
 	Version    int `json:"version"`
 }
+func (ce *Note2) UnmarshalJSON(b []byte) error {
+	// First, deserialize everything into a map of map
+	var objMap map[string]*json.RawMessage
+	err := json.Unmarshal(b, &objMap)
+	if err != nil {
+		return err
+	}
+
+	// Must manually deserialise each item
+	if objMap["id"] != nil {
+		err = json.Unmarshal(*objMap["id"], &ce.NoteId)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["title"] != nil {
+		err = json.Unmarshal(*objMap["title"], &ce.Title)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["version"] != nil {
+		err = json.Unmarshal(*objMap["version"], &ce.Version)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["type"] != nil {
+		err = json.Unmarshal(*objMap["type"], &ce.Type)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["parents"] != nil {
+		err = json.Unmarshal(*objMap["parents"], &ce.Parents)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["blocking"] != nil {
+		err = json.Unmarshal(*objMap["blocking"], &ce.Blocking)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["created"] != nil {
+		err = json.Unmarshal(*objMap["created"], &ce.CreatedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["modified"] != nil {
+		err = json.Unmarshal(*objMap["modified"], &ce.ModifiedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_tags"] != nil {
+		err = json.Unmarshal(*objMap["_tags"], &ce.Meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	if objMap["_blocks"] != nil {
+		var rawMessagesBlocks []*json.RawMessage
+		err = json.Unmarshal(*objMap["_blocks"], &rawMessagesBlocks)
+		if err != nil {
+			logger.Error("error unmarshalling _blocks", "error", err)
+			return err
+		}
+
+		// Let's add a place to store our de-serialized Plant and Animal structs
+		ce.Blocks = make([]pmd.SyntaxNode, len(rawMessagesBlocks))
+
+		var m map[string]interface{}
+		for index, rawMessage := range rawMessagesBlocks {
+			err = json.Unmarshal(*rawMessage, &m)
+			if err != nil {
+				return err
+			}
+
+			// Depending on the type, we can run json.Unmarshal again on the same byte slice
+			// But this time, we'll pass in the appropriate struct instead of a map
+			if m["type"] == "heading" {
+				var p pmd.Heading
+				err := json.Unmarshal(*rawMessage, &p)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &p
+			} else if m["type"] == "paragraph" {
+				var a pmd.Paragraph
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				// After creating our struct, we should save it
+				ce.Blocks[index] = &a
+			} else if m["type"] == "image" {
+				var a pmd.Image
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "list" {
+				var a pmd.List
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "horizontal_rule" {
+				var a pmd.HorizontalRule
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "table_view" {
+				var a pmd.TableView
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "code" {
+				var a pmd.Code
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "link" {
+				var a pmd.Link
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else {
+				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+			}
+		}
+	}
+
+	// That's it!  We made it the whole way with no errors, so we can return `nil`
+	return nil
+}
+
 
 func loadJson(path string) []byte {
 	jsonFile, err := os.Open(path)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error loading path", "path", path, "error", err)
 	}
 	defer jsonFile.Close()
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error reading from path", "path", path, "error", err)
 	}
 
 	return byteValue
 }
 
 // Returns the latest note version
-func Migrate(bytes []byte) Note {
+func Migrate(bytes []byte, n *Note) {
 	version := GetVersion(bytes)
 	logger.Debug("Parsed Version", "version", version)
 
@@ -84,17 +571,17 @@ func Migrate(bytes []byte) Note {
 	if version == 0 {
 		err := json.Unmarshal(bytes, &n0)
 		if err != nil {
-			fmt.Println(err)
+			logger.Error("Error unmarshaling v0", "error", err)
 		}
 	} else if version == 1 {
 		err := json.Unmarshal(bytes, &n1)
 		if err != nil {
-			fmt.Println(err)
+			logger.Error("Error unmarshaling v1", "error", err)
 		}
 	} else if version == 2 {
 		err := json.Unmarshal(bytes, &n2)
 		if err != nil {
-			fmt.Println(err)
+			logger.Error("Error unmarshaling v2", "error", err)
 		}
 	}
 	logger.Debug("Parsed Version", "version", version, "n0", n0.NoteId, "n1", n1.NoteId, "n2", n2.NoteId)
@@ -115,17 +602,16 @@ func Migrate(bytes []byte) Note {
 	// LATEST version is compatible with Note (no number)
 	n_bytes, err := json.Marshal(n2)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error marshaling", "error", err)
 	}
 	logger.Debug("Marshaled", "note", n_bytes)
+	fmt.Println(string(n_bytes))
 
-	var n Note
-	err = json.Unmarshal(n_bytes, &n)
+	err = json.Unmarshal(n_bytes, n)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error unmarshaling", "error", err)
 	}
 	logger.Debug("Finalised", "note", n)
-	return n
 }
 
 func migrate1(n0 Note0) Note1 {

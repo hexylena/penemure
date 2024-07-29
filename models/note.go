@@ -337,11 +337,9 @@ func (n *Note) ParseNote(path string) {
 		fmt.Println(err)
 	}
 
-	// parse the byte array
-	err = json.Unmarshal(byteValue, &n)
-	if err != nil {
-		fmt.Println(path, err)
-	}
+	// fmt.Println(byteValue)
+	fmt.Println(GetVersion(byteValue))
+	Migrate(byteValue, n)
 }
 
 func (n *Note) Touch() {

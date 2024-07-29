@@ -66,14 +66,29 @@ func TestMigrateToLatest(t *testing.T) {
 		t.Errorf("o:«%d» != e:«%d»", v0v, 0)
 	}
 
-	v0 := pmm.Migrate([]byte(minimal_v0))
+	var v0 pmm.Note
+	pmm.Migrate([]byte(minimal_v0), &v0)
 	if v0.Version != 2 {
 		t.Errorf("o:«%d» != e:«%d»", v0.Version, 2)
 	}
+
+	// Ensure intermediate models migrate too
+	v1v := pmm.GetVersion([]byte(minimal_v1))
+	if v1v != 1 {
+		t.Errorf("o:«%d» != e:«%d»", v1v, 1)
+	}
+
+	var v1 pmm.Note
+	pmm.Migrate([]byte(minimal_v1), &v1)
+	if v1.Version != 2 {
+		t.Errorf("o:«%d» != e:«%d»", v1.Version, 2)
+	}
+
 }
 
 func TestMigrateParents(t *testing.T) {
-	v0 := pmm.Migrate([]byte(minimal_v0))
+	var v0 pmm.Note
+	pmm.Migrate([]byte(minimal_v0), &v0)
 
 	if len(v0.Parents) != 4 {
 		t.Errorf("o:«%d» != e:«%d»", v0.Version, 2)
