@@ -31,6 +31,68 @@ Each block has a Contents field which is Block[]
 Markdown can have multiple contents (individual markdown blocks)
 
 Is markdown important, then?
+
+## Minimal Set
+
+what's the minimal set of blocks we need? Before we represented every html/md element which was...excessive.
+
+Can we get away with just markdown and 'sql'?
+
+## exmaples ##
+
+Block{
+	id "00000000-0000-0000-0000-000000000000",
+	type "markdown",
+	properties {
+		"content": "My first note",
+		"tag": "#blessed",
+	}
+	contents: [
+		Block{
+			id "00000000-0000-0000-0000-000000000001",
+			type "to_do",
+			properties {
+				"content": "item 1",
+				"checked": false,
+			}
+			contents: [
+				Block{
+					id "00000000-0000-0000-0000-000000000003",
+					type "to_do",
+					properties {
+						"content": "sub item 1",
+						"checked": true,
+					}
+					contents: [],
+				}
+			],
+		},
+		Block{
+			id "00000000-0000-0000-0000-000000000002",
+			type "to_do",
+			properties {
+				"content": "item 2",
+				"checked": false,
+			}
+			contents: [],
+		},
+	]
+}
+
+
+My first note
+
+- [ ] item 1
+    - [x] sub item 1
+- [ ] item 2
+
+
+
+
+// type Category struct {
+//     id int
+//     Parent *Category
+// }
 */
 
 func mdToHTML(md []byte) []byte {
@@ -46,6 +108,23 @@ func mdToHTML(md []byte) []byte {
 
 	return markdown.Render(doc, renderer)
 }
+
+type Block struct {
+	Id string `json: "id"`
+	Type string `json: "type"`
+	Properties map[string]string `json: "properties"`
+	Contents []*Block `json: "contents"`
+}
+
+func (b *Block) Html() string {
+	content := b.Properties["content"]
+	return strings.TrimSpace(string(mdToHTML([]byte(content))))
+}
+
+func (b *Block) Md() string {
+	return b.Properties["content"]
+}
+
 
 
 type SyntaxNode interface {

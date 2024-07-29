@@ -160,3 +160,21 @@ func TestSerialisation(t *testing.T) {
 	// 	fmt.Println(thing.Md())
 	// }
 }
+
+func TestNewBlock(t *testing.T) {
+	props := map[string]string{
+		"content": "# Heading 1",
+	}
+	b1 := Block{
+		Id: "1",
+		Type: "markdown",
+		Properties: props,
+		Contents: []*Block{},
+	}
+	if b1.Md() != "# Heading 1" {
+		t.Errorf("o:«%s» != e:«# Heading 1»", b1.Md())
+	}
+	if b1.Html() != "<h1 id=\"heading-1\">Heading 1</h1>" {
+		t.Errorf("o:«%s» != e:«<h1 id=\"heading-1\">Heading</h1>»", b1.Html())
+	}
+}
