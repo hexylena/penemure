@@ -40,7 +40,7 @@ Academic girlies :sparkle:
     - [x] projects: multiple selection (v0)
     - [ ] in project: Group of Tasks - ibid, does it mean like, lists within a project? can this be modelled as a task?
 
-- [ ] repeating tasks
+- [ ] repeating tasks (v3)
     - [ ] daily/weekly/etc.
     - [ ] decide behaviour on completion/missing (does it just disappear? is it tracked?)
     - [ ] from a 'template'?
@@ -54,7 +54,7 @@ Academic girlies :sparkle:
     - [ ] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks', just a 'quick subtask')
 
 - [ ] People
-    - [ ] Allow assigning people without them existing in the system. (v0)
+    - [ ] Allow assigning people without them existing in the system, just @ them. If a @{user} exists, use that for avatar/etc. (v0)
 
 - [ ] Teams
     - [ ] Create arbitrary sub-groups of teams.
@@ -70,15 +70,21 @@ Academic girlies :sparkle:
 
 ## User Stories
 
+- I want to quickly add a task to be categorised later, I should just be able to write the todo item and be done, no other information required.
+- I want to create a project
+    - attach key files (agreement PDF, etc)
+    - attach key members to the project in specific roles (andrew is the boss, helena is the PM, etc.)
+    - sketch out some work packages
+        - attach tasks to those WPs
+        - assign people to those tasks
 - I want to track a project, split it into subprojects (maybe work packages)
-    - i'd like to add subtasks
+    - i'd like to add subtasks/subprojects
     - At relative dates from the start of the project / subproject (e.g. M1/Q1/Y1/Y1Q3)
     - And have those tasks repeat (e.g. Q2 every year.)
 - I want to start a timer when I start working, it should record what I'm working on that I manually enter
     - when I switch tasks I'll enter the new task
     - maybe it should suggest a list of parent tasks it should be associated with?
 - Grocery list
-- Daily habits/chores
 
 ## System Design
 
@@ -114,10 +120,9 @@ Is it possible (useful?) to make this recursive? Tasks all the way down with dif
 
 ```
 project (it's a task!)
-└── list/group of tasks (It's also a task!)
-    └── task
-        └── (sub)task
-            └── ...
+└── task
+    └── (sub)task
+        └── ...
 ```
 
 yeah that actually sounds sensible weirdly.
@@ -233,20 +238,3 @@ misc:
 - v0 - schemas that can be edited by shitty cli tools so we can get *something* functional.
 - v1 - git-bug backing, so they can be synced
 - v2 - the server implementation
-
-## CLI
-
-iT's CRUDdy bAbY
-
-```
-pm project list
-pm project add
-pm project remove <id>
-pm project edit <id>
-pm project show <id>
-pm task list
-pm task add
-pm task remove <id>
-pm task edit <id>
-pm task show <id>
-```
