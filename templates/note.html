@@ -58,12 +58,19 @@
       </h1>
       </hgroup>
 
+{{define "badge"}}
+  <span class="badge">
+    {{ .GetIconHtml }}
+    {{ .Title }}
+  </span>
+{{end}}
+
       {{ if .Note.HasParents }}
       <h2>Parents</h2>
       <ul>
 
         {{ range .Note.Parents }}
-        <li><a href="/notes/{{ . }}">{{ . }}</a></li>
+        <li><a href="{{ . }}.html">{{ template "badge" ($.GlobalNotes.GetNote .) }}</a></li>
         {{ end }}
       </ul>
       {{ end }}
@@ -80,7 +87,7 @@
                 <td>🏗 Projects</td>
                 <td>
                         {{ range .Note.Projects }}
-                        <a href="{{ . }}.html">{{ . }}</a>
+                        <a href="{{ . }}.html">{{ template "badge" ($.GlobalNotes.GetNote .) }}</a>
                         {{ end }}
                 </td>
         </tr>

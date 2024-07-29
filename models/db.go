@@ -75,6 +75,10 @@ func (gn *GlobalNotes) GetNotes() map[NoteId]*Note {
 	return gn.notes
 }
 
+func (gn *GlobalNotes) GetNote(id NoteId) *Note {
+	return gn.notes[id]
+}
+
 func (gn *GlobalNotes) GetNotesOfType(noteType string) map[NoteId]*Note {
 	notes := make(map[NoteId]*Note)
 	for _, note := range gn.notes {
