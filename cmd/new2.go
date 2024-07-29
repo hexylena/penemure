@@ -71,6 +71,7 @@ var new2Cmd = &cobra.Command{
 						huh.NewOption("Note", "note"),
 						huh.NewOption("Meeting", "meeting"),
 						huh.NewOption("Log", "log"),
+						huh.NewOption("File", "file"),
 					).
 					Value(&note.Type),
 				huh.NewMultiSelect[string]().

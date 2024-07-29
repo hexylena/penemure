@@ -10,6 +10,29 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
+
+/*
+
+TODO(hexylena)
+
+I think this is the completely wrong structure :D
+after reading:
+https://www.notion.so/blog/data-model-behind-notion
+
+We should have Blocks, with Contents, blocks all the way down.
+
+Block
+  type:Markdown (minus images? not sure how to handle inline properly.)
+  type:TableView
+  type:Image
+
+Each block has a Contents field which is Block[]
+
+Markdown can have multiple contents (individual markdown blocks)
+
+Is markdown important, then?
+*/
+
 func mdToHTML(md []byte) []byte {
 	// create markdown parser with extensions
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock

@@ -1,18 +1,14 @@
-# Helena's Task Tracking System
+# Hexy's Task Tracking System
 
 the one system to replace all of the rest. (ofc it's not, it's just option #15.)
 
 ## Naming Ideas
 
-> a product that tries to be everything at once will inevitably suck at each individual function
-
-- nosyd (dyson)
-- paliko (manager in finish, striped of special chars, duplicate letters.)
-
+- uhh
 
 ## Explicit Target Audience
 
-AuDHD Academic girlies :sparkle: (in general just overwhelmed academics with wishlists and deadlines.)
+Academic girlies :sparkle:
 
 ## Required features
 

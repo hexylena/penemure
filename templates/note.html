@@ -116,8 +116,7 @@
       {{ end }}
       {{ end }}
 
-      {{ if eq .Note.Type "project" }}
-      <h2>Project Contents</h2>
+      <h2>Children</h2>
       <table>
         <tr>
           <th>Title</th>
@@ -142,7 +141,6 @@
         </tr>
         {{ end }}
       </table>
-      {{ end }}
 
       {{ if .GlobalNotes.NoteHasChildren .Note }}
       {{ end }}
