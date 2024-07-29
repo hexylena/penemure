@@ -14,7 +14,7 @@ func fieldTest(c int, t *testing.T, field string, expected string) {
 	}
 }
 
-const reference = `{"id":"1111-2222-3333-4444","title":"test","type":"note","projects":null,"parents":null,"blocking":null,"_blocks":[{"contents":"Heading 1","level":"1","type":"heading"},{"contents":"Paragraph 1","type":"paragraph"},{"contents":["List 1","List 2"],"ordered":false,"type":"list"},{"alt_text":"Image 1","type":"image","url":"https://example.com/image.png"},{"type":"horizontal_rule"},{"query":"SELECT * FROM table","type":"table_view"},{"contents":"SELECT * FROM table","lang":"sql","type":"code"},{"contents":"Link 1","type":"link","url":"https://example.com"}],"_tags":[{"type":"icon","title":"icon","value":"🚦","icon":"🚦"},{"type":"tags","title":"Tags","value":["a","b"],"icon":"🚦"}],"created":0,"modified":0}`
+const reference = `{"id":"1111-2222-3333-4444","title":"test","type":"note","projects":null,"parents":null,"blocking":null,"_blocks":[{"contents":"Heading 1","level":"1","type":"heading"},{"contents":"Paragraph 1","type":"paragraph"},{"contents":["List 1","List 2"],"ordered":false,"type":"list"},{"alt_text":"Image 1","type":"image","url":"https://example.com/image.png"},{"type":"horizontal_rule"},{"query":"SELECT * FROM table","type":"table_view"},{"contents":"SELECT * FROM table","lang":"sql","type":"code"},{"contents":"Link 1","type":"link","url":"https://example.com"}],"_tags":[{"type":"icon","title":"icon","value":"🚦","icon":"🚦"},{"type":"tags","title":"Tags","value":["a","b"],"icon":"🚦"}],"created":0,"modified":0,"version":0}`
 const minimal = `
 {
   "id": "23ab5629-1e89-49b6-b05d-ccf6b36b264c",
@@ -26,7 +26,8 @@ const minimal = `
   "_blocks": null,
   "_tags": [],
   "created": 1706176264,
-  "modified": 1706176267
+  "modified": 1706176267,
+  "version":0
 }
 `
 

@@ -19,7 +19,6 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	pmd "github.com/hexylena/pm/md"
 	"github.com/hexylena/pm/sqlish"
-	pml "github.com/hexylena/pm/log"
 )
 
 const (
@@ -227,12 +226,12 @@ func (gn *GlobalNotes) GetProjects() map[NoteId]*Note {
 }
 
 func (gn *GlobalNotes) AddNote(n Note) {
-	pml.GetLogger().Info("AddNote", "note", n.String())
+	logger.Debug("AddNote", "note", n.String())
 	gn.notes[n.NoteId] = &n
 }
 
 func NewGlobalNotes() GlobalNotes {
-	pml.GetLogger().Info("NewGlobalNotes")
+	logger.Debug("NewGlobalNotes")
 	gn := GlobalNotes{}
 	gn.Init()
 	return gn

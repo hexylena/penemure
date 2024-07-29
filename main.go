@@ -23,7 +23,6 @@ func main() {
 
 	globalNotes = pmm.NewGlobalNotes()
 	pma.LoadNotes(globalNotes)
-	round()
 
 	// db := pmm.InitDB()
 	// tui.StartTea()

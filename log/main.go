@@ -1,17 +1,16 @@
 package log
 
-import "os"
-import "log/slog"
-// import "runtime/debug"
+import (
+	"log/slog"
+	"os"
+)
 
 var logger *slog.Logger
 var defined bool = false
 
-// get logger singleton
-
 func initialise() {
 	opts := &slog.HandlerOptions{
-		Level: slog.LevelDebug,
+		// Level: slog.LevelDebug,
 	}
 	var handler = slog.NewTextHandler(os.Stderr, opts)
 
@@ -39,5 +38,4 @@ func L(name string) *slog.Logger {
 		),
 	)
 	return child
-
 }

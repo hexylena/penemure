@@ -29,6 +29,7 @@ import (
 	pmd "github.com/hexylena/pm/md"
 )
 
+
 // const (
 // 	Project Season = iota
 // 	Task
@@ -147,6 +148,8 @@ type Note struct {
 	CreatedAt  int              `json:"created"`
 	ModifiedAt int              `json:"modified"`
 	modified   bool
+
+	Version    int      `json:"version"`
 }
 
 func (n *Note) String() string {
@@ -229,7 +232,7 @@ func (ce *Note) UnmarshalJSON(b []byte) error {
 		var rawMessagesBlocks []*json.RawMessage
 		err = json.Unmarshal(*objMap["_blocks"], &rawMessagesBlocks)
 		if err != nil {
-			fmt.Println("error unmarshalling _blocks", err)
+			logger.Error("error unmarshalling _blocks", "error", err)
 			return err
 		}
 
@@ -318,7 +321,7 @@ func (n *Note) ParseNote(path string) {
 	// Read the file
 	jsonFile, err := os.Open(path)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("error loading file ", "error", err, "path", path)
 	}
 	defer jsonFile.Close()
 
@@ -332,11 +335,6 @@ func (n *Note) ParseNote(path string) {
 	err = json.Unmarshal(byteValue, &n)
 	if err != nil {
 		fmt.Println(path, err)
-	}
-
-	if path == "projects/4/f/4fca94d6-cdd9-4540-8b0e-6370eba448b7" {
-		fmt.Println("Parsing", path)
-		fmt.Println(n)
 	}
 }
 
