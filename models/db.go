@@ -30,12 +30,10 @@ const (
 
 type GlobalNotes struct {
 	notes    map[NoteId]*Note
-	modified bool
 }
 
 func (gn *GlobalNotes) Init() {
 	gn.notes = make(map[NoteId]*Note)
-	gn.modified = false
 }
 
 func (gn *GlobalNotes) GetNoteById(id NoteId) *Note {
@@ -359,7 +357,6 @@ func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	note := gn.notes[note_id]
 	newnote := note.Edit()
 	gn.notes[note_id] = &newnote
-	gn.modified = true
 }
 
 func (gn *GlobalNotes) Export() {
@@ -477,11 +474,8 @@ func (gn *GlobalNotes) NewEdit() {
 }
 
 func (gn *GlobalNotes) RegisterNote(n *Note) {
+	n.modified = true
 	gn.notes[n.NoteId] = n
-}
-
-func (gn *GlobalNotes) Unmodified() bool {
-	return !gn.modified
 }
 
 func (gn *GlobalNotes) BubblePrint() {
