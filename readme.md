@@ -4,11 +4,34 @@ the one system to replace all of the rest. (ofc it's not, it's just option #15.)
 
 ## Naming Ideas
 
-- uhh
+- pm
+- hpm / hxpm
+- backburn
+- -TŁAH
 
 ## Explicit Target Audience
 
-Academic girlies :sparkle:
+Academic weapons :sparkle:
+
+## User Stories
+
+- I want to quickly add a task to be categorised later, I should just be able to write the title and be done, no other information required.
+    - but when I want to go back and update a task it should be easy to attach it to a project/etc.
+- I want to create a project
+    - attach key files (agreement PDF, etc)
+    - attach key members to the project in specific roles (andrew is the boss, helena is the PM, etc.)
+    - sketch out some work packages
+        - attach tasks to those WPs
+        - assign people to those tasks
+- I want to track a project, split it into subprojects (maybe work packages)
+    - i'd like to add subtasks/subprojects
+    - At relative dates from the start of the project / subproject (e.g. M1/Q1/Y1/Y1Q3)
+    - And have those tasks repeat (e.g. Q2 every year.)
+- I want to start a timer when I start working, it should record what I'm working on that I manually enter
+    - when I switch tasks I'll enter the new task
+    - maybe it should suggest a list of parent tasks it should be associated with?
+    - and maybe I want to take some notes about what I worked on then
+- I want to share a grocery list with my partner
 
 ## Required features
 
@@ -67,24 +90,6 @@ Academic girlies :sparkle:
 
 - [ ] Import
     - [ ] import from calendar, generate an associated task that follows a calendar event around / can automatically have reminders.
-
-## User Stories
-
-- I want to quickly add a task to be categorised later, I should just be able to write the todo item and be done, no other information required.
-- I want to create a project
-    - attach key files (agreement PDF, etc)
-    - attach key members to the project in specific roles (andrew is the boss, helena is the PM, etc.)
-    - sketch out some work packages
-        - attach tasks to those WPs
-        - assign people to those tasks
-- I want to track a project, split it into subprojects (maybe work packages)
-    - i'd like to add subtasks/subprojects
-    - At relative dates from the start of the project / subproject (e.g. M1/Q1/Y1/Y1Q3)
-    - And have those tasks repeat (e.g. Q2 every year.)
-- I want to start a timer when I start working, it should record what I'm working on that I manually enter
-    - when I switch tasks I'll enter the new task
-    - maybe it should suggest a list of parent tasks it should be associated with?
-- Grocery list
 
 ## System Design
 
