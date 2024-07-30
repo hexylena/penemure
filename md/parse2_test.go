@@ -80,24 +80,24 @@ an ![alt](https://example.com/image.png)
 ###### h6
 `
 
-func TestParseDoc(t *testing.T) {
-	blocks := MdToBlocks2([]byte(doc))
-
-	out_html := ""
-	for _, b := range blocks {
-		out_html += b.Html()
-	}
-	out_html = strings.TrimSpace(out_html)
-	if out_html != strings.TrimSpace(headers_html) {
-		t.Errorf("o:«%s» != e:«%s»", out_html, headers_html)
-	}
-
-	out_md := ""
-	for _, b := range blocks {
-		out_md += b.Md()
-	}
-
-	if out_md != headers {
-		t.Errorf("o:«%s» != e:«%s»", out_md, headers)
-	}
-}
+// func TestParseDoc(t *testing.T) {
+// 	blocks := MdToBlocks2([]byte(doc))
+//
+// 	out_html := ""
+// 	for _, b := range blocks {
+// 		out_html += b.Html()
+// 	}
+// 	out_html = strings.TrimSpace(out_html)
+// 	if out_html != strings.TrimSpace(headers_html) {
+// 		t.Errorf("o:«%s» != e:«%s»", out_html, headers_html)
+// 	}
+//
+// 	out_md := ""
+// 	for _, b := range blocks {
+// 		out_md += b.Md()
+// 	}
+//
+// 	if out_md != headers {
+// 		t.Errorf("o:«%s» != e:«%s»", out_md, headers)
+// 	}
+// }

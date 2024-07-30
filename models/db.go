@@ -213,6 +213,7 @@ func (gn *GlobalNotes) NoteHasChildren(note *Note) bool {
 }
 
 func (gn *GlobalNotes) GetChildren(note *Note) []*Note {
+	logger.Debug("GetChildren", "note", note)
 	children := []*Note{}
 	for _, note := range gn.notes {
 		if note.HasParent(note.NoteId) {
@@ -301,7 +302,6 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	html += "</tbody>"
 	html += "</table>"
 
-	fmt.Println(ans)
 	// todo? https://github.com/sidhant92/bool-parser-go
 	// todo
 	return html
