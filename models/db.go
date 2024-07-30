@@ -189,14 +189,14 @@ func (gn *GlobalNotes) GetUserAvatar(note *Note) string {
 // 	return projects
 // }
 
-func (gn *GlobalNotes) NoteHasChildren(note *Note) bool {
-	for _, note := range gn.notes {
-		if note.HasParent(note.NoteId) {
-			return true
-		}
-	}
-	return false
-}
+// func (gn *GlobalNotes) NoteHasChildren(note *Note) bool {
+// 	for _, note := range gn.notes {
+// 		if note.HasParent(note.NoteId) {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 func (gn *GlobalNotes) GetChildren(note *Note) []*Note {
 	logger.Debug("GetChildren", "note", note)

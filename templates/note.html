@@ -9,7 +9,8 @@
   </head>
   <body>
     <header>
-      <span>
+      <span style="display: flex; align-items: center;">
+        <img src="favicon.ico" width="40">
         <a href="index.html">HXPM</a>
         /
         {{ .Note.Id }}
@@ -96,6 +97,7 @@
       {{ end }}
       {{ end }}
 
+      {{ if .Note.GetProjectMembers .GlobalNotes }}
       <h2>Children</h2>
       <table>
         <tr>
@@ -121,9 +123,8 @@
         </tr>
         {{ end }}
       </table>
-
-      {{ if .GlobalNotes.NoteHasChildren .Note }}
       {{ end }}
+
     </main>
     <footer>
 	    <div>

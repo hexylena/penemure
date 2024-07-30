@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	pml "github.com/hexylena/pm/log"
 )
 
 type SqlLikeQuery struct {
@@ -16,6 +17,8 @@ type SqlLikeQuery struct {
 	OrderBy string
 	Limit   int
 }
+
+var logger = pml.L("models")
 
 func (slq *SqlLikeQuery) String() string {
 	return fmt.Sprintf("Select=[%s] Table=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%s] Limit=[%d]", slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
@@ -80,6 +83,9 @@ type GroupedResultSet map[string][][]string
 func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedResultSet {
 	// fmt.Println("Filtering documents with query: ", slq)
 	// OrderBy
+	logger.Info("Filtering documents with query", "query", slq)
+	logger.Info("Initial Documents", "count", len(documents))
+
 	if slq.OrderBy != "" {
 		field := strings.Split(slq.OrderBy, " ")[0]
 		direction := strings.Split(slq.OrderBy, " ")[1]
@@ -91,11 +97,14 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 			}
 		})
 	}
+	
+	logger.Info("Post Order Documents", "count", len(documents))
 
 	documents2 := []map[string]string{}
 	// Where
 	if slq.Where != "" {
 		for _, document := range documents {
+			logger.Info("Filtering Documents", "doc", document)
 			// Currently only support 'simple' filters, id=1 or project != "asdf"
 			if strings.Contains(slq.Where, "!=") {
 				left := strings.TrimSpace(strings.Split(slq.Where, "!=")[0])
@@ -121,6 +130,7 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 				// fmt.Println("Comparing: ", document[left], right)
 
 				// projects, parents, and blocking are special, they're strings joined by a separator character so we need to check contains
+				logger.Info("where=", "left", left, "right", right, "doc left", document[left])
 				if left == "project" || left == "parent" || left == "blocking" {
 					if strings.Contains(document[left], right) {
 						documents2 = append(documents2, document)
@@ -131,6 +141,8 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 			}
 		}
 	}
+
+	logger.Info("Post Where Documents", "count", len(documents2))
 
 	// From (table)
 	// I think we should ignore this??? maybe?? Or maybe it should be based
@@ -144,9 +156,9 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 			results["__default__"] = append(results["__default__"], Select(document, slq.Select))
 		}
 	} else {
-		fmt.Printf("Grouping by: «%s»\n", slq.GroupBy)
+		// fmt.Printf("Grouping by: «%s»\n", slq.GroupBy)
 		for _, document := range documents2 {
-			fmt.Printf("Grouping by: «%s»\n", document[slq.GroupBy])
+			// fmt.Printf("Grouping by: «%s»\n", document[slq.GroupBy])
 			key := document[slq.GroupBy]
 			if key == "" {
 				key = "Uncategorized"
