@@ -756,14 +756,11 @@ func (n *Note) Edit() Note {
 
 func (n *Note) GetProjectMembers(gn GlobalNotes) []Note {
 	out := make([]Note, 0)
-	if n.Type != "project" {
-		return out
-	}
 
 	// Every single note
 	for _, note := range gn.GetNotes() {
 		// Check their projects
-		for _, project := range note.Projects {
+		for _, project := range note.Parents {
 			// If their project list includes 'this' note
 			if project == n.NoteId {
 				out = append(out, *note)
