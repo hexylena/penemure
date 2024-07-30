@@ -328,7 +328,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	}
 
 	if key == "created" || key == "modified" || key == "start_time" || key == "end_time" {
-		gn.FmtTime(value)
+		return gn.FmtTime(value)
 	}
 
 	// if key == "author" || key == "Assignee" || key == "owner" {

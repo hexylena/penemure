@@ -3,6 +3,7 @@ package sqlish
 import (
 	"fmt"
 	"regexp"
+	"golang.org/x/exp/maps"
 	"sort"
 	"strconv"
 	"strings"
@@ -45,7 +46,7 @@ func ParseSqlQuery(query string) *SqlLikeQuery {
 	from := regexp.MustCompile(`\sFROM\s`)
 	m := from.Split(query, 2)
 	sqlSelect := regexp.MustCompile(`^SELECT\s+([A-Za-z_,* ]+)\s*$`) //
-	sqlFrom:= regexp.MustCompile(`^\s*([a-z]+)(\s+WHERE ([a-z<>=!0-9'" -]+))?( GROUP BY ([A-Za-z]+))?(\s+ORDER BY ([a-z]+) (ASC|DESC))?(\s+LIMIT ([0-9]+))?$`) //
+	sqlFrom:= regexp.MustCompile(`^\s*([a-z]+)(\s+WHERE ([A-Za-z<>=!0-9'" -]+))?(\s+GROUP BY ([A-Za-z]+))?(\s+ORDER BY ([a-z]+) (ASC|DESC))?(\s+LIMIT ([0-9]+))?$`) //
 	m_select := sqlSelect.FindStringSubmatch(m[0])
 	m = sqlFrom.FindStringSubmatch(m[1])
 
@@ -72,13 +73,62 @@ func ParseSqlQuery(query string) *SqlLikeQuery {
 
 func (slq *SqlLikeQuery) GetFields() []string {
 	r := []string{}
-	for _, field := range strings.Split(slq.Select, ",") {
-		r = append(r, strings.TrimSpace(field))
-	}
+
+	// if slq.Select == "*" {
+	// 	for _, field := range maps.Keys() {
+	// 		r = append(r, field)
+	// 	}
+	// } else {
+		for _, field := range strings.Split(slq.Select, ",") {
+			r = append(r, strings.TrimSpace(field))
+		}
+	// }
 	return r
 }
 
 type GroupedResultSet map[string][][]string
+
+func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, where string) bool {
+	if where == "" {
+		return true
+	}
+
+	if strings.Contains(where, "!=") {
+		left := strings.TrimSpace(strings.Split(where, "!=")[0])
+		right := strings.Split(where, "!=")[1]
+		right = strings.Replace(right, "\"", "", -1)
+		right = strings.Replace(right, "'", "", -1)
+		right = strings.TrimSpace(right)
+
+		if document[left] != right {
+			return true
+		}
+	} else if strings.Contains(where, ">=") {
+		panic("Not implemented: >=")
+	} else if strings.Contains(where, "<=") {
+		panic("Not implemented: <=")
+	} else if strings.Contains(where, "=") {
+		left := strings.TrimSpace(strings.Split(where, "=")[0])
+		right := strings.Split(where, "=")[1]
+		right = strings.Replace(right, "\"", "", -1)
+		right = strings.Replace(right, "'", "", -1)
+		right = strings.TrimSpace(right)
+		// fmt.Printf("Halves: «%s» «%s»", left, right)
+		// fmt.Println("Comparing: ", document[left], right)
+
+		// projects, parents, and blocking are special, they're strings joined by a separator character so we need to check contains
+		logger.Info("where=", "left", left, "right", right, "doc left", document[left])
+		if left == "project" || left == "parent" || left == "blocking" {
+			if strings.Contains(document[left], right) {
+				return true
+			}
+		} else if document[left] == right {
+			return true
+			// documents2 = append(documents2, document)
+		}
+	}
+	return false
+}
 
 func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedResultSet {
 	// fmt.Println("Filtering documents with query: ", slq)
@@ -101,43 +151,24 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 	logger.Info("Post Order Documents", "count", len(documents))
 
 	documents2 := []map[string]string{}
+
 	// Where
-	if slq.Where != "" {
-		for _, document := range documents {
-			logger.Info("Filtering Documents", "doc", document)
-			// Currently only support 'simple' filters, id=1 or project != "asdf"
-			if strings.Contains(slq.Where, "!=") {
-				left := strings.TrimSpace(strings.Split(slq.Where, "!=")[0])
-				right := strings.Split(slq.Where, "!=")[1]
-				right = strings.Replace(right, "\"", "", -1)
-				right = strings.Replace(right, "'", "", -1)
-				right = strings.TrimSpace(right)
+	for _, document := range documents {
+		logger.Info("Filtering Documents", "where", slq.Where, "doc", document)
+		if strings.Contains(slq.Where, " AND ") {
+			terms := strings.Split(slq.Where, " AND ")
+			if slq.whereDocumentIsIncluded(document, terms[0]) && slq.whereDocumentIsIncluded(document, terms[1]){
+				documents2 = append(documents2, document)
+			}
 
-				if document[left] != right {
-					documents2 = append(documents2, document)
-				}
-			} else if strings.Contains(slq.Where, ">=") {
-				panic("Not implemented: >=")
-			} else if strings.Contains(slq.Where, "<=") {
-				panic("Not implemented: <=")
-			} else if strings.Contains(slq.Where, "=") {
-				left := strings.TrimSpace(strings.Split(slq.Where, "=")[0])
-				right := strings.Split(slq.Where, "=")[1]
-				right = strings.Replace(right, "\"", "", -1)
-				right = strings.Replace(right, "'", "", -1)
-				right = strings.TrimSpace(right)
-				// fmt.Printf("Halves: «%s» «%s»", left, right)
-				// fmt.Println("Comparing: ", document[left], right)
-
-				// projects, parents, and blocking are special, they're strings joined by a separator character so we need to check contains
-				logger.Info("where=", "left", left, "right", right, "doc left", document[left])
-				if left == "project" || left == "parent" || left == "blocking" {
-					if strings.Contains(document[left], right) {
-						documents2 = append(documents2, document)
-					}
-				} else if document[left] == right {
-					documents2 = append(documents2, document)
-				}
+		} else if strings.Contains(slq.Where, " OR ") {
+			terms := strings.Split(slq.Where, " OR ")
+			if slq.whereDocumentIsIncluded(document, terms[0]) || slq.whereDocumentIsIncluded(document, terms[1]){
+				documents2 = append(documents2, document)
+			}
+		} else {
+			if slq.whereDocumentIsIncluded(document, slq.Where){
+				documents2 = append(documents2, document)
 			}
 		}
 	}
@@ -179,8 +210,15 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 
 func Select(document map[string]string, fields string) []string {
 	r := []string{}
-	for _, field := range strings.Split(fields, ",") {
-		r = append(r, document[strings.TrimSpace(field)])
+	if fields == "*" {
+		for _, field := range maps.Keys(document) {
+			r = append(r, document[field])
+		}
+
+	} else {
+		for _, field := range strings.Split(fields, ",") {
+			r = append(r, document[strings.TrimSpace(field)])
+		}
 	}
 	return r
 }

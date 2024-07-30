@@ -787,7 +787,11 @@ type FlatNote map[string]string
 
 func (n *Note) Flatten() FlatNote {
 	out := FlatNote{
+		// Custom
 		"short_id": n.Id(),
+		"icon": n.GetEmoji(),
+
+		// Built In
 		"id":       fmt.Sprint(n.NoteId),
 		"title":    n.Title,
 		"type":     n.Type,
