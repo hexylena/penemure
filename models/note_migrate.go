@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"golang.org/x/exp/maps"
 	"errors"
 	pmd "github.com/hexylena/pm/md"
 	"io/ioutil"
@@ -633,13 +634,20 @@ func migrate1(n0 Note0) Note1 {
 }
 
 func migrate2(n1 Note1) Note2 {
+	// n1.projects and n1.parents need to be merged + unique'd
+	parents_map := make(map[NoteId]bool)
+	for _, p := range append(n1.Parents, n1.Projects...) {
+		parents_map[p] = true
+	}
+
 	n2 := Note2{
 		NoteId: n1.NoteId,
 		Title:  n1.Title,
 		Type:   n1.Type,
 		// Projects: n1.Projects,
 		// append projects to parents
-		Parents:    append(n1.Parents, n1.Projects...),
+		// Unique values
+		Parents:    maps.Keys(parents_map),
 		Blocking:   n1.Blocking,
 		Blocks:     n1.Blocks,
 		Meta:       n1.Meta,

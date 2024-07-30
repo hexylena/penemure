@@ -7,13 +7,13 @@ import (
 
 func fieldTest(c int, t *testing.T, field string, expected string) {
 	if field != expected {
-		t.Errorf("[c%d] o:«%s» != e:«%s»", c, field, expected)
+		t.Errorf("[c%d] Mismatch\no:«%s»\n!=\ne:«%s»", c, field, expected)
 	}
 }
 
 func fieldTesti(c int, t *testing.T, field int, expected int) {
 	if field != expected {
-		t.Errorf("[c%d] o:«%d» != e:«%d»", c, field, expected)
+		t.Errorf("[c%d] Mismatch\no:«%d»\n\t!=\n\te:«%d»", c, field, expected)
 	}
 }
 
@@ -106,6 +106,9 @@ func TestSqlParsingSimple(t *testing.T) {
 	ans = ParseSqlQuery("SELECT id FROM table ORDER BY y ASC")
 	fieldTest(46, t, ans.OrderBy, "y ASC")
 	fieldTesti(47, t, ans.Limit, -1)
+
+	ans = ParseSqlQuery("SELECT short_id, title, Status, created FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7' ORDER BY created ASC")
+	fieldTest(48, t, ans.Select, "short_id, title, Status, created")
 
 }
 

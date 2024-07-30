@@ -22,36 +22,46 @@ func (slq *SqlLikeQuery) String() string {
 }
 
 func ParseSelectFrom(query string) *SqlLikeQuery {
-	sqlLike := regexp.MustCompile(`^SELECT\s+([a-z*, ]+)\s+FROM\s+([a-z]+)$`) //
-	m := sqlLike.FindStringSubmatch(query)
+	// Split the string on '\sFROM\s'
+	// m := sqlLike.FindStringSubmatch(query)
+	from := regexp.MustCompile(`\sFROM\s`)
+	m := from.Split(query, 2)
+	sqlSelect := regexp.MustCompile(`^SELECT\s+([A-Za-z*, ]+)\s*$`) //
+	sqlFrom:= regexp.MustCompile(`^\s*([A-Za-z]+)\s*$`) //
+	m_select := sqlSelect.FindStringSubmatch(m[0])
+	m_from := sqlFrom.FindStringSubmatch(m[1])
 
 	slq := &SqlLikeQuery{
-		Select: m[1],
-		From:   m[2],
+		Select: m_select[1],
+		From:   m_from[1],
 	}
 	return slq
 }
 
 func ParseSqlQuery(query string) *SqlLikeQuery {
-	sqlLike := regexp.MustCompile(`^SELECT\s+([a-z_, ]+)\s+FROM\s+([a-z]+)(\s+WHERE ([a-z<>=!0-9'" -]+))?( GROUP BY ([A-Za-z]+))?(\s+ORDER BY ([a-z]+) (ASC|DESC))?(\s+LIMIT ([0-9]+))?$`) //
+	from := regexp.MustCompile(`\sFROM\s`)
+	m := from.Split(query, 2)
+	sqlSelect := regexp.MustCompile(`^SELECT\s+([A-Za-z_,* ]+)\s*$`) //
+	sqlFrom:= regexp.MustCompile(`^\s*([a-z]+)(\s+WHERE ([a-z<>=!0-9'" -]+))?( GROUP BY ([A-Za-z]+))?(\s+ORDER BY ([a-z]+) (ASC|DESC))?(\s+LIMIT ([0-9]+))?$`) //
+	m_select := sqlSelect.FindStringSubmatch(m[0])
+	m = sqlFrom.FindStringSubmatch(m[1])
 
-	m := sqlLike.FindStringSubmatch(query)
-	if len(m) < 9 {
+	if len(m) < 8 {
 		fmt.Println("Error parsing query: ", query)
 		return &SqlLikeQuery{}
 	}
 
-	limit, err := strconv.Atoi(m[11])
+	limit, err := strconv.Atoi(m[10])
 	if err != nil {
 		limit = -1
 	}
 
 	slq := &SqlLikeQuery{
-		Select:  strings.TrimSpace(m[1]),
-		From:    strings.TrimSpace(m[2]),
-		Where:   strings.TrimSpace(m[4]),
-		GroupBy: strings.TrimSpace(m[6]),
-		OrderBy: strings.TrimSpace(m[8] + " " + m[9]),
+		Select:  strings.TrimSpace(m_select[1]),
+		From:    strings.TrimSpace(m[1]),
+		Where:   strings.TrimSpace(m[3]),
+		GroupBy: strings.TrimSpace(m[5]),
+		OrderBy: strings.TrimSpace(m[7] + " " + m[8]),
 		Limit:   limit,
 	}
 	return slq

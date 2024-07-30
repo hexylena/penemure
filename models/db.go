@@ -104,7 +104,7 @@ func (gn *GlobalNotes) DeleteNote(nid NoteId) {
 func (gn *GlobalNotes) GetTopLevelNotes() map[NoteId]*Note {
 	top_level_notes := make(map[NoteId]*Note)
 	for _, note := range gn.notes {
-		if len(note.Parents) == 0 && len(note.Projects) == 0 {
+		if len(note.Parents) == 0 {
 			top_level_notes[note.NoteId] = note
 		}
 	}
@@ -144,7 +144,6 @@ type AncestorType int
 
 const (
 	AT_Parent AncestorType = iota
-	AT_Project
 )
 
 func (gn *GlobalNotes) GetAncestorChain(note *Note, at_type AncestorType) []*Note {
@@ -155,11 +154,6 @@ func (gn *GlobalNotes) GetAncestorChain(note *Note, at_type AncestorType) []*Not
 	if at_type == AT_Parent {
 		if len(note.Parents) > 0 {
 			parent := gn.GetAncestorChain(gn.GetNoteById(note.Parents[0]), at_type)
-			parents = append(parents, parent...)
-		}
-	} else if at_type == AT_Project {
-		if len(note.Projects) > 0 {
-			parent := gn.GetAncestorChain(gn.GetNoteById(note.Projects[0]), at_type)
 			parents = append(parents, parent...)
 		}
 	}
@@ -192,20 +186,17 @@ func (gn *GlobalNotes) GetUserAvatar(note *Note) string {
 	return ""
 }
 
-func (gn *GlobalNotes) GetProjectsForNote(note *Note) map[NoteId]*Note {
-	projects := make(map[NoteId]*Note)
-	for _, project := range note.Projects {
-		projects[project] = gn.GetNoteById(project)
-	}
-	return projects
-}
+// func (gn *GlobalNotes) GetProjectsForNote(note *Note) map[NoteId]*Note {
+// 	projects := make(map[NoteId]*Note)
+// 	for _, project := range note.Projects {
+// 		projects[project] = gn.GetNoteById(project)
+// 	}
+// 	return projects
+// }
 
 func (gn *GlobalNotes) NoteHasChildren(note *Note) bool {
 	for _, note := range gn.notes {
 		if note.HasParent(note.NoteId) {
-			return true
-		}
-		if note.HasProject(note.NoteId) {
 			return true
 		}
 	}
@@ -217,9 +208,6 @@ func (gn *GlobalNotes) GetChildren(note *Note) []*Note {
 	children := []*Note{}
 	for _, note := range gn.notes {
 		if note.HasParent(note.NoteId) {
-			children = append(children, note)
-		}
-		if note.HasProject(note.NoteId) {
 			children = append(children, note)
 		}
 	}
@@ -509,7 +497,6 @@ func (gn *GlobalNotes) BubblePrint() {
 			note.Type,
 			note.Id(),
 			note.Title,
-			fmt.Sprintf("%s", note.Projects),
 			fmt.Sprintf("%s", note.Parents),
 			note.GetS("Status"),
 			note.GetS("Tags"),
@@ -543,7 +530,7 @@ func (gn *GlobalNotes) BubblePrint() {
 				return OddRowStyle
 			}
 		}).
-		Headers("Type", "ID", "Title", "Projects", "Parents", "Status", "Tags").
+		Headers("Type", "ID", "Title", "Parents", "Status", "Tags").
 		Rows(rows...)
 
 	// You can also add tables row-by-row

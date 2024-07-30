@@ -38,6 +38,10 @@ import (
 
 type NoteId string
 
+func (n *NoteId) String() string {
+	return string(*n)
+}
+
 type PartialNoteId string
 
 type SimpleMeta map[string]any
@@ -83,7 +87,7 @@ func (m *Meta) GetIconHtml() string {
 	} else if m.Title == "Blocking" {
 		return "🚫"
 	} else if m.Icon == "" {
-		return "?"
+		return ""
 	}
 
 	// Remote icons
@@ -138,7 +142,6 @@ type Note struct {
 	Title  string `json:"title"`
 	Type   string `json:"type"`
 
-	Projects []NoteId `json:"projects"`
 	Parents  []NoteId `json:"parents"`
 	Blocking []NoteId `json:"blocking"`
 
@@ -187,13 +190,6 @@ func (ce *Note) UnmarshalJSON(b []byte) error {
 
 	if objMap["version"] != nil {
 		err = json.Unmarshal(*objMap["version"], &ce.Version)
-		if err != nil {
-			return err
-		}
-	}
-
-	if objMap["projects"] != nil {
-		err = json.Unmarshal(*objMap["projects"], &ce.Projects)
 		if err != nil {
 			return err
 		}
@@ -390,6 +386,10 @@ func (n *Note) IsModified() bool {
 	return n.modified
 }
 
+func (n *Note) Projects() []*Note {
+	return []*Note{}
+}
+
 func (n *Note) HasParents() bool {
 	return len(n.Parents) > 0
 }
@@ -413,17 +413,24 @@ func (n *Note) SetParent(o NoteId) {
 	n.Touch()
 }
 
-func (n *Note) HasProject(o NoteId) bool {
-	for _, p := range n.Projects {
-		if p == o {
-			return true
-		}
-	}
-	return false
-}
-
 func (n *Note) HasBlocks() bool {
 	return len(n.Blocks) > 0
+}
+
+func (n *Note) GetEmoji() string {
+	if n.Type == "project" {
+		return "📁"
+	} else if n.Type == "task" {
+		return "📌"
+	} else if n.Type == "person" {
+		return "👩‍🦰"
+	} else if n.Type == "note" {
+		return "🗒"
+	} else if n.Type == "log" {
+		return "⏰"
+	} else {
+		return "?"
+	}
 }
 
 func (n *Note) GetIconHtml() string {
@@ -436,17 +443,7 @@ func (n *Note) GetIconHtml() string {
 	}
 
 	if icon == "" {
-		if n.Type == "project" {
-			return "📁"
-		} else if n.Type == "task" {
-			return "📌"
-		} else if n.Type == "note" {
-			return "🗒"
-		} else if n.Type == "log" {
-			return "⏰"
-		} else {
-			return "?"
-		}
+		return n.GetEmoji()
 	}
 
 	// Remote icons
@@ -797,7 +794,6 @@ func (n *Note) Flatten() FlatNote {
 		"created":  fmt.Sprint(n.CreatedAt),
 		"modified": fmt.Sprint(n.ModifiedAt),
 		// Separate with unicode Record Separator
-		"project":  strings.Join(StringifyNoteIds(n.Projects), "\u001E"),
 		"parent":   strings.Join(StringifyNoteIds(n.Parents), "\u001E"),
 		"blocking": strings.Join(StringifyNoteIds(n.Blocking), "\u001E"),
 	}

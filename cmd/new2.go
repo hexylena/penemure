@@ -3,6 +3,7 @@ package cmd
 import (
 	// "errors"
 	"github.com/spf13/cobra"
+	"sort"
 	"strings"
 
 	"fmt"
@@ -34,24 +35,41 @@ var new2Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		note := pmm.NewNote()
-		gn.RegisterNote(note)
 
 		var projects []huh.Option[string]
 		for _, project := range gn.GetProjects() {
 			projects = append(projects, huh.NewOption(project.Title, fmt.Sprintf("%s", project.NoteId)))
 		}
 
-		var projects_out []string
 		var parents_out []string
 		var blocking_out []string
 		var base16 *huh.Theme = huh.ThemeBase16()
 
-		all_tasks := gn.GetTasks()
+		all_tasks := gn.GetNotes()
+
+		// Start sorting nonsense
+		type kv struct {
+			Key   pmm.NoteId
+			Value *pmm.Note
+		}
+
+		var ss []kv
+		for k, v := range all_tasks {
+			ss = append(ss, kv{k, v})
+		}
+
+		sort.Slice(ss, func(i, j int) bool {
+			return ss[i].Value.Type + ss[i].Value.Title > ss[j].Value.Type + ss[j].Value.Title
+		})
+		// end sorting.
+
+
 		var all_tasks_options1 []huh.Option[string]
 		var all_tasks_options2 []huh.Option[string]
-		for _, task := range all_tasks {
-			all_tasks_options1 = append(all_tasks_options1, huh.NewOption(task.Title, fmt.Sprintf("%s", task.NoteId)))
-			all_tasks_options2 = append(all_tasks_options2, huh.NewOption(task.Title, fmt.Sprintf("%s", task.NoteId)))
+		for _, kv := range ss {
+			t := fmt.Sprintf("%s %s", kv.Value.GetEmoji(), kv.Value.Title)
+			all_tasks_options1 = append(all_tasks_options1, huh.NewOption(t, kv.Value.NoteId.String()))
+			all_tasks_options2 = append(all_tasks_options2, huh.NewOption(t, kv.Value.NoteId.String()))
 		}
 
 		var tags_out string
@@ -75,17 +93,13 @@ var new2Cmd = &cobra.Command{
 					).
 					Value(&note.Type),
 				huh.NewMultiSelect[string]().
-					Options(projects...).
-					Title("Projects").
-					Value(&projects_out),
-				huh.NewMultiSelect[string]().
 					Options(all_tasks_options1...).
 					Title("Parents").
 					Value(&parents_out),
-				huh.NewMultiSelect[string]().
-					Options(all_tasks_options2...).
-					Title("Blocking").
-					Value(&blocking_out),
+				// huh.NewMultiSelect[string]().
+				// 	Options(all_tasks_options2...).
+				// 	Title("Blocking").
+				// 	Value(&blocking_out),
 			),
 			huh.NewGroup(
 				huh.NewInput().
@@ -101,10 +115,6 @@ var new2Cmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		for _, project := range projects_out {
-			note.Projects = append(note.Projects, pmm.NoteId(project))
-		}
-
 		for _, parent := range parents_out {
 			note.Parents = append(note.Parents, pmm.NoteId(parent))
 		}
@@ -118,6 +128,7 @@ var new2Cmd = &cobra.Command{
 		}
 
 		note.Blocks = pmd.MdToBlocks([]byte(contents_out))
+		gn.RegisterNote(note)
 		fmt.Println(note)
 
 		// gn.new2Edit()
