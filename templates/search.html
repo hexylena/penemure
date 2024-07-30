@@ -3,82 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title>Search | HXPM Notes</title>
-    <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
-    <link rel="stylesheet" href="https://unpkg.com/concrete.css@2.0.3/concrete.css">
-    <link href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..800,0..1,0..1,0..1&display=swap" rel="stylesheet">
-    <style>
-      body {
-	font-family: 'Recursive';
-	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 0;
-	font-weight: 350;
-      }
-      h1, h2 {
-	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 1;
-      }
-      pre, kbd, samp, code {
-	font-family: 'Recursive';
-	font-variation-settings: "CASL" 0.5, "CRSV" 0, "MONO" 1;
-      }
-      main, header {
-        margin: auto;
-        max-width: 80%;
-        padding: 0 1rem;
-        width: 100%;
-      }
-      body > header {
-        padding: 3rem 0;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-      }
-      footer {
-        padding: 3rem 0;
-	margin: auto;
-	width: 100%;
-	max-width: 80%;
-	border-top: 3px solid black;
-	margin-top: 12rem;
-	display: flex;
-	justify-content: space-between;
-      }
-
-    .row {
-      display: flex;
-      flex-direction: column;
-      padding: 0;
-    }
-
-    .row .column {
-      display: block;
-      flex: 1 1 auto;
-      margin-left: 0;
-      max-width: 100%;
-      width: 100%;
-    }
-
-    .row .column-2 {
-      display: block;
-      flex: 1 0.5 auto;
-      margin-left: 0;
-      max-width: 100%;
-      width: 100%;
-    }
-
-    @media (min-width: 30.0rem) {
-      .row {
-        flex-direction: row;
-        margin: 0 -.5rem;
-        width: calc(100% + 1rem);
-      }
-
-      .row .column {
-        margin-bottom: inherit;
-        padding: 0 .5rem;
-      }
-    }
-
-
-    </style>
+    <link rel="stylesheet" href="assets/normalize@8.0.1.css">
+    <link rel="stylesheet" href="assets/concrete@2.0.3.css">
+    <link rel="stylesheet" href="assets/index.css">
   </head>
   <body>
     <header>
@@ -87,7 +14,7 @@
         /
         Search
       </span>
-      <form url="search.html">
+      <form action="search.html">
         <input type="search" name="title" id="search" size="24" style="width: unset" placeholder="search">
       </form>
     </header>

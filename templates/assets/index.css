@@ -1,0 +1,80 @@
+/* latin */
+@font-face {
+  font-family: 'Recursive';
+  font-style: oblique 0deg 15deg;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url(/assets/recursive.woff2) format('woff2');
+}
+
+body {
+	font-family: 'Recursive';
+	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 0;
+	font-weight: 350;
+}
+h1, h2 {
+	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 1;
+}
+pre, kbd, samp, code {
+	font-family: 'Recursive';
+	font-variation-settings: "CASL" 0.5, "CRSV" 0, "MONO" 1;
+}
+main, header {
+	margin: auto;
+	max-width: 80%;
+	padding: 0 1rem;
+	width: 100%;
+}
+body > header {
+	padding: 3rem 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+footer {
+	padding: 3rem 0;
+	margin: auto;
+	width: 100%;
+	max-width: 80%;
+	border-top: 3px solid black;
+	margin-top: 12rem;
+	display: flex;
+	justify-content: space-between;
+}
+
+.row {
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+}
+
+.row .column {
+	display: block;
+	flex: 1 1 auto;
+	margin-left: 0;
+	max-width: 100%;
+	width: 100%;
+}
+
+.row .column-2 {
+	display: block;
+	flex: 1 0.5 auto;
+	margin-left: 0;
+	max-width: 100%;
+	width: 100%;
+}
+
+@media (min-width: 30.0rem) {
+	.row {
+		flex-direction: row;
+		margin: 0 -.5rem;
+		width: calc(100% + 1rem);
+	}
+
+	.row .column {
+		margin-bottom: inherit;
+		padding: 0 .5rem;
+	}
+}
+
+
