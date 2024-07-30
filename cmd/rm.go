@@ -2,7 +2,6 @@ package cmd
 
 import (
 	pmm "github.com/hexylena/pm/models"
-	pma "github.com/hexylena/pm/adapter"
 	"fmt"
 	"github.com/spf13/cobra"
 )
@@ -25,6 +24,6 @@ var rmCmd = &cobra.Command{
 		}
 		fmt.Println("REMOVING THE FOLLOWING NOTE")
 		gn.BubbleShow(partial)
-		pma.DeleteNote(gn, note_id)
+		ga.DeleteNote(gn, note_id)
 	},
 }

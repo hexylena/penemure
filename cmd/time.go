@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	pma "github.com/hexylena/pm/adapter"
 	// "os"
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
@@ -233,7 +232,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// Must be registered in the adapter or it gets lost
 					gn.RegisterNote(m.note)
 					// Must persist
-					pma.SaveNotes(gn)
+					ga.SaveNotes(gn)
 				} else {
 					m.running = false
 					// save entry
@@ -243,7 +242,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					gn.RegisterNote(m.note)
 
 					// Must persist
-					pma.SaveNotes(gn)
+					ga.SaveNotes(gn)
 
 					m.oldData = append(m.oldData, m.newInput)
 					m.newStartTime = 0

@@ -479,6 +479,7 @@ func (n *Note) ExportToFile(gn *GlobalNotes) {
 
 	// Save to ./export/<id>.html
 	f, err := os.Create(fmt.Sprintf("export/%s.html", n.NoteId))
+	logger.Info("Exporting", "note", n.String(), "file", f.Name())
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -494,7 +495,7 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer) {
 	}
 	tmpl, err := template.New("note").Parse(string(tmpl_text))
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("error executing template", "error", err)
 	}
 
 	type tmpstruct struct {
@@ -504,7 +505,7 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer) {
 
 	err = tmpl.Execute(w, tmpstruct{n, gn})
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("error executing template", "error", err)
 	}
 	// TODO: copy icon, cover if local
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"os"
+	"golang.org/x/exp/maps"
 	"regexp"
 	"runtime/debug"
 	"strconv"
@@ -71,6 +72,15 @@ func (gn *GlobalNotes) DbSize() int {
 
 func (gn *GlobalNotes) GetNotes() map[NoteId]*Note {
 	return gn.notes
+}
+
+func (gn *GlobalNotes) GetTypes() []string {
+	types := make(map[string]string)
+	for _, note := range gn.notes {
+		types[note.Type] = "";
+	}
+
+	return maps.Keys(types)
 }
 
 func (gn *GlobalNotes) GetNote(id NoteId) *Note {
@@ -226,7 +236,6 @@ func (gn *GlobalNotes) GetProjects() map[NoteId]*Note {
 }
 
 func (gn *GlobalNotes) AddNote(n Note) {
-	logger.Debug("AddNote", "note", n.String())
 	gn.notes[n.NoteId] = &n
 }
 
@@ -252,7 +261,7 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	// SELECT id, title FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7' GROUP BY status
 	// match by regex.
 
-	fmt.Println("tbl_iew", query)
+	logger.Info("tbl_view", "query", query)
 	ans := sqlish.ParseSqlQuery(query)
 
 	flattened_notes := []map[string]string{}
@@ -298,11 +307,6 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	return html
 }
 
-func (gn *GlobalNotes) ToHtmlTags(value []string) string {
-	fmt.Println("to html tags", value)
-	return ""
-}
-
 func (gn *GlobalNotes) FmtTimeI(i int) string {
 	t := time.Unix(int64(i), 0)
 	return t.Format("2006-01-02 15:04:05")
@@ -328,7 +332,6 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	uuid_short := regexp.MustCompile(`^[a-f0-9]{8}$`)
 
 	// if it looks like a uuid, by regex, make it a link
-	// fmt.Println(value, uuid_regex.MatchString(value), len(value))
 	if uuid_regex.MatchString(value) {
 		return "<a href=\"" + value + ".html\">" + value + "</a>"
 	}
@@ -371,22 +374,22 @@ func (gn *GlobalNotes) Export() {
 	// Read template from templates/note.html
 	list_tpl_text, err := os.ReadFile("templates/list.html")
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error", "err", err)
 	}
 	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error", "err", err)
 	}
 
 	// Render template
 	f, err := os.Create("export/index.html")
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error", "err", err)
 	}
 
 	err = list_tpl.Execute(f, gn)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error", "err", err)
 	}
 
 	// Export individual notes
@@ -411,6 +414,7 @@ func (gn *GlobalNotes) Serve() {
 
 	r.Get("/", gn.serve_index)
 	r.Get("/index.html", gn.serve_index)
+	r.Get("/search.html", gn.serve_search)
 	// r.Route("/notes", func(r chi.Router) {
 	// 	// r.With(paginate).Get("/", listArticles)                           // GET /notes
 	// 	// r.Get("/", gn.serve_listArticles)                           // GET /notes
@@ -424,17 +428,34 @@ func (gn *GlobalNotes) Serve() {
 func (gn *GlobalNotes) serve_index(w http.ResponseWriter, r *http.Request) {
 	list_tpl_text, err := os.ReadFile("templates/list.html")
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error", "err", err)
 	}
 	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error", "err", err)
 	}
 
 	// Render template
 	err = list_tpl.Execute(w, gn)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Error", "err", err)
+	}
+}
+
+func (gn *GlobalNotes) serve_search(w http.ResponseWriter, r *http.Request) {
+	list_tpl_text, err := os.ReadFile("templates/search.html")
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+
+	// Render template
+	err = list_tpl.Execute(w, gn)
+	if err != nil {
+		logger.Error("Error", "err", err)
 	}
 }
 

@@ -16,20 +16,25 @@ import (
 )
 
 var globalNotes pmm.GlobalNotes
+var globalAdapter pma.TaskAdapter
 
 func main() {
 	logger := pml.L("main")
 	logger.Info("Starting pm")
 
+	globalAdapter := &pma.FsAdapter{
+		Path: "./projects",
+	}
+
 	globalNotes = pmm.NewGlobalNotes()
-	pma.LoadNotes(globalNotes)
+	globalAdapter.LoadNotes(globalNotes)
 
 	// db := pmm.InitDB()
 	// tui.StartTea()
 	logger.Info("Executing Command")
-	cmd.Execute(globalNotes)
+	cmd.Execute(globalNotes, globalAdapter)
 
 	logger.Info("Shutting Down and Saving Notes")
-	pma.SaveNotes(globalNotes)
+	globalAdapter.SaveNotes(globalNotes)
 
 }
