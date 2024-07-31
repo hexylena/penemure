@@ -18,15 +18,15 @@ func fieldTesti(c int, t *testing.T, field int, expected int) {
 }
 
 func TestSqlParsingSimple(t *testing.T) {
-	ans := ParseSelectFrom("SELECT id FROM asdf")
+	ans := ParseSqlQuery("SELECT id FROM asdf")
 	fieldTest(1, t, ans.Select, "id")
 	fieldTest(2, t, ans.From, "asdf")
 
-	ans = ParseSelectFrom("SELECT id, title FROM asdf")
+	ans = ParseSqlQuery("SELECT id, title FROM asdf")
 	fieldTest(3, t, ans.Select, "id, title")
 	fieldTest(4, t, ans.From, "asdf")
 
-	ans = ParseSelectFrom("SELECT a,b,c,d,e FROM qq")
+	ans = ParseSqlQuery("SELECT a,b,c,d,e FROM qq")
 	fieldTest(5, t, ans.Select, "a, b, c, d, e")
 	fieldTest(6, t, ans.From, "qq")
 

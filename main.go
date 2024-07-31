@@ -51,9 +51,9 @@ func main() {
 	}
 
 	globalConfig = pmc.HxpmConfig{
-		Adapter: viper.GetString("Adapter"),
-		Title:   viper.GetString("Title"),
-		About:   viper.GetString("About"),
+		Adapter:         viper.GetString("Adapter"),
+		Title:           viper.GetString("Title"),
+		About:           viper.GetString("About"),
 		ExportDirectory: viper.GetString("ExportDirectory"),
 	}
 

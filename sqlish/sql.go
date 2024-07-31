@@ -23,10 +23,6 @@ func (slq *SqlLikeQuery) String() string {
 	return fmt.Sprintf("Select=[%s] From=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%s] Limit=[%d]", slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
 }
 
-func ParseSelectFrom(query string) *SqlLikeQuery {
-	return parseQuery(query)
-}
-
 func ParseSqlQuery(query string) *SqlLikeQuery {
 	return parseQuery(query)
 }
