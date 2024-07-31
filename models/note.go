@@ -58,7 +58,9 @@ type Meta struct {
 func (m *Meta) GetIconHtml() string {
 	if m.Title == "Status" {
 		return "🚦"
-	} else if m.Title == "Assignee" {
+	} else if (m.Title == "Assignee" || m.Title == "assignee"){
+		return "👤"
+	} else if m.Title == "Author" {
 		return "👤"
 	} else if m.Title == "Tags" {
 		return "🏷"
@@ -383,6 +385,17 @@ func (n *Note) AddMeta(typ string, k string, v string) {
 		Title: k,
 		Value: v,
 	})
+}
+
+func (n *Note) RemoveMetaTag(k string) {
+	n.Touch()
+	new_meta := make([]*Meta, 0)
+	for i, tag := range n.Meta {
+		if tag.Title != k {
+			new_meta = append(new_meta, n.Meta[i])
+		}
+	}
+	n.Meta = new_meta
 }
 
 func NewNote() *Note {

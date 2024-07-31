@@ -13,7 +13,7 @@
 		<th>Type</th>
 		<th>Status</th>
 		<th>Tags</th>
-		<th>Assignee</th>
+		<th>Author</th>
 	</tr>
 	{{ range $k, $v := .Gn.GetTopLevelNotes }}
 	<tr>
@@ -21,7 +21,7 @@
 		<td>{{ $v.Type }}</td>
 		<td>{{ $v.GetS "Status" }}</td>
 		<td>{{ $v.GetS "Tags" }}</td>
-		<td>{{ $v.GetS "Assignee" }}</td>
+		<td>{{ $v.GetS "Author" }}</td>
 	</tr>
 	{{ end }}
 </table>

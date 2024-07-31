@@ -530,7 +530,7 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 }
 
 func (gn *GlobalNotes) GetChildrenFormatted(note NoteId) string {
-	return gn.QueryToHtml("select title, created, assignee from notes where parent = '" + string(note) + "' group by type order by created ")
+	return gn.QueryToHtml("select title, created, Author from notes where parent = '" + string(note) + "' group by type order by created ")
 }
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
