@@ -2,6 +2,8 @@
 Title: HXPM
 About: |
   Truly one of the worst project management solutions of all time, do not use. This is alpha quality software, you'll know it's ready to try when there's actual documentation.
+
+  This is unlikely to go anywhere, but hexy wants to write actual code for once in a while rather than yet another grant application so, here we are.
 # Adapter: fs # or 'git' in the future
 # AdapterConfig:
 #   Path: ./projects
