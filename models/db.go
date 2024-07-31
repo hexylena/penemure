@@ -333,6 +333,15 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 		return "<a href=\"" + full_value + ".html\">" + value + "</a>"
 	}
 
+	// references
+	reference := regexp.MustCompile(`^@[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
+	if reference.MatchString(value) {
+		note_id := gn.GetNoteById(NoteId(value[1:len(value)]))
+		// todo different icon for person references.
+		fmt.Println(note_id.GetIconHtml())
+		return fmt.Sprintf(`<a href="%s.html">%s %s</a>`, note_id.NoteId, note_id.GetIconHtml(), note_id.Title)
+	}
+
 	if key == "created" || key == "modified" || key == "start_time" || key == "end_time" {
 		return gn.FmtTime(value)
 	}
@@ -342,6 +351,23 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	// }
 
 	return value
+}
+
+func (gn *GlobalNotes) AutoFmtMeta(m Meta) string {
+	logger.Info("AutoFmtMeta", "m", m)
+	// value is a []interface{} or interface{}, check which:
+	switch m.Value.(type) {
+	case []interface{}:
+		// if it's a list, join them with a comma
+		res := ""
+		for _, v := range m.Value.([]interface{}) {
+			res += gn.AutoFmt(m.Title, v.(string)) + ", "
+		}
+		return res[:len(res)-2]
+	case interface{}:
+		return gn.AutoFmt(m.Title, m.Value.(string))
+	}
+	return gn.AutoFmt(m.Title, m.Value.(string))
 }
 
 func (gn *GlobalNotes) Edit(id PartialNoteId) {
@@ -504,7 +530,7 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
 	res := gn.BlockToHtml(b)
-	re := regexp.MustCompile(`@{([a-f0-9-]+)}`)
+	re := regexp.MustCompile(`@([a-f0-9-]+)`)
 	res = re.ReplaceAllStringFunc(res, func(s string) string {
 		nid := re.FindStringSubmatch(s)[1]
 		note := gn.GetNoteById(NoteId(nid))

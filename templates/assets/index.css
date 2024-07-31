@@ -4,7 +4,7 @@
   font-style: oblique 0deg 15deg;
   font-weight: 300 800;
   font-display: swap;
-  src: url(/assets/recursive.woff2) format('woff2');
+  src: url(recursive.woff2) format('woff2');
 }
 
 body {
@@ -126,3 +126,6 @@ table#metadata {
 
 
 
+img.icon {
+	width: 2rem;
+}

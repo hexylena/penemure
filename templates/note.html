@@ -63,7 +63,7 @@
 	{{ if ne .Title "" }}
 	<tr>
 		<td scope="row">{{ $value.GetIconHtml }} {{ $value.Title }}</td>
-		<td>{{ $value.AutoFmt }}</td>
+		<td>{{ $.Gn.AutoFmtMeta $value }}</td>
 	</tr>
 	{{ end }}
 	{{ end }}

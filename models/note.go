@@ -94,9 +94,9 @@ func (m *Meta) GetIconHtml() string {
 
 	// Remote icons
 	if m.Icon[:4] == "http" {
-		return fmt.Sprintf("<img src=\"%s\" />", m.Icon)
+		return fmt.Sprintf("<img class=\"icon\" src=\"%s\" />", m.Icon)
 	} else if LooksLocal(m.Icon) {
-		return fmt.Sprintf("<img src=\"file://%s\" />", m.Icon)
+		return fmt.Sprintf("<img class=\"icon\" src=\"file://%s\" />", m.Icon)
 	}
 	return m.Icon
 }
@@ -105,7 +105,8 @@ func (m *Meta) String() string {
 	return fmt.Sprintf("%s=%s", m.Title, m.Value)
 }
 
-func (m *Meta) AutoFmt() string {
+func (m *Meta) AutoFmt(gn *GlobalNotes) string {
+	logger.Info("AutoFmt", "M", m)
 	value := fmt.Sprintf("%v", m.Value)
 	// if it looks like a url, make it a link
 	if strings.Contains(value, "http") {
@@ -127,6 +128,15 @@ func (m *Meta) AutoFmt() string {
 	// 	full_value := fmt.Sprint(gn.GetIdByPartial(PartialNoteId(value)))
 	// 	return "<a href=\"" + full_value + ".html\">" + value + "</a>"
 	// }
+
+	reference := regexp.MustCompile(`^@[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
+	if reference.MatchString(value) {
+		fmt.Println("Reference", value)
+		note_id := gn.GetNoteById(NoteId(value[1:len(value)-1]))
+		return fmt.Sprintf(`<a href="%s">%s %s</a>`, note_id.NoteId, note_id.GetIconHtml(), note_id.Title)
+	}
+
+
 
 	if m.Title == "created" || m.Title == "modified" || m.Title == "start_time" || m.Title == "end_time" {
 		// parse unix time
@@ -449,6 +459,8 @@ func (n *Note) GetEmoji() string {
 func (n *Note) GetIconHtml() string {
 	var icon string
 
+	fmt.Println("Meta", n.Meta)
+
 	for _, tag := range n.Meta {
 		if tag.Type == "icon" {
 			icon = tag.Icon
@@ -461,12 +473,12 @@ func (n *Note) GetIconHtml() string {
 
 	// Remote icons
 	if icon[:4] == "http" {
-		return fmt.Sprintf("<img src=\"%s\" />", icon)
+		return fmt.Sprintf(`<img class="icon" src="%s" />`, icon)
 	}
 	// Local icons
 	// if it has a / and a .
 	if LooksLocal(icon) {
-		return fmt.Sprintf("<img src=\"file://%s\" />", icon)
+		return fmt.Sprintf("<img class=\"icon\" src=\"file://%s\" />", icon)
 	}
 	return icon
 }
@@ -516,6 +528,7 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer, config pmc.HxpmConfig) {
 	err = tmpl.ExecuteTemplate(w, "base", templateContext2{n, gn, config})
 	if err != nil {
 		logger.Error("error executing template", "error", err)
+		panic(err)
 	}
 
 	// TODO: copy icon, cover if local
