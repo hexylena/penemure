@@ -23,13 +23,15 @@
 			{{ template "main" .}}
 		</main>
 		<footer>
-			<div style="text-align: start">
+			<div class="row">
+			<div style="text-align: start" class="column-2">
 				<b>{{ .Config.Title }}</b>
 				<p>{{ .Config.About }}</p>
 			</div>
-			<div style="text-align: end">
+			<div style="text-align: end" class="column">
 				<p>AGPLv3</p>
 				<p>Rev <a href="https://github.com/hexylena/project-management/commit/{{ .Gn.VcsRev 24 }}">{{ .Gn.VcsRev 8 }}</a></p>
+			</div>
 			</div>
 		</footer>
 
