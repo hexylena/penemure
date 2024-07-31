@@ -28,13 +28,15 @@
 	</head>
 	<body>
 		<header>
-			<span style="display: flex; align-items: center;">
+			<div class="row">
+			<span style="display: flex; align-items: center;" class="column-2">
 				<img src="assets/favicon.ico" width="40">
 				<a href="index.html">{{ .Config.Title }}</a>
 			</span>
-			<form action="search.html">
+			<form action="search.html" class="column">
 				<input type="search" name="title" id="search" size="24" style="width: unset" placeholder="search">
 			</form>
+			</div>
 		</header>
 		<main>
 			{{ template "main" .}}
