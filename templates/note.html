@@ -7,7 +7,7 @@
 
 
 {{define "title"}}
-	{{ .Note.Title }} | HXPM Note
+	{{ .Note.Title }} | {{ .Config.Title }}
 {{end}}
 
 {{define "main"}}
@@ -29,7 +29,7 @@
 	{{ range .Note.Parents }}
 	<li>
 		<a href="{{ . }}.html">
-		{{ template "badge" ($.GlobalNotes.GetNote .) }}
+		{{ template "badge" ($.Gn.GetNote .) }}
 		</a>
 	</li>
 	{{ end }}
@@ -52,7 +52,7 @@
 		<td>
 			{{ range .Note.Projects }}
 			<a href="{{ . }}.html">
-				{{ template "badge" ($.GlobalNotes.GetNote .) }}
+				{{ template "badge" ($.Gn.GetNote .) }}
 			</a>
 			{{ end }}
 		</td>
@@ -70,13 +70,13 @@
 
 	<tr>
 		<td scope="row">Created</td>
-		<td>{{ $.GlobalNotes.FmtTimeI .Note.CreatedAt }}</td>
+		<td>{{ $.Gn.FmtTimeI .Note.CreatedAt }}</td>
 	</tr>
 
 	{{ if ne .Note.CreatedAt .Note.ModifiedAt }}
 	<tr>
 		<td scope="row">Modified</td>
-		<td>{{ $.GlobalNotes.FmtTimeI .Note.ModifiedAt }}</td>
+		<td>{{ $.Gn.FmtTimeI .Note.ModifiedAt }}</td>
 	</tr>
 	{{ end }}
 	</tbody>
@@ -86,13 +86,13 @@
 	<h2>Contents</h2>
 
 	{{ range .Note.Blocks }}
-		{{ $.GlobalNotes.BlockToHtml3 . }}
+		{{ $.Gn.BlockToHtml3 . }}
 	{{ end }}
 {{ end }}
 
 <details style="margin-top: 3rem">
 	<summary>All Children</summary>
-{{ if .Note.GetProjectMembers .GlobalNotes }}
+{{ if .Note.GetProjectMembers .Gn }}
 <h2>Children</h2>
 <table>
 	<tr>
@@ -103,7 +103,7 @@
 		<th>Assignee</th>
 		<th>Size</th>
 	</tr>
-	{{ range $key, $v := .Note.GetProjectMembers .GlobalNotes }}
+	{{ range $key, $v := .Note.GetProjectMembers .Gn }}
 	<tr>
 		<td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
 		<td>{{ $v.Type }}</td>

@@ -1,5 +1,5 @@
 {{define "title"}}
-	HXPM Notes
+	Notes | {{ .Config.Title }}
 {{end}}
 
 {{define "main"}}
@@ -15,7 +15,7 @@
 		<th>Tags</th>
 		<th>Assignee</th>
 	</tr>
-	{{ range $k, $v := .GetTopLevelNotes }}
+	{{ range $k, $v := .Gn.GetTopLevelNotes }}
 	<tr>
 		<td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
 		<td>{{ $v.Type }}</td>

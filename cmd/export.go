@@ -14,6 +14,6 @@ var exportCmd = &cobra.Command{
 	Short: "export as a static site",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		gn.Export()
+		gn.Export(config)
 	},
 }

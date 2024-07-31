@@ -13,6 +13,6 @@ var serveCmd = &cobra.Command{
 	Short: "serve the site",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		gn.Serve()
+		gn.Serve(config)
 	},
 }

@@ -1,5 +1,5 @@
 {{define "title"}}
-	Search | HXPM Notes
+	Search | {{ .Config.Title }}
 {{end}}
 
 {{define "main"}}
@@ -19,7 +19,7 @@
 				<label for="type">Type</label>
 				<select name="type" id="type">
 					<option value="Any">Any</option>
-					{{ range $k := .GetTypes }}
+					{{ range $k := .Gn.GetTypes }}
 					<option value="{{ $k }}">{{ $k }}</option>
 					{{ end }}
 				</select>
@@ -37,7 +37,7 @@
 		<th>Tags</th>
 		<th>Assignee</th>
 	</tr>
-	{{ range $k, $v := .GetNotes }}
+	{{ range $k, $v := .Gn.GetNotes }}
 	<tr>
 		<td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
 		<td>{{ $v.Type }}</td>

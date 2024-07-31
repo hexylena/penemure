@@ -27,6 +27,7 @@ import (
 	// "github.com/gomarkdown/markdown/parser"
 
 	pmd "github.com/hexylena/pm/md"
+	pmc "github.com/hexylena/pm/config"
 )
 
 // const (
@@ -482,7 +483,7 @@ func LooksLocal(path string) bool {
 	return regexp.MustCompile(`^\.\/`).MatchString(path)
 }
 
-func (n *Note) ExportToFile(gn *GlobalNotes) {
+func (n *Note) ExportToFile(gn *GlobalNotes, config pmc.HxpmConfig) {
 	// Save contents to ./export/<id>.html
 
 	// Save to ./export/<id>.html
@@ -491,22 +492,23 @@ func (n *Note) ExportToFile(gn *GlobalNotes) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	n.Export(gn, bufio.NewWriter(f))
+	n.Export(gn, bufio.NewWriter(f), config)
 	f.Close()
 }
 
-func (n *Note) Export(gn *GlobalNotes, w io.Writer) {
+func (n *Note) Export(gn *GlobalNotes, w io.Writer, config pmc.HxpmConfig) {
 	tmpl, err := template.New("").ParseFiles("templates/note.html", "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
 
-	type tmpstruct struct {
+	type templateContext2 struct {
 		Note        *Note
-		GlobalNotes *GlobalNotes
+		Gn *GlobalNotes
+		Config pmc.HxpmConfig
 	}
 
-	err = tmpl.ExecuteTemplate(w, "base", tmpstruct{n, gn})
+	err = tmpl.ExecuteTemplate(w, "base", templateContext2{n, gn, config})
 	if err != nil {
 		logger.Error("error executing template", "error", err)
 	}

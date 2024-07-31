@@ -1,0 +1,5 @@
+---
+Title: Hexy
+# Adapter: fs # or 'git' in the future
+# AdapterConfig:
+#   Path: ./projects

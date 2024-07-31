@@ -15,6 +15,7 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	pmd "github.com/hexylena/pm/md"
 	"github.com/hexylena/pm/sqlish"
+	pmc "github.com/hexylena/pm/config"
 )
 
 const (
@@ -351,7 +352,7 @@ func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	gn.notes[note_id] = &newnote
 }
 
-func (gn *GlobalNotes) Export() {
+func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	// Create export/ directory if it doesn't exist
 	if _, err := os.Stat("./export"); os.IsNotExist(err) {
 		os.Mkdir("./export", 0755)
@@ -368,14 +369,14 @@ func (gn *GlobalNotes) Export() {
 		logger.Error("Error", "err", err)
 	}
 
-	err = list_tpl.ExecuteTemplate(f, "base", gn)
+	err = tmpl.ExecuteTemplate(f, "base", gn)
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
 
 	// Export individual notes
 	for _, note := range gn.notes {
-		note.ExportToFile(gn)
+		note.ExportToFile(gn, config)
 	}
 }
 

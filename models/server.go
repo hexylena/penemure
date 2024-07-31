@@ -13,10 +13,14 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	// "github.com/go-chi/render"
 	"net/http"
+	pmc "github.com/hexylena/pm/config"
 )
 
-func (gn *GlobalNotes) Serve() {
+var config pmc.HxpmConfig
+
+func (gn *GlobalNotes) Serve(_config pmc.HxpmConfig) {
 	r := chi.NewRouter()
+	config = _config
 
 	// A good base middleware stack
 	r.Use(middleware.RequestID)
@@ -60,10 +64,15 @@ func get_template(templateName string) *template.Template {
 	return tmpl
 }
 
+type templateContext struct {
+	Gn *GlobalNotes
+	Config pmc.HxpmConfig
+}
+
 func (gn *GlobalNotes) serve_404(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(404)
 	tmpl := get_template("404")
-	err := tmpl.ExecuteTemplate(w, "base", gn)
+	err := tmpl.ExecuteTemplate(w, "base", templateContext{gn, config})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -71,7 +80,7 @@ func (gn *GlobalNotes) serve_404(w http.ResponseWriter, r *http.Request) {
 
 func (gn *GlobalNotes) serve_index(w http.ResponseWriter, r *http.Request) {
 	tmpl := get_template("list")
-	err := tmpl.ExecuteTemplate(w, "base", gn)
+	err := tmpl.ExecuteTemplate(w, "base", templateContext{Gn: gn, Config: config})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -79,7 +88,7 @@ func (gn *GlobalNotes) serve_index(w http.ResponseWriter, r *http.Request) {
 
 func (gn *GlobalNotes) serve_search(w http.ResponseWriter, r *http.Request) {
 	tmpl := get_template("search")
-	err := tmpl.ExecuteTemplate(w, "base", gn)
+	err := tmpl.ExecuteTemplate(w, "base", templateContext{Gn: gn, Config: config})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -96,7 +105,7 @@ func (gn *GlobalNotes) serve_getArticleBySlug(w http.ResponseWriter, r *http.Req
 			return
 		}
 		note := gn.notes[note_id]
-		note.Export(gn, w)
+		note.Export(gn, w, config)
 	} else {
 		gn.serve_404(w, r)
 		return
