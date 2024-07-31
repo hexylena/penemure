@@ -2,10 +2,8 @@ package sqlish
 
 import (
 	"fmt"
-	"regexp"
 	"golang.org/x/exp/maps"
 	"sort"
-	"strconv"
 	"strings"
 	pml "github.com/hexylena/pm/log"
 )
@@ -22,53 +20,15 @@ type SqlLikeQuery struct {
 var logger = pml.L("models")
 
 func (slq *SqlLikeQuery) String() string {
-	return fmt.Sprintf("Select=[%s] Table=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%s] Limit=[%d]", slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
+	return fmt.Sprintf("Select=[%s] From=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%s] Limit=[%d]", slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
 }
 
 func ParseSelectFrom(query string) *SqlLikeQuery {
-	// Split the string on '\sFROM\s'
-	// m := sqlLike.FindStringSubmatch(query)
-	from := regexp.MustCompile(`\sFROM\s`)
-	m := from.Split(query, 2)
-	sqlSelect := regexp.MustCompile(`^SELECT\s+([A-Za-z*, ]+)\s*$`) //
-	sqlFrom:= regexp.MustCompile(`^\s*([A-Za-z]+)\s*$`) //
-	m_select := sqlSelect.FindStringSubmatch(m[0])
-	m_from := sqlFrom.FindStringSubmatch(m[1])
-
-	slq := &SqlLikeQuery{
-		Select: m_select[1],
-		From:   m_from[1],
-	}
-	return slq
+	return parseQuery(query)
 }
 
 func ParseSqlQuery(query string) *SqlLikeQuery {
-	from := regexp.MustCompile(`\sFROM\s`)
-	m := from.Split(query, 2)
-	sqlSelect := regexp.MustCompile(`^SELECT\s+([A-Za-z_,* ]+)\s*$`) //
-	sqlFrom:= regexp.MustCompile(`^\s*([a-z]+)(\s+WHERE ([A-Za-z<>=!0-9'" -]+))?(\s+GROUP BY ([A-Za-z]+))?(\s+ORDER BY ([a-z]+) (ASC|DESC))?(\s+LIMIT ([0-9]+))?$`) //
-	m_select := sqlSelect.FindStringSubmatch(m[0])
-	m = sqlFrom.FindStringSubmatch(m[1])
-
-	if len(m) < 8 {
-		fmt.Println("Error parsing query: ", query)
-		return &SqlLikeQuery{}
-	}
-
-	limit, err := strconv.Atoi(m[10])
-	if err != nil {
-		limit = -1
-	}
-
-	slq := &SqlLikeQuery{
-		Select:  strings.TrimSpace(m_select[1]),
-		From:    strings.TrimSpace(m[1]),
-		Where:   strings.TrimSpace(m[3]),
-		GroupBy: strings.TrimSpace(m[5]),
-		OrderBy: strings.TrimSpace(m[7] + " " + m[8]),
-		Limit:   limit,
-	}
-	return slq
+	return parseQuery(query)
 }
 
 func (slq *SqlLikeQuery) GetFields() []string {
@@ -86,7 +46,10 @@ func (slq *SqlLikeQuery) GetFields() []string {
 	return r
 }
 
-type GroupedResultSet map[string][][]string
+type GroupedResultSet struct {
+	Header []string
+	Rows   map[string][][]string
+}
 
 func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, where string) bool {
 	if where == "" {
@@ -130,7 +93,7 @@ func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, whe
 	return false
 }
 
-func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedResultSet {
+func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *GroupedResultSet {
 	// fmt.Println("Filtering documents with query: ", slq)
 	// OrderBy
 	logger.Info("Filtering documents with query", "query", slq)
@@ -180,11 +143,19 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 	// on the git repo someday?
 
 	// group by + select
-	results := make(GroupedResultSet, 0)
+	results := &GroupedResultSet{
+		Header: nil,
+		Rows:   map[string][][]string{},
+	}
+
 	if slq.GroupBy == "" {
-		results["__default__"] = [][]string{}
+		results.Rows["__default__"] = [][]string{}
 		for _, document := range documents2 {
-			results["__default__"] = append(results["__default__"], Select(document, slq.Select))
+			row, header := Select(document, slq.Select)
+			results.Rows["__default__"] = append(results.Rows["__default__"], row)
+			if results.Header == nil {
+				results.Header = header
+			}
 		}
 	} else {
 		// fmt.Printf("Grouping by: «%s»\n", slq.GroupBy)
@@ -194,31 +165,54 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) GroupedR
 			if key == "" {
 				key = "Uncategorized"
 			}
-			if _, ok := results[key]; !ok {
-				results[key] = [][]string{}
+			if _, ok := results.Rows[key]; !ok {
+				results.Rows[key] = [][]string{}
 			}
-			results[key] = append(results[key], Select(document, slq.Select))
+			row, header := Select(document, slq.Select)
+			results.Rows[key] = append(results.Rows[key], row)
+
+			if results.Header == nil {
+				results.Header = header
+			}
 		}
 	}
 
-	// Limit: last
-	if slq.Limit > 0 {
-		panic("Not implemented: limit")
+	// Limit: resize all groups to keep count under the limit num
+	budget := slq.Limit
+	if slq.Limit != -1 {
+		for group, rows := range results.Rows {
+			// if we've seen enough rows, truncate the rest
+			if budget <= 0 {
+				delete(results.Rows, group)
+				continue
+			} else {
+				logger.Info("Limiting Rows", "group", group, "rows", len(rows), "budget", budget, "limit", slq.Limit)
+				// if we have too many rows for our budget
+				if len(rows) > budget {
+					results.Rows[group] = rows[:budget]
+				}
+			}
+			budget -= len(rows)
+		}
 	}
 	return results
 }
 
-func Select(document map[string]string, fields string) []string {
-	r := []string{}
+func Select(document map[string]string, fields string) ([]string, []string) {
+	row := []string{}
+	header := []string{}
+
 	if fields == "*" {
 		for _, field := range maps.Keys(document) {
-			r = append(r, document[field])
+			row = append(row, document[field])
+			header = append(header, field)
 		}
 
 	} else {
 		for _, field := range strings.Split(fields, ",") {
-			r = append(r, document[strings.TrimSpace(field)])
+			row = append(row, document[strings.TrimSpace(field)])
+			header = append(header, strings.TrimSpace(field))
 		}
 	}
-	return r
+	return row, header
 }

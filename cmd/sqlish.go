@@ -37,7 +37,9 @@ var sqlishCmd = &cobra.Command{
 		// headers := ans.GetFields()
 		// gn.BubblePrint()
 
-		for group, rows := range results {
+		fmt.Println(results.Header)
+
+		for group, rows := range results.Rows {
 			fmt.Println(group)
 
 			re := lipgloss.NewRenderer(os.Stdout)
@@ -67,7 +69,7 @@ var sqlishCmd = &cobra.Command{
 						return OddRowStyle
 					}
 				}).
-				// Headers(headers...).
+				Headers(results.Header...).
 				Rows(rows...)
 
 			fmt.Println(t)

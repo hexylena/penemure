@@ -266,7 +266,7 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	html += "</tr>"
 	html += "<tbody>"
 
-	for key, result := range results {
+	for key, result := range results.Rows {
 		header := "Results"
 		if key != "__default__" {
 			// Title Case, Capitalise Each Word
@@ -296,6 +296,9 @@ func (gn *GlobalNotes) FmtTimeI(i int) string {
 }
 
 func (gn *GlobalNotes) FmtTime(value string) string {
+	if value == "" {
+		return ""
+	}
 	i, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {
 		panic(err)
