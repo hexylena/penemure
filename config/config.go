@@ -9,6 +9,6 @@ type HxpmConfig struct {
 	AdapterConfig map[string]string
 
 	// Export
-	ExportDirectory string
+	ExportDirectory      string
 	ExportUseGoogleFonts bool
 }

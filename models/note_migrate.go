@@ -2,11 +2,11 @@ package models
 
 import (
 	"encoding/json"
-	"sort"
 	"errors"
 	"fmt"
 	pmd "github.com/hexylena/pm/md"
 	"golang.org/x/exp/maps"
+	"sort"
 )
 
 type Note0 struct {
@@ -632,7 +632,6 @@ func migrate2(n1 Note1) Note2 {
 		b := string(parents[j])
 		return a < b
 	})
-
 
 	n2 := Note2{
 		NoteId: n1.NoteId,

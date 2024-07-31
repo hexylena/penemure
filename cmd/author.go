@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	pmm "github.com/hexylena/pm/models"
 	"fmt"
+	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 )
 

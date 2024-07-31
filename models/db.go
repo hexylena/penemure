@@ -286,7 +286,7 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 			for i, cell := range row {
 				if cell == "" {
 					html += "<td></td>"
-				// TODO: this fixes it being run through autofmt twice, but, that shouldn't've happened in the first place.
+					// TODO: this fixes it being run through autofmt twice, but, that shouldn't've happened in the first place.
 				} else if cell[0] == '<' {
 					html += "<td>" + cell + "</td>"
 				} else {

@@ -58,7 +58,7 @@ type Meta struct {
 func (m *Meta) GetIconHtml() string {
 	if m.Title == "Status" {
 		return "🚦"
-	} else if (m.Title == "Assignee" || m.Title == "assignee"){
+	} else if m.Title == "Assignee" || m.Title == "assignee" {
 		return "👤"
 	} else if m.Title == "Author" {
 		return "👤"
