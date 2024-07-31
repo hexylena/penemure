@@ -110,11 +110,14 @@ func (m *Meta) AutoFmt() string {
 		return "<a href=\"" + value + "\">" + value + "</a>"
 	}
 
+	if m.Type == "tag" {
+		return fmt.Sprintf("<a href=\"search.html?title=%s\">%s</a>", strings.Trim(value, "#"), value)
+	}
+
 	uuid_regex := regexp.MustCompile(`^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 	// uuid_short := regexp.MustCompile(`^[a-f0-9]{8}$`)
 
 	// if it looks like a uuid, by regex, make it a link
-	// fmt.Println(value, uuid_regex.MatchString(value), len(value))
 	if uuid_regex.MatchString(value) {
 		return "<a href=\"" + value + ".html\">" + value + "</a>"
 	}
@@ -421,7 +424,15 @@ func (n *Note) GetEmoji() string {
 	if n.Type == "project" {
 		return "📁"
 	} else if n.Type == "task" {
-		return "📌"
+		if n.GetS("Status") == "done" || n.GetS("Status") == "completed"{
+			return "✅"
+		} else if n.GetS("Status") == "in progress" {
+			return "🚧"
+		} else if n.GetS("Status") == "blocked" {
+			return "🚫"
+		} else {
+			return "📝"
+		}
 	} else if n.Type == "person" {
 		return "👩‍🦰"
 	} else if n.Type == "note" {
