@@ -37,7 +37,6 @@ func (a *FsAdapter) LoadNotes(gn pmm.GlobalNotes) {
 		// Get filename component of path
 		filename := filepath.Base(path)
 		n.NoteId = pmm.NoteId(filename)
-
 		gn.AddNote(n)
 	}
 }

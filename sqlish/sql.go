@@ -80,7 +80,7 @@ func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, whe
 		// fmt.Println("Comparing: ", document[left], right)
 
 		// projects, parents, and blocking are special, they're strings joined by a separator character so we need to check contains
-		logger.Info("where=", "left", left, "right", right, "doc left", document[left])
+		logger.Debug("where=", "left", left, "right", right, "doc left", document[left])
 		if left == "project" || left == "parent" || left == "blocking" {
 			if strings.Contains(document[left], right) {
 				return true
@@ -96,8 +96,8 @@ func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, whe
 func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *GroupedResultSet {
 	// fmt.Println("Filtering documents with query: ", slq)
 	// OrderBy
-	logger.Info("Filtering documents with query", "query", slq)
-	logger.Info("Initial Documents", "count", len(documents))
+	logger.Debug("Filtering documents with query", "query", slq)
+	logger.Debug("Initial Documents", "count", len(documents))
 
 	if slq.OrderBy != "" {
 		field := strings.Split(slq.OrderBy, " ")[0]
@@ -111,13 +111,13 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 		})
 	}
 	
-	logger.Info("Post Order Documents", "count", len(documents))
+	logger.Debug("Post Order Documents", "count", len(documents))
 
 	documents2 := []map[string]string{}
 
 	// Where
 	for _, document := range documents {
-		logger.Info("Filtering Documents", "where", slq.Where, "doc", document)
+		logger.Debug("Filtering Documents", "where", slq.Where, "doc", document)
 		if strings.Contains(slq.Where, " AND ") {
 			terms := strings.Split(slq.Where, " AND ")
 			if slq.whereDocumentIsIncluded(document, terms[0]) && slq.whereDocumentIsIncluded(document, terms[1]){
@@ -136,7 +136,7 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 		}
 	}
 
-	logger.Info("Post Where Documents", "count", len(documents2))
+	logger.Debug("Post Where Documents", "count", len(documents2))
 
 	// From (table)
 	// I think we should ignore this??? maybe?? Or maybe it should be based
@@ -186,7 +186,7 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 				delete(results.Rows, group)
 				continue
 			} else {
-				logger.Info("Limiting Rows", "group", group, "rows", len(rows), "budget", budget, "limit", slq.Limit)
+				logger.Debug("Limiting Rows", "group", group, "rows", len(rows), "budget", budget, "limit", slq.Limit)
 				// if we have too many rows for our budget
 				if len(rows) > budget {
 					results.Rows[group] = rows[:budget]

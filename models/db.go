@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 	"os"
+	"path"
+	"os/exec"
 	"golang.org/x/exp/maps"
 	"regexp"
 	"runtime/debug"
@@ -352,10 +354,33 @@ func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	gn.notes[note_id] = &newnote
 }
 
+func (gn *GlobalNotes) exportTemplate(s string, config pmc.HxpmConfig) {
+	type templateContext2 struct {
+		Gn *GlobalNotes
+		Config pmc.HxpmConfig
+	}
+
+	f_search, err := os.Create(path.Join(config.ExportDirectory, fmt.Sprintf("%s.html", s)))
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+	search_tmpl, err := template.New("").ParseFiles(
+		fmt.Sprintf("templates/%s.html", s),
+		"templates/base.html",
+	)
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+	err = search_tmpl.ExecuteTemplate(f_search, "base", templateContext2{gn, config})
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+}
+
 func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	// Create export/ directory if it doesn't exist
-	if _, err := os.Stat("./export"); os.IsNotExist(err) {
-		os.Mkdir("./export", 0755)
+	if _, err := os.Stat(config.ExportDirectory); os.IsNotExist(err) {
+		os.Mkdir(config.ExportDirectory, 0755)
 	}
 
 	tmpl, err := template.New("").ParseFiles("templates/list.html", "templates/base.html")
@@ -364,19 +389,35 @@ func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	}
 
 	// Render template
-	f, err := os.Create("export/index.html")
+	f, err := os.Create(path.Join(config.ExportDirectory, "index.html"))
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
 
-	err = tmpl.ExecuteTemplate(f, "base", gn)
+	type templateContext2 struct {
+		Gn *GlobalNotes
+		Config pmc.HxpmConfig
+	}
+
+	err = tmpl.ExecuteTemplate(f, "base", templateContext2{gn, config})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
+
+	// Export search page
+	gn.exportTemplate("search", config)
+	gn.exportTemplate("404", config)
 
 	// Export individual notes
 	for _, note := range gn.notes {
 		note.ExportToFile(gn, config)
+	}
+
+	// Copy templates/assets into export
+	cmd := exec.Command("cp", "-r", "templates/assets", config.ExportDirectory)
+	err = cmd.Run()
+	if err != nil {
+		logger.Error("Error", "err", err)
 	}
 }
 

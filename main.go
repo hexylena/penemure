@@ -34,6 +34,7 @@ func main() {
 
 	viper.SetDefault("Adapter", "fs")
 	viper.SetDefault("AdapterConfig.Path", "./projects")
+	viper.SetDefault("ExportDirectory", "./export")
 
 	viper.AddConfigPath(".") // path to look for the config file in
 	// TODO: xdg paths.
@@ -53,6 +54,7 @@ func main() {
 		Adapter: viper.GetString("Adapter"),
 		Title:   viper.GetString("Title"),
 		About:   viper.GetString("About"),
+		ExportDirectory: viper.GetString("ExportDirectory"),
 	}
 
 	var globalAdapter pma.TaskAdapter

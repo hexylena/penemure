@@ -29,7 +29,7 @@
 	{{ range .Note.Parents }}
 	<li>
 		<a href="{{ . }}.html">
-		{{ template "badge" ($.Gn.GetNote .) }}
+		{{ $.Gn.GetNote . }}
 		</a>
 	</li>
 	{{ end }}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"path"
 	"bufio"
 	"encoding/json"
 	"errors"
@@ -334,11 +335,11 @@ func (n *Note) ParseNote(path string) {
 	// read our opened jsonFile as a byte array.
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("error reading file ", "error", err, "path", path)
 	}
 
 	// fmt.Println(byteValue)
-	fmt.Println(GetVersion(byteValue))
+	logger.Debug("Parsing note", "path", path, "version", GetVersion(byteValue))
 	Migrate(byteValue, n)
 }
 
@@ -485,14 +486,17 @@ func LooksLocal(path string) bool {
 
 func (n *Note) ExportToFile(gn *GlobalNotes, config pmc.HxpmConfig) {
 	// Save contents to ./export/<id>.html
+	dir := config.ExportDirectory
 
 	// Save to ./export/<id>.html
-	f, err := os.Create(fmt.Sprintf("export/%s.html", n.NoteId))
+	f, err := os.Create(path.Join(dir,fmt.Sprintf("%s.html", n.NoteId)))
 	logger.Info("Exporting", "note", n.String(), "file", f.Name())
 	if err != nil {
 		fmt.Println(err)
 	}
-	n.Export(gn, bufio.NewWriter(f), config)
+	w := bufio.NewWriter(f)
+	n.Export(gn, w, config)
+	w.Flush()
 	f.Close()
 }
 
@@ -508,10 +512,12 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer, config pmc.HxpmConfig) {
 		Config pmc.HxpmConfig
 	}
 
+	tmpl.ExecuteTemplate(os.Stdout, "note", templateContext2{n, gn, config})
 	err = tmpl.ExecuteTemplate(w, "base", templateContext2{n, gn, config})
 	if err != nil {
 		logger.Error("error executing template", "error", err)
 	}
+
 	// TODO: copy icon, cover if local
 }
 
