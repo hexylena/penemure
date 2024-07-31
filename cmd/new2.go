@@ -14,15 +14,6 @@ import (
 	pmm "github.com/hexylena/pm/models"
 )
 
-var (
-	burger       string
-	toppings     []string
-	sauceLevel   int
-	name         string
-	instructions string
-	discount     bool
-)
-
 func init() {
 	rootCmd.AddCommand(new2Cmd)
 
@@ -124,6 +115,10 @@ var new2Cmd = &cobra.Command{
 
 		for _, tag := range strings.Split(tags_out, " ") {
 			note.AddTag(tag)
+		}
+
+		if note.Type == "task" {
+			note.AddMetaTag("Status", "Not Started")
 		}
 
 		note.Blocks = pmd.MdToBlocks([]byte(contents_out))

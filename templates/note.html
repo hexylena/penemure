@@ -90,9 +90,9 @@
 	{{ end }}
 {{ end }}
 
+{{ if .Note.GetProjectMembers .Gn }}
 <details style="margin-top: 3rem">
 	<summary>All Children</summary>
-{{ if .Note.GetProjectMembers .Gn }}
 <h2>Children</h2>
 <table>
 	<tr>
@@ -118,7 +118,8 @@
 	</tr>
 	{{ end }}
 </table>
-{{ end }}
 </details>
+{{ end }}
+
 {{end}}
 
