@@ -7,8 +7,6 @@ import (
 	"fmt"
 	pmd "github.com/hexylena/pm/md"
 	"golang.org/x/exp/maps"
-	"io/ioutil"
-	"os"
 )
 
 type Note0 struct {
@@ -545,21 +543,6 @@ func (ce *Note2) UnmarshalJSON(b []byte) error {
 
 	// That's it!  We made it the whole way with no errors, so we can return `nil`
 	return nil
-}
-
-func loadJson(path string) []byte {
-	jsonFile, err := os.Open(path)
-	if err != nil {
-		logger.Error("Error loading path", "path", path, "error", err)
-	}
-	defer jsonFile.Close()
-
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		logger.Error("Error reading from path", "path", path, "error", err)
-	}
-
-	return byteValue
 }
 
 // Returns the latest note version
