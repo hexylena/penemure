@@ -1,5 +1,5 @@
 ---
-Title: HXPM
+Title: Hexylena's Project Management Tool
 About: |
   Truly one of the worst project management solutions of all time, do not use. This is alpha quality software, you'll know it's ready to try when there's actual documentation.
 
@@ -7,3 +7,4 @@ About: |
 # Adapter: fs # or 'git' in the future
 # AdapterConfig:
 #   Path: ./projects
+ExportUseGoogleFonts: true
