@@ -121,9 +121,15 @@ func TestSqlParsingSimple(t *testing.T) {
 
 	ans = ParseSqlQuery("select id, short_id, title, type, icon from asdf group by 'type' limit 3")
 	fieldTest(54, t, ans.Select, "id, short_id, title, type, icon")
-	fieldTest(54, t, ans.From, "asdf")
-	fieldTest(54, t, ans.GroupBy, "type")
-	fieldTesti(54, t, ans.Limit, 3)
+	fieldTest(55, t, ans.From, "asdf")
+	fieldTest(56, t, ans.GroupBy, "type")
+	fieldTesti(57, t, ans.Limit, 3)
+
+	ans = ParseSqlQuery("select id FROM asdf WHERE project is null")
+	fieldTest(58, t, ans.Where, "project is null")
+
+	ans = ParseSqlQuery("select id FROM asdf WHERE project is NOT null")
+	fieldTest(58, t, ans.Where, "project is not null")
 
 }
 

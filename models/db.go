@@ -261,14 +261,16 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	results := ans.FilterDocuments(flattened_notes)
 
 	// Render results as table
-	html := "<table>"
-	html += "<thead>"
+	html := "<table>\n"
+	html += "<thead>\n"
 	html += "<tr>"
 	headers := ans.GetFields()
+	col_count := 0
 	for _, key := range headers {
 		html += "<th>" + strings.ToTitle(key) + "</th>"
+		col_count++
 	}
-	html += "</tr>"
+	html += "</tr>\n"
 	html += "<tbody>"
 
 	for key, result := range results.Rows {
@@ -282,12 +284,20 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 		for _, row := range result {
 			html += "<tr>"
 			for i, cell := range row {
-				html += "<td>" + gn.AutoFmt(headers[i], cell) + "</td>"
+				if cell == "" {
+					html += "<td></td>"
+				// TODO: this fixes it being run through autofmt twice, but, that shouldn't've happened in the first place.
+				} else if cell[0] == '<' {
+					html += "<td>" + cell + "</td>"
+				} else {
+					html += "<td>" + gn.AutoFmt(headers[i], cell) + "</td>"
+				}
 			}
-			html += "</tr>"
+			html += "</tr>\n"
 		}
 	}
 	html += "</tbody>"
+	// html += fmt.Sprintf(`<tfoot><tr><td colspan="%d" class="query">Query: <code>%s</code></td></tr></tfoot>`, col_count, query)
 	html += "</table>"
 
 	// todo? https://github.com/sidhant92/bool-parser-go
@@ -531,6 +541,10 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 
 func (gn *GlobalNotes) GetChildrenFormatted(note NoteId) string {
 	return gn.QueryToHtml("select title, created, Author from notes where parent = '" + string(note) + "' group by type order by created ")
+}
+
+func (gn *GlobalNotes) GetTopLevelFormatted() string {
+	return gn.QueryToHtml("select title, created, Author from notes where parent is null GROUP BY type ORDER BY created ")
 }
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {

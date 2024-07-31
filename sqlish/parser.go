@@ -39,7 +39,6 @@ func parseQuery(query string) *SqlLikeQuery {
 		fmt.Printf("Error parsing query: %s\n", query)
 		panic(err)
 	}
-	// fmt.Printf("stmt = %+v\n", stmt)
 
 	selectStmt := stmt.(*sqlparser.Select)
 	if selectStmt == nil {
@@ -65,29 +64,31 @@ func parseQuery(query string) *SqlLikeQuery {
 	where := ""
 	if selectStmt.Where != nil {
 		// if it's an ComparisonExpr
-		// fmt.Printf("%s\n", selectStmt.Where)
 		if s, _ := selectStmt.Where.Expr.(*sqlparser.ComparisonExpr); s != nil {
 			where = processComparison(s)
-		}
-
-		if s, _ := selectStmt.Where.Expr.(*sqlparser.AndExpr); s != nil {
+		} else if s, _ := selectStmt.Where.Expr.(*sqlparser.AndExpr); s != nil {
 			where_1 := processComparison(s.Left.(*sqlparser.ComparisonExpr))
 			where_2 := processComparison(s.Right.(*sqlparser.ComparisonExpr))
 			where = fmt.Sprintf("%s AND %s", where_1, where_2)
-		}
-
-		if s, _ := selectStmt.Where.Expr.(*sqlparser.OrExpr); s != nil {
+		} else if s, _ := selectStmt.Where.Expr.(*sqlparser.OrExpr); s != nil {
 			where_1 := processComparison(s.Left.(*sqlparser.ComparisonExpr))
 			where_2 := processComparison(s.Right.(*sqlparser.ComparisonExpr))
 			where = fmt.Sprintf("%s OR %s", where_1, where_2)
+		} else if s, _ := selectStmt.Where.Expr.(*sqlparser.IsExpr); s != nil {
+			// where = s.Operator
+			where = fmt.Sprintf("%s %s", colname_or_value(s.Expr), s.Operator)
+		} else {
+			fmt.Printf("Unknown type: %T\n", selectStmt.Where.Expr)
+			panic("Unknown type")
 		}
 
 		// ZERO support for more complex queries.
+	} else {
+		// fmt.Println("No where clause")
 	}
 
 	// group by
 	groupBy := ""
-	// fmt.Printf("%s\n", selectStmt.GroupBy)
 	if s := selectStmt.GroupBy; s != nil {
 		res_group := []string{}
 		for _, w := range s {
@@ -116,10 +117,7 @@ func parseQuery(query string) *SqlLikeQuery {
 	limit := -1
 	if s := selectStmt.Limit; s != nil {
 		if s.Rowcount != nil {
-
 			limit_s := string(s.Rowcount.(*sqlparser.SQLVal).Val)
-			fmt.Printf("LIMIT %s\n", limit_s)
-
 			// parse string to int
 			limit, err = strconv.Atoi(limit_s)
 			if err != nil {
@@ -136,6 +134,5 @@ func parseQuery(query string) *SqlLikeQuery {
 		OrderBy: orderBy,
 		Limit:   limit,
 	}
-	fmt.Println(q)
 	return q
 }

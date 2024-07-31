@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"sort"
 	"errors"
 	"fmt"
 	pmd "github.com/hexylena/pm/md"
@@ -641,6 +642,15 @@ func migrate2(n1 Note1) Note2 {
 		parents_map[p] = true
 	}
 
+	parents := maps.Keys(parents_map)
+
+	sort.Slice(parents, func(i, j int) bool {
+		a := string(parents[i])
+		b := string(parents[j])
+		return a < b
+	})
+
+
 	n2 := Note2{
 		NoteId: n1.NoteId,
 		Title:  n1.Title,
@@ -648,7 +658,7 @@ func migrate2(n1 Note1) Note2 {
 		// Projects: n1.Projects,
 		// append projects to parents
 		// Unique values
-		Parents:    maps.Keys(parents_map),
+		Parents:    parents,
 		Blocking:   n1.Blocking,
 		Blocks:     n1.Blocks,
 		Meta:       n1.Meta,

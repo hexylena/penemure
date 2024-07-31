@@ -85,6 +85,13 @@ func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, whe
 			return true
 			// documents2 = append(documents2, document)
 		}
+	} else if strings.Contains(where, "is null") {
+		left := strings.TrimSpace(strings.Split(where, "is null")[0])
+		if document[left] == "" {
+			return true
+		}
+	} else if strings.Contains(where, "is not null") {
+		panic("Not implemented: is not null")
 	}
 	return false
 }

@@ -7,22 +7,5 @@
 	<h1>Notes</h1>
 </hgroup>
 
-<table>
-	<tr>
-		<th>Title</th>
-		<th>Type</th>
-		<th>Status</th>
-		<th>Tags</th>
-		<th>Author</th>
-	</tr>
-	{{ range $k, $v := .Gn.GetTopLevelNotes }}
-	<tr>
-		<td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
-		<td>{{ $v.Type }}</td>
-		<td>{{ $v.GetS "Status" }}</td>
-		<td>{{ $v.GetS "Tags" }}</td>
-		<td>{{ $v.GetS "Author" }}</td>
-	</tr>
-	{{ end }}
-</table>
+{{ .Gn.GetTopLevelFormatted }}
 {{end}}
