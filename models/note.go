@@ -790,6 +790,8 @@ func (n *Note) GetProjectMembers(gn GlobalNotes) []Note {
 		}
 	}
 
+	// TODO: sort
+
 	return out
 }
 

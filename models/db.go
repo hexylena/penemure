@@ -254,6 +254,8 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	flattened_notes := []map[string]string{}
 	for _, note := range gn.notes {
 		flattened_notes = append(flattened_notes, note.Flatten())
+		// gross! :D
+		flattened_notes[len(flattened_notes)-1]["title"] = fmt.Sprintf(`<a href="%s.html">%s %s</a>`, note.NoteId, note.GetIconHtml(), note.Title)
 	}
 
 	results := ans.FilterDocuments(flattened_notes)
@@ -525,6 +527,10 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 		return gn.QueryToHtml(b.Query)
 	}
 	return b.Html()
+}
+
+func (gn *GlobalNotes) GetChildrenFormatted(note NoteId) string {
+	return gn.QueryToHtml("select title, created, assignee from notes where parent = '" + string(note) + "' group by type order by created ")
 }
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {

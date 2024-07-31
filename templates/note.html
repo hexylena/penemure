@@ -90,35 +90,11 @@
 	{{ end }}
 {{ end }}
 
+
+
 {{ if .Note.GetProjectMembers .Gn }}
-<!-- <details style="margin-top: 3rem"> -->
-	<!-- <summary>All Children</summary> -->
-<h2>Children</h2>
-<table>
-	<tr>
-		<th>Title</th>
-		<th>Type</th>
-		<th>Status</th>
-		<th>Tags</th>
-		<th>Assignee</th>
-		<th>Size</th>
-	</tr>
-	{{ range $key, $v := .Note.GetProjectMembers .Gn }}
-	<tr>
-		<td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
-		<td>{{ $v.Type }}</td>
-		<td>{{ $v.GetS "Status" }}</td>
-		<td>
-		{{ range $qq := $v.GetL "Tags" }}
-		.
-		{{ end }}
-		</td>
-		<td>{{ $v.GetS "Assignee" }}</td>
-		<td>{{ $v.GetS "Size" }}</td>
-	</tr>
-	{{ end }}
-</table>
-<!-- </details> -->
+	<h2>Children</h2>
+	{{ .Gn.GetChildrenFormatted .Note.NoteId }}
 {{ end }}
 
 {{end}}
