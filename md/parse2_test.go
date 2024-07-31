@@ -8,14 +8,13 @@ import (
 )
 
 func TestBlock2(t *testing.T) {
-	props := map[string]string{
-	}
+	props := map[string]string{}
 	b1 := Block{
-		Id: "1",
-		Type: "markdown",
+		Id:         "1",
+		Type:       "markdown",
 		Properties: props,
-		Content: "# Heading 1",
-		Children: []*Block{},
+		Content:    "# Heading 1",
+		Children:   []*Block{},
 	}
 	if strings.TrimSpace(b1.Md()) != "# Heading 1" {
 		t.Errorf("o:«%s» != e:«# Heading 1»", b1.Md())
@@ -65,8 +64,7 @@ func TestParseHeaders(t *testing.T) {
 	}
 }
 
-
-const doc= `# h1
+const doc = `# h1
 
 testing [a link](https://example.com)
 

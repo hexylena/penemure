@@ -1,19 +1,18 @@
 package models
 
 import (
-
 	"fmt"
-	"time"
-	"strings"
-	"path/filepath"
-	"text/template"
 	"os"
+	"path/filepath"
+	"strings"
+	"text/template"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	// "github.com/go-chi/render"
-	"net/http"
 	pmc "github.com/hexylena/pm/config"
+	"net/http"
 )
 
 var config pmc.HxpmConfig
@@ -44,7 +43,7 @@ func (gn *GlobalNotes) Serve(_config pmc.HxpmConfig) {
 	// })
 
 	fmt.Println("Starting server on port 3333")
-	
+
 	logger.Info("Starting server", "port", 3333)
 	r.NotFound(gn.serve_404)
 
@@ -65,7 +64,7 @@ func get_template(templateName string) *template.Template {
 }
 
 type templateContext struct {
-	Gn *GlobalNotes
+	Gn     *GlobalNotes
 	Config pmc.HxpmConfig
 }
 
@@ -111,8 +110,6 @@ func (gn *GlobalNotes) serve_getArticleBySlug(w http.ResponseWriter, r *http.Req
 		return
 	}
 }
-
-
 
 // FileServer conveniently sets up a http.FileServer handler to serve
 // static files from a http.FileSystem.

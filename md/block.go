@@ -3,13 +3,12 @@ package md
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
+	"strconv"
+	"strings"
 )
-
 
 /*
 
@@ -110,11 +109,11 @@ func mdToHTML(md []byte) []byte {
 }
 
 type Block struct {
-	Id string `json: "id"`
-	Type string `json: "type"`
+	Id         string            `json: "id"`
+	Type       string            `json: "type"`
 	Properties map[string]string `json: "properties"`
-	Content  string `json: "content"`
-	Children []*Block `json: "children"`
+	Content    string            `json: "content"`
+	Children   []*Block          `json: "children"`
 }
 
 func (b *Block) Html() string {
@@ -125,8 +124,6 @@ func (b *Block) Html() string {
 func (b *Block) Md() string {
 	return b.Content + "\n"
 }
-
-
 
 type SyntaxNode interface {
 	Html() string
@@ -166,7 +163,6 @@ func (h *Heading) MarshalJSON() (b []byte, e error) {
 type Paragraph struct {
 	Contents string `json:"contents"`
 }
-
 
 func (p *Paragraph) Html() string {
 	return fmt.Sprintf("<p>%s</p>", mdToHTML([]byte(p.Contents)))

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"path"
 	"bufio"
 	"encoding/json"
 	"errors"
@@ -10,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -27,8 +27,8 @@ import (
 	// "github.com/gomarkdown/markdown/html"
 	// "github.com/gomarkdown/markdown/parser"
 
-	pmd "github.com/hexylena/pm/md"
 	pmc "github.com/hexylena/pm/config"
+	pmd "github.com/hexylena/pm/md"
 )
 
 // const (
@@ -132,11 +132,9 @@ func (m *Meta) AutoFmt(gn *GlobalNotes) string {
 	reference := regexp.MustCompile(`^@[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 	if reference.MatchString(value) {
 		fmt.Println("Reference", value)
-		note_id := gn.GetNoteById(NoteId(value[1:len(value)-1]))
+		note_id := gn.GetNoteById(NoteId(value[1 : len(value)-1]))
 		return fmt.Sprintf(`<a href="%s">%s %s</a>`, note_id.NoteId, note_id.GetIconHtml(), note_id.Title)
 	}
-
-
 
 	if m.Title == "created" || m.Title == "modified" || m.Title == "start_time" || m.Title == "end_time" {
 		// parse unix time
@@ -436,7 +434,7 @@ func (n *Note) GetEmoji() string {
 	if n.Type == "project" {
 		return "📁"
 	} else if n.Type == "task" {
-		if n.GetS("Status") == "done" || n.GetS("Status") == "completed"{
+		if n.GetS("Status") == "done" || n.GetS("Status") == "completed" {
 			return "✅"
 		} else if n.GetS("Status") == "in progress" {
 			return "🚧"
@@ -501,7 +499,7 @@ func (n *Note) ExportToFile(gn *GlobalNotes, config pmc.HxpmConfig) {
 	dir := config.ExportDirectory
 
 	// Save to ./export/<id>.html
-	f, err := os.Create(path.Join(dir,fmt.Sprintf("%s.html", n.NoteId)))
+	f, err := os.Create(path.Join(dir, fmt.Sprintf("%s.html", n.NoteId)))
 	logger.Info("Exporting", "note", n.String(), "file", f.Name())
 	if err != nil {
 		fmt.Println(err)
@@ -519,8 +517,8 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer, config pmc.HxpmConfig) {
 	}
 
 	type templateContext2 struct {
-		Note        *Note
-		Gn *GlobalNotes
+		Note   *Note
+		Gn     *GlobalNotes
 		Config pmc.HxpmConfig
 	}
 
@@ -816,7 +814,7 @@ func (n *Note) Flatten() FlatNote {
 	out := FlatNote{
 		// Custom
 		"short_id": n.Id(),
-		"icon": n.GetEmoji(),
+		"icon":     n.GetEmoji(),
 
 		// Built In
 		"id":       fmt.Sprint(n.NoteId),

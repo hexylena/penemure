@@ -2,8 +2,8 @@ package adapter
 
 import (
 	"fmt"
-	pmm "github.com/hexylena/pm/models"
 	pml "github.com/hexylena/pm/log"
+	pmm "github.com/hexylena/pm/models"
 	"os"
 	"path/filepath"
 )
@@ -64,4 +64,3 @@ func (a *FsAdapter) DeleteNote(gn pmm.GlobalNotes, note_id pmm.NoteId) {
 		fmt.Println(err)
 	}
 }
-

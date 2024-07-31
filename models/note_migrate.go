@@ -2,10 +2,10 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
-	"golang.org/x/exp/maps"
 	"errors"
+	"fmt"
 	pmd "github.com/hexylena/pm/md"
+	"golang.org/x/exp/maps"
 	"io/ioutil"
 	"os"
 )
@@ -202,6 +202,7 @@ type Note1 struct {
 	modified   bool
 	Version    int `json:"version"`
 }
+
 func (ce *Note1) UnmarshalJSON(b []byte) error {
 	// First, deserialize everything into a map of map
 	var objMap map[string]*json.RawMessage
@@ -384,6 +385,7 @@ type Note2 struct {
 	modified   bool
 	Version    int `json:"version"`
 }
+
 func (ce *Note2) UnmarshalJSON(b []byte) error {
 	// First, deserialize everything into a map of map
 	var objMap map[string]*json.RawMessage
@@ -543,7 +545,6 @@ func (ce *Note2) UnmarshalJSON(b []byte) error {
 	// That's it!  We made it the whole way with no errors, so we can return `nil`
 	return nil
 }
-
 
 func loadJson(path string) []byte {
 	jsonFile, err := os.Open(path)

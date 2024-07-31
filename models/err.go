@@ -1,8 +1,8 @@
 package models
 
 import (
-	// "github.com/go-chi/render"
-	// "net/http"
+// "github.com/go-chi/render"
+// "net/http"
 )
 
 // ErrResponse renderer type for handling all sorts of errors.

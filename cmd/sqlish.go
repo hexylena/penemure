@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/hexylena/pm/sqlish"
-	"strings"
+	"github.com/spf13/cobra"
 	"os"
+	"strings"
 )
 
 const (

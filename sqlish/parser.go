@@ -2,9 +2,9 @@ package sqlish
 
 import (
 	"fmt"
-	"strings"
 	"github.com/blastrain/vitess-sqlparser/sqlparser"
 	"strconv"
+	"strings"
 	// "reflect"
 )
 
@@ -16,7 +16,7 @@ func processComparison(s *sqlparser.ComparisonExpr) string {
 	return where
 }
 
-func colname_or_value(w sqlparser.Expr) string{
+func colname_or_value(w sqlparser.Expr) string {
 	if col, _ := w.(*sqlparser.ColName); col != nil {
 		return col.Name.CompliantName()
 	} else if col, _ := w.(*sqlparser.SQLVal); col != nil {

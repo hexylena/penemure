@@ -59,10 +59,9 @@ var new2Cmd = &cobra.Command{
 		}
 
 		sort.Slice(ss, func(i, j int) bool {
-			return ss[i].Value.Type + ss[i].Value.Title > ss[j].Value.Type + ss[j].Value.Title
+			return ss[i].Value.Type+ss[i].Value.Title > ss[j].Value.Type+ss[j].Value.Title
 		})
 		// end sorting.
-
 
 		var all_tasks_options1 []huh.Option[string]
 		var all_tasks_options2 []huh.Option[string]

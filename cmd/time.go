@@ -46,7 +46,7 @@ type model struct {
 	focusedCol   int
 	err          error
 	running      bool
-	note  *pmm.Note
+	note         *pmm.Note
 }
 
 const (
@@ -106,8 +106,6 @@ func initialiseNewInput(m *model) {
 	} else {
 		m.newStartTime = 0
 	}
-
-
 
 	newInput := generateNewInput(m.note, m)
 	m.newInput = newInput

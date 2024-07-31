@@ -12,7 +12,6 @@ import (
 	"fmt"
 )
 
-
 func contentToString2(d1 []byte, d2 []byte) string {
 	if d1 != nil {
 		return string(d1)
@@ -44,14 +43,14 @@ func parseBlock2(node ast.Node) []Block {
 		case *ast.Heading:
 			return []Block{
 				Block{
-					Type: "markdown",
+					Type:    "markdown",
 					Content: strings.Repeat("#", int(v.Level)) + " " + getContentOrig2(c.Children[0]),
 				},
 			}
 		case *ast.Paragraph:
 			return []Block{
 				Block{
-					Type: "markdown",
+					Type:    "markdown",
 					Content: getContentOrig2(c.Children[0]),
 				},
 			}
@@ -79,14 +78,14 @@ func parseBlock2(node ast.Node) []Block {
 			if string(v.Info) == TABLE_VIEW {
 				return []Block{
 					Block{
-						Type: "table_view",
+						Type:    "table_view",
 						Content: strings.TrimSpace(getContentOrig2(node)),
 					},
 				}
 			} else {
 				return []Block{
 					Block{
-						Type: "table_view",
+						Type:    "table_view",
 						Content: strings.TrimSpace(getContentOrig2(node)),
 						Properties: map[string]string{
 							"lang": string(v.Info),
@@ -97,7 +96,7 @@ func parseBlock2(node ast.Node) []Block {
 		case *ast.HorizontalRule:
 			return []Block{
 				Block{
-					Type: "markdown",
+					Type:    "markdown",
 					Content: "---",
 				},
 			}

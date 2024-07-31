@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
-	"fmt"
 )
 
 var replace bool
@@ -17,7 +17,7 @@ var reparentCmd = &cobra.Command{
 	Use:   "reparent [note id] [new parent id]",
 	Short: "reparent a note",
 	// Exactly two args
-	Args:  cobra.MinimumNArgs(2),
+	Args: cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		partial := pmm.PartialNoteId(args[0])
 		note_id, err := gn.GetIdByPartial(partial)

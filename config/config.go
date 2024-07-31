@@ -5,7 +5,7 @@ type HxpmConfig struct {
 	About string
 
 	// Adapter is how /where tasks are written
-	Adapter string
+	Adapter       string
 	AdapterConfig map[string]string
 
 	// Export

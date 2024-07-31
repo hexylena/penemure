@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	pmm "github.com/hexylena/pm/models"
-	pmc "github.com/hexylena/pm/config"
 	pma "github.com/hexylena/pm/adapter"
+	pmc "github.com/hexylena/pm/config"
+	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 	"os"
 )

@@ -5,7 +5,7 @@ import (
 )
 
 type TaskAdapter interface {
-     LoadNotes(gn pmm.GlobalNotes)
-     SaveNotes(gn pmm.GlobalNotes)
-     DeleteNote(gn pmm.GlobalNotes, note_id pmm.NoteId)
+	LoadNotes(gn pmm.GlobalNotes)
+	SaveNotes(gn pmm.GlobalNotes)
+	DeleteNote(gn pmm.GlobalNotes, note_id pmm.NoteId)
 }

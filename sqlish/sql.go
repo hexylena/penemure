@@ -2,10 +2,10 @@ package sqlish
 
 import (
 	"fmt"
+	pml "github.com/hexylena/pm/log"
 	"golang.org/x/exp/maps"
 	"sort"
 	"strings"
-	pml "github.com/hexylena/pm/log"
 )
 
 type SqlLikeQuery struct {
@@ -35,9 +35,9 @@ func (slq *SqlLikeQuery) GetFields() []string {
 	// 		r = append(r, field)
 	// 	}
 	// } else {
-		for _, field := range strings.Split(slq.Select, ",") {
-			r = append(r, strings.TrimSpace(field))
-		}
+	for _, field := range strings.Split(slq.Select, ",") {
+		r = append(r, strings.TrimSpace(field))
+	}
 	// }
 	return r
 }
@@ -106,7 +106,7 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 			}
 		})
 	}
-	
+
 	logger.Debug("Post Order Documents", "count", len(documents))
 
 	documents2 := []map[string]string{}
@@ -116,17 +116,17 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 		logger.Debug("Filtering Documents", "where", slq.Where, "doc", document)
 		if strings.Contains(slq.Where, " AND ") {
 			terms := strings.Split(slq.Where, " AND ")
-			if slq.whereDocumentIsIncluded(document, terms[0]) && slq.whereDocumentIsIncluded(document, terms[1]){
+			if slq.whereDocumentIsIncluded(document, terms[0]) && slq.whereDocumentIsIncluded(document, terms[1]) {
 				documents2 = append(documents2, document)
 			}
 
 		} else if strings.Contains(slq.Where, " OR ") {
 			terms := strings.Split(slq.Where, " OR ")
-			if slq.whereDocumentIsIncluded(document, terms[0]) || slq.whereDocumentIsIncluded(document, terms[1]){
+			if slq.whereDocumentIsIncluded(document, terms[0]) || slq.whereDocumentIsIncluded(document, terms[1]) {
 				documents2 = append(documents2, document)
 			}
 		} else {
-			if slq.whereDocumentIsIncluded(document, slq.Where){
+			if slq.whereDocumentIsIncluded(document, slq.Where) {
 				documents2 = append(documents2, document)
 			}
 		}

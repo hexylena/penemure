@@ -2,10 +2,10 @@ package models
 
 import (
 	"fmt"
-	"os"
-	"path"
-	"os/exec"
 	"golang.org/x/exp/maps"
+	"os"
+	"os/exec"
+	"path"
 	"regexp"
 	"runtime/debug"
 	"strconv"
@@ -15,9 +15,9 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	pmc "github.com/hexylena/pm/config"
 	pmd "github.com/hexylena/pm/md"
 	"github.com/hexylena/pm/sqlish"
-	pmc "github.com/hexylena/pm/config"
 )
 
 const (
@@ -75,7 +75,7 @@ func (gn *GlobalNotes) GetNotes() map[NoteId]*Note {
 func (gn *GlobalNotes) GetTypes() []string {
 	types := make(map[string]string)
 	for _, note := range gn.notes {
-		types[note.Type] = "";
+		types[note.Type] = ""
 	}
 
 	return maps.Keys(types)
@@ -382,7 +382,7 @@ func (gn *GlobalNotes) Edit(id PartialNoteId) {
 
 func (gn *GlobalNotes) exportTemplate(s string, config pmc.HxpmConfig) {
 	type templateContext2 struct {
-		Gn *GlobalNotes
+		Gn     *GlobalNotes
 		Config pmc.HxpmConfig
 	}
 
@@ -421,7 +421,7 @@ func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	}
 
 	type templateContext2 struct {
-		Gn *GlobalNotes
+		Gn     *GlobalNotes
 		Config pmc.HxpmConfig
 	}
 
@@ -526,7 +526,6 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 	}
 	return b.Html()
 }
-
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
 	res := gn.BlockToHtml(b)
