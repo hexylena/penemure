@@ -496,14 +496,9 @@ func (n *Note) ExportToFile(gn *GlobalNotes) {
 }
 
 func (n *Note) Export(gn *GlobalNotes, w io.Writer) {
-	// Read template from templates/note.html
-	tmpl_text, err := os.ReadFile("templates/note.html")
+	tmpl, err := template.New("").ParseFiles("templates/note.html", "templates/base.html")
 	if err != nil {
-		fmt.Println(err)
-	}
-	tmpl, err := template.New("note").Parse(string(tmpl_text))
-	if err != nil {
-		logger.Error("error executing template", "error", err)
+		logger.Error("Error", "err", err)
 	}
 
 	type tmpstruct struct {
@@ -511,7 +506,7 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer) {
 		GlobalNotes *GlobalNotes
 	}
 
-	err = tmpl.Execute(w, tmpstruct{n, gn})
+	err = tmpl.ExecuteTemplate(w, "base", tmpstruct{n, gn})
 	if err != nil {
 		logger.Error("error executing template", "error", err)
 	}

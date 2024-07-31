@@ -1,151 +1,124 @@
-<!DOCTYPE html>
-<html>
 {{define "badge"}}
 	<span class="badge">
 		{{ .GetIconHtml }}
 		{{ .Title }}
 	</span>
 {{end}}
-	<head>
-		<meta charset="utf-8">
-		<title>{{ .Note.Title }} | HXPM Note</title>
-		<link rel="stylesheet" href="assets/normalize@8.0.1.css">
-		<link rel="stylesheet" href="assets/concrete@2.0.3.css">
-		<link rel="stylesheet" href="assets/index.css">
-	</head>
-	<body>
-		<header>
-			<span style="display: flex; align-items: center;">
-				<img src="favicon.ico" width="40">
-				<a href="index.html">HXPM</a>
-				/
-				{{ .Note.Id }}
-			</span>
-			<form action="search.html">
-				<input type="search" name="title" id="search" size="24" style="width: unset" placeholder="search">
-			</form>
-		</header>
-		<main>
-			<div>
-				{{ if .Note.GetCover }}
-				<img src="{{ .Note.GetCover }}" class="cover">
-				{{ end }}
-			</div>
-			<hgroup>
-				<h1>
-					{{ .Note.GetIconHtml }}
-					{{ .Note.Title }}
-				</h1>
-			</hgroup>
 
-			{{ if .Note.HasParents }}
-			<h2>Parents</h2>
-			<ul>
-				{{ range .Note.Parents }}
-				<li>
-					<a href="{{ . }}.html">
-					{{ template "badge" ($.GlobalNotes.GetNote .) }}
-					</a>
-				</li>
-				{{ end }}
-			</ul>
+
+{{define "title"}}
+	{{ .Note.Title }} | HXPM Note
+{{end}}
+
+{{define "main"}}
+<div>
+	{{ if .Note.GetCover }}
+	<img src="{{ .Note.GetCover }}" class="cover">
+	{{ end }}
+</div>
+<hgroup>
+	<h1>
+		{{ .Note.GetIconHtml }}
+		{{ .Note.Title }}
+	</h1>
+</hgroup>
+
+{{ if .Note.HasParents }}
+<h2>Parents</h2>
+<ul>
+	{{ range .Note.Parents }}
+	<li>
+		<a href="{{ . }}.html">
+		{{ template "badge" ($.GlobalNotes.GetNote .) }}
+		</a>
+	</li>
+	{{ end }}
+</ul>
+{{ end }}
+
+<table id="metadata">
+	<caption>Metadata</caption>
+	<thead>
+		<tr>
+			<th scope="col">Key</th>
+			<th scope="col">Value</th>
+		</tr>
+	</thead>
+
+	<tbody>
+	{{ if .Note.Projects }}
+	<tr>
+		<td scope="row">🏗 Projects</td>
+		<td>
+			{{ range .Note.Projects }}
+			<a href="{{ . }}.html">
+				{{ template "badge" ($.GlobalNotes.GetNote .) }}
+			</a>
 			{{ end }}
+		</td>
+	</tr>
+	{{ end }}
 
-			<table id="metadata">
-				<caption>Metadata</caption>
-				<thead>
-					<tr>
-						<th scope="col">Key</th>
-						<th scope="col">Value</th>
-					</tr>
-				</thead>
+	{{ range $key, $value := .Note.Meta }}
+	{{ if ne .Title "" }}
+	<tr>
+		<td scope="row">{{ $value.GetIconHtml }} {{ $value.Title }}</td>
+		<td>{{ $value.AutoFmt }}</td>
+	</tr>
+	{{ end }}
+	{{ end }}
 
-				<tbody>
-				{{ if .Note.Projects }}
-				<tr>
-					<td scope="row">🏗 Projects</td>
-					<td>
-						{{ range .Note.Projects }}
-						<a href="{{ . }}.html">
-							{{ template "badge" ($.GlobalNotes.GetNote .) }}
-						</a>
-						{{ end }}
-					</td>
-				</tr>
-				{{ end }}
+	<tr>
+		<td scope="row">Created</td>
+		<td>{{ $.GlobalNotes.FmtTimeI .Note.CreatedAt }}</td>
+	</tr>
 
-				{{ range $key, $value := .Note.Meta }}
-				{{ if ne .Title "" }}
-				<tr>
-					<td scope="row">{{ $value.GetIconHtml }} {{ $value.Title }}</td>
-					<td>{{ $value.AutoFmt }}</td>
-				</tr>
-				{{ end }}
-				{{ end }}
+	{{ if ne .Note.CreatedAt .Note.ModifiedAt }}
+	<tr>
+		<td scope="row">Modified</td>
+		<td>{{ $.GlobalNotes.FmtTimeI .Note.ModifiedAt }}</td>
+	</tr>
+	{{ end }}
+	</tbody>
+</table>
 
-				<tr>
-					<td scope="row">Created</td>
-					<td>{{ $.GlobalNotes.FmtTimeI .Note.CreatedAt }}</td>
-				</tr>
+{{ if .Note.HasBlocks }}
+	<h2>Contents</h2>
 
-				{{ if ne .Note.CreatedAt .Note.ModifiedAt }}
-				<tr>
-					<td scope="row">Modified</td>
-					<td>{{ $.GlobalNotes.FmtTimeI .Note.ModifiedAt }}</td>
-				</tr>
-				{{ end }}
-				</tbody>
-			</table>
+	{{ range .Note.Blocks }}
+		{{ $.GlobalNotes.BlockToHtml3 . }}
+	{{ end }}
+{{ end }}
 
-			{{ if .Note.HasBlocks }}
-				<h2>Contents</h2>
+<details style="margin-top: 3rem">
+	<summary>All Children</summary>
+{{ if .Note.GetProjectMembers .GlobalNotes }}
+<h2>Children</h2>
+<table>
+	<tr>
+		<th>Title</th>
+		<th>Type</th>
+		<th>Status</th>
+		<th>Tags</th>
+		<th>Assignee</th>
+		<th>Size</th>
+	</tr>
+	{{ range $key, $v := .Note.GetProjectMembers .GlobalNotes }}
+	<tr>
+		<td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
+		<td>{{ $v.Type }}</td>
+		<td>{{ $v.GetS "Status" }}</td>
+		<td>
+		{{ range $qq := $v.GetL "Tags" }}
+		.
+		{{ end }}
+		</td>
+		<td>{{ $v.GetS "Assignee" }}</td>
+		<td>{{ $v.GetS "Size" }}</td>
+	</tr>
+	{{ end }}
+</table>
+{{ end }}
+</details>
+{{end}}
 
-				{{ range .Note.Blocks }}
-					{{ $.GlobalNotes.BlockToHtml3 . }}
-				{{ end }}
-			{{ end }}
-
-			<details style="margin-top: 3rem">
-				<summary>All Children</summary>
-			{{ if .Note.GetProjectMembers .GlobalNotes }}
-			<h2>Children</h2>
-			<table>
-				<tr>
-					<th>Title</th>
-					<th>Type</th>
-					<th>Status</th>
-					<th>Tags</th>
-					<th>Assignee</th>
-					<th>Size</th>
-				</tr>
-				{{ range $key, $v := .Note.GetProjectMembers .GlobalNotes }}
-				<tr>
-					<td><a href="{{ $v.NoteId }}.html">{{ $v.GetIconHtml }} {{ $v.Title }}</a></td>
-					<td>{{ $v.Type }}</td>
-					<td>{{ $v.GetS "Status" }}</td>
-					<td>
-					{{ range $qq := $v.GetL "Tags" }}
-					.
-					{{ end }}
-					</td>
-					<td>{{ $v.GetS "Assignee" }}</td>
-					<td>{{ $v.GetS "Size" }}</td>
-				</tr>
-				{{ end }}
-			</table>
-			{{ end }}
-			</details>
-
-		</main>
-		<footer>
-			<div>
-			<p>Personal Project Manager</p>
-			</div>
-			<div>
-			<p>AGPLv3</p>
-			<p>Rev {{ .GlobalNotes.VcsRev 8 }}</p>
-			</div>
-		</footer>
-
-	</body>
-</html>

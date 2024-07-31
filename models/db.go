@@ -357,12 +357,7 @@ func (gn *GlobalNotes) Export() {
 		os.Mkdir("./export", 0755)
 	}
 
-	// Read template from templates/note.html
-	list_tpl_text, err := os.ReadFile("templates/list.html")
-	if err != nil {
-		logger.Error("Error", "err", err)
-	}
-	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
+	tmpl, err := template.New("").ParseFiles("templates/list.html", "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -373,7 +368,7 @@ func (gn *GlobalNotes) Export() {
 		logger.Error("Error", "err", err)
 	}
 
-	err = list_tpl.Execute(f, gn)
+	err = list_tpl.ExecuteTemplate(f, "base", gn)
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -457,13 +452,21 @@ func (gn *GlobalNotes) BubblePrint() {
 }
 
 func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
-	return b.Html()
-}
-
-func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
 	if b.Type() == pmd.TABLE_VIEW {
 		b := b.(*pmd.TableView)
 		return gn.QueryToHtml(b.Query)
 	}
 	return b.Html()
+}
+
+
+func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
+	res := gn.BlockToHtml(b)
+	re := regexp.MustCompile(`@{([a-f0-9-]+)}`)
+	res = re.ReplaceAllStringFunc(res, func(s string) string {
+		nid := re.FindStringSubmatch(s)[1]
+		note := gn.GetNoteById(NoteId(nid))
+		return fmt.Sprintf("<a href=\"%s.html\">%s %s</a>", nid, note.GetIconHtml(), note.Title)
+	})
+	return res
 }

@@ -2,6 +2,7 @@ package models
 
 import (
 
+	"fmt"
 	"time"
 	"strings"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
+	// "github.com/go-chi/render"
 	"net/http"
 )
 
@@ -38,43 +39,47 @@ func (gn *GlobalNotes) Serve() {
 	r.Get("/{articleSlug:[a-f0-9-]+}.html", gn.serve_getArticleBySlug) // GET /notes/<uuid>
 	// })
 
+	fmt.Println("Starting server on port 3333")
+	
+	logger.Info("Starting server", "port", 3333)
+	r.NotFound(gn.serve_404)
+
 	// Otherwise serve things directly from templates dir.
 	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, "templates/"))
-	FileServer(r, "/", filesDir)
+	filesDir := http.Dir(filepath.Join(workDir, "templates/assets/"))
+	FileServer(r, "/assets", filesDir)
 
 	http.ListenAndServe(":3333", r)
 }
 
-func (gn *GlobalNotes) serve_index(w http.ResponseWriter, r *http.Request) {
-	list_tpl_text, err := os.ReadFile("templates/list.html")
+func get_template(templateName string) *template.Template {
+	tmpl, err := template.New("").ParseFiles(fmt.Sprintf("templates/%s.html", templateName), "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
-	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
-	if err != nil {
-		logger.Error("Error", "err", err)
-	}
+	return tmpl
+}
 
-	// Render template
-	err = list_tpl.Execute(w, gn)
+func (gn *GlobalNotes) serve_404(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(404)
+	tmpl := get_template("404")
+	err := tmpl.ExecuteTemplate(w, "base", gn)
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+}
+
+func (gn *GlobalNotes) serve_index(w http.ResponseWriter, r *http.Request) {
+	tmpl := get_template("list")
+	err := tmpl.ExecuteTemplate(w, "base", gn)
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
 }
 
 func (gn *GlobalNotes) serve_search(w http.ResponseWriter, r *http.Request) {
-	list_tpl_text, err := os.ReadFile("templates/search.html")
-	if err != nil {
-		logger.Error("Error", "err", err)
-	}
-	list_tpl, err := template.New("list").Parse(string(list_tpl_text))
-	if err != nil {
-		logger.Error("Error", "err", err)
-	}
-
-	// Render template
-	err = list_tpl.Execute(w, gn)
+	tmpl := get_template("search")
+	err := tmpl.ExecuteTemplate(w, "base", gn)
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -87,13 +92,13 @@ func (gn *GlobalNotes) serve_getArticleBySlug(w http.ResponseWriter, r *http.Req
 		partial := PartialNoteId(pni)
 		note_id, err := gn.GetIdByPartial(partial)
 		if err != nil {
-			render.Render(w, r, ErrNotFound)
+			gn.serve_404(w, r)
 			return
 		}
 		note := gn.notes[note_id]
 		note.Export(gn, w)
 	} else {
-		render.Render(w, r, ErrNotFound)
+		gn.serve_404(w, r)
 		return
 	}
 }
