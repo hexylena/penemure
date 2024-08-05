@@ -553,7 +553,11 @@ func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
 	re := regexp.MustCompile(`@([a-f0-9-]+)`)
 	res = re.ReplaceAllStringFunc(res, func(s string) string {
 		nid := re.FindStringSubmatch(s)[1]
-		note := gn.GetNoteByID(NoteId(nid))
+		note_id, err := gn.GetIdByPartial(PartialNoteId(nid))
+		if err != nil {
+			return s
+		}
+		note := gn.GetNoteByID(note_id)
 		return fmt.Sprintf("<a href=\"%s.html\">%s %s</a>", nid, note.GetIconHtml(), note.Title)
 	})
 
