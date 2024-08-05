@@ -108,8 +108,8 @@ func (gn *GlobalNotes) serve_search(w http.ResponseWriter, r *http.Request) {
 
 func (gn *GlobalNotes) serve_manifest_json(w http.ResponseWriter, r *http.Request) {
 	icon := map[string]string{
-		"src":   "assets/favicon.ico",
-		"type":  "image/x-icon",
+		"src":   config.ExportPrefix + "assets/favicon@256.png",
+		"type":  "image/png",
 		"sizes": "256x256",
 	}
 	data := map[string]interface{}{
