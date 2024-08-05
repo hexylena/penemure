@@ -8,3 +8,4 @@ About: |
 # AdapterConfig:
 #   Path: ./projects
 ExportUseGoogleFonts: true
+ExportPrefix: /project-management/

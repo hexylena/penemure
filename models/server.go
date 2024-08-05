@@ -21,6 +21,16 @@ var config pmc.HxpmConfig
 
 func (gn *GlobalNotes) Serve(_config pmc.HxpmConfig) {
 	r := chi.NewRouter()
+	r.Mount(config.ExportPrefix, gn.MainRoutes(_config))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, config.ExportPrefix, http.StatusFound)
+	})
+	r.NotFound(gn.serve_404)
+	http.ListenAndServe(":3333", r)
+}
+
+func (gn *GlobalNotes) MainRoutes(_config pmc.HxpmConfig) chi.Router {
+	r := chi.NewRouter()
 	config = _config
 
 	// A good base middleware stack
@@ -53,8 +63,7 @@ func (gn *GlobalNotes) Serve(_config pmc.HxpmConfig) {
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "templates/assets/"))
 	FileServer(r, "/assets", filesDir)
-
-	http.ListenAndServe(":3333", r)
+	return r
 }
 
 func get_template(templateName string) *template.Template {

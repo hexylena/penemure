@@ -11,4 +11,5 @@ type HxpmConfig struct {
 	// Export
 	ExportDirectory      string
 	ExportUseGoogleFonts bool
+	ExportPrefix         string
 }
