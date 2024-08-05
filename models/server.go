@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -45,6 +46,7 @@ func (gn *GlobalNotes) MainRoutes(_config pmc.HxpmConfig) chi.Router {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Get("/", gn.serve_index)
+	r.Get("/manifest.json", gn.serve_manifest_json)
 	r.Get("/index.html", gn.serve_index)
 	r.Get("/search.html", gn.serve_search)
 	// r.Route("/notes", func(r chi.Router) {
@@ -102,6 +104,26 @@ func (gn *GlobalNotes) serve_search(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
+}
+
+func (gn *GlobalNotes) serve_manifest_json(w http.ResponseWriter, r *http.Request) {
+	icon := map[string]string{
+		"src":   "assets/favicon.ico",
+		"type":  "image/x-icon",
+		"sizes": "256x256",
+	}
+	data := map[string]interface{}{
+		"background_color": "#ffffff",
+		"name":             config.Title,
+		"description":      config.About,
+		"display":          "standalone",
+		"scope":            config.ExportPrefix, // TODO: make this configurable
+		"icons":            []map[string]string{icon},
+		"start_url":        config.ExportPrefix, // TODO:
+		"theme_color":      "#CE3518",
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
 }
 
 var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
