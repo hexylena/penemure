@@ -556,5 +556,14 @@ func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
 		note := gn.GetNoteByID(NoteId(nid))
 		return fmt.Sprintf("<a href=\"%s.html\">%s %s</a>", nid, note.GetIconHtml(), note.Title)
 	})
+
+	plugin := regexp.MustCompile(`@{([a-z.]+):([^}]*)}`)
+	p := Plugin{}
+	res = plugin.ReplaceAllStringFunc(res, func(s string) string {
+		plug := plugin.FindStringSubmatch(s)[1]
+		args := plugin.FindStringSubmatch(s)[2]
+		return p.Render(plug, args)
+	})
+
 	return res
 }
