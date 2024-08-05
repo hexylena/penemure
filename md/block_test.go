@@ -2,7 +2,6 @@ package md
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"testing"
 )
@@ -28,6 +27,9 @@ func (ce *ColorfulEcosystem) UnmarshalJSON(b []byte) error {
 
 	// Must manually deserialise each item
 	err = json.Unmarshal(*objMap["title"], &ce.Title)
+	if err != nil {
+		return err
+	}
 
 	// Let's add a place to store our de-serialized Plant and Animal structs
 	ce.Things = make([]SyntaxNode, len(rawMessagesForColoredThings))
@@ -100,7 +102,7 @@ func (ce *ColorfulEcosystem) UnmarshalJSON(b []byte) error {
 			}
 			ce.Things[index] = &a
 		} else {
-			return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+			return fmt.Errorf("Unknown type: %s", m["type"])
 		}
 	}
 

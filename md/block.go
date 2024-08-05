@@ -292,7 +292,8 @@ func (s *HorizontalRule) String() string {
 const TABLE_VIEW = "table_view"
 
 type TableView struct {
-	Query string `json:"query"`
+	Query   string `json:"query"`
+	Display string `json:"display"`
 }
 
 func (t *TableView) Html() string {
@@ -300,13 +301,17 @@ func (t *TableView) Html() string {
 }
 
 func (t *TableView) Md() string {
-	return fmt.Sprintf("```%s\n%s\n```", TABLE_VIEW, t.Query)
+	return fmt.Sprintf("```%s|%s\n%s\n```", TABLE_VIEW, t.Display, t.Query)
 }
 
 func (t *TableView) MarshalJSON() ([]byte, error) {
 	m := make(map[string]interface{})
 	m["query"] = t.Query
 	m["type"] = TABLE_VIEW
+	if t.Display == "" {
+		t.Display = "table"
+	}
+	m["display"] = t.Display
 	return json.Marshal(m)
 }
 
@@ -314,7 +319,7 @@ func (t *TableView) Type() string {
 	return TABLE_VIEW
 }
 func (s *TableView) String() string {
-	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
+	return fmt.Sprintf("Sn{%s/%s}: %s", s.Type(), s.Display, s.Md())
 }
 
 type Code struct {

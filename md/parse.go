@@ -5,6 +5,7 @@ package md
 import (
 	// "os"
 
+	"regexp"
 	"strings"
 
 	"github.com/gomarkdown/markdown/ast"
@@ -185,11 +186,12 @@ func parseBlock(node ast.Node) []SyntaxNode {
 		switch v := node.(type) {
 		case *ast.CodeBlock:
 			_ = v
-			// check code type
-			if string(v.Info) == TABLE_VIEW {
+			table_marker := regexp.MustCompile(`^table_view\|?(.*)$`)
+			if table_marker.MatchString(string(v.Info)) {
 				return []SyntaxNode{
 					&TableView{
-						Query: strings.TrimSpace(getContentOrig(node)),
+						Display: table_marker.FindStringSubmatch(string(v.Info))[1],
+						Query:   strings.TrimSpace(getContentOrig(node)),
 					},
 				}
 			} else {

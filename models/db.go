@@ -243,7 +243,7 @@ func (gn *GlobalNotes) BubbleShow(id PartialNoteId) {
 	note.BubblePrint()
 }
 
-func (gn *GlobalNotes) QueryToHtml(query string) string {
+func (gn *GlobalNotes) QueryToHtml(query, display string) string {
 	// SELECT id, title FROM tasks
 	// SELECT id, title FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7'
 	// SELECT id, title FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7' GROUP BY status
@@ -258,9 +258,17 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 		// gross! :D
 		flattened_notes[len(flattened_notes)-1]["title"] = fmt.Sprintf(`<a href="%s.html">%s %s</a>`, note.NoteId, note.GetIconHtml(), note.Title)
 	}
-
 	results := ans.FilterDocuments(flattened_notes)
+	switch display {
+	case "kanban":
+		return gn.QueryDisplayKanban(ans, results)
+	default:
+		return gn.QueryDisplayTable(ans, results)
+	}
 
+}
+
+func (gn *GlobalNotes) QueryDisplayTable(ans *sqlish.SqlLikeQuery, results *sqlish.GroupedResultSet) string {
 	// Render results as table
 	html := "<table>\n"
 	html += "<thead>\n"
@@ -306,6 +314,40 @@ func (gn *GlobalNotes) QueryToHtml(query string) string {
 	return html
 }
 
+func (gn *GlobalNotes) QueryDisplayKanban(ans *sqlish.SqlLikeQuery, results *sqlish.GroupedResultSet) string {
+	// Render results as table
+	html := "<div class=\"kanban\">\n"
+	headers := ans.GetFields()
+
+	for key, result := range results.Rows {
+		html += `<div class="kanban-column">`
+
+		header := "Results"
+		if key != "__default__" {
+			// Title Case, Capitalise Each Word
+			header = strings.ToUpper(key[:1]) + key[1:]
+			html += fmt.Sprintf(`<div class="title">%s</div>`, header)
+		}
+
+		for _, row := range result {
+			html += `<div class="card">`
+			for i, cell := range row {
+				if cell == "" {
+					html += "<span></span>"
+					// TODO: this fixes it being run through autofmt twice, but, that shouldn't've happened in the first place.
+				} else if cell[0] == '<' {
+					html += "<div>" + cell + "</div>"
+				} else {
+					html += "<div>" + gn.AutoFmt(headers[i], cell) + "</div>"
+				}
+			}
+			html += "</div>\n"
+		}
+		html += `</div>`
+	}
+	html += "</div>"
+	return html
+}
 func (gn *GlobalNotes) FmtTimeI(i int) string {
 	t := time.Unix(int64(i), 0)
 	return t.Format("2006-01-02 15:04:05")
@@ -367,7 +409,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 }
 
 func (gn *GlobalNotes) AutoFmtMeta(m Meta) string {
-	logger.Info("AutoFmtMeta", "m", m)
+	// logger.Info("AutoFmtMeta", "m", m)
 	// value is a []interface{} or interface{}, check which:
 	switch m.Value.(type) {
 	case []interface{}:
@@ -535,17 +577,17 @@ func (gn *GlobalNotes) BubblePrint() {
 func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 	if b.Type() == pmd.TABLE_VIEW {
 		b := b.(*pmd.TableView)
-		return gn.QueryToHtml(b.Query)
+		return gn.QueryToHtml(b.Query, b.Display)
 	}
 	return b.Html()
 }
 
 func (gn *GlobalNotes) GetChildrenFormatted(note NoteId) string {
-	return gn.QueryToHtml("select title, created, Author from notes where parent = '" + string(note) + "' group by type order by created ")
+	return gn.QueryToHtml("select title, created, Author from notes where parent = '"+string(note)+"' group by type order by created ", "table")
 }
 
 func (gn *GlobalNotes) GetTopLevelFormatted() string {
-	return gn.QueryToHtml("select title, created, Author from notes where parent is null GROUP BY type ORDER BY created ")
+	return gn.QueryToHtml("select title, created, Author from notes where parent is null GROUP BY type ORDER BY created ", "table")
 }
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {

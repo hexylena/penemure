@@ -23,18 +23,6 @@
 	</h1>
 </hgroup>
 
-{{ if .Note.HasParents }}
-<h2>Parents</h2>
-<ul>
-	{{ range .Note.Parents }}
-	<li>
-		<a href="{{ . }}.html">
-		{{ $.Gn.GetNote . }}
-		</a>
-	</li>
-	{{ end }}
-</ul>
-{{ end }}
 
 <table id="metadata">
 	<caption>Metadata</caption>
@@ -55,6 +43,23 @@
 				{{ template "badge" ($.Gn.GetNote .) }}
 			</a>
 			{{ end }}
+		</td>
+	</tr>
+	{{ end }}
+
+	{{ if .Note.HasParents }}
+	<tr>
+		<td scope="row">👨‍👩‍👧‍👦 Parents</td>
+		<td>
+			<ul>
+				{{ range .Note.Parents }}
+				<li>
+					<a href="{{ . }}.html">
+					{{ $.Gn.GetNote . }}
+					</a>
+				</li>
+				{{ end }}
+			</ul>
 		</td>
 	</tr>
 	{{ end }}
