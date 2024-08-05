@@ -1,12 +1,14 @@
+// Package cmd provides command line utilites
 package cmd
 
 import (
 	"fmt"
+	"os"
+
 	pma "github.com/hexylena/pm/adapter"
 	pmc "github.com/hexylena/pm/config"
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var rootCmd = &cobra.Command{

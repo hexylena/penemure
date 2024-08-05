@@ -135,7 +135,7 @@ func (m *Meta) AutoFmt(gn *GlobalNotes) string {
 	reference := regexp.MustCompile(`^@[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 	if reference.MatchString(value) {
 		fmt.Println("Reference", value)
-		note_id := gn.GetNoteById(NoteId(value[1 : len(value)-1]))
+		note_id := gn.GetNoteByID(NoteId(value[1 : len(value)-1]))
 		return fmt.Sprintf(`<a href="%s">%s %s</a>`, note_id.NoteId, note_id.GetIconHtml(), note_id.Title)
 	}
 

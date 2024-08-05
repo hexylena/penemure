@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 )
@@ -22,7 +23,7 @@ var authorCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		note := gn.GetNoteById(note_id)
+		note := gn.GetNoteByID(note_id)
 		note.RemoveMetaTag("Author")
 		note.AddMetaTag("Author", args[1])
 	},

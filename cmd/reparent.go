@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	pmm "github.com/hexylena/pm/models"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +22,7 @@ var reparentCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		partial := pmm.PartialNoteId(args[0])
 		note_id, err := gn.GetIdByPartial(partial)
-		note := gn.GetNoteById(note_id)
+		note := gn.GetNoteByID(note_id)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -31,7 +32,7 @@ var reparentCmd = &cobra.Command{
 
 		new_parent_partial := pmm.PartialNoteId(args[1])
 		new_parent_id, err := gn.GetIdByPartial(new_parent_partial)
-		new_parent := gn.GetNoteById(new_parent_id)
+		new_parent := gn.GetNoteByID(new_parent_id)
 		if err != nil {
 			fmt.Println(err)
 			return

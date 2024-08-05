@@ -36,7 +36,7 @@ func (gn *GlobalNotes) Init() {
 	gn.notes = make(map[NoteId]*Note)
 }
 
-func (gn *GlobalNotes) GetNoteById(id NoteId) *Note {
+func (gn *GlobalNotes) GetNoteByID(id NoteId) *Note {
 	return gn.notes[id]
 }
 
@@ -152,7 +152,7 @@ func (gn *GlobalNotes) GetAncestorChain(note *Note, at_type AncestorType) []*Not
 	// type is either "parent" or "project"
 	if at_type == AT_Parent {
 		if len(note.Parents) > 0 {
-			parent := gn.GetAncestorChain(gn.GetNoteById(note.Parents[0]), at_type)
+			parent := gn.GetAncestorChain(gn.GetNoteByID(note.Parents[0]), at_type)
 			parents = append(parents, parent...)
 		}
 	}
@@ -349,7 +349,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	// references
 	reference := regexp.MustCompile(`^@[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 	if reference.MatchString(value) {
-		note_id := gn.GetNoteById(NoteId(value[1:]))
+		note_id := gn.GetNoteByID(NoteId(value[1:]))
 		// todo different icon for person references.
 		fmt.Println(note_id.GetIconHtml())
 		return fmt.Sprintf(`<a href="%s.html">%s %s</a>`, note_id.NoteId, note_id.GetIconHtml(), note_id.Title)
@@ -553,7 +553,7 @@ func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {
 	re := regexp.MustCompile(`@([a-f0-9-]+)`)
 	res = re.ReplaceAllStringFunc(res, func(s string) string {
 		nid := re.FindStringSubmatch(s)[1]
-		note := gn.GetNoteById(NoteId(nid))
+		note := gn.GetNoteByID(NoteId(nid))
 		return fmt.Sprintf("<a href=\"%s.html\">%s %s</a>", nid, note.GetIconHtml(), note.Title)
 	})
 	return res

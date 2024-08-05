@@ -1,3 +1,4 @@
+// Package adapter connects the tasks to storage
 package adapter
 
 import (

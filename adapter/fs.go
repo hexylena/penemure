@@ -2,10 +2,11 @@ package adapter
 
 import (
 	"fmt"
-	pml "github.com/hexylena/pm/log"
-	pmm "github.com/hexylena/pm/models"
 	"os"
 	"path/filepath"
+
+	pml "github.com/hexylena/pm/log"
+	pmm "github.com/hexylena/pm/models"
 )
 
 type FsAdapter struct {

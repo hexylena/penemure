@@ -2,9 +2,10 @@ package cmd
 
 import (
 	// "errors"
-	"github.com/spf13/cobra"
 	"sort"
 	"strings"
+
+	"github.com/spf13/cobra"
 
 	"fmt"
 	"log"
@@ -29,12 +30,12 @@ var new2Cmd = &cobra.Command{
 
 		var projects []huh.Option[string]
 		for _, project := range gn.GetProjects() {
-			projects = append(projects, huh.NewOption(project.Title, fmt.Sprintf("%s", project.NoteId)))
+			projects = append(projects, huh.NewOption(project.Title, string(project.NoteId)))
 		}
 
 		var parents_out []string
 		var blocking_out []string
-		var base16 *huh.Theme = huh.ThemeBase16()
+		base16 := huh.ThemeBase16()
 
 		all_tasks := gn.GetNotes()
 
@@ -55,11 +56,11 @@ var new2Cmd = &cobra.Command{
 		// end sorting.
 
 		var all_tasks_options1 []huh.Option[string]
-		var all_tasks_options2 []huh.Option[string]
+		// var all_tasks_options2 []huh.Option[string]
 		for _, kv := range ss {
 			t := fmt.Sprintf("%s %s", kv.Value.GetEmoji(), kv.Value.Title)
 			all_tasks_options1 = append(all_tasks_options1, huh.NewOption(t, kv.Value.NoteId.String()))
-			all_tasks_options2 = append(all_tasks_options2, huh.NewOption(t, kv.Value.NoteId.String()))
+			// all_tasks_options2 = append(all_tasks_options2, huh.NewOption(t, kv.Value.NoteId.String()))
 		}
 
 		var tags_out string

@@ -3,13 +3,14 @@ package cmd
 import (
 	"fmt"
 	// "os"
-	pmm "github.com/hexylena/pm/models"
-	"github.com/spf13/cobra"
 	"log"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	pmm "github.com/hexylena/pm/models"
+	"github.com/spf13/cobra"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,8 +27,8 @@ const (
 )
 
 var (
-	inputStyle    = lipgloss.NewStyle().Foreground(hotPink)
-	continueStyle = lipgloss.NewStyle().Foreground(darkGray)
+	inputStyle = lipgloss.NewStyle().Foreground(hotPink)
+	// continueStyle = lipgloss.NewStyle().Foreground(darkGray)
 
 	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
@@ -61,7 +62,7 @@ const (
 )
 
 func generateNewInput(n *pmm.Note, m *model) []textinput.Model {
-	var newInput []textinput.Model = make([]textinput.Model, 6)
+	newInput := make([]textinput.Model, 6)
 
 	newInput[title] = textinput.New()
 	newInput[title].Placeholder = "Meeting with Alice"
@@ -199,7 +200,7 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd = make([]tea.Cmd, len(m.newInput))
+	cmds := make([]tea.Cmd, len(m.newInput))
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -331,7 +332,7 @@ func (m model) View() string {
 
 	previous_day := ""
 	for row := range m.oldData {
-		note := gn.GetNoteById(pmm.NoteId(m.oldData[row][internal_id].Value()))
+		note := gn.GetNoteByID(pmm.NoteId(m.oldData[row][internal_id].Value()))
 		start_time, _ := note.GetStartEndTime("start")
 		start_date := start_time.Format("2006-01-02")
 
