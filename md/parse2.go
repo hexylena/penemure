@@ -5,9 +5,10 @@ package md
 import (
 	// "os"
 
+	"strings"
+
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/parser"
-	"strings"
 
 	"fmt"
 )

@@ -5,9 +5,10 @@ package md
 import (
 	// "os"
 
+	"strings"
+
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/parser"
-	"strings"
 
 	"fmt"
 )
@@ -150,6 +151,33 @@ func parseBlock(node ast.Node) []SyntaxNode {
 					Ordered:  v.ListFlags&ast.ListTypeOrdered != 0,
 				},
 			}
+		case *ast.Table:
+			// need header, body
+			// header
+			header := []string{}
+			for _, row := range c.Children[0].AsContainer().Children {
+				for _, cell := range row.AsContainer().Children {
+					header_actual := cell.AsContainer().Children[0]
+					header = append(header, getContentOrig(header_actual))
+				}
+			}
+			// body
+			body := [][]string{}
+			for _, row := range c.Children[1].AsContainer().Children {
+				row_contents := []string{}
+				for _, cell := range row.AsContainer().Children {
+					cell_actual := cell.AsContainer().Children[0]
+					fmt.Println("cell_actual", cell_actual, getContentOrig(cell_actual))
+					row_contents = append(row_contents, getContentOrig(cell_actual))
+				}
+				body = append(body, row_contents)
+			}
+			return []SyntaxNode{
+				&Table{
+					Header: header,
+					Body:   body,
+				},
+			}
 		default:
 			panic(fmt.Sprintf("Unhandled container type %T", v))
 		}
@@ -180,7 +208,6 @@ func parseBlock(node ast.Node) []SyntaxNode {
 			panic(fmt.Sprintf("Unhandled leaf type %T", v))
 		}
 	}
-	panic("Should not reach here ever")
 }
 
 func MdToBlocks(md []byte) []SyntaxNode {

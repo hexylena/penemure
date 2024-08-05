@@ -3,11 +3,12 @@ package md
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	"strconv"
-	"strings"
 )
 
 /*
@@ -129,6 +130,7 @@ type SyntaxNode interface {
 	Html() string
 	Md() string
 	Type() string
+	String() string
 }
 
 type Heading struct {
@@ -160,12 +162,16 @@ func (h *Heading) MarshalJSON() (b []byte, e error) {
 	})
 }
 
+func (s *Heading) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
+}
+
 type Paragraph struct {
 	Contents string `json:"contents"`
 }
 
 func (p *Paragraph) Html() string {
-	return fmt.Sprintf("<p>%s</p>", mdToHTML([]byte(p.Contents)))
+	return string(mdToHTML([]byte(p.Contents)))
 
 }
 
@@ -182,6 +188,10 @@ func (p *Paragraph) MarshalJSON() ([]byte, error) {
 
 func (p *Paragraph) Type() string {
 	return "paragraph"
+}
+
+func (s *Paragraph) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
 }
 
 type List struct {
@@ -224,6 +234,10 @@ func (l *List) Type() string {
 	return "list"
 }
 
+func (s *List) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
+}
+
 type Image struct {
 	AltText string `json:"alt_text"`
 	Url     string `json:"url"`
@@ -248,6 +262,9 @@ func (i *Image) MarshalJSON() ([]byte, error) {
 func (i *Image) Type() string {
 	return "image"
 }
+func (s *Image) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
+}
 
 type HorizontalRule struct{}
 
@@ -267,6 +284,9 @@ func (h *HorizontalRule) MarshalJSON() ([]byte, error) {
 
 func (h *HorizontalRule) Type() string {
 	return "horizontal_rule"
+}
+func (s *HorizontalRule) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
 }
 
 const TABLE_VIEW = "table_view"
@@ -293,6 +313,9 @@ func (t *TableView) MarshalJSON() ([]byte, error) {
 func (t *TableView) Type() string {
 	return TABLE_VIEW
 }
+func (s *TableView) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
+}
 
 type Code struct {
 	Lang     string `json:"lang"`
@@ -317,6 +340,9 @@ func (c *Code) MarshalJSON() ([]byte, error) {
 
 func (c *Code) Type() string {
 	return "code"
+}
+func (s *Code) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
 }
 
 type Link struct {
@@ -343,6 +369,9 @@ func (l *Link) MarshalJSON() ([]byte, error) {
 func (l *Link) Type() string {
 	return "link"
 }
+func (s *Link) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
+}
 
 // type BlockType string
 // const (
@@ -363,3 +392,57 @@ func (l *Link) Type() string {
 // 	Contents any `json:"contents"`
 // 	Type BlockType `json:"type"`
 // }
+
+type Table struct {
+	Header []string   `json:"thead"`
+	Body   [][]string `json:"tbody"`
+}
+
+func (t *Table) Html() string {
+	out := "<table>"
+	// Add table header
+	out += "<thead><tr>"
+	for _, h := range t.Header {
+		out += "<th>" + h + "</th>"
+	}
+	out += "</tr></thead>"
+
+	// Add table body
+	out += "<tbody>"
+	for _, row := range t.Body {
+		out += "<tr>"
+		for _, cell := range row {
+			out += "<td>" + cell + "</td>"
+		}
+		out += "</tr>"
+	}
+	out += "</tbody>"
+
+	out += "</table>"
+	return out
+}
+
+func (t *Table) Md() string {
+	out := "| " + strings.Join(t.Header, " | ") + " |\n"
+	out += "| " + strings.Repeat("--- | ", len(t.Header)) + "\n"
+	for _, row := range t.Body {
+		out += "| " + strings.Join(row, " | ") + " |\n"
+	}
+	return out
+}
+
+func (t *Table) Type() string {
+	return "table"
+}
+
+func (t *Table) MarshalJSON() ([]byte, error) {
+	m := make(map[string]interface{})
+	m["thead"] = t.Header
+	m["tbody"] = t.Body
+	m["type"] = t.Type()
+	return json.Marshal(m)
+}
+
+func (s *Table) String() string {
+	return fmt.Sprintf("Sn{%s}: %s", s.Type(), s.Md())
+}

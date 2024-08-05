@@ -175,6 +175,13 @@ func (ce *Note0) UnmarshalJSON(b []byte) error {
 					return err
 				}
 				ce.Blocks[index] = &a
+			} else if m["type"] == "table" {
+				var a pmd.Table
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
 			} else {
 				return fmt.Errorf("Unknown type: %s", m["type"])
 			}
@@ -359,6 +366,13 @@ func (ce *Note1) UnmarshalJSON(b []byte) error {
 					return err
 				}
 				ce.Blocks[index] = &a
+			} else if m["type"] == "table" {
+				var a pmd.Table
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
 			} else {
 				return fmt.Errorf("Unknown type: %s", m["type"])
 			}
@@ -530,6 +544,13 @@ func (ce *Note2) UnmarshalJSON(b []byte) error {
 				ce.Blocks[index] = &a
 			} else if m["type"] == "link" {
 				var a pmd.Link
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
+			} else if m["type"] == "table" {
+				var a pmd.Table
 				err := json.Unmarshal(*rawMessage, &a)
 				if err != nil {
 					return err

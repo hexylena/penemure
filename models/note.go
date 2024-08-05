@@ -178,9 +178,6 @@ func (ce *Note) UnmarshalJSON(b []byte) error {
 	// First, deserialize everything into a map of map
 	var objMap map[string]*json.RawMessage
 	err := json.Unmarshal(b, &objMap)
-	if err != nil {
-		return err
-	}
 
 	// Must manually deserialise each item
 	if objMap["id"] != nil {
@@ -324,8 +321,15 @@ func (ce *Note) UnmarshalJSON(b []byte) error {
 					return err
 				}
 				ce.Blocks[index] = &a
+			} else if m["type"] == "table" {
+				var a pmd.Table
+				err := json.Unmarshal(*rawMessage, &a)
+				if err != nil {
+					return err
+				}
+				ce.Blocks[index] = &a
 			} else {
-				return fmt.Errorf("Unknown type: %s", m["type"])
+				return fmt.Errorf("Unknown block type: %s", m["type"])
 			}
 		}
 	}
