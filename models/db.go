@@ -11,6 +11,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"os/exec"
 
 	"golang.org/x/exp/maps"
 
@@ -483,7 +484,14 @@ func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
+        // Export individual notes
+	for _, note := range gn.notes {
+		note.ExportToFile(gn, config)
+	}
 
+	// Copy templates/assets into export
+	cmd := exec.Command("cp", "-r", "templates/assets", config.ExportDirectory)
+	err = cmd.Run()
 	// Export search page
 	gn.exportTemplate("search", config)
 	gn.exportTemplate("404", config)
