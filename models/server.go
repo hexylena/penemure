@@ -106,7 +106,7 @@ func (gn *GlobalNotes) serve_search(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (gn *GlobalNotes) serve_manifest_json(w http.ResponseWriter, r *http.Request) {
+func (gn *GlobalNotes) Manifest(config pmc.HxpmConfig) []byte {
 	icon := map[string]string{
 		"src":   config.ExportPrefix + "assets/favicon@256.png",
 		"type":  "image/png",
@@ -122,8 +122,16 @@ func (gn *GlobalNotes) serve_manifest_json(w http.ResponseWriter, r *http.Reques
 		"start_url":        config.ExportPrefix, // TODO:
 		"theme_color":      "#CE3518",
 	}
+	ret, err := json.Marshal(data)
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+	return ret
+}
+
+func (gn *GlobalNotes) serve_manifest_json(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(gn.Manifest(config))
 }
 
 var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}

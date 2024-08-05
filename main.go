@@ -7,6 +7,8 @@ import (
 	"fmt"
 	// tea "github.com/charmbracelet/bubbletea"
 	// "github.com/charmbracelet/lipgloss"
+	"embed"
+
 	pma "github.com/hexylena/pm/adapter"
 	"github.com/hexylena/pm/cmd"
 	pmc "github.com/hexylena/pm/config"
@@ -20,6 +22,9 @@ import (
 var globalNotes pmm.GlobalNotes
 var globalAdapter pma.TaskAdapter
 var globalConfig pmc.HxpmConfig
+
+//go:embed templates/*
+var templateFS embed.FS
 
 func main() {
 	logger := pml.L("main")

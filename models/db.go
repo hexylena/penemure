@@ -4,7 +4,6 @@ package models
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"regexp"
 	"runtime/debug"
@@ -488,15 +487,10 @@ func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	// Export search page
 	gn.exportTemplate("search", config)
 	gn.exportTemplate("404", config)
-
-	// Export individual notes
-	for _, note := range gn.notes {
-		note.ExportToFile(gn, config)
-	}
-
-	// Copy templates/assets into export
-	cmd := exec.Command("cp", "-r", "templates/assets", config.ExportDirectory)
-	err = cmd.Run()
+	manifest := gn.Manifest(config)
+	// save to export/manifest.json
+	manifestFile := path.Join(config.ExportDirectory, "manifest.json")
+	err = os.WriteFile(manifestFile, manifest, 0644)
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
