@@ -2,11 +2,11 @@ package models
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"sort"
+
 	pmd "github.com/hexylena/pm/md"
 	"golang.org/x/exp/maps"
-	"sort"
 )
 
 type Note0 struct {
@@ -176,7 +176,7 @@ func (ce *Note0) UnmarshalJSON(b []byte) error {
 				}
 				ce.Blocks[index] = &a
 			} else {
-				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+				return fmt.Errorf("Unknown type: %s", m["type"])
 			}
 		}
 	}
@@ -360,7 +360,7 @@ func (ce *Note1) UnmarshalJSON(b []byte) error {
 				}
 				ce.Blocks[index] = &a
 			} else {
-				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+				return fmt.Errorf("Unknown type: %s", m["type"])
 			}
 		}
 	}
@@ -536,7 +536,7 @@ func (ce *Note2) UnmarshalJSON(b []byte) error {
 				}
 				ce.Blocks[index] = &a
 			} else {
-				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+				return fmt.Errorf("Unknown type: %s", m["type"])
 			}
 		}
 	}
@@ -545,7 +545,7 @@ func (ce *Note2) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Returns the latest note version
+// Migrate returns the latest note version
 func Migrate(bytes []byte, n *Note) {
 	version := GetVersion(bytes)
 	logger.Debug("Parsed Version", "version", version)

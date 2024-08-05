@@ -1,8 +1,8 @@
+// Package models provides functionality for working with models.
 package models
 
 import (
 	"fmt"
-	"golang.org/x/exp/maps"
 	"os"
 	"os/exec"
 	"path"
@@ -12,6 +12,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"golang.org/x/exp/maps"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
@@ -145,8 +147,7 @@ const (
 )
 
 func (gn *GlobalNotes) GetAncestorChain(note *Note, at_type AncestorType) []*Note {
-	parents := []*Note{}
-	parents = make([]*Note, 0)
+	parents := make([]*Note, 0)
 
 	// type is either "parent" or "project"
 	if at_type == AT_Parent {
@@ -348,7 +349,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	// references
 	reference := regexp.MustCompile(`^@[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 	if reference.MatchString(value) {
-		note_id := gn.GetNoteById(NoteId(value[1:len(value)]))
+		note_id := gn.GetNoteById(NoteId(value[1:]))
 		// todo different icon for person references.
 		fmt.Println(note_id.GetIconHtml())
 		return fmt.Sprintf(`<a href="%s.html">%s %s</a>`, note_id.NoteId, note_id.GetIconHtml(), note_id.Title)

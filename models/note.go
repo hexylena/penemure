@@ -22,6 +22,7 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v3"
+
 	// "github.com/gomarkdown/markdown"
 	// "github.com/gomarkdown/markdown/ast"
 	// "github.com/gomarkdown/markdown/html"
@@ -324,7 +325,7 @@ func (ce *Note) UnmarshalJSON(b []byte) error {
 				}
 				ce.Blocks[index] = &a
 			} else {
-				return errors.New(fmt.Sprintf("Unknown type: %s", m["type"]))
+				return fmt.Errorf("Unknown type: %s", m["type"])
 			}
 		}
 	}
@@ -333,7 +334,7 @@ func (ce *Note) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Parse a note from projects/7/1/7177e07a-7701-42a5-ae4f-c2c5bc75a974.json
+// ParseNote parses a note from path e.g. projects/7/1/7177e07a-7701-42a5-ae4f-c2c5bc75a974.json
 func (n *Note) ParseNote(path string) {
 	// Read the file
 	jsonFile, err := os.Open(path)
@@ -343,7 +344,7 @@ func (n *Note) ParseNote(path string) {
 	defer jsonFile.Close()
 
 	// read our opened jsonFile as a byte array.
-	byteValue, err := ioutil.ReadAll(jsonFile)
+	byteValue, err := io.ReadAll(jsonFile)
 	if err != nil {
 		logger.Error("error reading file ", "error", err, "path", path)
 	}
@@ -545,7 +546,6 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer, config pmc.HxpmConfig) {
 	// TODO: copy icon, cover if local
 }
 
-// Save note
 func (n *Note) SaveNote(path string) {
 	// Serialize the note
 	jsonNote, err := json.Marshal(n)
@@ -812,7 +812,7 @@ func (n *Note) GetStartEndTime(t string) (time.Time, error) {
 	time_key := fmt.Sprintf("%s_time", t)
 	unix_time_string := n.GetS(time_key)
 	if unix_time_string == "" {
-		return time.Time{}, errors.New(fmt.Sprintf("No %s time", t))
+		return time.Time{}, fmt.Errorf("No %s time", t)
 	}
 
 	unix_time, err := strconv.ParseInt(unix_time_string, 10, 64)

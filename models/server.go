@@ -10,9 +10,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
 	// "github.com/go-chi/render"
-	pmc "github.com/hexylena/pm/config"
 	"net/http"
+
+	pmc "github.com/hexylena/pm/config"
 )
 
 var config pmc.HxpmConfig
@@ -119,7 +121,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	}
 
 	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		r.Get(path, http.RedirectHandler(path+"/", http.StatusFound).ServeHTTP)
 		path += "/"
 	}
 	path += "*"

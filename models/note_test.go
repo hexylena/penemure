@@ -3,9 +3,10 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	pmd "github.com/hexylena/pm/md"
 	"strings"
 	"testing"
+
+	pmd "github.com/hexylena/pm/md"
 )
 
 func fieldTest(c int, t *testing.T, field string, expected string) {
@@ -59,8 +60,8 @@ func TestSerialise(t *testing.T) {
 		Title:  "test",
 		Type:   "note",
 		Meta: []*Meta{
-			&Meta{"icon", "icon", "🚦", "🚦"},
-			&Meta{"tags", "Tags", []string{"a", "b"}, "🚦"},
+			{"icon", "icon", "🚦", "🚦"},
+			{"tags", "Tags", []string{"a", "b"}, "🚦"},
 		},
 		Blocks: []pmd.SyntaxNode{
 			b1, b2, b3, b4, b5, b6, b7, b8,
