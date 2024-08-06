@@ -425,6 +425,14 @@ func (n *Note) HasParents() bool {
 	return len(n.Parents) > 0
 }
 
+func (n *Note) GetParentsCSV() string {
+	par_s := make([]string, 0)
+	for _, p := range n.Parents {
+		par_s = append(par_s, p.String())
+	}
+	return strings.Join(par_s, ",")
+}
+
 func (n *Note) HasParent(o NoteId) bool {
 	for _, p := range n.Parents {
 		if p == o {
@@ -441,6 +449,16 @@ func (n *Note) AddParent(o NoteId) {
 
 func (n *Note) SetParent(o NoteId) {
 	n.Parents = []NoteId{o}
+	n.Touch()
+}
+
+func (n *Note) SetParentsFromIds(s []string) {
+	tmp := make([]NoteId, len(s))
+	for i, id := range s {
+		tmp[i] = NoteId(id)
+	}
+
+	n.Parents = tmp
 	n.Touch()
 }
 
@@ -512,7 +530,7 @@ func LooksLocal(path string) bool {
 	return regexp.MustCompile(`^\.\/`).MatchString(path)
 }
 
-func (n *Note) ExportToFile(gn *GlobalNotes, config pmc.HxpmConfig) {
+func (n *Note) ExportToFile(gn *GlobalNotes, config *pmc.HxpmConfig) {
 	// Save contents to ./export/<id>.html
 	dir := config.ExportDirectory
 
@@ -528,7 +546,7 @@ func (n *Note) ExportToFile(gn *GlobalNotes, config pmc.HxpmConfig) {
 	f.Close()
 }
 
-func (n *Note) Export(gn *GlobalNotes, w io.Writer, config pmc.HxpmConfig) {
+func (n *Note) Export(gn *GlobalNotes, w io.Writer, config *pmc.HxpmConfig) {
 	tmpl, err := template.New("").ParseFiles("templates/note.html", "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
@@ -537,7 +555,7 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer, config pmc.HxpmConfig) {
 	type templateContext2 struct {
 		Note   *Note
 		Gn     *GlobalNotes
-		Config pmc.HxpmConfig
+		Config *pmc.HxpmConfig
 	}
 
 	tmpl.ExecuteTemplate(os.Stdout, "note", templateContext2{n, gn, config})

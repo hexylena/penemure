@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	pms "github.com/hexylena/pm/server"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +14,6 @@ var serveCmd = &cobra.Command{
 	Short: "serve the site",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		gn.Serve(config)
+		pms.Serve(&gn, &ga, &config)
 	},
 }

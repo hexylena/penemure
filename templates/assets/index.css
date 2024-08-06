@@ -1,11 +1,13 @@
 :root {
 	--background: Canvas;
+	--background-o: #eee;
 	--color: CanvasText;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
 	--background: CanvasText;
+	--background-o: #222;
 	--color: Canvas;
   }
 }
@@ -142,11 +144,16 @@ img.icon {
 	width: 2rem;
 }
 
+table .header {
+	text-align: center;
+	background-color: var(--background-o);
+}
+
 div.kanban {
 	display: flex;
 	overflow: scroll;
 	max-height: 24em;
-	background: #eee;
+	background: var(--background-o);
 	border: 1px solid black;
 	padding: 1em;
 
@@ -160,7 +167,7 @@ div.kanban {
 		}
 	}
 	.card {
-		background: white;
+		background: var(--background);
 		padding: 0.5rem;
 		margin-bottom: 0.5rem;
 		border: 1px solid #ccc;

@@ -8,6 +8,29 @@
 	</hgroup>
 
 	<h2>Track</h2>
+	{{ if .Gn.GetOpenLog }}
+	<form method="post">
+		<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Gn.GetOpenLog.Title }}">
+		<input id="project" type="search" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" onKeyUp="showResults(this.value)" value="{{ .Gn.GetOpenLog.Projects }}">
+		<input id="project_id" type="hidden" name="project_id" value="{{ .Gn.GetOpenLog.Projects }}">
+		<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
+		<div id="results"></div>
+		<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="{{ .Gn.GetOpenLog.GetL "Tags" }}">
+		<input type="time" id="start" name="start" value="{{ (.Gn.GetOpenLog.GetStartEndTime "start").Format "15:04:05"  }}">
+		<span id="runtime">TODO</span>
+		<input id="action" type="hidden" name="action" value="stop">
+		<button type="submit">Stop</button>
+	</form>
+
+	<h2>Notes</h2>
+	<form method="post">
+		<textarea id="notes" name="notes" placeholder="jrnl goes here">{{ .Gn.GetOpenLog.RenderMarkdown }}</textarea>
+		<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
+		<input id="action" type="hidden" name="action" value="notes">
+		<button type="submit">Save Notes</button>
+	</form>
+
+	{{ else }}
 	<form method="post">
 		<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
 		<input id="project" type="search" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" onKeyUp="showResults(this.value)">
@@ -16,13 +39,10 @@
 		<input type="text" id="tags" name="tags" placeholder="#email #dev #writing">
 		<input type="time" id="start" name="start">
 		<span id="runtime">1:00:00</span>
+		<input id="action" type="hidden" name="action" value="start">
 		<button type="submit">Start</button>
 	</form>
-
-	<h2>Notes</h2>
-	<form method="post">
-		<textarea id="notes" name="notes" placeholder="jrnl goes here"></textarea>
-	</form>
+	{{ end }}
 
 	<h2>Older Logs</h2>
 	<table>
@@ -33,8 +53,8 @@
 			<tr>
 				<td colspan="5">{{ $p.Date.Format "Monday, January 02" }}</td>
 			</tr>
+			{{ range $n := $p.Logs }}
 			<tr>
-				{{ range $n := $p.Logs }}
 				<td><a href="{{ $n.NoteId }}.html">{{ $n.Title }}</a></td>
 				<td>
 					{{ range $par := $n.Parents }}
@@ -53,21 +73,20 @@
 				<td>
 					<form method="post">
 						<input type="hidden" name="name" value="{{ $n.Title }}">
-						<input type="hidden" name="project_id" value="{{ $n.Parents }}">
+						<input type="hidden" name="project_id" value="{{ $n.GetParentsCSV }}">
 						<input type="hidden" name="tags" value="{{ range $par := $n.GetL "Tags" }},{{ $par }}{{ end }}">
+						<input id="action" type="hidden" name="action" value="start">
 						<button type="submit">Continue</button>
 					</form>
 				</td>
-				{{ end }}
 			</tr>
+			{{ end }}
 			{{ end }}
 		</tbody>
 	</table>
 
 
-	<!--
 	{{ .Gn.GetLogsFormated }}
-	-->
 
 	<script>
 var search_terms = [

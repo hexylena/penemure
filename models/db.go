@@ -163,7 +163,6 @@ func (gn *GlobalNotes) GetStructuredLogs() []structuredLog {
 		return df
 	})
 
-	fmt.Println(groupedByDay)
 	// access keys in sorted manner
 	keys := maps.Keys(groupedByDay)
 	sort.Strings(keys)
@@ -174,6 +173,11 @@ func (gn *GlobalNotes) GetStructuredLogs() []structuredLog {
 		key := keys[i]
 		// Access the key and its corresponding value
 		value := groupedByDay[key]
+
+		sort.Slice(value, func(i, j int) bool {
+			return value[i].CreatedAt > value[j].CreatedAt
+		})
+
 		d, _ := value[0].GetStartEndTime("start")
 		out = append(out, structuredLog{d, value})
 		// Your code here
@@ -348,7 +352,7 @@ func (gn *GlobalNotes) QueryDisplayTable(ans *sqlish.SqlLikeQuery, results *sqli
 		if key != "__default__" {
 			// Title Case, Capitalise Each Word
 			header = strings.ToUpper(key[:1]) + key[1:]
-			html += fmt.Sprintf("<tr><td colspan=\"%d\" style=\"text-align: center;background-color: #eee;\">%s</td></tr>", len(headers), header)
+			html += fmt.Sprintf("<tr><td colspan=\"%d\" class=\"header\">%s</td></tr>", len(headers), header)
 		}
 
 		for _, row := range result {
@@ -530,10 +534,10 @@ func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	gn.notes[note_id] = &newnote
 }
 
-func (gn *GlobalNotes) exportTemplate(s string, config pmc.HxpmConfig) {
+func (gn *GlobalNotes) exportTemplate(s string, config *pmc.HxpmConfig) {
 	type templateContext2 struct {
 		Gn     *GlobalNotes
-		Config pmc.HxpmConfig
+		Config *pmc.HxpmConfig
 	}
 
 	f_search, err := os.Create(path.Join(config.ExportDirectory, fmt.Sprintf("%s.html", s)))
@@ -553,7 +557,7 @@ func (gn *GlobalNotes) exportTemplate(s string, config pmc.HxpmConfig) {
 	}
 }
 
-func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
+func (gn *GlobalNotes) Export(config *pmc.HxpmConfig) {
 	// Create export/ directory if it doesn't exist
 	if _, err := os.Stat(config.ExportDirectory); os.IsNotExist(err) {
 		os.Mkdir(config.ExportDirectory, 0755)
@@ -572,7 +576,7 @@ func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 
 	type templateContext2 struct {
 		Gn     *GlobalNotes
-		Config pmc.HxpmConfig
+		Config *pmc.HxpmConfig
 	}
 
 	err = tmpl.ExecuteTemplate(f, "base", templateContext2{gn, config})
@@ -590,7 +594,8 @@ func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	// Export search page
 	gn.exportTemplate("search", config)
 	gn.exportTemplate("404", config)
-	manifest := gn.Manifest(config)
+
+	manifest := config.Manifest()
 	// save to export/manifest.json
 	manifestFile := path.Join(config.ExportDirectory, "manifest.json")
 	err = os.WriteFile(manifestFile, manifest, 0644)
