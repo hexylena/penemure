@@ -475,7 +475,7 @@ func (n *Note) GetEmoji() string {
 func (n *Note) GetIconHtml() string {
 	var icon string
 
-	fmt.Println("Meta", n.Meta)
+	// fmt.Println("Meta", n.Meta)
 
 	for _, tag := range n.Meta {
 		if tag.Type == "icon" {

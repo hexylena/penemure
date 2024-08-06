@@ -8,6 +8,7 @@ import (
 	"path"
 	"regexp"
 	"runtime/debug"
+	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -131,6 +132,53 @@ func (gn *GlobalNotes) GetLogs(open bool, closed bool) map[NoteId]*Note {
 		}
 	}
 	return notes
+}
+
+type structuredLog struct {
+	Date time.Time
+	Logs []*Note
+}
+
+func GroupByProperty[T any, K comparable](items []T, getProperty func(T) K) map[K][]T {
+	grouped := make(map[K][]T)
+
+	for _, item := range items {
+		key := getProperty(item)
+		grouped[key] = append(grouped[key], item)
+	}
+
+	return grouped
+}
+
+func (gn *GlobalNotes) GetStructuredLogs() []structuredLog {
+	logsm := gn.GetLogs(false, true)
+	logs := make([]*Note, 0)
+	for _, n := range logsm {
+		logs = append(logs, n)
+	}
+
+	groupedByDay := GroupByProperty(logs, func(n *Note) string {
+		d, _ := n.GetStartEndTime("start")
+		df := d.Format("2006-01-02")
+		return df
+	})
+
+	fmt.Println(groupedByDay)
+	// access keys in sorted manner
+	keys := maps.Keys(groupedByDay)
+	sort.Strings(keys)
+
+	out := make([]structuredLog, 0)
+
+	for i := len(keys) - 1; i >= 0; i-- {
+		key := keys[i]
+		// Access the key and its corresponding value
+		value := groupedByDay[key]
+		d, _ := value[0].GetStartEndTime("start")
+		out = append(out, structuredLog{d, value})
+		// Your code here
+	}
+	return out
 }
 
 func (gn *GlobalNotes) GetOpenLog() *Note {

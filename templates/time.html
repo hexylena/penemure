@@ -29,31 +29,36 @@
 		<thead>
 		</thead>
 		<tbody>
-			{{ range $p := .Gn.GetLogs false true }}
+			{{ range $p := .Gn.GetStructuredLogs }}
 			<tr>
-				<td><a href="{{ $p.NoteId }}.html">{{ $p.Title }}</a></td>
+				<td colspan="5">{{ $p.Date.Format "Monday, January 02" }}</td>
+			</tr>
+			<tr>
+				{{ range $n := $p.Logs }}
+				<td><a href="{{ $n.NoteId }}.html">{{ $n.Title }}</a></td>
 				<td>
-					{{ range $par := $p.Parents }}
+					{{ range $par := $n.Parents }}
 					<a href="{{ $par }}.html">{{ $.Gn.GetNote $par }}</a>
 					{{ end }}
 				</td>
 				<td>
-					{{ range $par := $p.GetL "Tags" }}
+					{{ range $par := $n.GetL "Tags" }}
 					{{ $par }}
 					{{ end }}
 				</td>
 				<td>
-					<input type="text" value="{{ $p.GetStartEndTime "start" }}">
-					<input type="text" value="{{ $p.GetStartEndTime "end" }}">
+					<input type="text" value="{{ $n.GetStartEndTime "start" }}">
+					<input type="text" value="{{ $n.GetStartEndTime "end" }}">
 				</td>
 				<td>
 					<form method="post">
-						<input type="hidden" name="name" value="{{ $p.Title }}">
-						<input type="hidden" name="project_id" value="{{ $p.Parents }}">
-						<input type="hidden" name="tags" value="{{ range $par := $p.GetL "Tags" }},{{ $par }}{{ end }}">
+						<input type="hidden" name="name" value="{{ $n.Title }}">
+						<input type="hidden" name="project_id" value="{{ $n.Parents }}">
+						<input type="hidden" name="tags" value="{{ range $par := $n.GetL "Tags" }},{{ $par }}{{ end }}">
 						<button type="submit">Continue</button>
 					</form>
 				</td>
+				{{ end }}
 			</tr>
 			{{ end }}
 		</tbody>
