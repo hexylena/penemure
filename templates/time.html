@@ -1,0 +1,123 @@
+{{define "title"}}
+	Time Tracking | {{ .Config.Title }}
+{{end}}
+
+{{define "main"}}
+	<hgroup>
+	<h1>Time Tracker</h1>
+	</hgroup>
+
+	<h2>Track</h2>
+	<form method="post">
+		<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
+		<input id="project" type="search" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" onKeyUp="showResults(this.value)">
+		<input id="project_id" type="hidden" name="project_id">
+		<div id="results"></div>
+		<input type="text" id="tags" name="tags" placeholder="#email #dev #writing">
+		<input type="time" id="start" name="start">
+		<span id="runtime">1:00:00</span>
+		<button type="submit">Start</button>
+	</form>
+
+	<h2>Notes</h2>
+	<form method="post">
+		<textarea id="notes" name="notes" placeholder="jrnl goes here"></textarea>
+	</form>
+
+	<h2>Older Logs</h2>
+	<table>
+		<thead>
+		</thead>
+		<tbody>
+			{{ range $p := .Gn.GetLogs false true }}
+			<tr>
+				<td><a href="{{ $p.NoteId }}.html">{{ $p.Title }}</a></td>
+				<td>
+					{{ range $par := $p.Parents }}
+					<a href="{{ $par }}.html">{{ $.Gn.GetNote $par }}</a>
+					{{ end }}
+				</td>
+				<td>
+					{{ range $par := $p.GetL "Tags" }}
+					{{ $par }}
+					{{ end }}
+				</td>
+				<td>
+					<input type="text" value="{{ $p.GetStartEndTime "start" }}">
+					<input type="text" value="{{ $p.GetStartEndTime "end" }}">
+				</td>
+				<td>
+					<form method="post">
+						<input type="hidden" name="name" value="{{ $p.Title }}">
+						<input type="hidden" name="project_id" value="{{ $p.Parents }}">
+						<input type="hidden" name="tags" value="{{ range $par := $p.GetL "Tags" }},{{ $par }}{{ end }}">
+						<button type="submit">Continue</button>
+					</form>
+				</td>
+			</tr>
+			{{ end }}
+		</tbody>
+	</table>
+
+
+	<!--
+	{{ .Gn.GetLogsFormated }}
+	-->
+
+	<script>
+var search_terms = [
+	{{ range $p := .Gn.GetNotes }}
+		["{{ $p.Title | html }}", "{{ $p.NoteId }}"],
+	{{ end }}
+];
+
+function autocompleteMatch(input) {
+  if (input == '') {
+    return [];
+  }
+  var reg = new RegExp(input)
+  return search_terms.filter(function(term) {
+	  if (term[0].toLowerCase().match(reg)) {
+  	  	return term;
+	  }
+  });
+}
+
+function setResult(title, id){
+	res.style.display = "none";
+	document.getElementById("project").value = title
+	document.getElementById("project_id").value = id
+}
+
+function showResults(val) {
+  res = document.getElementById("results");
+  // display the result
+  res.innerHTML = '';
+  let list = '';
+  let terms = autocompleteMatch(val);
+  for (i=0; i<terms.length; i++) {
+    list += `<button type="button" onclick="setResult('${terms[i][0]}', '${terms[i][1]}')">${terms[i][0]}</button><br/>`;
+  }
+  res.innerHTML = list;
+  if(list.length > 0){
+	res.style.display = "revert";
+  } else {
+	res.style.display = "none";
+  }
+}
+	</script>
+
+<style>
+#results{
+	display: none;
+	position: absolute;
+	background: var(--background);
+	padding: 1rem;
+	border: 2px solid var(--color);
+
+	button:focus {
+		border: 2px solid red;
+	}
+}
+</style>
+{{end}}

@@ -2,9 +2,10 @@ package sqlish
 
 import (
 	"fmt"
-	"github.com/blastrain/vitess-sqlparser/sqlparser"
 	"strconv"
 	"strings"
+
+	"github.com/blastrain/vitess-sqlparser/sqlparser"
 	// "reflect"
 )
 
@@ -51,14 +52,19 @@ func parseQuery(query string) *SqlLikeQuery {
 		for _, w := range selects {
 			if _, ok := w.(*sqlparser.StarExpr); ok {
 				res_select = append(res_select, "*")
+			} else if expr, ok := w.(*sqlparser.AliasedExpr).Expr.(*sqlparser.BinaryExpr); ok {
+				op := string(expr.Operator)
+				left := colname_or_value(expr.Left)
+				right := colname_or_value(expr.Right)
+				res_select = append(res_select, fmt.Sprintf("%s %s %s", left, op, right))
 			} else {
-				term := fmt.Sprintf("%s", w.(*sqlparser.AliasedExpr).Expr.(*sqlparser.ColName).Name)
+				term := string(colname_or_value(w.(*sqlparser.AliasedExpr).Expr))
 				res_select = append(res_select, term)
 			}
 		}
 	}
 	// from
-	from := fmt.Sprintf("%s", selectStmt.From[0].(*sqlparser.AliasedTableExpr).Expr.(sqlparser.TableName).Name)
+	from := selectStmt.From[0].(*sqlparser.AliasedTableExpr).Expr.(sqlparser.TableName).Name.String()
 
 	// where
 	where := ""

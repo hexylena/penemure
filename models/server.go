@@ -45,10 +45,30 @@ func (gn *GlobalNotes) MainRoutes(_config pmc.HxpmConfig) chi.Router {
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	r.Get("/", gn.serve_index)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		gn.server_fn("index", w, r)
+	})
 	r.Get("/manifest.json", gn.serve_manifest_json)
-	r.Get("/index.html", gn.serve_index)
-	r.Get("/search.html", gn.serve_search)
+	r.Get("/index.html", func(w http.ResponseWriter, r *http.Request) {
+		gn.server_fn("index", w, r)
+	})
+	r.Get("/search.html", func(w http.ResponseWriter, r *http.Request) {
+		gn.server_fn("search", w, r)
+	})
+	r.Get("/time", func(w http.ResponseWriter, r *http.Request) {
+		gn.server_fn("time", w, r)
+	})
+	r.Post("/time", func(w http.ResponseWriter, r *http.Request) {
+		// handle form
+		err := r.ParseForm()
+		if err != nil {
+			// handle error
+		}
+		formData := r.Form
+		fmt.Println(formData)
+		// process form data
+		gn.server_fn("time", w, r)
+	})
 	// r.Route("/notes", func(r chi.Router) {
 	// 	// r.With(paginate).Get("/", listArticles)                           // GET /notes
 	// 	// r.Get("/", gn.serve_listArticles)                           // GET /notes
@@ -82,25 +102,13 @@ type templateContext struct {
 }
 
 func (gn *GlobalNotes) serve_404(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(404)
-	tmpl := get_template("404")
+	w.WriteHeader(http.StatusNotFound)
+	gn.server_fn("404", w, r)
+}
+
+func (gn *GlobalNotes) server_fn(fn string, w http.ResponseWriter, r *http.Request) {
+	tmpl := get_template(fn)
 	err := tmpl.ExecuteTemplate(w, "base", templateContext{gn, config})
-	if err != nil {
-		logger.Error("Error", "err", err)
-	}
-}
-
-func (gn *GlobalNotes) serve_index(w http.ResponseWriter, r *http.Request) {
-	tmpl := get_template("list")
-	err := tmpl.ExecuteTemplate(w, "base", templateContext{Gn: gn, Config: config})
-	if err != nil {
-		logger.Error("Error", "err", err)
-	}
-}
-
-func (gn *GlobalNotes) serve_search(w http.ResponseWriter, r *http.Request) {
-	tmpl := get_template("search")
-	err := tmpl.ExecuteTemplate(w, "base", templateContext{Gn: gn, Config: config})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -169,6 +177,8 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 		rctx := chi.RouteContext(r.Context())
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+
+		w.Header().Set("Cache-Control", "public, max-age=86400") // Set cache control header to allow caching for 24 hours
 		fs.ServeHTTP(w, r)
 	})
 }

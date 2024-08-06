@@ -4,6 +4,7 @@ package models
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 	"regexp"
 	"runtime/debug"
@@ -11,7 +12,6 @@ import (
 	"strings"
 	"text/template"
 	"time"
-	"os/exec"
 
 	"golang.org/x/exp/maps"
 
@@ -223,6 +223,17 @@ func (gn *GlobalNotes) GetProjects() map[NoteId]*Note {
 	return projects
 }
 
+func (gn *GlobalNotes) GetProjectsAndTasks(note *Note) []*Note {
+	logger.Debug("GetChildren", "note", note)
+	children := []*Note{}
+	for _, note := range gn.notes {
+		if note.HasParent(note.NoteId) {
+			children = append(children, note)
+		}
+	}
+	return children
+}
+
 func (gn *GlobalNotes) AddNote(n Note) {
 	gn.notes[n.NoteId] = &n
 }
@@ -262,6 +273,8 @@ func (gn *GlobalNotes) QueryToHtml(query, display string) string {
 	switch display {
 	case "kanban":
 		return gn.QueryDisplayKanban(ans, results)
+	case "list":
+		return gn.QueryDisplayList(ans, results)
 	default:
 		return gn.QueryDisplayTable(ans, results)
 	}
@@ -311,6 +324,40 @@ func (gn *GlobalNotes) QueryDisplayTable(ans *sqlish.SqlLikeQuery, results *sqli
 
 	// todo? https://github.com/sidhant92/bool-parser-go
 	// todo
+	return html
+}
+
+func (gn *GlobalNotes) QueryDisplayList(ans *sqlish.SqlLikeQuery, results *sqlish.GroupedResultSet) string {
+	// Render results as table
+	html := ""
+	headers := ans.GetFields()
+
+	for key, result := range results.Rows {
+		header := "Results"
+		if key != "__default__" {
+			// Title Case, Capitalise Each Word
+			header = strings.ToUpper(key[:1]) + key[1:]
+			html += fmt.Sprintf("<b>%s</b>", header)
+		}
+		html += "<ul>"
+		for _, row := range result {
+			html += "<li>"
+			hrow := make([]string, 0)
+			for i, cell := range row {
+				if cell == "" {
+					// TODO: this fixes it being run through autofmt twice, but, that shouldn't've happened in the first place.
+					hrow = append(hrow, "")
+				} else if cell[0] == '<' {
+					hrow = append(hrow, cell)
+				} else {
+					hrow = append(hrow, gn.AutoFmt(headers[i], cell))
+				}
+			}
+			html += strings.Join(hrow, ", ")
+			html += "</li>\n"
+		}
+		html += "</ul>"
+	}
 	return html
 }
 
@@ -484,7 +531,7 @@ func (gn *GlobalNotes) Export(config pmc.HxpmConfig) {
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
-        // Export individual notes
+	// Export individual notes
 	for _, note := range gn.notes {
 		note.ExportToFile(gn, config)
 	}
@@ -590,6 +637,10 @@ func (gn *GlobalNotes) GetChildrenFormatted(note NoteId) string {
 
 func (gn *GlobalNotes) GetTopLevelFormatted() string {
 	return gn.QueryToHtml("select title, created, Author from notes where parent is null GROUP BY type ORDER BY created ", "table")
+}
+
+func (gn *GlobalNotes) GetLogsFormated() string {
+	return gn.QueryToHtml("select title, start_time, end_time, end_time - start_time from notes where type = 'log' ORDER BY created desc", "table")
 }
 
 func (gn *GlobalNotes) BlockToHtml3(b pmd.SyntaxNode) string {

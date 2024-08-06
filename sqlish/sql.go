@@ -2,10 +2,12 @@ package sqlish
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
+	"strings"
+
 	pml "github.com/hexylena/pm/log"
 	"golang.org/x/exp/maps"
-	"sort"
-	"strings"
 )
 
 type SqlLikeQuery struct {
@@ -213,8 +215,28 @@ func Select(document map[string]string, fields string) ([]string, []string) {
 
 	} else {
 		for _, field := range strings.Split(fields, ",") {
-			row = append(row, document[strings.TrimSpace(field)])
-			header = append(header, strings.TrimSpace(field))
+			if strings.Contains(field, " - ") {
+				left := strings.TrimSpace(strings.Split(field, " - ")[0])
+				right := strings.TrimSpace(strings.Split(field, " - ")[1])
+				if document[left] == "" || document[right] == "" {
+					row = append(row, "NaN")
+					header = append(header, strings.TrimSpace(field))
+					continue
+				}
+				left_f, _ := strconv.ParseFloat(document[left], 64)
+				right_f, _ := strconv.ParseFloat(document[right], 64)
+				res := left_f - right_f
+				// if res is an integer
+				if res == float64(int(res)) {
+					row = append(row, fmt.Sprintf("%d", int(res)))
+				} else {
+					row = append(row, fmt.Sprintf("%f", res))
+				}
+				header = append(header, strings.TrimSpace(field))
+			} else {
+				row = append(row, document[strings.TrimSpace(field)])
+				header = append(header, strings.TrimSpace(field))
+			}
 		}
 	}
 	return row, header

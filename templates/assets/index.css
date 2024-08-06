@@ -1,3 +1,15 @@
+:root {
+	--background: Canvas;
+	--color: CanvasText;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+	--background: CanvasText;
+	--color: Canvas;
+  }
+}
+
 body {
 	font-family: 'Recursive';
 	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 0;
