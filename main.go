@@ -30,6 +30,10 @@ func main() {
 	logger := pml.L("main")
 	logger.Info("Starting pm")
 
+	// setup env
+	viper.SetEnvPrefix("HXPM")
+	viper.AutomaticEnv()
+
 	// Load config
 	viper.SetConfigName("config") // name of config file (without extension)
 	viper.SetConfigType("yaml")   // REQUIRED if the config file does not have the extension in the name
@@ -42,6 +46,8 @@ func main() {
 	viper.SetDefault("ExportDirectory", "./export")
 	viper.SetDefault("ExportUseGoogleFonts", false)
 	viper.SetDefault("ExportPrefix", "/")
+
+	viper.SetDefault("ServerBindAddr", ":3333")
 
 	viper.AddConfigPath(".") // path to look for the config file in
 	// TODO: xdg paths.
@@ -64,6 +70,7 @@ func main() {
 		ExportDirectory:      viper.GetString("ExportDirectory"),
 		ExportUseGoogleFonts: viper.GetBool("ExportUseGoogleFonts"),
 		ExportPrefix:         viper.GetString("ExportPrefix"),
+		ServerBindAddr:       viper.GetString("ServerBindAddr"),
 	}
 
 	var globalAdapter pma.TaskAdapter

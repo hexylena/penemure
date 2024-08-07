@@ -18,6 +18,7 @@ type HxpmConfig struct {
 	ExportDirectory      string
 	ExportUseGoogleFonts bool
 	ExportPrefix         string
+	ServerBindAddr string
 }
 
 func (config *HxpmConfig) Manifest() []byte {

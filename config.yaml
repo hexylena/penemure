@@ -9,3 +9,4 @@ About: |
 #   Path: ./projects
 ExportUseGoogleFonts: true
 ExportPrefix: /project-management/
+ServerBindAddr: ":3333"

@@ -35,11 +35,19 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig) 
 
 	r := chi.NewRouter()
 	r.Mount(config.ExportPrefix, MainRoutes(gn, config))
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, config.ExportPrefix, http.StatusFound)
-	})
+
+	if config.ExportPrefix != "/" {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, config.ExportPrefix, http.StatusFound)
+		})
+	}
 	r.NotFound(serve_404)
-	http.ListenAndServe(":3333", r)
+
+	logger.Info("Starting server", "addr", config.ServerBindAddr)
+	err := http.ListenAndServe(config.ServerBindAddr, r)
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
 }
 
 func MainRoutes(gn *pmm.GlobalNotes, config *pmc.HxpmConfig) chi.Router {
@@ -142,9 +150,6 @@ func MainRoutes(gn *pmm.GlobalNotes, config *pmc.HxpmConfig) chi.Router {
 	r.Get("/{articleSlug:[a-f0-9-]+}.html", serve_getArticleBySlug) // GET /notes/<uuid>
 	// })
 
-	fmt.Println("Starting server on port 3333")
-
-	logger.Info("Starting server", "port", 3333)
 	r.NotFound(serve_404)
 
 	// Otherwise serve things directly from templates dir.

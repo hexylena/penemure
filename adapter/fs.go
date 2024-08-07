@@ -14,6 +14,15 @@ type FsAdapter struct {
 }
 
 func (a *FsAdapter) filePathWalkDir(root string) ([]string, error) {
+	// if the folder doesn't exist:
+	if _, err := os.Stat(root); os.IsNotExist(err) {
+		// create the folder
+		err := os.MkdirAll(root, 0755)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var files []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
