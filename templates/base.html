@@ -26,6 +26,8 @@
 		<link rel="stylesheet" href="{{ .Config.ExportPrefix }}assets/concrete@2.0.3.css">
 		<link rel="stylesheet" href="{{ .Config.ExportPrefix }}assets/index.css">
 		<link rel="icon" type="image/x-icon" href="{{ .Config.ExportPrefix }}assets/favicon.ico">
+		<script src="{{ .Config.ExportPrefix}}assets/tom-select.complete@2.3.1.js"></script>
+		<link href="{{ .Config.ExportPrefix}}assets/tom-select@2.3.1.css" rel="stylesheet">
 	</head>
 	<body>
 		<header>
@@ -40,6 +42,11 @@
 			</div>
 		</header>
 		<main>
+			{{ if .Context.error }}
+			<div class="error">
+				{{ .Context.error }}
+			</div>
+			{{ end }}
 			{{ template "main" .}}
 		</main>
 		<footer>

@@ -1,9 +1,9 @@
-package models
+// Package server provides functionality for the server.
+package server
 
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -19,7 +19,6 @@ import (
 	pma "github.com/hexylena/pm/adapter"
 	pmc "github.com/hexylena/pm/config"
 	pml "github.com/hexylena/pm/log"
-	pmd "github.com/hexylena/pm/md"
 	pmm "github.com/hexylena/pm/models"
 )
 
@@ -36,7 +35,7 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 	templateFS = _templates
 
 	r := chi.NewRouter()
-	r.Mount(config.ExportPrefix, MainRoutes(gn, config))
+	r.Mount(config.ExportPrefix, MainRoutes())
 
 	if config.ExportPrefix != "/" {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +43,6 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 		})
 	}
 	r.NotFound(serve_404)
-
 	logger.Info("Starting server", "addr", config.ServerBindAddr)
 	err := http.ListenAndServe(config.ServerBindAddr, r)
 	if err != nil {
@@ -52,7 +50,7 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 	}
 }
 
-func MainRoutes(gn *pmm.GlobalNotes, config *pmc.HxpmConfig) chi.Router {
+func MainRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	// A good base middleware stack
@@ -65,85 +63,51 @@ func MainRoutes(gn *pmm.GlobalNotes, config *pmc.HxpmConfig) chi.Router {
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
+	context := map[string]string{}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		server_fn("list", w, r)
+		server_fn("list", w, r, context)
 	})
 	r.Get("/manifest.json", serve_manifest_json)
 	r.Get("/index.html", func(w http.ResponseWriter, r *http.Request) {
-		server_fn("list", w, r)
+		server_fn("list", w, r, context)
 	})
 	r.Get("/search.html", func(w http.ResponseWriter, r *http.Request) {
-		server_fn("search", w, r)
+		server_fn("search", w, r, context)
 	})
 	r.Get("/time", func(w http.ResponseWriter, r *http.Request) {
-		server_fn("time", w, r)
+		server_fn("time", w, r, context)
 	})
 	r.Post("/time", func(w http.ResponseWriter, r *http.Request) {
 		// handle form
 		err := r.ParseForm()
 		if err != nil {
 			logger.Error("Unparseable data", "err", err)
-		}
-		formData := r.Form
-
-		var note *pmm.Note
-		if ok := formData["note_id"]; len(ok) > 0 {
-			partial := pmm.PartialNoteId(ok[0])
-			note_id, err := gn.GetIdByPartial(partial)
-			if err != nil {
-				note = pmm.NewNote()
-				logger.Info("Could not find note", "note_id", note_id)
-			} else {
-				note = gn.GetNoteByID(note_id)
-				logger.Info("Found note", "note", note)
-			}
+			context["error"] = fmt.Sprintf("Unparseable data, %s", err)
 		} else {
-			note = pmm.NewNote()
-			logger.Info("New note!")
+			formData := r.Form
+			processTimeSubmission(formData)
 		}
-
-		if ok := formData["action"]; len(ok) > 0 {
-			switch formData["action"][0] {
-			case "start":
-				logger.Info("Starting task")
-				note.AddMeta("time", "start_time", strconv.FormatInt(time.Now().Unix(), 10))
-			case "stop":
-				logger.Info("Stopping task")
-				note.AddMeta("time", "end_time", strconv.FormatInt(time.Now().Unix(), 10))
-			case "notes":
-				text := formData["notes"][0]
-				note.Blocks = pmd.MdToBlocks([]byte(text))
-			}
-		}
-
-		if ok := formData["project_id"]; len(ok) > 0 {
-			project_ids := strings.Split(formData["project_id"][0], ",")
-			note.SetParentsFromIds(project_ids)
-		}
-
-		if ok := formData["name"]; len(ok) > 0 {
-			name := formData["name"][0]
-			note.Title = name
-		}
-
-		if ok := formData["tags"]; len(ok) > 0 {
-			tags := strings.Split(formData["tags"][0][1:], ",")
-			for _, tag := range tags {
-				note.AddTag(tag)
-			}
-		}
-
-		// Update where relevant
-		note.Type = "log"
-
-		fmt.Println("form", formData, "note", note)
-
-		gn.RegisterNote(note)
-		(*ga).SaveNotes(*gn)
 
 		// process form data
-		server_fn("time", w, r)
+		server_fn("time", w, r, context)
+	})
+
+	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
+		server_fn("new", w, r, context)
+	})
+	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			logger.Error("Unparseable data", "err", err)
+			context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+		} else {
+			formData := r.Form
+			processNoteSubmission(formData)
+		}
+
+		// process form data
+		server_fn("new", w, r, context)
 	})
 	// r.Route("/notes", func(r chi.Router) {
 	// 	// r.With(paginate).Get("/", listArticles)                           // GET /notes
@@ -172,18 +136,19 @@ func get_template(templateName string) *template.Template {
 }
 
 type templateContext struct {
-	Gn     *pmm.GlobalNotes
-	Config *pmc.HxpmConfig
+	Gn      *pmm.GlobalNotes
+	Config  *pmc.HxpmConfig
+	Context map[string]string
 }
 
 func serve_404(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	server_fn("404", w, r)
+	server_fn("404", w, r, map[string]string{})
 }
 
-func server_fn(fn string, w http.ResponseWriter, r *http.Request) {
+func server_fn(fn string, w http.ResponseWriter, r *http.Request, context map[string]string) {
 	tmpl := get_template(fn)
-	err := tmpl.ExecuteTemplate(w, "base", templateContext{gn, config})
+	err := tmpl.ExecuteTemplate(w, "base", templateContext{gn, config, context})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}

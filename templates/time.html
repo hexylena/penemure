@@ -10,24 +10,37 @@
 	<h2>Track</h2>
 	{{ if .Gn.GetOpenLog }}
 	<form method="post">
-		<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Gn.GetOpenLog.Title }}">
-		<input id="project" type="search" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" onKeyUp="showResults(this.value)" value="{{ .Gn.GetOpenLog.Projects }}">
-		<input id="project_id" type="hidden" name="project_id" value="{{ .Gn.GetOpenLog.Projects }}">
-		<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
-		<div id="results"></div>
-		<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="{{ .Gn.GetOpenLog.GetL "Tags" }}">
-		<input type="time" id="start" name="start" value="{{ (.Gn.GetOpenLog.GetStartEndTime "start").Format "15:04:05"  }}">
-		<span id="runtime">TODO</span>
-		<input id="action" type="hidden" name="action" value="stop">
-		<button type="submit">Stop</button>
+		<fieldset>
+			<legend>Add Log</legend>
+
+			<label for="name">Name</label>
+			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Gn.GetOpenLog.Title }}">
+
+			<label for="project">Project</label>
+			<input id="project" type="search" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" onKeyUp="showResults(this.value)" value="{{ .Gn.GetOpenLog.Projects }}">
+			<input id="project_id" type="hidden" name="project_id" value="{{ .Gn.GetOpenLog.Projects }}">
+			<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
+			<div id="results"></div>
+			<label for="tags">tags</label>
+			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="{{ .Gn.GetOpenLog.GetL "Tags" }}">
+			<input type="time" id="start" name="start" value="{{ (.Gn.GetOpenLog.GetStartEndTime "start").Format "15:04:05"  }}">
+			<span id="runtime">TODO</span>
+			<input id="action" type="hidden" name="action" value="stop">
+			<button type="submit">Stop</button>
+		</fieldset>
 	</form>
 
 	<h2>Notes</h2>
 	<form method="post">
-		<textarea id="notes" name="notes" placeholder="jrnl goes here">{{ .Gn.GetOpenLog.RenderMarkdown }}</textarea>
-		<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
-		<input id="action" type="hidden" name="action" value="notes">
-		<button type="submit">Save Notes</button>
+		<fieldset>
+			<legend>Add Notes</legend>
+
+			<label for="notes">Contents</label>
+			<textarea id="notes" name="notes" placeholder="jrnl goes here">{{ .Gn.GetOpenLog.RenderMarkdown }}</textarea>
+			<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
+			<input id="action" type="hidden" name="action" value="notes">
+			<button type="submit">Save Notes</button>
+		</fieldset>
 	</form>
 
 	{{ else }}
@@ -91,7 +104,7 @@
 	<script>
 var search_terms = [
 	{{ range $p := .Gn.GetNotes }}
-		["{{ $p.Title | html }}", "{{ $p.NoteId }}"],
+		["{{ $p.GetEmoji }} {{ $p.Title | html }}", "{{ $p.NoteId }}"],
 	{{ end }}
 ];
 

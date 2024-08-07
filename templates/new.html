@@ -1,0 +1,82 @@
+{{define "title"}}
+	Time Tracking | {{ .Config.Title }}
+{{end}}
+
+{{define "main"}}
+	<hgroup>
+	<h1>Add/Edit Note</h1>
+	</hgroup>
+
+	<form method="post">
+		<fieldset>
+			<legend>New Note</legend>
+
+			<label for="name">Name</label>
+			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
+
+			<label for="project">Parent</label>
+			<select id="project" multiple data-placeholder="Parent(s)">
+				{{ range $g := .Gn.GetStructuredNotes }}
+				<optgroup label="{{$g.Group}}">
+					{{ range $p := $g.Notes }}
+					<option value="{{ $p.NoteId}}">{{ $p.GetEmoji }} {{ $p.Title | html }}</option>
+					{{ end}}
+				</optgroup>
+				{{ end }}
+			</select>
+
+			<label for="type">Type</label>
+			<select id="type">
+				{{ range $t := .Gn.GetTypes }}
+				<option value="{{ $t }}">{{ $t }}</option>
+				{{ end }}
+			</select>
+
+
+			<label for="tags">tags</label>
+			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing">
+
+			<label for="notes">Contents</label>
+			<textarea id="notes" name="notes" placeholder="jrnl goes here"></textarea>
+			<button type="submit">Save Notes</button>
+		</fieldset>
+	</form>
+
+	<script>
+
+	new TomSelect("#project",{
+		plugins: ['remove_button'],
+		create: true,
+		onItemAdd:function(){
+			this.setTextboxValue('');
+			this.refreshOptions();
+		},
+		render:{
+			option:function(data,escape){
+				return `
+				<div class="d-flex">
+					<span>${data.text}</span>
+				</div>`;
+			},
+			item:function(data,escape){
+				return '<div>' + escape(data.text) + '</div>';
+			}
+		}
+	});
+	
+	</script>
+
+<style>
+#results{
+	display: none;
+	position: absolute;
+	background: var(--background);
+	padding: 1rem;
+	border: 2px solid var(--color);
+
+	button:focus {
+		border: 2px solid red;
+	}
+}
+</style>
+{{end}}

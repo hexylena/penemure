@@ -163,6 +163,23 @@ func GroupByProperty[T any, K comparable](items []T, getProperty func(T) K) map[
 	return grouped
 }
 
+type structuredNote struct {
+	Group string
+	Notes []*Note
+}
+
+func (gn *GlobalNotes) GetStructuredNotes() []structuredNote {
+	out := make([]structuredNote, 0)
+	for _, noteType := range gn.GetTypes() {
+		sn := structuredNote{
+			Group: noteType,
+			Notes: gn.Flatten(gn.GetNotesOfType(noteType)),
+		}
+		out = append(out, sn)
+	}
+	return out
+}
+
 func (gn *GlobalNotes) GetStructuredLogs() []structuredLog {
 	logsm := gn.GetLogs(false, true)
 	logs := make([]*Note, 0)
@@ -301,8 +318,16 @@ func (gn *GlobalNotes) GetProjectsAndTasks(note *Note) []*Note {
 
 func (gn *GlobalNotes) Mappify(notes []*Note) map[NoteId]*Note {
 	res := make(map[NoteId]*Note)
-	for _, note := range gn.notes {
+	for _, note := range notes {
 		res[note.NoteId] = note
+	}
+	return res
+}
+
+func (gn *GlobalNotes) Flatten(notes map[NoteId]*Note) []*Note {
+	res := make([]*Note, 0)
+	for _, note := range notes {
+		res = append(res, note)
 	}
 	return res
 }

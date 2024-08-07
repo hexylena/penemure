@@ -1,4 +1,4 @@
-package models
+package server
 
 import (
 // "github.com/go-chi/render"
