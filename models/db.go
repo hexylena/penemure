@@ -99,6 +99,18 @@ func (gn *GlobalNotes) GetNotesOfType(noteType string) map[NoteId]*Note {
 	return notes
 }
 
+func (gn *GlobalNotes) GetNotesOfTypes(noteTypes []string) map[NoteId]*Note {
+	notes := make(map[NoteId]*Note)
+	for _, note := range gn.notes {
+		for _, noteType := range noteTypes {
+			if note.Type == noteType {
+				notes[note.NoteId] = note
+			}
+		}
+	}
+	return notes
+}
+
 func (gn *GlobalNotes) DeleteNote(nid NoteId) {
 	delete(gn.notes, nid)
 }
@@ -285,6 +297,14 @@ func (gn *GlobalNotes) GetProjectsAndTasks(note *Note) []*Note {
 		}
 	}
 	return children
+}
+
+func (gn *GlobalNotes) Mappify(notes []*Note) map[NoteId]*Note {
+	res := make(map[NoteId]*Note)
+	for _, note := range gn.notes {
+		res[note.NoteId] = note
+	}
+	return res
 }
 
 func (gn *GlobalNotes) AddNote(n Note) {

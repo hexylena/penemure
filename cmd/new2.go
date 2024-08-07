@@ -37,7 +37,8 @@ var new2Cmd = &cobra.Command{
 		var blocking_out []string
 		base16 := huh.ThemeBase16()
 
-		all_tasks := gn.GetNotes()
+		// TODO: this sucks
+		all_tasks := gn.GetNotesOfTypes([]string{"task", "project", "note"})
 
 		// Start sorting nonsense
 		type kv struct {
