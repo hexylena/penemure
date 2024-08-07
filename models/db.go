@@ -2,9 +2,10 @@
 package models
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"os"
-	"os/exec"
 	"path"
 	"regexp"
 	"runtime/debug"
@@ -492,7 +493,7 @@ func (gn *GlobalNotes) AutoFmt(key, value string) string {
 	if reference.MatchString(value) {
 		note_id := gn.GetNoteByID(NoteId(value[1:]))
 		// todo different icon for person references.
-		fmt.Println(note_id.GetIconHtml())
+		// fmt.Println(note_id.GetIconHtml())
 		return fmt.Sprintf(`<a href="%s.html">%s %s</a>`, note_id.NoteId, note_id.GetIconHtml(), note_id.Title)
 	}
 
@@ -534,7 +535,7 @@ func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	gn.notes[note_id] = &newnote
 }
 
-func (gn *GlobalNotes) exportTemplate(s string, config *pmc.HxpmConfig) {
+func (gn *GlobalNotes) exportTemplate(s string, config *pmc.HxpmConfig, templateFS *embed.FS) {
 	type templateContext2 struct {
 		Gn     *GlobalNotes
 		Config *pmc.HxpmConfig
@@ -544,7 +545,8 @@ func (gn *GlobalNotes) exportTemplate(s string, config *pmc.HxpmConfig) {
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
-	search_tmpl, err := template.New("").ParseFiles(
+	search_tmpl, err := template.New("").ParseFS(
+		templateFS,
 		fmt.Sprintf("templates/%s.html", s),
 		"templates/base.html",
 	)
@@ -557,13 +559,13 @@ func (gn *GlobalNotes) exportTemplate(s string, config *pmc.HxpmConfig) {
 	}
 }
 
-func (gn *GlobalNotes) Export(config *pmc.HxpmConfig) {
+func (gn *GlobalNotes) Export(config *pmc.HxpmConfig, templateFS *embed.FS) {
 	// Create export/ directory if it doesn't exist
 	if _, err := os.Stat(config.ExportDirectory); os.IsNotExist(err) {
 		os.Mkdir(config.ExportDirectory, 0755)
 	}
 
-	tmpl, err := template.New("").ParseFiles("templates/list.html", "templates/base.html")
+	tmpl, err := template.New("").ParseFS(templateFS, "templates/list.html", "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -589,11 +591,38 @@ func (gn *GlobalNotes) Export(config *pmc.HxpmConfig) {
 	}
 
 	// Copy templates/assets into export
-	cmd := exec.Command("cp", "-r", "templates/assets", config.ExportDirectory)
-	err = cmd.Run()
+	static, err := getAllFilenames(templateFS)
+	if err != nil {
+		logger.Error("Could not list files in embedded FS")
+	}
+	for _, fn := range static {
+		if !strings.Contains(fn, "assets") {
+			continue
+		}
+		// write to config.exportdirectory
+		fileData, err := templateFS.ReadFile(fn)
+		if err != nil {
+			logger.Error("Error reading file", "file", fn, "err", err)
+			continue
+		}
+		outputPath := path.Join(config.ExportDirectory, strings.TrimPrefix(fn, "templates/"))
+		outputDir := path.Dir(outputPath)
+		logger.Info("Creating dir", "dir", outputDir)
+		err = os.MkdirAll(outputDir, 0755)
+
+		if err != nil {
+			logger.Error("Error creating directory", "dir", outputDir, "err", err)
+		}
+
+		err = os.WriteFile(outputPath, fileData, 0644)
+		if err != nil {
+			logger.Error("Error writing file", "file", outputPath, "err", err)
+		}
+	}
+
 	// Export search page
-	gn.exportTemplate("search", config)
-	gn.exportTemplate("404", config)
+	gn.exportTemplate("search", config, templateFS)
+	gn.exportTemplate("404", config, templateFS)
 
 	manifest := config.Manifest()
 	// save to export/manifest.json
@@ -602,6 +631,23 @@ func (gn *GlobalNotes) Export(config *pmc.HxpmConfig) {
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
+}
+
+// https://gist.github.com/clarkmcc/1fdab4472283bb68464d066d6b4169bc
+func getAllFilenames(efs *embed.FS) (files []string, err error) {
+	if err := fs.WalkDir(efs, ".", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		files = append(files, path)
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }
 
 func (gn *GlobalNotes) VcsRev(len int) string {

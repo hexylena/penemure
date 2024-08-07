@@ -14,6 +14,6 @@ var serveCmd = &cobra.Command{
 	Short: "serve the site",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		pms.Serve(&gn, &ga, &config)
+		pms.Serve(&gn, &ga, &config, &templateFS)
 	},
 }

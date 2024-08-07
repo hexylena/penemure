@@ -23,7 +23,7 @@ var globalNotes pmm.GlobalNotes
 var globalAdapter pma.TaskAdapter
 var globalConfig pmc.HxpmConfig
 
-//go:embed templates/*
+//go:embed templates/* assets/*
 var templateFS embed.FS
 
 func main() {
@@ -88,7 +88,7 @@ func main() {
 	// db := pmm.InitDB()
 	// tui.StartTea()
 	logger.Info("Executing Command")
-	cmd.Execute(globalNotes, globalAdapter, globalConfig)
+	cmd.Execute(globalNotes, globalAdapter, globalConfig, templateFS)
 
 	logger.Info("Shutting Down and Saving Notes")
 	globalAdapter.SaveNotes(globalNotes)

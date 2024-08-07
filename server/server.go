@@ -3,8 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
@@ -15,6 +13,8 @@ import (
 
 	// "github.com/go-chi/render"
 	"net/http"
+
+	"embed"
 
 	pma "github.com/hexylena/pm/adapter"
 	pmc "github.com/hexylena/pm/config"
@@ -27,11 +27,13 @@ var gn *pmm.GlobalNotes
 var ga *pma.TaskAdapter
 var config *pmc.HxpmConfig
 var logger = pml.L("server")
+var templateFS *embed.FS
 
-func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig) {
+func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, _templates *embed.FS) {
 	config = _config
 	ga = _ga
 	gn = _gn
+	templateFS = _templates
 
 	r := chi.NewRouter()
 	r.Mount(config.ExportPrefix, MainRoutes(gn, config))
@@ -153,14 +155,16 @@ func MainRoutes(gn *pmm.GlobalNotes, config *pmc.HxpmConfig) chi.Router {
 	r.NotFound(serve_404)
 
 	// Otherwise serve things directly from templates dir.
-	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, "templates/assets/"))
-	FileServer(r, "/assets", filesDir)
+	// workDir, _ := os.Getwd()
+	// filesDir := http.Dir(filepath.Join(workDir, "templates/assets/"))
+	// fmt.Println(filesDir)
+	httpfs := http.FS(templateFS)
+	FileServer(r, "/assets", config.ExportPrefix, httpfs)
 	return r
 }
 
 func get_template(templateName string) *template.Template {
-	tmpl, err := template.New("").ParseFiles(fmt.Sprintf("templates/%s.html", templateName), "templates/base.html")
+	tmpl, err := template.New("").ParseFS(templateFS, fmt.Sprintf("templates/%s.html", templateName), "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -183,29 +187,6 @@ func server_fn(fn string, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
-}
-
-func Manifest(config pmc.HxpmConfig) []byte {
-	icon := map[string]string{
-		"src":   config.ExportPrefix + "assets/favicon@256.png",
-		"type":  "image/png",
-		"sizes": "256x256",
-	}
-	data := map[string]interface{}{
-		"background_color": "#ffffff",
-		"name":             config.Title,
-		"description":      config.About,
-		"display":          "standalone",
-		"scope":            config.ExportPrefix, // TODO: make this configurable
-		"icons":            []map[string]string{icon},
-		"start_url":        config.ExportPrefix, // TODO:
-		"theme_color":      "#CE3518",
-	}
-	ret, err := json.Marshal(data)
-	if err != nil {
-		logger.Error("Error", "err", err)
-	}
-	return ret
 }
 
 func serve_manifest_json(w http.ResponseWriter, r *http.Request) {
@@ -233,7 +214,7 @@ func serve_getArticleBySlug(w http.ResponseWriter, r *http.Request) {
 
 // FileServer conveniently sets up a http.FileServer handler to serve
 // static files from a http.FileSystem.
-func FileServer(r chi.Router, path string, root http.FileSystem) {
+func FileServer(r chi.Router, path string, prefix string, root http.FileSystem) {
 	if strings.ContainsAny(path, "{}*") {
 		panic("FileServer does not permit any URL parameters.")
 	}
@@ -245,9 +226,14 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	path += "*"
 
 	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		// rctx := chi.RouteContext(r.Context())
+		// pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		// fmt.Println(pathPrefix)
+		fs := http.StripPrefix(prefix, http.FileServer(root))
+
+		// we don't strip /assets because that's actually our folder name and
+		// where we want to serve it.
+		// fs := http.FileServer(root)
 
 		w.Header().Set("Cache-Control", "public, max-age=86400") // Set cache control header to allow caching for 24 hours
 		fs.ServeHTTP(w, r)
