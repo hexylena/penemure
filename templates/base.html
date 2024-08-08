@@ -47,6 +47,11 @@
 				{{ .Context.error }}
 			</div>
 			{{ end }}
+			{{ if .Context.success }}
+			<div class="error">
+				{{ .Context.success }}
+			</div>
+			{{ end }}
 			{{ template "main" .}}
 		</main>
 		<footer>

@@ -85,6 +85,16 @@ func (gn *GlobalNotes) GetTypes() []string {
 	return maps.Keys(types)
 }
 
+func (gn *GlobalNotes) GetTags() []string {
+	types := make(map[string]string)
+	for _, note := range gn.notes {
+		for _, tag := range note.GetTags() {
+			types[tag] = ""
+		}
+	}
+	return maps.Keys(types)
+}
+
 func (gn *GlobalNotes) GetNote(id NoteId) *Note {
 	return gn.notes[id]
 }
@@ -580,11 +590,13 @@ func (gn *GlobalNotes) Edit(id PartialNoteId) {
 	gn.notes[note_id] = &newnote
 }
 
+type templateContext2 struct {
+	Gn      *GlobalNotes
+	Config  *pmc.HxpmConfig
+	Context map[string]string
+}
+
 func (gn *GlobalNotes) exportTemplate(s string, config *pmc.HxpmConfig, templateFS *embed.FS) {
-	type templateContext2 struct {
-		Gn     *GlobalNotes
-		Config *pmc.HxpmConfig
-	}
 
 	f_search, err := os.Create(path.Join(config.ExportDirectory, fmt.Sprintf("%s.html", s)))
 	if err != nil {
@@ -598,7 +610,7 @@ func (gn *GlobalNotes) exportTemplate(s string, config *pmc.HxpmConfig, template
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
-	err = search_tmpl.ExecuteTemplate(f_search, "base", templateContext2{gn, config})
+	err = search_tmpl.ExecuteTemplate(f_search, "base", templateContext2{gn, config, nil})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
@@ -621,12 +633,7 @@ func (gn *GlobalNotes) Export(config *pmc.HxpmConfig, templateFS *embed.FS) {
 		logger.Error("Error", "err", err)
 	}
 
-	type templateContext2 struct {
-		Gn     *GlobalNotes
-		Config *pmc.HxpmConfig
-	}
-
-	err = tmpl.ExecuteTemplate(f, "base", templateContext2{gn, config})
+	err = tmpl.ExecuteTemplate(f, "base", templateContext2{gn, config, nil})
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}

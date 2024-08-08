@@ -68,7 +68,7 @@ func processTimeSubmission(formData url.Values) {
 	(*ga).SaveNotes(*gn)
 }
 
-func processNoteSubmission(formData url.Values) {
+func processNoteSubmission(formData url.Values) *pmm.Note {
 	var note *pmm.Note
 	if ok := formData["note_id"]; len(ok) > 0 {
 		partial := pmm.PartialNoteId(ok[0])
@@ -85,31 +85,29 @@ func processNoteSubmission(formData url.Values) {
 		logger.Info("New note!")
 	}
 
-	if ok := formData["project_id"]; len(ok) > 0 {
-		project_ids := strings.Split(formData["project_id"][0], ",")
-		note.SetParentsFromIds(project_ids)
+	if ok := formData["project"]; len(ok) > 0 {
+		note.SetParentsFromIds(ok)
 	}
 
 	if ok := formData["type"]; len(ok) > 0 {
-		note.Type = formData["type"][0]
+		note.Type = ok[0]
 	}
 
 	if ok := formData["name"]; len(ok) > 0 {
-		note.Title = formData["name"][0]
+		note.Title = ok[0]
 	}
 
 	if ok := formData["tags"]; len(ok) > 0 {
-		if len(formData["tags"][0]) > 0 {
-			tags := strings.Split(formData["tags"][0][1:], ",")
-			for _, tag := range tags {
-				note.AddTag(tag)
-			}
+		for _, tag := range ok {
+			note.AddTag(tag)
 		}
-
 	}
 
-	fmt.Println("form", formData, "note", note)
+	if ok := formData["notes"]; len(ok) > 0 {
+		note.Blocks = pmd.MdToBlocks([]byte(ok[0]))
+	}
 
 	gn.RegisterNote(note)
 	(*ga).SaveNotes(*gn)
+	return note
 }

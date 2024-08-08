@@ -15,7 +15,7 @@
 			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
 
 			<label for="project">Parent</label>
-			<select id="project" multiple data-placeholder="Parent(s)">
+			<select id="project" multiple data-placeholder="Parent(s)" name="project">
 				{{ range $g := .Gn.GetStructuredNotes }}
 				<optgroup label="{{$g.Group}}">
 					{{ range $p := $g.Notes }}
@@ -26,7 +26,7 @@
 			</select>
 
 			<label for="type">Type</label>
-			<select id="type">
+			<select id="type" name="type">
 				{{ range $t := .Gn.GetTypes }}
 				<option value="{{ $t }}">{{ $t }}</option>
 				{{ end }}
@@ -34,7 +34,11 @@
 
 
 			<label for="tags">tags</label>
-			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing">
+			<select id="tags" multiple data-placeholder="#email #dev #writing" name="tags">
+				{{ range $g := .Gn.GetTags }}
+					<option value="{{ $g | html}}">{{ $g | html }}</option>
+				{{ end }}
+			</select>
 
 			<label for="notes">Contents</label>
 			<textarea id="notes" name="notes" placeholder="jrnl goes here"></textarea>
@@ -47,36 +51,13 @@
 	new TomSelect("#project",{
 		plugins: ['remove_button'],
 		create: true,
-		onItemAdd:function(){
-			this.setTextboxValue('');
-			this.refreshOptions();
-		},
-		render:{
-			option:function(data,escape){
-				return `
-				<div class="d-flex">
-					<span>${data.text}</span>
-				</div>`;
-			},
-			item:function(data,escape){
-				return '<div>' + escape(data.text) + '</div>';
-			}
-		}
+	});
+
+	new TomSelect("#tags",{
+		plugins: ['remove_button'],
+		create: true,
 	});
 	
 	</script>
 
-<style>
-#results{
-	display: none;
-	position: absolute;
-	background: var(--background);
-	padding: 1rem;
-	border: 2px solid var(--color);
-
-	button:focus {
-		border: 2px solid red;
-	}
-}
-</style>
 {{end}}

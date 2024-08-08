@@ -103,7 +103,8 @@ func MainRoutes() chi.Router {
 			context["error"] = fmt.Sprintf("Unparseable data, %s", err)
 		} else {
 			formData := r.Form
-			processNoteSubmission(formData)
+			note := processNoteSubmission(formData)
+			context["success"] = fmt.Sprintf(`Saved new note as <a href="%s.html">%s</a>`, note.NoteId, note.Title)
 		}
 
 		// process form data

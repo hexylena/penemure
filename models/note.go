@@ -365,13 +365,21 @@ func (n *Note) Touch() {
 
 func (n *Note) AddTag(t string) {
 	n.Touch()
-	if len(n.GetL("Tags")) == 0 {
-		n.Meta = append(n.Meta, &Meta{
-			Type:  "tag",
-			Title: "Tags",
-			Value: t,
-		})
+	n.Meta = append(n.Meta, &Meta{
+		Type:  "tag",
+		Title: "Tags",
+		Value: t,
+	})
+}
+
+func (n *Note) GetTags() []string {
+	res := make([]string, 0)
+	for _, m := range n.Meta {
+		if m.Type == "tag" && m.Title == "Tags" {
+			res = append(res, m.Value.(string))
+		}
 	}
+	return res
 }
 
 func (n *Note) AddMetaTag(k string, v string) {
@@ -546,20 +554,21 @@ func (n *Note) ExportToFile(gn *GlobalNotes, config *pmc.HxpmConfig) {
 	f.Close()
 }
 
+type templateContext3 struct {
+	Note    *Note
+	Gn      *GlobalNotes
+	Config  *pmc.HxpmConfig
+	Context map[string]string
+}
+
 func (n *Note) Export(gn *GlobalNotes, w io.Writer, config *pmc.HxpmConfig) {
 	tmpl, err := template.New("").ParseFiles("templates/note.html", "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
 
-	type templateContext2 struct {
-		Note   *Note
-		Gn     *GlobalNotes
-		Config *pmc.HxpmConfig
-	}
-
-	tmpl.ExecuteTemplate(os.Stdout, "note", templateContext2{n, gn, config})
-	err = tmpl.ExecuteTemplate(w, "base", templateContext2{n, gn, config})
+	tmpl.ExecuteTemplate(os.Stdout, "note", templateContext3{n, gn, config, nil})
+	err = tmpl.ExecuteTemplate(w, "base", templateContext3{n, gn, config, nil})
 	if err != nil {
 		logger.Error("error executing template", "error", err)
 		panic(err)
