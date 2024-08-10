@@ -639,7 +639,7 @@ func (gn *GlobalNotes) Export(config *pmc.HxpmConfig, templateFS *embed.FS) {
 	}
 	// Export individual notes
 	for _, note := range gn.notes {
-		note.ExportToFile(gn, config)
+		note.ExportToFile(gn, config, templateFS)
 	}
 
 	// Copy templates/assets into export

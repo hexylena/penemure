@@ -171,7 +171,7 @@ func serve_getArticleBySlug(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		note := gn.GetNoteByID(note_id)
-		note.Export(gn, w, config)
+		note.Export(gn, w, config, templateFS)
 	} else {
 		serve_404(w, r)
 		return

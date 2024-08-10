@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"embed"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -538,7 +539,7 @@ func LooksLocal(path string) bool {
 	return regexp.MustCompile(`^\.\/`).MatchString(path)
 }
 
-func (n *Note) ExportToFile(gn *GlobalNotes, config *pmc.HxpmConfig) {
+func (n *Note) ExportToFile(gn *GlobalNotes, config *pmc.HxpmConfig, templateFS *embed.FS) {
 	// Save contents to ./export/<id>.html
 	dir := config.ExportDirectory
 
@@ -549,7 +550,7 @@ func (n *Note) ExportToFile(gn *GlobalNotes, config *pmc.HxpmConfig) {
 		fmt.Println(err)
 	}
 	w := bufio.NewWriter(f)
-	n.Export(gn, w, config)
+	n.Export(gn, w, config, templateFS)
 	w.Flush()
 	f.Close()
 }
@@ -561,19 +562,16 @@ type templateContext3 struct {
 	Context map[string]string
 }
 
-func (n *Note) Export(gn *GlobalNotes, w io.Writer, config *pmc.HxpmConfig) {
-	tmpl, err := template.New("").ParseFiles("templates/note.html", "templates/base.html")
+func (n *Note) Export(gn *GlobalNotes, w io.Writer, config *pmc.HxpmConfig, templateFS *embed.FS) {
+	tmpl, err := template.New("").ParseFS(templateFS, "templates/note.html", "templates/base.html")
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
 
-	tmpl.ExecuteTemplate(os.Stdout, "note", templateContext3{n, gn, config, nil})
 	err = tmpl.ExecuteTemplate(w, "base", templateContext3{n, gn, config, nil})
 	if err != nil {
 		logger.Error("error executing template", "error", err)
-		panic(err)
 	}
-
 	// TODO: copy icon, cover if local
 }
 
