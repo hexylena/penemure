@@ -28,6 +28,8 @@ type HxpmConfig struct {
 	QueryHomepageLayout string
 	QueryChildren       string
 	QueryChildrenLayout string
+
+	serving bool
 }
 
 func setDefaults() {
@@ -91,6 +93,13 @@ func Init() HxpmConfig {
 	}
 
 	return globalConfig
+}
+
+func (config *HxpmConfig) SetServing(b bool) {
+	config.serving = b
+}
+func (config *HxpmConfig) IsServing() bool {
+	return config.serving
 }
 
 func (config *HxpmConfig) Manifest() []byte {

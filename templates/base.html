@@ -36,9 +36,17 @@
 				<img src="{{ .Config.ExportPrefix }}assets/favicon.ico" width="40">
 				<a href="{{ .Config.ExportPrefix }}index.html">{{ .Config.Title }}</a>
 			</span>
-			<form action="{{ .Config.ExportPrefix }}search.html" class="column">
-				<input type="search" name="title" id="search" size="24" style="width: unset" placeholder="search">
-			</form>
+			<span class="column" style="display: flex">
+				{{ if .Config.IsServing }}
+				<a href="{{ .Config.ExportPrefix }}new">➕</a> &nbsp;
+				<a href="{{ .Config.ExportPrefix }}edit?id={{ .Context.id }}">📝</a> &nbsp;
+				<a href="{{ .Config.ExportPrefix }}time">⏰</a> &nbsp;
+				{{ end }}
+
+				<form action="{{ .Config.ExportPrefix }}search.html">
+					<input type="search" name="title" id="search" size="24" style="width: unset" placeholder="search">
+				</form>
+			</span>
 			</div>
 		</header>
 		<main>

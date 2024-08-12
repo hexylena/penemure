@@ -568,7 +568,11 @@ func (n *Note) Export(gn *GlobalNotes, w io.Writer, config *pmc.HxpmConfig, temp
 		logger.Error("Error", "err", err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "base", templateContext3{n, gn, config, nil})
+	context := map[string]string{
+		"id": string(n.NoteId),
+	}
+
+	err = tmpl.ExecuteTemplate(w, "base", templateContext3{n, gn, config, context})
 	if err != nil {
 		logger.Error("error executing template", "error", err)
 	}

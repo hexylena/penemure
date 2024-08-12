@@ -30,6 +30,7 @@ var templateFS *embed.FS
 
 func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, _templates *embed.FS) {
 	config = _config
+	config.SetServing(true)
 	ga = _ga
 	gn = _gn
 	templateFS = _templates
@@ -66,10 +67,12 @@ func MainRoutes() chi.Router {
 	context := map[string]string{}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		context["id"] = "00000000-0000-0000-0000-000000000000"
 		server_fn("list", w, r, context)
 	})
 	r.Get("/manifest.json", serve_manifest_json)
 	r.Get("/index.html", func(w http.ResponseWriter, r *http.Request) {
+		context["id"] = "00000000-0000-0000-0000-000000000000"
 		server_fn("list", w, r, context)
 	})
 	r.Get("/search.html", func(w http.ResponseWriter, r *http.Request) {
@@ -110,6 +113,26 @@ func MainRoutes() chi.Router {
 		// process form data
 		server_fn("new", w, r, context)
 	})
+
+	r.Get("/edit", func(w http.ResponseWriter, r *http.Request) {
+
+		server_fn("edit", w, r, context)
+	})
+	r.Post("/edit", func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			logger.Error("Unparseable data", "err", err)
+			context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+		} else {
+			formData := r.Form
+			note := processNoteSubmission(formData)
+			context["success"] = fmt.Sprintf(`Saved note <a href="%s.html">%s</a>`, note.NoteId, note.Title)
+		}
+
+		// process form data
+		server_fn("edit", w, r, context)
+	})
+
 	// r.Route("/notes", func(r chi.Router) {
 	// 	// r.With(paginate).Get("/", listArticles)                           // GET /notes
 	// 	// r.Get("/", gn.serve_listArticles)                           // GET /notes

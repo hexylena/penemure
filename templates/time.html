@@ -7,7 +7,6 @@
 	<h1>Time Tracker</h1>
 	</hgroup>
 
-	<h2>Track</h2>
 	{{ if .Gn.GetOpenLog }}
 	<form method="post">
 		<fieldset>
@@ -16,11 +15,20 @@
 			<label for="name">Name</label>
 			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Gn.GetOpenLog.Title }}">
 
-			<label for="project">Project</label>
-			<input id="project" type="search" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" onKeyUp="showResults(this.value)" value="{{ .Gn.GetOpenLog.Projects }}">
-			<input id="project_id" type="hidden" name="project_id" value="{{ .Gn.GetOpenLog.Projects }}">
+			<label for="project">Parent(s)</label>
+			<select id="project" multiple data-placeholder="Parent(s)" name="project">
+				{{ range $g := .Gn.GetStructuredNotes }}
+				<optgroup label="{{$g.Group}}">
+					{{ range $p := $g.Notes }}
+					<option value="{{ $p.NoteId}}" {{ if $.Gn.GetOpenLog.HasParent $p.NoteId }}selected{{ end }}>
+						{{ $p.GetEmoji }} {{ $p.Title | html }}
+					</option>
+					{{ end}}
+				</optgroup>
+				{{ end }}
+			</select>
+
 			<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
-			<div id="results"></div>
 			<label for="tags">tags</label>
 			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="{{ .Gn.GetOpenLog.GetL "Tags" }}">
 			<input type="time" id="start" name="start" value="{{ (.Gn.GetOpenLog.GetStartEndTime "start").Format "15:04:05"  }}">
@@ -45,15 +53,31 @@
 
 	{{ else }}
 	<form method="post">
-		<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
-		<input id="project" type="search" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" onKeyUp="showResults(this.value)">
-		<input id="project_id" type="hidden" name="project_id">
-		<div id="results"></div>
-		<input type="text" id="tags" name="tags" placeholder="#email #dev #writing">
-		<input type="time" id="start" name="start">
-		<span id="runtime">1:00:00</span>
-		<input id="action" type="hidden" name="action" value="start">
-		<button type="submit">Start</button>
+		<fieldset>
+			<legend>New Log</legend>
+			<label for="name">Name</label>
+			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
+
+			<label for="project">Parent(s)</label>
+			<select id="project" multiple data-placeholder="Parent(s)" name="project">
+				{{ range $g := .Gn.GetStructuredNotes }}
+				<optgroup label="{{$g.Group}}">
+					{{ range $p := $g.Notes }}
+					<option value="{{ $p.NoteId}}">{{ $p.GetEmoji }} {{ $p.Title | html }}</option>
+					{{ end}}
+				</optgroup>
+				{{ end }}
+			</select>
+
+			<label for="tags">Tags</label>
+			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing">
+
+			<label for="start">Start Time</label>
+			<input type="time" id="start" name="start">
+			<span id="runtime">1:00:00</span>
+			<input id="action" type="hidden" name="action" value="start">
+			<button type="submit">Start</button>
+		</fieldset>
 	</form>
 	{{ end }}
 
@@ -64,7 +88,7 @@
 		<tbody>
 			{{ range $p := .Gn.GetStructuredLogs }}
 			<tr>
-				<td colspan="5">{{ $p.Date.Format "Monday, January 02" }}</td>
+				<td colspan="5" class="header">{{ $p.Date.Format "Monday, January 02" }}</td>
 			</tr>
 			{{ range $n := $p.Logs }}
 			<tr>
@@ -86,7 +110,9 @@
 				<td>
 					<form method="post">
 						<input type="hidden" name="name" value="{{ $n.Title }}">
-						<input type="hidden" name="project_id" value="{{ $n.GetParentsCSV }}">
+						{{ range $p := $n.Parents }}
+						<input type="hidden" name="project" value="{{ $p }}">
+						{{ end }}
 						<input type="hidden" name="tags" value="{{ range $par := $n.GetL "Tags" }},{{ $par }}{{ end }}">
 						<input id="action" type="hidden" name="action" value="start">
 						<button type="submit">Continue</button>
@@ -102,59 +128,11 @@
 	{{ .Gn.GetLogsFormated }}
 
 	<script>
-var search_terms = [
-	{{ range $p := .Gn.GetNotes }}
-		["{{ $p.GetEmoji }} {{ $p.Title | html }}", "{{ $p.NoteId }}"],
-	{{ end }}
-];
+	new TomSelect("#project",{
+		plugins: ['remove_button'],
+		create: true,
+	});
 
-function autocompleteMatch(input) {
-  if (input == '') {
-    return [];
-  }
-  var reg = new RegExp(input)
-  return search_terms.filter(function(term) {
-	  if (term[0].toLowerCase().match(reg)) {
-  	  	return term;
-	  }
-  });
-}
-
-function setResult(title, id){
-	res.style.display = "none";
-	document.getElementById("project").value = title
-	document.getElementById("project_id").value = id
-}
-
-function showResults(val) {
-  res = document.getElementById("results");
-  // display the result
-  res.innerHTML = '';
-  let list = '';
-  let terms = autocompleteMatch(val);
-  for (i=0; i<terms.length; i++) {
-    list += `<button type="button" onclick="setResult('${terms[i][0]}', '${terms[i][1]}')">${terms[i][0]}</button><br/>`;
-  }
-  res.innerHTML = list;
-  if(list.length > 0){
-	res.style.display = "revert";
-  } else {
-	res.style.display = "none";
-  }
-}
 	</script>
 
-<style>
-#results{
-	display: none;
-	position: absolute;
-	background: var(--background);
-	padding: 1rem;
-	border: 2px solid var(--color);
-
-	button:focus {
-		border: 2px solid red;
-	}
-}
-</style>
 {{end}}

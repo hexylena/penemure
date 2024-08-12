@@ -1,10 +1,10 @@
-{{define "title"}}
-	Time Tracking | {{ .Config.Title }}
+{{define "title" }}
+	New Note | {{ .Config.Title }}
 {{end}}
 
 {{define "main"}}
 	<hgroup>
-	<h1>Add/Edit Note</h1>
+	<h1>Add a Note</h1>
 	</hgroup>
 
 	<form method="post">
@@ -14,7 +14,7 @@
 			<label for="name">Name</label>
 			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
 
-			<label for="project">Parent</label>
+			<label for="project">Parent(s)</label>
 			<select id="project" multiple data-placeholder="Parent(s)" name="project">
 				{{ range $g := .Gn.GetStructuredNotes }}
 				<optgroup label="{{$g.Group}}">

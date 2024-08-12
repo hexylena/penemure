@@ -42,9 +42,9 @@ func processTimeSubmission(formData url.Values) {
 		}
 	}
 
-	if ok := formData["project_id"]; len(ok) > 0 {
-		project_ids := strings.Split(formData["project_id"][0], ",")
-		note.SetParentsFromIds(project_ids)
+	if ok := formData["project"]; len(ok) > 0 {
+		fmt.Println("PROJECTSSSS ", ok)
+		note.SetParentsFromIds(ok)
 	}
 
 	if ok := formData["name"]; len(ok) > 0 {
