@@ -13,6 +13,8 @@ type FsAdapter struct {
 	Path string
 }
 
+// TODO: sync (mainly: reload changes made out of process.)
+
 func (a *FsAdapter) filePathWalkDir(root string) ([]string, error) {
 	// if the folder doesn't exist:
 	if _, err := os.Stat(root); os.IsNotExist(err) {

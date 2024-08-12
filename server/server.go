@@ -43,7 +43,7 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 		})
 	}
 	r.NotFound(serve_404)
-	logger.Info("Starting server", "addr", config.ServerBindAddr)
+	logger.Info("Starting server", "addr", "http://"+config.ServerBindAddr)
 	err := http.ListenAndServe(config.ServerBindAddr, r)
 	if err != nil {
 		logger.Error("Error", "err", err)

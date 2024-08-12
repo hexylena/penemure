@@ -99,7 +99,7 @@
 
 {{ if .Note.GetProjectMembers .Gn }}
 	<h2>Children</h2>
-	{{ .Gn.GetChildrenFormatted .Note.NoteId }}
+	{{ .Gn.GetChildrenFormatted .Note.NoteId .Config }}
 {{ end }}
 
 {{end}}

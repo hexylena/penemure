@@ -782,12 +782,16 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 	return b.Html()
 }
 
-func (gn *GlobalNotes) GetChildrenFormatted(note NoteId) string {
-	return gn.QueryToHtml("select title, created, Author from notes where parent = '"+string(note)+"' group by type order by created ", "table")
+func (gn *GlobalNotes) GetChildrenFormatted(note NoteId, config *pmc.HxpmConfig) string {
+	fmt.Println("GetChildrenFormatted", note, config)
+	query := strings.Replace(config.QueryChildren, "NOTE_ID", string(note), 1)
+	return gn.QueryToHtml(query, config.QueryChildrenLayout)
+
 }
 
-func (gn *GlobalNotes) GetTopLevelFormatted() string {
-	return gn.QueryToHtml("select title, created, Author from notes where parent is null GROUP BY type ORDER BY created ", "table")
+func (gn *GlobalNotes) GetTopLevelFormatted(config *pmc.HxpmConfig) string {
+	fmt.Println("GetChildrenFormattedz", config)
+	return gn.QueryToHtml(config.QueryHomepage, config.QueryHomepageLayout)
 }
 
 func (gn *GlobalNotes) GetLogsFormated() string {
