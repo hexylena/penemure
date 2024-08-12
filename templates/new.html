@@ -19,7 +19,7 @@
 				{{ range $g := .Gn.GetStructuredNotes }}
 				<optgroup label="{{$g.Group}}">
 					{{ range $p := $g.Notes }}
-					<option value="{{ $p.NoteId}}">{{ $p.GetEmoji }} {{ $p.Title | html }}</option>
+					<option value="{{ $p.NoteId}}" {{ if eq $p.NoteId $.Note.NoteId }}selected{{end}}>{{ $p.GetEmoji }} {{ $p.Title | html }}</option>
 					{{ end}}
 				</optgroup>
 				{{ end }}
@@ -28,7 +28,7 @@
 			<label for="type">Type</label>
 			<select id="type" name="type">
 				{{ range $t := .Gn.GetTypes }}
-				<option value="{{ $t }}">{{ $t }}</option>
+				<option value="{{ $t }}"{{ if eq $t $.Note.Type }}selected{{end}}>{{ $t }}</option>
 				{{ end }}
 			</select>
 

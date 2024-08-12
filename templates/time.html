@@ -7,20 +7,24 @@
 	<h1>Time Tracker</h1>
 	</hgroup>
 
-	{{ if .Gn.GetOpenLog }}
+	<!--
+		todo: .Note is probably replacable with .Note
+	{{ .Note }}
+	-->
+	{{ if .Note }}
 	<form method="post">
 		<fieldset>
 			<legend>Add Log</legend>
 
 			<label for="name">Name</label>
-			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Gn.GetOpenLog.Title }}">
+			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Note.Title }}">
 
 			<label for="project">Parent(s)</label>
 			<select id="project" multiple data-placeholder="Parent(s)" name="project">
 				{{ range $g := .Gn.GetStructuredNotes }}
 				<optgroup label="{{$g.Group}}">
 					{{ range $p := $g.Notes }}
-					<option value="{{ $p.NoteId}}" {{ if $.Gn.GetOpenLog.HasParent $p.NoteId }}selected{{ end }}>
+					<option value="{{ $p.NoteId}}" {{ if $.Note.HasParent $p.NoteId }}selected{{ end }}>
 						{{ $p.GetEmoji }} {{ $p.Title | html }}
 					</option>
 					{{ end}}
@@ -28,10 +32,10 @@
 				{{ end }}
 			</select>
 
-			<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
+			<input id="note_id" type="hidden" name="note_id" value="{{ .Note.NoteId }}">
 			<label for="tags">tags</label>
-			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="{{ .Gn.GetOpenLog.GetL "Tags" }}">
-			<input type="time" id="start" name="start" value="{{ (.Gn.GetOpenLog.GetStartEndTime "start").Format "15:04:05"  }}">
+			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="{{ .Note.GetL "Tags" }}">
+			<input type="time" id="start" name="start" value="{{ (.Note.GetStartEndTime "start").Format "15:04:05"  }}">
 			<span id="runtime">TODO</span>
 			<input id="action" type="hidden" name="action" value="stop">
 			<button type="submit">Stop</button>
@@ -44,9 +48,8 @@
 			<legend>Add Notes</legend>
 
 			<label for="notes">Contents</label>
-			<textarea id="notes" name="notes" placeholder="jrnl goes here">{{ .Gn.GetOpenLog.RenderMarkdown }}</textarea>
-			<input id="note_id" type="hidden" name="note_id" value="{{ .Gn.GetOpenLog.NoteId }}">
-			<input id="action" type="hidden" name="action" value="notes">
+			<textarea id="notes" name="notes" placeholder="jrnl goes here" rows="20">{{ .Note.RenderMarkdown }}</textarea>
+			<input id="note_id" type="hidden" name="note_id" value="{{ .Note.NoteId }}">
 			<button type="submit">Save Notes</button>
 		</fieldset>
 	</form>

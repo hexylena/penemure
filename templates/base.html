@@ -38,7 +38,7 @@
 			</span>
 			<span class="column" style="display: flex">
 				{{ if .Config.IsServing }}
-				<a href="{{ .Config.ExportPrefix }}new">➕</a> &nbsp;
+				<a href="{{ .Config.ExportPrefix }}new?id={{ .Context.id }}">➕</a> &nbsp;
 				<a href="{{ .Config.ExportPrefix }}edit?id={{ .Context.id }}">📝</a> &nbsp;
 				<a href="{{ .Config.ExportPrefix }}time">⏰</a> &nbsp;
 				{{ end }}

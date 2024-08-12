@@ -28,6 +28,13 @@ var config *pmc.HxpmConfig
 var logger = pml.L("server")
 var templateFS *embed.FS
 
+type templateContext struct {
+	Gn      *pmm.GlobalNotes
+	Config  *pmc.HxpmConfig
+	Context map[string]string
+	Note    *pmm.Note
+}
+
 func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, _templates *embed.FS) {
 	config = _config
 	config.SetServing(true)
@@ -51,6 +58,21 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 	}
 }
 
+func urlToContext(tc *templateContext, r *http.Request) {
+	note_id := r.URL.Query().Get("id")
+	if note_id == "" {
+		tc.Context["error"] = "No note id provided"
+	} else {
+		partial := pmm.PartialNoteId(note_id)
+		note_id, err := gn.GetIdByPartial(partial)
+		if err != nil {
+			tc.Context["error"] = fmt.Sprintf("%s", err)
+		}
+		note := gn.GetNoteByID(note_id)
+		tc.Note = note
+	}
+}
+
 func MainRoutes() chi.Router {
 	r := chi.NewRouter()
 
@@ -64,73 +86,79 @@ func MainRoutes() chi.Router {
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
-	context := map[string]string{}
+	tc := templateContext{Gn: gn, Config: config, Context: map[string]string{}}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		context["id"] = "00000000-0000-0000-0000-000000000000"
-		server_fn("list", w, r, context)
+		tc.Context["id"] = "00000000-0000-0000-0000-000000000000"
+		server_fn("list", w, r, &tc)
 	})
 	r.Get("/manifest.json", serve_manifest_json)
 	r.Get("/index.html", func(w http.ResponseWriter, r *http.Request) {
-		context["id"] = "00000000-0000-0000-0000-000000000000"
-		server_fn("list", w, r, context)
+		tc.Context["id"] = "00000000-0000-0000-0000-000000000000"
+		server_fn("list", w, r, &tc)
 	})
 	r.Get("/search.html", func(w http.ResponseWriter, r *http.Request) {
-		server_fn("search", w, r, context)
+		server_fn("search", w, r, &tc)
 	})
 	r.Get("/time", func(w http.ResponseWriter, r *http.Request) {
-		server_fn("time", w, r, context)
+		tc.Note = gn.GetOpenLog()
+		server_fn("time", w, r, &tc)
 	})
 	r.Post("/time", func(w http.ResponseWriter, r *http.Request) {
 		// handle form
 		err := r.ParseForm()
 		if err != nil {
 			logger.Error("Unparseable data", "err", err)
-			context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+			tc.Context["error"] = fmt.Sprintf("Unparseable data, %s", err)
 		} else {
 			formData := r.Form
 			processTimeSubmission(formData)
 		}
 
+		tc.Note = gn.GetOpenLog()
+
 		// process form data
-		server_fn("time", w, r, context)
+		server_fn("time", w, r, &tc)
 	})
 
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
-		server_fn("new", w, r, context)
+		urlToContext(&tc, r)
+		server_fn("new", w, r, &tc)
 	})
 	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
+		urlToContext(&tc, r)
 		err := r.ParseForm()
 		if err != nil {
 			logger.Error("Unparseable data", "err", err)
-			context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+			tc.Context["error"] = fmt.Sprintf("Unparseable data, %s", err)
 		} else {
 			formData := r.Form
 			note := processNoteSubmission(formData)
-			context["success"] = fmt.Sprintf(`Saved new note as <a href="%s.html">%s</a>`, note.NoteId, note.Title)
+			tc.Context["success"] = fmt.Sprintf(`Saved new note as <a href="%s.html">%s</a>`, note.NoteId, note.Title)
 		}
 
 		// process form data
-		server_fn("new", w, r, context)
+		server_fn("new", w, r, &tc)
 	})
 
 	r.Get("/edit", func(w http.ResponseWriter, r *http.Request) {
-
-		server_fn("edit", w, r, context)
+		urlToContext(&tc, r)
+		server_fn("edit", w, r, &tc)
 	})
 	r.Post("/edit", func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			logger.Error("Unparseable data", "err", err)
-			context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+			tc.Context["error"] = fmt.Sprintf("Unparseable data, %s", err)
 		} else {
 			formData := r.Form
 			note := processNoteSubmission(formData)
-			context["success"] = fmt.Sprintf(`Saved note <a href="%s.html">%s</a>`, note.NoteId, note.Title)
+			tc.Context["success"] = fmt.Sprintf(`Saved note <a href="%s.html">%s</a>`, note.NoteId, note.Title)
 		}
+		urlToContext(&tc, r)
 
 		// process form data
-		server_fn("edit", w, r, context)
+		server_fn("edit", w, r, &tc)
 	})
 
 	// r.Route("/notes", func(r chi.Router) {
@@ -159,20 +187,15 @@ func get_template(templateName string) *template.Template {
 	return tmpl
 }
 
-type templateContext struct {
-	Gn      *pmm.GlobalNotes
-	Config  *pmc.HxpmConfig
-	Context map[string]string
-}
-
 func serve_404(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	server_fn("404", w, r, map[string]string{})
+	tc := templateContext{Gn: gn, Config: config, Context: map[string]string{}}
+	server_fn("404", w, r, &tc)
 }
 
-func server_fn(fn string, w http.ResponseWriter, r *http.Request, context map[string]string) {
+func server_fn(fn string, w http.ResponseWriter, r *http.Request, tc *templateContext) {
 	tmpl := get_template(fn)
-	err := tmpl.ExecuteTemplate(w, "base", templateContext{gn, config, context})
+	err := tmpl.ExecuteTemplate(w, "base", tc)
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}

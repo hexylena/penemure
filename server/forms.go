@@ -36,9 +36,6 @@ func processTimeSubmission(formData url.Values) {
 		case "stop":
 			logger.Info("Stopping task")
 			note.AddMeta("time", "end_time", strconv.FormatInt(time.Now().Unix(), 10))
-		case "notes":
-			text := formData["notes"][0]
-			note.Blocks = pmd.MdToBlocks([]byte(text))
 		}
 	}
 
@@ -57,6 +54,11 @@ func processTimeSubmission(formData url.Values) {
 		for _, tag := range tags {
 			note.AddTag(tag)
 		}
+	}
+
+	if ok := formData["notes"]; len(ok) > 0 {
+		text := formData["notes"][0]
+		note.Blocks = pmd.MdToBlocks([]byte(text))
 	}
 
 	// Update where relevant
@@ -98,8 +100,22 @@ func processNoteSubmission(formData url.Values) *pmm.Note {
 	}
 
 	if ok := formData["tags"]; len(ok) > 0 {
+		note.ClearTags()
 		for _, tag := range ok {
 			note.AddTag(tag)
+		}
+	}
+
+	if ok := formData["m_type"]; len(ok) > 0 {
+		// zero out our data initially
+		note.Meta = make([]*pmm.Meta, len(ok))
+		for i, m := range ok {
+			note.Meta[i] = &pmm.Meta{
+				Type: m,
+				Icon: formData["m_icon"][i],
+				Value: formData["m_valu"][i],
+				Title: formData["m_titl"][i],
+			}
 		}
 	}
 

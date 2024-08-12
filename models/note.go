@@ -364,6 +364,16 @@ func (n *Note) Touch() {
 	n.modified = true
 }
 
+func (n *Note) ClearTags() {
+	n.Touch()
+	n.Meta = make([]*Meta, 0)
+	for _, m := range n.Meta {
+		if m.Type != "tag" {
+			n.Meta = append(n.Meta, m)
+		}
+	}
+}
+
 func (n *Note) AddTag(t string) {
 	n.Touch()
 	n.Meta = append(n.Meta, &Meta{
@@ -381,6 +391,15 @@ func (n *Note) GetTags() []string {
 		}
 	}
 	return res
+}
+
+func (n *Note) HasTag(o string) bool {
+	for _, p := range n.GetTags() {
+		if p == o {
+			return true
+		}
+	}
+	return false
 }
 
 func (n *Note) AddMetaTag(k string, v string) {
