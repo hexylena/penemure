@@ -35,6 +35,13 @@ type templateContext struct {
 	Note    *pmm.Note
 }
 
+func (tc templateContext) AddContext(key, value string) {
+	if tc.Context == nil {
+		tc.Context = make(map[string]string)
+	}
+	tc.Context[key] = value
+}
+
 func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, _templates *embed.FS) {
 	config = _config
 	config.SetServing(true)
@@ -61,12 +68,12 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 func urlToContext(tc *templateContext, r *http.Request) {
 	note_id := r.URL.Query().Get("id")
 	if note_id == "" {
-		tc.Context["error"] = "No note id provided"
+		tc.AddContext("error", "No note id provided")
 	} else {
 		partial := pmm.PartialNoteId(note_id)
 		note_id, err := gn.GetIdByPartial(partial)
 		if err != nil {
-			tc.Context["error"] = fmt.Sprintf("%s", err)
+			tc.AddContext("error", fmt.Sprintf("%s", err))
 		}
 		note := gn.GetNoteByID(note_id)
 		tc.Note = note
@@ -89,12 +96,12 @@ func MainRoutes() chi.Router {
 	tc := templateContext{Gn: gn, Config: config, Context: map[string]string{}}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		tc.Context["id"] = "00000000-0000-0000-0000-000000000000"
+		tc.AddContext("id", "00000000-0000-0000-0000-000000000000")
 		server_fn("list", w, r, &tc)
 	})
 	r.Get("/manifest.json", serve_manifest_json)
 	r.Get("/index.html", func(w http.ResponseWriter, r *http.Request) {
-		tc.Context["id"] = "00000000-0000-0000-0000-000000000000"
+		tc.AddContext("id", "00000000-0000-0000-0000-000000000000")
 		server_fn("list", w, r, &tc)
 	})
 	r.Get("/search.html", func(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +116,7 @@ func MainRoutes() chi.Router {
 		err := r.ParseForm()
 		if err != nil {
 			logger.Error("Unparseable data", "err", err)
-			tc.Context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+			tc.AddContext("error", fmt.Sprintf("Unparseable data, %s", err))
 		} else {
 			formData := r.Form
 			processTimeSubmission(formData)
@@ -130,11 +137,11 @@ func MainRoutes() chi.Router {
 		err := r.ParseForm()
 		if err != nil {
 			logger.Error("Unparseable data", "err", err)
-			tc.Context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+			tc.AddContext("error", fmt.Sprintf("Unparseable data, %s", err))
 		} else {
 			formData := r.Form
 			note := processNoteSubmission(formData)
-			tc.Context["success"] = fmt.Sprintf(`Saved new note as <a href="%s.html">%s</a>`, note.NoteId, note.Title)
+			tc.AddContext("success", fmt.Sprintf(`Saved new note as <a href="%s.html">%s</a>`, note.NoteId, note.Title))
 		}
 
 		// process form data
@@ -149,11 +156,11 @@ func MainRoutes() chi.Router {
 		err := r.ParseForm()
 		if err != nil {
 			logger.Error("Unparseable data", "err", err)
-			tc.Context["error"] = fmt.Sprintf("Unparseable data, %s", err)
+			tc.AddContext("error", fmt.Sprintf("Unparseable data, %s", err))
 		} else {
 			formData := r.Form
 			note := processNoteSubmission(formData)
-			tc.Context["success"] = fmt.Sprintf(`Saved note <a href="%s.html">%s</a>`, note.NoteId, note.Title)
+			tc.AddContext("success", fmt.Sprintf(`Saved note <a href="%s.html">%s</a>`, note.NoteId, note.Title))
 		}
 		urlToContext(&tc, r)
 
