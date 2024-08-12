@@ -28,7 +28,7 @@
 			<label for="type">Type</label>
 			<select id="type" name="type">
 				{{ range $t := .Gn.GetTypes }}
-				<option value="{{ $t }}"{{ if eq $t $.Note.Type }}selected{{end}}>{{ $t }}</option>
+				<option value="{{ $t }}"{{ if eq $t $.Note.Type }}selected{{ end }}>{{ $t }}</option>
 				{{ end }}
 			</select>
 
@@ -41,7 +41,40 @@
 			</select>
 
 			<label for="notes">Contents</label>
-			<textarea id="notes" name="notes" placeholder="jrnl goes here"></textarea>
+			<textarea id="notes" name="notes" placeholder="jrnl goes here" rows="20"></textarea>
+
+			<table>
+				<caption>Page Metadata</caption>
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Title</th>
+						<th>Value</th>
+						<th>Icon</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="meta">
+				<tr id="meta_r0">
+					<td><input type="text" id="m_type" name="m_type" value="icon"></td>
+					<td><input type="text" id="m_titl" name="m_titl" value=""></td>
+					<td><input type="text" id="m_valu" name="m_valu" value=""></td>
+					<td><input type="text" id="m_icon" name="m_icon" value="📰"></td>
+					<td><button type="button" onclick="document.getElementById('meta_r0').remove()">❌</button></td>
+				</tr>
+				<tr id="meta_r1">
+					<td><input type="text" id="m_type" name="m_type" value="cover"></td>
+					<td><input type="text" id="m_titl" name="m_titl" value=""></td>
+					<td><input type="text" id="m_valu" name="m_valu" value="./assets/test.jpg"></td>
+					<td><input type="text" id="m_icon" name="m_icon" value=""></td>
+					<td><button type="button" onclick="document.getElementById('meta_r1').remove()">❌</button></td>
+				</tr>
+				</tbody>
+			</table>
+			<button type="button" onclick="addRow()">➕ Add Meta</button>
+
+			<br/>
+
 			<button type="submit">Save Notes</button>
 		</fieldset>
 	</form>
@@ -57,7 +90,21 @@
 		plugins: ['remove_button'],
 		create: true,
 	});
-	
+	function addRow() {
+		tr = document.getElementById("meta").insertRow();
+		// timestamp
+		tr.id = "meta_r" + Date.now();
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_type" name="m_type" value="">';
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_titl" name="m_titl" value="">';
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_valu" name="m_valu" value="">';
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_icon" name="m_icon" value="">';
+		td = tr.insertCell();
+		td.innerHTML = `<button type="button" onclick="document.getElementById('${tr.id}').remove()">❌</button>`;
+	}
 	</script>
 
 {{end}}

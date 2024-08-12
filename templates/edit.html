@@ -14,10 +14,9 @@
 
 			<label for="name">Name</label>
 			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Note.Title }}">
-
 			<input id="note_id" type="hidden" name="note_id" value="{{ .Note.NoteId }}">
 
-			<label for="project">Parent</label>
+			<label for="project">Parent(s)</label>
 			<select id="project" multiple data-placeholder="Parent(s)" name="project">
 				{{ range $g := .Gn.GetStructuredNotes }}
 				<optgroup label="{{$g.Group}}">
@@ -31,7 +30,7 @@
 			<label for="type">Type</label>
 			<select id="type" name="type">
 				{{ range $t := .Gn.GetTypes }}
-				<option value="{{ $t }}" {{ if eq $.Note.Type $t }}selected{{ end }}>{{ $t }}</option>
+				<option value="{{ $t }}"{{ if eq $t $.Note.Type }}selected{{ end }}>{{ $t }}</option>
 				{{ end }}
 			</select>
 
@@ -88,7 +87,6 @@
 		plugins: ['remove_button'],
 		create: true,
 	});
-
 	function addRow() {
 		tr = document.getElementById("meta").insertRow();
 		// timestamp
@@ -104,8 +102,6 @@
 		td = tr.insertCell();
 		td.innerHTML = `<button type="button" onclick="document.getElementById('${tr.id}').remove()">❌</button>`;
 	}
-	
 	</script>
 
 {{end}}
-
