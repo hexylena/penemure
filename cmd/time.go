@@ -99,6 +99,7 @@ func initialiseNewInput(m *model) {
 
 		start_time, err := m.note.GetStartEndTime("start")
 		if err != nil {
+			logger.Error("Missing start time", "err", err, "note", m.note)
 			panic(err)
 		}
 

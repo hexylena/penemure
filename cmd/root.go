@@ -10,6 +10,7 @@ import (
 	pma "github.com/hexylena/pm/adapter"
 	pmc "github.com/hexylena/pm/config"
 	pmm "github.com/hexylena/pm/models"
+	pml "github.com/hexylena/pm/log"
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +26,7 @@ var gn pmm.GlobalNotes
 var ga pma.TaskAdapter
 var config pmc.HxpmConfig
 var templateFS embed.FS
+var logger = pml.L("cmd")
 
 func Execute(notes pmm.GlobalNotes, adapter pma.TaskAdapter, _config pmc.HxpmConfig, templates embed.FS) {
 	gn = notes
