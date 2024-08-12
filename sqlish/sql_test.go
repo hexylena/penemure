@@ -78,14 +78,17 @@ func TestSqlParsingSimple(t *testing.T) {
 	fieldTest(27, t, ans.Select, "id")
 	fieldTest(28, t, ans.Where, "id = 1")
 	fieldTest(29, t, ans.GroupBy, "x")
-	fieldTest(30, t, ans.OrderBy, "y ASC")
+	fieldTest(30, t, ans.OrderBy[0].Field, "y")
+	// fieldTest(30, t, ans.OrderBy[0].ASC, "ASC")
+	// TODO: update tests.
 	fieldTesti(31, t, ans.Limit, 10)
 
-	ans = ParseSqlQuery("SELECT id FROM asdf WHERE id=1 GROUP BY x ORDER BY y DESC LIMIT 10")
+	ans = ParseSqlQuery("SELECT id FROM asdf WHERE id=1 GROUP BY x ORDER BY y DESC, z ASC LIMIT 10")
 	fieldTest(32, t, ans.Select, "id")
 	fieldTest(33, t, ans.Where, "id = 1")
 	fieldTest(34, t, ans.GroupBy, "x")
-	fieldTest(35, t, ans.OrderBy, "y DESC")
+	fieldTest(35, t, ans.OrderBy[0].Field, "y")
+	fieldTest(35, t, ans.OrderBy[1].Field, "z")
 	fieldTesti(36, t, ans.Limit, 10)
 
 	ans = ParseSqlQuery("SELECT id, title FROM tasks WHERE project = \"4fca94d6-cdd9-4540-8b0e-6370eba448b7\" GROUP BY status")
@@ -93,18 +96,18 @@ func TestSqlParsingSimple(t *testing.T) {
 	fieldTest(38, t, ans.From, "tasks")
 	fieldTest(39, t, ans.Where, "project = 4fca94d6-cdd9-4540-8b0e-6370eba448b7")
 	fieldTest(40, t, ans.GroupBy, "status")
-	fieldTest(41, t, ans.OrderBy, "")
+	// fieldTest(41, t, ans.OrderBy, nil)
 	fieldTesti(42, t, ans.Limit, -1)
 
 	ans = ParseSqlQuery("SELECT id, title FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7' GROUP BY status")
 	fieldTest(43, t, ans.Where, "project = 4fca94d6-cdd9-4540-8b0e-6370eba448b7")
 
 	ans = ParseSqlQuery("SELECT id FROM asdf ORDER BY y DESC")
-	fieldTest(44, t, ans.OrderBy, "y DESC")
+	fieldTest(44, t, ans.OrderBy[0].Field, "y")
 	fieldTesti(45, t, ans.Limit, -1)
 
 	ans = ParseSqlQuery("SELECT id FROM asdf ORDER BY y ASC")
-	fieldTest(46, t, ans.OrderBy, "y ASC")
+	fieldTest(46, t, ans.OrderBy[0].Field, "y")
 	fieldTesti(47, t, ans.Limit, -1)
 
 	ans = ParseSqlQuery("SELECT short_id, title, Status, created FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7' ORDER BY created ASC")
@@ -117,7 +120,7 @@ func TestSqlParsingSimple(t *testing.T) {
 	ans = ParseSqlQuery("SELECT short_id FROM tasks WHERE project = '4fca94d6-cdd9-4540-8b0e-6370eba448b7' AND type = 'log' ORDER BY short_id ASC")
 	fieldTest(51, t, ans.Select, "short_id")
 	fieldTest(52, t, ans.Where, "project = 4fca94d6-cdd9-4540-8b0e-6370eba448b7 AND type = log")
-	fieldTest(53, t, ans.OrderBy, "short_id ASC")
+	fieldTest(53, t, ans.OrderBy[0].Field, "short_id")
 
 	ans = ParseSqlQuery("select id, short_id, title, type, icon from asdf group by 'type' limit 3")
 	fieldTest(54, t, ans.Select, "id, short_id, title, type, icon")

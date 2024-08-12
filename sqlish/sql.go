@@ -10,12 +10,24 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+type SqlSorting struct {
+	Field string
+	ASC   bool
+}
+
+func (s *SqlSorting) String() string {
+	if s.ASC {
+		return fmt.Sprintf("%s ASC", s.Field)
+	}
+	return fmt.Sprintf("%s DESC", s.Field)
+}
+
 type SqlLikeQuery struct {
 	Select  string
 	From    string
 	Where   string
 	GroupBy string
-	OrderBy string
+	OrderBy []SqlSorting
 	Limit   int
 }
 
@@ -46,7 +58,12 @@ func (slq *SqlLikeQuery) GetFields() []string {
 
 type GroupedResultSet struct {
 	Header []string
-	Rows   map[string][][]string
+	Rows   []ResultSet
+}
+
+type ResultSet struct {
+	Title string
+	Data  [][]string
 }
 
 func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, where string) bool {
@@ -104,17 +121,26 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 	logger.Debug("Filtering documents with query", "query", slq)
 	logger.Debug("Initial Documents", "count", len(documents))
 
-	if slq.OrderBy != "" {
+	if slq.OrderBy != nil {
 		// TODO parse multiple fields: Status ASC, created ASC
-		field := strings.Split(slq.OrderBy, " ")[0]
-		direction := strings.Split(slq.OrderBy, " ")[1]
-		logger.Info("ORDER BY", "field", field, "direction", direction, "orig", slq.OrderBy)
+		// sorters := strings.Split(slq.OrderBy, ", ")
+
+		logger.Info("ORDER BY", "orig", slq.OrderBy)
 		sort.Slice(documents, func(i, j int) bool {
-			if direction == "ASC" {
-				return documents[i][field] < documents[j][field]
-			} else {
-				return documents[i][field] > documents[j][field]
+			for _, s := range slq.OrderBy {
+				if s.ASC {
+					if documents[i][s.Field] == documents[j][s.Field] {
+						continue
+					}
+					return documents[i][s.Field] < documents[j][s.Field]
+				} else {
+					if documents[i][s.Field] == documents[j][s.Field] {
+						continue
+					}
+					return documents[i][s.Field] > documents[j][s.Field]
+				}
 			}
+			return false
 		})
 	}
 
@@ -152,31 +178,53 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 	// group by + select
 	results := &GroupedResultSet{
 		Header: nil,
-		Rows:   map[string][][]string{},
+		Rows:   make([]ResultSet, 0),
 	}
+	rs_index := make(map[string]int, 0)
+
+	// Limit occurs simultaneoulsy for efficiency
+	budget := slq.Limit
+	// If the budget ever hits 0 exactly processing stops (it isn't batched, and <=-1 is an indicator for "process all please")
 
 	if slq.GroupBy == "" {
-		results.Rows["__default__"] = [][]string{}
+		rs := ResultSet{Title: "__default__", Data: make([][]string, 0)}
 		for _, document := range documents2 {
 			row, header := Select(document, slq.Select)
-			results.Rows["__default__"] = append(results.Rows["__default__"], row)
+
 			if results.Header == nil {
 				results.Header = header
 			}
+
+			if budget > 0 || budget <= -1 {
+				rs.Data = append(rs.Data, row)
+				budget -= 1
+			}
 		}
+		results.Rows = append(results.Rows, rs)
 	} else {
 		// fmt.Printf("Grouping by: «%s»\n", slq.GroupBy)
 		for _, document := range documents2 {
+			logger.Debug("Doc", "budget", budget)
 			// fmt.Printf("Grouping by: «%s»\n", document[slq.GroupBy])
 			key := document[slq.GroupBy]
 			if key == "" {
 				key = "Uncategorized"
 			}
-			if _, ok := results.Rows[key]; !ok {
-				results.Rows[key] = [][]string{}
+
+			if _, ok := rs_index[key]; !ok {
+				rs := ResultSet{Title: key, Data: make([][]string, 0)}
+				results.Rows = append(results.Rows, rs)
+				rs_index[key] = len(results.Rows) - 1
 			}
+
 			row, header := Select(document, slq.Select)
-			results.Rows[key] = append(results.Rows[key], row)
+			index := rs_index[key]
+
+			if budget > 0 || budget <= -1 {
+
+				results.Rows[index].Data = append(results.Rows[index].Data, row)
+				budget -= 1
+			}
 
 			if results.Header == nil {
 				results.Header = header
@@ -184,24 +232,6 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 		}
 	}
 
-	// Limit: resize all groups to keep count under the limit num
-	budget := slq.Limit
-	if slq.Limit != -1 {
-		for group, rows := range results.Rows {
-			// if we've seen enough rows, truncate the rest
-			if budget <= 0 {
-				delete(results.Rows, group)
-				continue
-			} else {
-				logger.Debug("Limiting Rows", "group", group, "rows", len(rows), "budget", budget, "limit", slq.Limit)
-				// if we have too many rows for our budget
-				if len(rows) > budget {
-					results.Rows[group] = rows[:budget]
-				}
-			}
-			budget -= len(rows)
-		}
-	}
 	return results
 }
 

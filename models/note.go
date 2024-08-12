@@ -2,11 +2,11 @@ package models
 
 import (
 	"bufio"
+	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"embed"
 	"io/ioutil"
 	"os"
 	"os/exec"

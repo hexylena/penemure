@@ -40,8 +40,8 @@ var sqlishCmd = &cobra.Command{
 
 		fmt.Println(results.Header)
 
-		for group, rows := range results.Rows {
-			fmt.Println(group)
+		for _, rs := range results.Rows {
+			fmt.Println(rs.Title)
 
 			re := lipgloss.NewRenderer(os.Stdout)
 			var (
@@ -71,7 +71,7 @@ var sqlishCmd = &cobra.Command{
 					}
 				}).
 				Headers(results.Header...).
-				Rows(rows...)
+				Rows(rs.Data...)
 
 			fmt.Println(t)
 		}

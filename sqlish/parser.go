@@ -106,17 +106,15 @@ func parseQuery(query string) *SqlLikeQuery {
 	}
 
 	// order by
-	orderBy := ""
+	orderBy := make([]SqlSorting, 0)
 	if s := selectStmt.OrderBy; s != nil {
-		res_order := []string{}
 		for _, w := range s {
 			term := ""
 			// type of w
 			term = colname_or_value(w.Expr)
 			direction := strings.ToUpper(w.Direction)
-			res_order = append(res_order, fmt.Sprintf("%s %s", term, direction))
+			orderBy = append(orderBy, SqlSorting{term, direction == "ASC"})
 		}
-		orderBy = strings.Join(res_order, ", ")
 	}
 
 	// limit

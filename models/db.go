@@ -403,15 +403,18 @@ func (gn *GlobalNotes) QueryDisplayTable(ans *sqlish.SqlLikeQuery, results *sqli
 	html += "</tr>\n"
 	html += "<tbody>"
 
-	for key, result := range results.Rows {
+	for _, rs := range results.Rows {
+		if len(rs.Data) == 0 {
+			continue
+		}
 		header := "Results"
-		if key != "__default__" {
+		if rs.Title != "__default__" {
 			// Title Case, Capitalise Each Word
-			header = strings.ToUpper(key[:1]) + key[1:]
+			header = strings.ToUpper(rs.Title[:1]) + rs.Title[1:]
 			html += fmt.Sprintf("<tr><td colspan=\"%d\" class=\"header\">%s</td></tr>", len(headers), header)
 		}
 
-		for _, row := range result {
+		for _, row := range rs.Data {
 			html += "<tr>"
 			for i, cell := range row {
 				if cell == "" {
@@ -440,15 +443,15 @@ func (gn *GlobalNotes) QueryDisplayList(ans *sqlish.SqlLikeQuery, results *sqlis
 	html := ""
 	headers := ans.GetFields()
 
-	for key, result := range results.Rows {
+	for _, rs := range results.Rows {
 		header := "Results"
-		if key != "__default__" {
+		if rs.Title != "__default__" {
 			// Title Case, Capitalise Each Word
-			header = strings.ToUpper(key[:1]) + key[1:]
+			header = strings.ToUpper(rs.Title[:1]) + rs.Title[1:]
 			html += fmt.Sprintf("<b>%s</b>", header)
 		}
 		html += "<ul>"
-		for _, row := range result {
+		for _, row := range rs.Data {
 			html += "<li>"
 			hrow := make([]string, 0)
 			for i, cell := range row {
@@ -474,17 +477,17 @@ func (gn *GlobalNotes) QueryDisplayKanban(ans *sqlish.SqlLikeQuery, results *sql
 	html := "<div class=\"kanban\">\n"
 	headers := ans.GetFields()
 
-	for key, result := range results.Rows {
+	for _, rs := range results.Rows {
 		html += `<div class="kanban-column">`
 
 		header := "Results"
-		if key != "__default__" {
+		if rs.Title != "__default__" {
 			// Title Case, Capitalise Each Word
-			header = strings.ToUpper(key[:1]) + key[1:]
+			header = strings.ToUpper(rs.Title[:1]) + rs.Title[1:]
 			html += fmt.Sprintf(`<div class="title">%s</div>`, header)
 		}
 
-		for _, row := range result {
+		for _, row := range rs.Data {
 			html += `<div class="card">`
 			for i, cell := range row {
 				if cell == "" {
@@ -783,14 +786,12 @@ func (gn *GlobalNotes) BlockToHtml(b pmd.SyntaxNode) string {
 }
 
 func (gn *GlobalNotes) GetChildrenFormatted(note NoteId, config *pmc.HxpmConfig) string {
-	fmt.Println("GetChildrenFormatted", note, config)
 	query := strings.Replace(config.QueryChildren, "NOTE_ID", string(note), 1)
 	return gn.QueryToHtml(query, config.QueryChildrenLayout)
 
 }
 
 func (gn *GlobalNotes) GetTopLevelFormatted(config *pmc.HxpmConfig) string {
-	fmt.Println("GetChildrenFormattedz", config)
 	return gn.QueryToHtml(config.QueryHomepage, config.QueryHomepageLayout)
 }
 
