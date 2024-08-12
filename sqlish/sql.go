@@ -105,8 +105,10 @@ func (slq *SqlLikeQuery) FilterDocuments(documents []map[string]string) *Grouped
 	logger.Debug("Initial Documents", "count", len(documents))
 
 	if slq.OrderBy != "" {
+		// TODO parse multiple fields: Status ASC, created ASC
 		field := strings.Split(slq.OrderBy, " ")[0]
 		direction := strings.Split(slq.OrderBy, " ")[1]
+		logger.Info("ORDER BY", "field", field, "direction", direction, "orig", slq.OrderBy)
 		sort.Slice(documents, func(i, j int) bool {
 			if direction == "ASC" {
 				return documents[i][field] < documents[j][field]

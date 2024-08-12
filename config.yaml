@@ -19,7 +19,7 @@ QueryChildren: |
   WHERE parent = 'NOTE_ID'
     AND type != 'log'
   GROUP BY type
-  ORDER BY created
+  ORDER BY Status, created
 QueryChildrenLayout: table
 QueryHomepage: |
   SELECT
