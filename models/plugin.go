@@ -3,6 +3,7 @@ package models
 
 import (
 	"fmt"
+	"bytes"
 	"html"
 	"os/exec"
 	"strings"
@@ -19,9 +20,12 @@ func (p Plugin) Render(plug, value string) string {
 		// get output of `git show value`
 		cmd := exec.Command("git", "show", value)
 		out += "$ git show " + value + "\n"
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
 		output, err := cmd.Output()
+
 		if err != nil {
-			out += html.EscapeString(strings.TrimSpace(fmt.Sprintf("%s", err)))
+			out += html.EscapeString(strings.TrimSpace(fmt.Sprintf("%s: %s", err, stderr.String())))
 		}
 		// make output safe for embedding in HTML:
 		// - escape HTML entities
