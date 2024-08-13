@@ -2,6 +2,7 @@
 package models
 
 import (
+	"fmt"
 	"html"
 	"os/exec"
 	"strings"
@@ -20,7 +21,7 @@ func (p Plugin) Render(plug, value string) string {
 		out += "$ git show " + value + "\n"
 		output, err := cmd.Output()
 		if err != nil {
-			return "Error executing git show"
+			return fmt.Sprintf("Error executing git show %s", err)
 		}
 		// make output safe for embedding in HTML:
 		// - escape HTML entities
