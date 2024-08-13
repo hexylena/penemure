@@ -48,6 +48,7 @@ jobs:
           pwd
           ls
           git status
+          git log
           git show 73b2d93a58f9f6d3e18f071a8149cac849789938
       - name: Export example site
         run: ./pm export
