@@ -21,7 +21,7 @@ func (p Plugin) Render(plug, value string) string {
 		out += "$ git show " + value + "\n"
 		output, err := cmd.Output()
 		if err != nil {
-			return fmt.Sprintf("Error executing git show %s", err)
+			out += html.EscapeString(strings.TrimSpace(fmt.Sprintf("%s", err)))
 		}
 		// make output safe for embedding in HTML:
 		// - escape HTML entities
