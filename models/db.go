@@ -383,6 +383,8 @@ func (gn *GlobalNotes) QueryToHtml(query, display string) string {
 		return gn.QueryDisplayKanban(ans, results)
 	case "list":
 		return gn.QueryDisplayList(ans, results)
+	case "gallery":
+		return gn.QueryDisplayGallery(ans, results)
 	default:
 		return gn.QueryDisplayTable(ans, results)
 	}
@@ -468,6 +470,36 @@ func (gn *GlobalNotes) QueryDisplayList(ans *sqlish.SqlLikeQuery, results *sqlis
 			html += "</li>\n"
 		}
 		html += "</ul>"
+	}
+	return html
+}
+
+func (gn *GlobalNotes) QueryDisplayGallery(ans *sqlish.SqlLikeQuery, results *sqlish.GroupedResultSet) string {
+	// Render results as table
+	html := `<div class="gallery">`
+	headers := ans.GetFields()
+
+	for _, rs := range results.Rows {
+		header := "Results"
+		if rs.Title != "__default__" {
+			// Title Case, Capitalise Each Word
+			header = strings.ToUpper(rs.Title[:1]) + rs.Title[1:]
+			html += fmt.Sprintf("<div><b>%s</b></div>", header)
+		}
+		html += `<div style="display: flex">`
+		for _, row := range rs.Data {
+			html += `<div class="card">`
+			if row[0] != "" {
+				html += fmt.Sprintf(`<img class="cover" src="%s">`, row[0])
+			// } else {
+				// todo: somehow get the emoji
+				// html += fmt.Sprintf(`<span class="cover">%s</span>`, row[0])
+			}
+
+			html += gn.AutoFmt(headers[1], row[1])
+			html += "</div>\n"
+		}
+		html += "</div>"
 	}
 	return html
 }

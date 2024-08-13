@@ -34,7 +34,8 @@ type SqlLikeQuery struct {
 var logger = pml.L("models")
 
 func (slq *SqlLikeQuery) String() string {
-	return fmt.Sprintf("Select=[%s] From=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%s] Limit=[%d]", slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
+	return fmt.Sprintf("Select=[%s] From=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%v] Limit=[%d]", 
+	slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
 }
 
 func ParseSqlQuery(query string) *SqlLikeQuery {
@@ -74,8 +75,8 @@ func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, whe
 	if strings.Contains(where, "!=") {
 		left := strings.TrimSpace(strings.Split(where, "!=")[0])
 		right := strings.Split(where, "!=")[1]
-		right = strings.Replace(right, "\"", "", -1)
-		right = strings.Replace(right, "'", "", -1)
+		right = strings.ReplaceAll(right, "\"", "")
+		right = strings.ReplaceAll(right, "'", "")
 		right = strings.TrimSpace(right)
 
 		if document[left] != right {
@@ -88,8 +89,8 @@ func (slq *SqlLikeQuery) whereDocumentIsIncluded(document map[string]string, whe
 	} else if strings.Contains(where, "=") {
 		left := strings.TrimSpace(strings.Split(where, "=")[0])
 		right := strings.Split(where, "=")[1]
-		right = strings.Replace(right, "\"", "", -1)
-		right = strings.Replace(right, "'", "", -1)
+		right = strings.ReplaceAll(right, "\"", "")
+		right = strings.ReplaceAll(right, "'", "")
 		right = strings.TrimSpace(right)
 		// fmt.Printf("Halves: «%s» «%s»", left, right)
 		// fmt.Println("Comparing: ", document[left], right)
