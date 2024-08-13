@@ -43,6 +43,12 @@ jobs:
         run: go version
       - name: Build project
         run: go build
+      - name: Debugging
+        run: |
+          pwd
+          ls
+          git status
+          git show 73b2d93a58f9f6d3e18f071a8149cac849789938
       - name: Export example site
         run: ./pm export
       - name: Upload artifact
