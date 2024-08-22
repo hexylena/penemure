@@ -111,8 +111,8 @@ func processNoteSubmission(formData url.Values) *pmm.Note {
 		note.Meta = make([]*pmm.Meta, len(ok))
 		for i, m := range ok {
 			note.Meta[i] = &pmm.Meta{
-				Type: m,
-				Icon: formData["m_icon"][i],
+				Type:  m,
+				Icon:  formData["m_icon"][i],
 				Value: formData["m_valu"][i],
 				Title: formData["m_titl"][i],
 			}

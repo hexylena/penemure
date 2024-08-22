@@ -21,7 +21,9 @@ type HxpmConfig struct {
 	ExportDirectory      string
 	ExportUseGoogleFonts bool
 	ExportPrefix         string
-	ServerBindAddr       string
+	ServerBindHost       string
+	ServerBindPort       string
+	ServerBindTailscale  bool
 
 	// Queries
 	QueryHomepage       string
@@ -42,7 +44,9 @@ func setDefaults() {
 	viper.SetDefault("ExportDirectory", "./export")
 	viper.SetDefault("ExportUseGoogleFonts", false)
 	viper.SetDefault("ExportPrefix", "/")
-	viper.SetDefault("ServerBindAddr", "127.0.0.1:3333")
+	viper.SetDefault("ServerBindHost", "127.0.0.1")
+	viper.SetDefault("ServerBindPort", "3333")
+	viper.SetDefault("ServerBindTailscale", false)
 
 	viper.SetDefault("QueryHomepage", "select title, created, Author from notes where parent is null GROUP BY type ORDER BY created")
 	viper.SetDefault("QueryChildren", "select title, created, Author from notes where parent = 'NOTE_ID' group by type order by created")
@@ -84,7 +88,9 @@ func Init() HxpmConfig {
 		ExportDirectory:      viper.GetString("ExportDirectory"),
 		ExportUseGoogleFonts: viper.GetBool("ExportUseGoogleFonts"),
 		ExportPrefix:         viper.GetString("ExportPrefix"),
-		ServerBindAddr:       viper.GetString("ServerBindAddr"),
+		ServerBindHost:       viper.GetString("ServerBindHost"),
+		ServerBindPort:       viper.GetString("ServerBindPort"),
+		ServerBindTailscale:  viper.GetBool("ServerBindTailscale"),
 
 		QueryHomepage:       viper.GetString("QueryHomepage"),
 		QueryHomepageLayout: viper.GetString("QueryHomepageLayout"),

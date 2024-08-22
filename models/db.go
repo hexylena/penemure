@@ -491,7 +491,7 @@ func (gn *GlobalNotes) QueryDisplayGallery(ans *sqlish.SqlLikeQuery, results *sq
 			html += `<div class="card">`
 			if row[0] != "" {
 				html += fmt.Sprintf(`<img class="cover" src="%s">`, row[0])
-			// } else {
+				// } else {
 				// todo: somehow get the emoji
 				// html += fmt.Sprintf(`<span class="cover">%s</span>`, row[0])
 			}

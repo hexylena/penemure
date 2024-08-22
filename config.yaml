@@ -10,7 +10,9 @@ about: |
 #   Path: ./projects
 ExportUseGoogleFonts: true
 ExportPrefix: /project-management/
-ServerBindAddr: "0.0.0.0:3333"
+ServerBindHost: "0.0.0.0"
+ServerBindPort: "80"
+ServerBindTailscale: true
 
 QueryChildren: |
   SELECT

@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"tailscale.com/tsnet"
 
 	// "github.com/go-chi/render"
 	"net/http"
@@ -52,17 +53,38 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 	r := chi.NewRouter()
 	r.Mount(config.ExportPrefix, MainRoutes())
 
-	if config.ExportPrefix != "/" {
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, config.ExportPrefix, http.StatusFound)
-		})
+	if config.ServerBindTailscale {
+		serve_tsnet(r)
+	} else {
+		serve_http(r)
 	}
-	r.NotFound(serve_404)
-	logger.Info("Starting server", "addr", "http://"+config.ServerBindAddr)
-	err := http.ListenAndServe(config.ServerBindAddr, r)
+}
+
+func serve_http(r *chi.Mux) {
+	bind := fmt.Sprintf("http://%s:%s", config.ServerBindHost, config.ServerBindPort)
+	logger.Info("Starting server", "addr", bind)
+	err := http.ListenAndServe(bind, r)
 	if err != nil {
 		logger.Error("Error", "err", err)
 	}
+}
+
+func serve_tsnet(r *chi.Mux) {
+	s := tsnet.Server{Hostname: "hxpm"}
+	defer s.Close()
+
+	// Have the tsnet server listen on :8080
+	ln, err := s.Listen("tcp", ":"+config.ServerBindPort)
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+	defer ln.Close()
+
+	err = http.Serve(ln, r)
+	if err != nil {
+		logger.Error("Error", "err", err)
+	}
+
 }
 
 func urlToContext(tc *templateContext, r *http.Request) {
@@ -183,6 +205,14 @@ func MainRoutes() chi.Router {
 	// fmt.Println(filesDir)
 	httpfs := http.FS(templateFS)
 	FileServer(r, "/assets", config.ExportPrefix, httpfs)
+
+	if config.ExportPrefix != "/" {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, config.ExportPrefix + "index.html", http.StatusFound)
+		})
+	}
+	r.NotFound(serve_404)
+
 	return r
 }
 

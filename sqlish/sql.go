@@ -34,8 +34,8 @@ type SqlLikeQuery struct {
 var logger = pml.L("models")
 
 func (slq *SqlLikeQuery) String() string {
-	return fmt.Sprintf("Select=[%s] From=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%v] Limit=[%d]", 
-	slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
+	return fmt.Sprintf("Select=[%s] From=[%s] Where=[%s] GroupBy=[%s] OrderBy=[%v] Limit=[%d]",
+		slq.Select, slq.From, slq.Where, slq.GroupBy, slq.OrderBy, slq.Limit)
 }
 
 func ParseSqlQuery(query string) *SqlLikeQuery {
