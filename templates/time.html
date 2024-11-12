@@ -14,7 +14,7 @@
 	{{ if .Note }}
 	<form method="post">
 		<fieldset>
-			<legend>Add Log</legend>
+			<legend>Edit Current Log</legend>
 
 			<label for="name">Name</label>
 			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ .Note.Title }}">
@@ -35,8 +35,13 @@
 			<input id="note_id" type="hidden" name="note_id" value="{{ .Note.NoteId }}">
 			<label for="tags">tags</label>
 			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="{{ .Note.GetL "Tags" }}">
+
+			<label for="start">Start Time</label>
 			<input type="time" id="start" name="start" value="{{ (.Note.GetStartEndTime "start").Format "15:04:05"  }}">
-			<span id="runtime">TODO</span>
+
+			<label for="runtime">Duration</label>
+			<input type="text" id="runtime" name="runtime" value="TODO">
+			
 			<input id="action" type="hidden" name="action" value="stop">
 			<button type="submit">Stop</button>
 		</fieldset>
@@ -79,6 +84,8 @@
 			<input type="time" id="start" name="start">
 			<span id="runtime">1:00:00</span>
 			<input id="action" type="hidden" name="action" value="start">
+
+			<br>
 			<button type="submit">Start</button>
 		</fieldset>
 	</form>
@@ -135,6 +142,20 @@
 		plugins: ['remove_button'],
 		create: true,
 	});
+
+	// from go
+	var is_running = {{ if .Note }}true{{ else }}false{{ end }};
+
+	if (! is_running) {
+		const start = document.getElementById("start");
+		var now = new Date();
+		start.value = now.toTimeString().substring(0,5);
+
+		setTimeout(function(){
+			var now = new Date();
+			start.value = now.toTimeString().substring(0,5);
+		}, 5000);
+	}
 
 	</script>
 

@@ -1,9 +1,7 @@
 ---
 title: Hexylena's Project Management Tool
 about: |
-  DROP AND RUN
-
-  DO NOT USE.
+  <b style="color:red">DROP AND RUN</b><br><br>DO NOT USE.
 
 # adapter: fs # or 'git' in the future
 # AdapterConfig:

@@ -49,15 +49,15 @@ func processTimeSubmission(formData url.Values) {
 		note.Title = name
 	}
 
-	if ok := formData["tags"]; len(ok) > 0 {
-		tags := strings.Split(formData["tags"][0][1:], ",")
+	if ok := formData["tags"]; len(ok) > 0 && len(strings.TrimSpace(ok[0])) > 0 {
+		tags := strings.Split(ok[0][1:], ",")
 		for _, tag := range tags {
 			note.AddTag(tag)
 		}
 	}
 
 	if ok := formData["notes"]; len(ok) > 0 {
-		text := formData["notes"][0]
+		text := ok[0]
 		note.Blocks = pmd.MdToBlocks([]byte(text))
 	}
 
