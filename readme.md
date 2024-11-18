@@ -2,13 +2,6 @@
 
 the one system to replace all of the rest. (ofc it's not, it's just option #15.)
 
-## Naming Ideas
-
-- pm
-- hpm / hxpm
-- backburn
-- -TŁAH
-
 ## Explicit Target Audience
 
 Academic weapons :sparkle:
@@ -76,6 +69,10 @@ Academic weapons :sparkle:
     - [x] Easily enter a task and start it
     - [ ] Back date time
     - [x] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks', just a 'quick subtask')
+
+- [ ] Server
+    - [ ] Using this from a folder sucks, it needs a permanently online server
+    - [ ] Should this be per-user? Or?
 
 - [ ] People
     - [ ] Allow assigning people without them existing in the system, just @ them. If a @{user} exists, use that for avatar/etc. (v0)
