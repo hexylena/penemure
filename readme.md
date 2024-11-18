@@ -55,10 +55,11 @@ Academic weapons :sparkle:
 - [x] tasks (v0)
     - [x] title (v0)
     - [x] description (v0)
-    - [ ] start/end (exact or relative to project, e.g. M1/Q1) (v0)
+    - [ ] start/end (exact or relative to project, e.g. M1/Q1) (v1)
+    - [ ] Attachments/FILES (v0)
     - [x] tags (v0)
     - [x] assignees (v0)
-    - [ ] children (subtasks) (v0)
+    - [x] children (subtasks) (v0)
     - [x] blocking/blocked-by (v0)
     - [x] projects: multiple selection (v0)
     - [ ] in project: Group of Tasks - ibid, does it mean like, lists within a project? can this be modelled as a task?
@@ -71,10 +72,10 @@ Academic weapons :sparkle:
     - [ ] if we didn't want a 'full' version of properly calendered repeating events we could go for the 'cheap' version of schedule N future copies of this, without the ability to edit one/all future events
     - [ ] That's calendaring. That's just fucking calendaring, you're insane. stop it.
 
-- [ ] Time Tracking (v1)
-    - [ ] Easily enter a task and start it
+- [x] Time Tracking (v1)
+    - [x] Easily enter a task and start it
     - [ ] Back date time
-    - [ ] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks', just a 'quick subtask')
+    - [x] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks', just a 'quick subtask')
 
 - [ ] People
     - [ ] Allow assigning people without them existing in the system, just @ them. If a @{user} exists, use that for avatar/etc. (v0)
