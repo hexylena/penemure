@@ -61,7 +61,7 @@ func Serve(_gn *pmm.GlobalNotes, _ga *pma.TaskAdapter, _config *pmc.HxpmConfig, 
 }
 
 func serve_http(r *chi.Mux) {
-	bind := fmt.Sprintf("http://%s:%s", config.ServerBindHost, config.ServerBindPort)
+	bind := fmt.Sprintf("%s:%s", config.ServerBindHost, config.ServerBindPort)
 	logger.Info("Starting server", "addr", bind)
 	err := http.ListenAndServe(bind, r)
 	if err != nil {

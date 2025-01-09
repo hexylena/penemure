@@ -9,8 +9,8 @@ about: |
 ExportUseGoogleFonts: true
 ExportPrefix: /project-management/
 ServerBindHost: "0.0.0.0"
-ServerBindPort: "80"
-ServerBindTailscale: true
+ServerBindPort: "8080"
+ServerBindTailscale: false
 
 QueryChildren: |
   SELECT
