@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.relative_path }} | {{ Config.Title | safe }}{% endblock %}
+
+{% block main %}
+<div>
+	-- if note.GetCover --
+	<img src="-- .Note.GetCover --" class="cover">
+	-- end --
+</div>
+<hgroup>
+	<h1>
+		{% if note.data.attachments and note.data.attachments[0].type %}
+		{{ blob(note.data.attachments[0]) }}
+		{% endif %}
+		{{ note.data.title }}
+	</h1>
+</hgroup>
+
+<table id="metadata">
+	<caption>Metadata</caption>
+	<thead>
+		<tr>
+			<th scope="col">Key</th>
+			<th scope="col">Value</th>
+		</tr>
+	</thead>
+
+	<tbody>
+
+	<tr>
+		<td scope="row">URN</td>
+		<td>{{ note.urn.urn }}</td>
+	</tr>
+
+	{% for tag in note.data.tags %}
+	<tr>
+		<td scope="row">{{ tag.html_icon }} {{ tag.title }}</td>
+		<td>{{ tag.render() }}</td>
+	</tr>
+	{% endfor %}
+
+	<tr>
+		<td scope="row">📅 Created</td>
+		<td>{{ note.data.created }}</td>
+	</tr>
+
+	<tr>
+		<td scope="row">📅 Modified</td>
+		<td>{{ note.data.updated }}</td>
+	</tr>
+
+	</tbody>
+</table>
+
+{% if note.data.contents %}
+{% for b in note.data.contents %}
+{{ b.render() }}
+{% endfor %}
+{% endif %}
+
+{% if note.data.attachments %}
+<h3>Attachments</h3>
+{% for att in note.data.attachments %}
+{{ att }}
+{% endfor %}
+{% endif %}
+
+{% endblock %}

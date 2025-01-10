@@ -1,5 +1,7 @@
 from boshedron.store import FsBackend, OverlayEngine, StoredThing
-from boshedron.note import Note, MarkdownBlock, UnresolvedReference, LifecycleEnum, UniformReference
+from boshedron.note import Note, MarkdownBlock
+from boshedron.tags import LifecycleEnum
+from boshedron.refs import UniformReference, UnresolvedReference
 from boshedron.apps import *
 from boshedron.main import *
 from datetime import datetime

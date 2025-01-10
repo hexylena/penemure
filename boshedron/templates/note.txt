@@ -1,0 +1,99 @@
+{{ note }}
+
+
+{% block badge %}
+	<span class="badge">
+		{{ .GetIconHtml }}
+		{{ .Title }}
+	</span>
+{% endblock %}
+
+
+{% block title %}
+	{{ .Note.Title }} | {{ .Config.Title }}
+{% endblock %}
+
+{% block main %}
+
+
+<table id="metadata">
+	<caption>Metadata</caption>
+	<thead>
+		<tr>
+			<th scope="col">Key</th>
+			<th scope="col">Value</th>
+		</tr>
+	</thead>
+
+	<tbody>
+	{{ if .Note.Projects }}
+	<tr>
+		<td scope="row">🏗 Projects</td>
+		<td>
+			{{ range .Note.Projects }}
+			<a href="{{ . }}.html">
+				{{ template "badge" ($.Gn.GetNote .) }}
+			</a>
+			{{ end }}
+		</td>
+	</tr>
+	{{ end }}
+
+	{{ if .Note.HasParents }}
+	<tr>
+		<td scope="row">👨‍👩‍👧‍👦 Parents</td>
+		<td>
+			<ul>
+				{{ range .Note.Parents }}
+				<li>
+					<a href="{{ . }}.html">
+					{{ $.Gn.GetNote . }}
+					</a>
+				</li>
+				{{ end }}
+			</ul>
+		</td>
+	</tr>
+	{{ end }}
+
+	{{ range $key, $value := .Note.Meta }}
+	{{ if ne .Title "" }}
+	<tr>
+		<td scope="row">{{ $value.GetIconHtml }} {{ $value.Title }}</td>
+		<td>{{ $.Gn.AutoFmtMeta $value }}</td>
+	</tr>
+	{{ end }}
+	{{ end }}
+
+	<tr>
+		<td scope="row">Created</td>
+		<td>{{ $.Gn.FmtTimeI .Note.CreatedAt }}</td>
+	</tr>
+
+	{{ if ne .Note.CreatedAt .Note.ModifiedAt }}
+	<tr>
+		<td scope="row">Modified</td>
+		<td>{{ $.Gn.FmtTimeI .Note.ModifiedAt }}</td>
+	</tr>
+	{{ end }}
+	</tbody>
+</table>
+
+{{ if .Note.HasBlocks }}
+	<h2>Contents</h2>
+
+	{{ range .Note.Blocks }}
+		{{ $.Gn.BlockToHtml3 . }}
+	{{ end }}
+{{ end }}
+
+
+
+{{ if .Note.GetProjectMembers .Gn }}
+	<h2>Children</h2>
+	{{ .Gn.GetChildrenFormatted .Note.NoteId .Config }}
+{{ end }}
+
+{{end}}
+
+

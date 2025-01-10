@@ -2,11 +2,13 @@ import json
 import shutil
 import hashlib
 import os
+from sqlglot.executor import execute
 import glob
 import uuid
 from typing import Dict
 from typing import Optional, Union
-from .note import Note, UniformReference
+from .note import Note
+from .refs import UniformReference
 from .apps import ModelFromAttr, Account
 from pydantic import BaseModel, Field, computed_field
 from pydantic_core import to_json, from_json
