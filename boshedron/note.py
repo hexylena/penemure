@@ -12,6 +12,7 @@ from zoneinfo import ZoneInfo
 import uuid
 from .tags import *
 from .refs import *
+from .table import *
 
 
 
@@ -21,8 +22,16 @@ class MarkdownBlock(BaseModel):
     author: UniformReference
     type: str = 'markdown'
 
-    def render(self):
-        page_content = markdown.markdown(self.contents, extensions=['pymdownx.superfences'])
+    def render(self, oe):
+        if self.type == 'markdown':
+            page_content = markdown.markdown(self.contents, extensions=['pymdownx.superfences'])
+        elif self.type.startswith('query'):
+            res = oe.query(self.contents)
+
+            if self.type == 'query-table':
+                page_content = render_table(res)
+            elif self.type == 'query-kanban':
+                page_content = render_kanban(res)
 
         return f'<div class="block"><div class="contents">{page_content}</div><div class="author">{self.author.urn}</div></div>'
 
@@ -40,6 +49,7 @@ class Note(BaseModel):
     namespace: Union[str, None] = None
     type: str = 'note'
     attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)
+    template: str = 'note.html'
 
     def touch(self):
         self.updated = datetime.now()
@@ -118,6 +128,5 @@ class Note(BaseModel):
             updated_attachments.append(blob)
         self.attachments = updated_attachments
 
-    @property
     def suggested_ident(self) -> Union[str, None]:
         return None

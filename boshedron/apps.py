@@ -12,6 +12,14 @@ class Project(Note):
     blocking: Optional[list[str]] = None
 
 
+class Page(Note):
+    type: str = 'page'
+    page_path: str
+
+    def suggested_ident(self):
+        return '../' + self.page_path
+
+
 class Task(Note):
     type: str = 'task'
     blocking: Optional[list[str]] = None
@@ -40,12 +48,11 @@ class Account(Note):
     username: str
     sameAs: Optional[list[Reference]] = None
 
-    @property
     def suggested_ident(self):
         return self.username
 
 class AccountGithubDotCom(Account):
-    namespace: Optional[str] = os.path.join('gh', 'github.com')
+    namespace: Optional[str] = 'gh'
 
     def update(self):
         # TODO: if the file is too recently updated, don't hit the API again.
@@ -60,6 +67,12 @@ def ModelFromAttr(data):
         return Project
     elif data['type'] == 'log':
         return Log
+    elif data['type'] == 'account':
+        if data['namespace'] == 'gh':
+            return AccountGithubDotCom
+        return Account
+    elif data['type'] == 'page':
+        return Page
     elif data['type'] == 'task':
         return Task
     elif data['type'] == 'file':

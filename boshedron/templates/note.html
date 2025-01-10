@@ -55,7 +55,7 @@
 
 {% if note.data.contents %}
 {% for b in note.data.contents %}
-{{ b.render() }}
+{{ b.render(oe) }}
 {% endfor %}
 {% endif %}
 
@@ -65,5 +65,12 @@
 {{ att }}
 {% endfor %}
 {% endif %}
+
+<hr/>
+
+<details>
+	<summary>Queryable fields</summary>
+	<pre>{{ note.clean_dict() }}
+</details>
 
 {% endblock %}

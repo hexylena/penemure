@@ -1,4 +1,5 @@
 import json
+from sqlglot import parse_one, exp
 import shutil
 import hashlib
 import os
@@ -58,7 +59,7 @@ class StoredThing(StoredBlob):
     @computed_field
     @property
     def relative_path(self) -> str:
-        return self.urn.path
+        return self.identifier.path
 
     def ref(self) -> UniformReference:
         return self.urn
@@ -74,6 +75,7 @@ class StoredThing(StoredBlob):
             if k in d:
                 del d[k]
 
+        # TODO: shadowing?
         for tag in self.data.tags:
             d[tag.key] = tag.render()
 
@@ -82,8 +84,10 @@ class StoredThing(StoredBlob):
     @computed_field
     @property
     def identifier(self) -> UniformReference:
-        if self.data.suggested_ident:
-            return UniformReference(app=self.urn.app, namespace=self.urn.namespace, ident=self.data.suggested_ident)
+        print(type(self.data))
+
+        if self.data.suggested_ident() is not None:
+            return UniformReference(app=self.urn.app, namespace=self.urn.namespace, ident=self.data.suggested_ident())
         return self.urn
 
     @classmethod
@@ -210,7 +214,26 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             backend.save()
 
-    def query(self, query, group_by=None):
+    def search(self, **kwargs):
+        results = []
+        for st in self.all():
+            if not isinstance(st, StoredThing): continue
+
+            add = True
+            for k, v in kwargs.items():
+                if not hasattr(st.data, k):
+                    add = False
+                    continue
+
+                print(st.urn, k, v, '==', getattr(st.data, k))
+                if getattr(st.data, k) != v:
+                    add = False
+            print(add)
+            if add:
+                results.append(st)
+        return results
+
+    def query(self, query):
         notes = [x.clean_dict() 
                  for x in self.all()
                  if isinstance(x, StoredThing)]
@@ -238,8 +261,38 @@ class OverlayEngine(BaseModel):
                 tables[k] = []
         tables = {k: fix_tags(v) for k, v in tables.items()}
 
-        results = execute(query, tables=tables)
-        if group_by:
-            raise Exception("Not Implemented")
+        def groupless_behaviour(node):
+            if isinstance(node, exp.Group):
+                return None
+            return node
 
+        res = parse_one(query)
+        desired_groups = list(res.find_all(exp.Group))
+
+        # if we don't want any groupings, just return as-is
+        if len(desired_groups) == 0:
+            return execute(query, tables=tables)
+
+        # otherwsie drop the group query
+        groupless_query = res.transform(groupless_behaviour).sql()
+        # and pull out our desired groups
+        desired_groups = desired_groups[0].sql().replace('GROUP BY ', '').split(',')
+
+        preresults = execute(groupless_query, tables=tables)
+        results = {}
+
+        def select_group_key(row, columns, wanted_cols):
+            print(columns, wanted_cols)
+            indexes = [row[i] for (i, x)
+                in enumerate(columns)
+                if x in wanted_cols]
+            return '|'.join(indexes)
+
+
+        for row in preresults.rows:
+            key = select_group_key(row, preresults.columns, desired_groups)
+            print('key=', key)
+            if key not in results:
+                results[key] = []
+            results[key].append(row)
         return results

@@ -34,6 +34,7 @@ class UniformReference(BaseModel, frozen=True):
 
     @classmethod
     def from_path(cls, end: str):
+        print(end)
         app, rest = end.split('/', 1)
         if os.path.sep in rest:
             namespace, ident = rest.split('/', 1)
