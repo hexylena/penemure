@@ -22,7 +22,6 @@ class StoredThing(BaseModel):
     @computed_field
     @property
     def relative_path(self) -> str:
-        print(self.data.type, self.identifier)
         return os.path.join(self.data.type, self.identifier)
 
     def ref(self) -> Reference:
@@ -67,6 +66,9 @@ class StoredThing(BaseModel):
             updated=os.path.getmtime(full_path),
             size=os.path.getsize(full_path)
         )
+
+    def export(self):
+        return self.data.export()
 
 
 class FsBackend(BaseModel):
