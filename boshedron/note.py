@@ -1,4 +1,6 @@
 import hashlib
+import markdown
+import pymdownx.superfences
 import magic
 import requests
 import tempfile
@@ -9,6 +11,46 @@ from typing import Optional, Union, Any
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from enum import Enum
+import uuid
+
+
+class UniformReference(BaseModel, frozen=True):
+    app: str
+    namespace: Optional[str] = None
+    ident: str = Field(default_factory=lambda : str(uuid.uuid4()))
+
+    def __repr__(self):
+        return self.urn
+
+    def _assemble(self) -> list[str]:
+        parts = [self.app]
+        if self.namespace:
+            parts.append(self.namespace)
+        parts.append(self.ident)
+        return parts
+
+    @property
+    def url(self) -> str:
+        return '/'.join(self._assemble())
+
+    @property
+    def urn(self) -> str:
+        parts = ['urn', 'boshedron'] + self._assemble()
+        return ':'.join(parts)
+
+    @property
+    def path(self) -> str:
+        return os.path.join(*self._assemble())
+
+    @classmethod
+    def from_path(cls, end: str):
+        app, rest = end.split('/', 1)
+        if os.path.sep in rest:
+            namespace, ident = rest.split('/', 1)
+        else:
+            namespace = None
+            ident = rest
+        return cls(app=app, namespace=namespace, ident=ident)
 
 
 class LifecycleEnum(str, Enum):
@@ -20,22 +62,37 @@ class LifecycleEnum(str, Enum):
     done = 'done'
     canceled = 'canceled'
 
+    def icon(self):
+        if self == LifecycleEnum.done:
+            return "✅"
+        elif self == LifecycleEnum.inprogress or self == LifecycleEnum.planning:
+            return "🚧"
+        elif self == LifecycleEnum.blocked:
+            return "🚫"
+        else:
+            return "📝"
+
 
 class MarkdownBlock(BaseModel):
     contents: str
-    author: str
+    author: UniformReference
     type: str = 'markdown'
+
+    def render(self):
+        page_content = markdown.markdown(self.contents, extensions=['pymdownx.superfences'])
+
+        return f'<div class="block"><div class="contents">{page_content}</div><div class="author">{self.author.urn}</div></div>'
 
 # TODO: probably should be more capable? URN style?
 class Reference(BaseModel):
-    id: str
+    id: UniformReference
 
 class BlobReference(Reference):
     type: str
 
     @property
     def ext(self):
-        if self.type == 'application/png':
+        if self.type == 'image/png':
             return '.png'
         return ".xyz"
 
@@ -126,14 +183,7 @@ class Note(BaseModel):
         elif self.type == "task":
             tag = self.has_tag('status')
             if len(tag) == 1 and isinstance(tag, LifecycleTag):
-                if tag.values[0] == LifecycleEnum.done:
-                    return "✅"
-                elif tag.values[0] == LifecycleEnum.inprogress:
-                    return "🚧"
-                elif tag.values[0] == LifecycleEnum.blocked:
-                    return "🚫"
-                else:
-                    return "📝"
+                return tag.values[0].icon()
         elif self.type == "account":
             return "👩‍🦰"
         elif self.type == 'note':
@@ -191,7 +241,7 @@ class Note(BaseModel):
             shutil.copy(attachment.path, path)
 
             blob = BlobReference(
-                id=os.path.join('file', 'blob', file_hash),
+                id=UniformReference(app='file', namespace='blob', ident=file_hash),
                 type=magic.from_file(path, mime=True)
             )
             updated_attachments.append(blob)

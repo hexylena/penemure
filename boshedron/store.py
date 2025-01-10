@@ -6,15 +6,14 @@ import glob
 import uuid
 from typing import Dict
 from typing import Optional, Union
-from .note import Note, Reference
+from .note import Note, UniformReference
 from .apps import ModelFromAttr, Account
 from pydantic import BaseModel, Field, computed_field
 from pydantic_core import to_json, from_json
 
 
-class StoredThing(BaseModel):
-    data: Union[Note, Account]
-    ident: str = Field(default_factory=lambda : str(uuid.uuid4()))
+class StoredBlob(BaseModel):
+    urn: UniformReference
     created: Optional[float] = None
     updated: Optional[float] = None
     size: Optional[int] = None
@@ -22,59 +21,83 @@ class StoredThing(BaseModel):
     @computed_field
     @property
     def relative_path(self) -> str:
-        return os.path.join(self.data.type, self.identifier)
+        return self.urn.path
 
-    def ref(self) -> Reference:
-        return Reference(id=self.identifier)
+    def ref(self) -> UniformReference:
+        return self.urn
 
     def save(self, backend):
         backend.save(self)
 
     @computed_field
     @property
-    def identifier(self) -> str:
-        if self.data.namespace:
-            if self.data.suggested_ident:
-                return os.path.join(self.data.namespace, self.data.suggested_ident)
-            return os.path.join(self.data.namespace, self.ident)
-        elif self.data.suggested_ident:
-            return self.data.suggested_ident
-        return self.ident
+    def identifier(self) -> UniformReference:
+        return self.urn
 
     @classmethod
     def realise_from_path(cls, base, full_path):
-        with open(full_path, 'r') as f:
-            # here we need to be smarter about which class we're using?
-            data = from_json(f.read())
-            res = ModelFromAttr(data).model_validate(data)
-
         end = full_path.replace(base + os.path.sep, '')
-        _app, rest = end.split('/', 1)
-        if os.path.sep in rest:
-            namespace, ident = rest.split('/', 1)
-        else:
-            namespace = None
-            ident = rest
-
-        if res.namespace != namespace:
-            print(f"Odd, {namespace} != {res.namespace}")
+        urn = UniformReference.from_path(end)
 
         return cls(
-            data=res,
-            ident=ident,
+            urn=urn,
             created=os.path.getctime(full_path),
             updated=os.path.getmtime(full_path),
             size=os.path.getsize(full_path)
         )
 
-    def export(self):
-        return self.data.export()
+
+class StoredThing(StoredBlob):
+    data: Union[Note, Account]
+    created: Optional[float] = None
+    updated: Optional[float] = None
+    size: Optional[int] = None
+
+    @computed_field
+    @property
+    def relative_path(self) -> str:
+        return self.urn.path
+
+    def ref(self) -> UniformReference:
+        return self.urn
+
+    def save(self, backend):
+        backend.save(self)
+
+    @computed_field
+    @property
+    def identifier(self) -> UniformReference:
+        if self.data.suggested_ident:
+            return UniformReference(app=self.urn.app, namespace=self.urn.namespace, ident=self.data.suggested_ident)
+        return self.urn
+
+    @classmethod
+    def realise_from_path(cls, base, full_path):
+        end = full_path.replace(base + os.path.sep, '')
+        urn = UniformReference.from_path(end)
+        print(end, repr(urn))
+
+        with open(full_path, 'r') as f:
+            # here we need to be smarter about which class we're using?
+            data = from_json(f.read())
+            res = ModelFromAttr(data).model_validate(data)
+
+        if res.namespace != urn.namespace:
+            print(f"Odd, {urn.namespace} != {res.namespace}")
+
+        return cls(
+            urn=urn,
+            data=res,
+            created=os.path.getctime(full_path),
+            updated=os.path.getmtime(full_path),
+            size=os.path.getsize(full_path)
+        )
 
 
 class FsBackend(BaseModel):
     name: str
     path: str
-    data: Dict[str, StoredThing] = Field(default=dict)
+    data: Dict[UniformReference, Union[StoredThing, StoredBlob]] = Field(default=dict())
 
     def save_item(self, stored_thing: StoredThing):
         """Save updates to an existing file."""
@@ -91,16 +114,21 @@ class FsBackend(BaseModel):
 
     def save(self):
         for v in self.data.values():
-            self.save_item(v)
+            if isinstance(v, StoredThing):
+                self.save_item(v)
 
-    def find(self, identifier: str):
+    def find(self, identifier: UniformReference) -> Union[StoredThing, StoredBlob]:
         return self.data[identifier]
 
-    def has(self, identifier: str):
+    def get_path(self, identifier: UniformReference):
+        st = self.find(identifier)
+        return os.path.join(self.path, st.relative_path)
+
+    def has(self, identifier: UniformReference):
         return identifier in self.data
 
-    def resolve(self, ref: Reference) -> StoredThing:
-        return self.find(ref.id)
+    def resolve(self, ref: UniformReference) -> Union[StoredThing, StoredBlob]:
+        return self.find(ref)
 
     def load(self):
         self.data = {}
@@ -109,9 +137,10 @@ class FsBackend(BaseModel):
                 continue
 
             if 'file/blob/' in path:
-                continue
+                st = StoredBlob.realise_from_path(self.path, path)
+            else:
+                st = StoredThing.realise_from_path(self.path, path)
 
-            st = StoredThing.realise_from_path(self.path, path)
             self.data[st.identifier] = st
 
 
@@ -122,7 +151,7 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             backend.load()
 
-    def find(self, identifier: str):
+    def find(self, identifier: UniformReference):
         # Find the first version of this from all of our backends, to enable shadowing.
         for backend in self.backends:
             try:
@@ -131,15 +160,24 @@ class OverlayEngine(BaseModel):
                 pass
         return None
 
+    def get_path(self, st: Union[StoredThing, StoredBlob]):
+        for backend in self.backends:
+            try:
+                return backend.get_path(st.identifier)
+            except KeyError:
+                pass
+
     def all(self):
+        return [self.find(k) for k in self.keys()]
+
+    def keys(self):
         all_keys = set()
         for backend in self.backends:
             all_keys.update(backend.data.keys())
-
-        return [self.find(k) for k in all_keys]
+        return all_keys
 
     def add(self, note: Note) -> StoredThing:
-        st = StoredThing(data=note)
+        st = StoredThing(data=note, urn=UniformReference(app=note.type, namespace=note.namespace))
         self.save_item(st)
         return st
 

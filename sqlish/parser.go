@@ -90,7 +90,7 @@ func parseQuery(query string) *SqlLikeQuery {
 
 		// ZERO support for more complex queries.
 	} else {
-		// fmt.Println("No where clause")
+		fmt.Println("No where clause")
 	}
 
 	// group by

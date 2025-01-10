@@ -1,5 +1,5 @@
 from boshedron.store import FsBackend, OverlayEngine, StoredThing
-from boshedron.note import Note, MarkdownBlock, UnresolvedReference, LifecycleEnum
+from boshedron.note import Note, MarkdownBlock, UnresolvedReference, LifecycleEnum, UniformReference
 from boshedron.apps import *
 from boshedron.main import *
 from datetime import datetime
@@ -15,16 +15,16 @@ oe.load()
 # account = Account(username='hexylena', title='Helena')
 # account = oe.add(account)
 #
-# # gh = AccountGithubDotCom(title='Helena', username='hexylena')
-# # gh.update()
-# # # Turned into a stored thing
-# # gh = oe.add(gh)
-# # account.data.sameAs = gh.ref()
+# gh = AccountGithubDotCom(title='Helena', username='hexylena')
+# gh.update()
+# # Turned into a stored thing
+# gh = oe.add(gh)
+# account.data.sameAs = gh.ref()
 #
 # n = Note(title="baz", contents=[MarkdownBlock(author='gh/github.com/hexylena', contents="# Hello")])
 # n.ensure_tag('status', LifecycleEnum.inprogress)
-# st1 = StoredThing(data=n)
-# st2 = StoredThing(data=Note(title="qux"))
+# st1 = StoredThing(data=n, urn=UniformReference(app="project"))
+# st2 = StoredThing(data=Note(title="qux"), urn=UniformReference(app="task"))
 # gb1.save_item(st1)
 # gb2.save_item(st2)
 #
