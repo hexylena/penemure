@@ -66,6 +66,19 @@ class StoredThing(StoredBlob):
     def save(self, backend):
         backend.save(self)
 
+    def clean_dict(self):
+        d = self.data.dict()
+        d['id'] = self.urn.urn
+
+        for k in ('contents', 'attachments', 'tags'):
+            if k in d:
+                del d[k]
+
+        for tag in self.data.tags:
+            d[tag.key] = tag.render()
+
+        return d
+
     @computed_field
     @property
     def identifier(self) -> UniformReference:
@@ -196,3 +209,37 @@ class OverlayEngine(BaseModel):
     def save(self):
         for backend in self.backends:
             backend.save()
+
+    def query(self, query, group_by=None):
+        notes = [x.clean_dict() 
+                 for x in self.all()
+                 if isinstance(x, StoredThing)]
+
+        tables = {}
+        for note in notes:
+            if note['type'] not in tables:
+                tables[note['type']] = []
+            tables[note['type']].append(note)
+
+        def fix_tags(items):
+            # ensure that every item has every key.
+            keys = set()
+            for i in items:
+                keys |= set(i.keys())
+
+            for i in items:
+                for k in keys:
+                    if k not in i:
+                        i[k] = ""
+            return items
+
+        for k in ('project', 'log', 'task', 'file', 'account', 'note'):
+            if k not in tables:
+                tables[k] = []
+        tables = {k: fix_tags(v) for k, v in tables.items()}
+
+        results = execute(query, tables=tables)
+        if group_by:
+            raise Exception("Not Implemented")
+
+        return results
