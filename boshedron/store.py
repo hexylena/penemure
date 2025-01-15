@@ -76,7 +76,7 @@ class StoredThing(StoredBlob):
         return os.path.join(self.relative_path + '.html')
 
     def clean_dict(self):
-        d = self.data.dict()
+        d = self.data.model_dump()
         d['id'] = self.urn.urn
 
         for k in ('contents', 'attachments', 'tags'):
@@ -87,7 +87,7 @@ class StoredThing(StoredBlob):
         for tag in self.data.tags:
             d[tag.key] = tag.render()
 
-        d['title'] = self.html_title
+        d['title'] = f'<a href="{self.urn.urn}#url">{self.html_title}</a>'
 
         return d
 

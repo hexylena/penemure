@@ -5,6 +5,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import os
 from typing import Optional
 from .store import FsBackend, OverlayEngine, StoredThing
+from .apps import Page
 from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
 
 
@@ -55,6 +56,9 @@ class Boshedron(BaseModel):
             p = os.path.join(path, st.relative_path + '.html')
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
+            if isinstance(st.data, Page):
+                p = os.path.join(path, st.data.page_path + '.html')
+
             with open(p, 'w') as handle:
                 requested_template = "note.html"
                 if tag := st.data.get_tag(typ='template'):
