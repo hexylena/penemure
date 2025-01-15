@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import os
 from pydantic import BaseModel, Field, AwareDatetime
+from typing import Annotated
 from typing import Optional, Union, Any
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -22,7 +23,7 @@ class MarkdownBlock(BaseModel):
     author: UniformReference
     type: str = 'markdown'
 
-    def render(self, oe):
+    def render(self, oe, path):
         if self.type == 'markdown':
             page_content = markdown.markdown(self.contents, extensions=['pymdownx.superfences'])
         elif self.type.startswith('query'):
@@ -33,8 +34,8 @@ class MarkdownBlock(BaseModel):
             elif self.type == 'query-kanban':
                 page_content = render_kanban(res)
 
-        return f'<div class="block"><div class="contents">{page_content}</div><div class="author">{self.author.urn}</div></div>'
-
+        page_content = UniformReference.rewrite_urns(page_content, path, oe)
+        return f'<div class="block"><div class="contents">{page_content}</div><span class="author">{self.author.urn}</span></div>'
 
 
 # This describes the data stored in a StoredThing
@@ -42,44 +43,86 @@ class Note(BaseModel):
     title: str
     parents: Optional[list[str]] = None
     contents: Optional[list[MarkdownBlock]] = None
-    tags: list[Union[LifecycleTag, AccountTag, DateTag, DescriptionTag, TextTag, IconTag]] = Field(default_factory=list)
+    # These must all be enumerated explicitly :|
+    tags: list[Annotated[
+        Union[Tag.get_subclasses()],
+        Field(discriminator="type")
+    ]] = Field(default_factory=list)
+
     version: Optional[int] = 2
     created: AwareDatetime = Field(default_factory=lambda : datetime.now().astimezone(ZoneInfo('Europe/Amsterdam')))
     updated: AwareDatetime = Field(default_factory=lambda : datetime.now().astimezone(ZoneInfo('Europe/Amsterdam')))
     namespace: Union[str, None] = None
     type: str = 'note'
     attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)
-    template: str = 'note.html'
+
 
     def touch(self):
         self.updated = datetime.now()
 
     @property
     def icon(self):
-        icon_tag = self.has_tag('icon')
-        if len(icon_tag) == 1:
-            return icon_tag[0].icon
-        else:
-            icon_tag = None
+        if t:= self.get_tag(typ='icon'):
+            return t[0].value_icon()
 
         if self.type == "project":
             return "📁"
         elif self.type == "task":
-            tag = self.has_tag('status')
-            if len(tag) == 1 and isinstance(tag, LifecycleTag):
-                return tag.values[0].icon()
+            tag = self.get_tag(typ='status')
+            if tag is not None:
+                return tag.value_icon()
+            return '?'
         elif self.type == "account":
             return "👩‍🦰"
-        elif self.type == 'note':
+        elif self.type in ('note', 'page'):
             return "🗒"
         elif self.type == 'log':
             return "⏰"
+        elif self.type == 'file':
+            return "📎"
         else:
             return "?"
 
 
     def has_tag(self, key: str):
-        return [tag for tag in self.tags if tag.type == key]
+        return len([tag for tag in self.tags if tag.type == key]) > 0
+
+    def add_tag(self, tag: Tag, unique: bool = False):
+        if unique:
+            # Remove any other values of this
+            self.tags = [t for t in self.tags if t.type != tag.type]
+
+        self.tags.append(tag)
+
+    def get_tag(self, typ: Optional[str] = None, title: Optional[str] = None, enforce_unique: bool = False):
+        t = self.get_tags(typ, title)
+        if enforce_unique and len(t) > 1:
+            raise Exception(f"Non-unique tags for type={typ} and title={title}: {t}")
+        if len(t) == 0:
+            return None
+
+        return t[0]
+
+    def get_tags(self, typ: Optional[str] = None, title: Optional[str] = None):
+        tags = []
+        for t in self.tags:
+            if typ is not None and t.type != typ:
+                continue
+            if title is not None and t.title != title:
+                continue
+            tags.append(t)
+        return tags
+
+    def get_contributors(self, oe):
+        c = []
+        if self.contents is None:
+            return []
+
+        for b in self.contents:
+            c.append(b.author)
+        c = set(c)
+        c = [oe.find(q) for q in c]
+        return c
 
     def ensure_tag(self, key: str, value: str, icon=None):
         # find a matching tag, generally there should only be ONE with that key.
@@ -127,6 +170,3 @@ class Note(BaseModel):
             )
             updated_attachments.append(blob)
         self.attachments = updated_attachments
-
-    def suggested_ident(self) -> Union[str, None]:
-        return None

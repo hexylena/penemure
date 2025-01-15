@@ -179,3 +179,30 @@ div.kanban {
 	padding: .4rem 1rem;
 
 }
+
+
+/* blocks */
+.contents {
+	border: 1px solid #ccc;
+	padding: 1em;
+}
+
+.block {
+	margin-top: 2em;
+}
+
+.author {
+	background: #eee;
+	border-bottom: 1px solid black;
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+	padding: 0 0.2em 0.2em 0.2em;
+	border-radius: 0% 0% 10px 10px / 0% 0% 10px 10px;
+	padding-inline-start: 1em;
+	padding-inline-end: 1em;
+}
+.tag {
+	border: 1px solid black;
+	padding: 0.2rem 0.7rem;
+	border-radius: 10px;
+}

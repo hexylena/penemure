@@ -10,9 +10,7 @@
 </div>
 <hgroup>
 	<h1>
-		{% if note.data.attachments and note.data.attachments[0].type %}
-		{{ blob(note.data.attachments[0]) }}
-		{% endif %}
+		{{ note.data.icon }}
 		{{ note.data.title }}
 	</h1>
 </hgroup>
@@ -55,7 +53,7 @@
 
 {% if note.data.contents %}
 {% for b in note.data.contents %}
-{{ b.render(oe) }}
+{{ b.render(oe, Config.ExportPrefix) }}
 {% endfor %}
 {% endif %}
 

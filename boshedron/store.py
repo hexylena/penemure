@@ -11,6 +11,7 @@ from typing import Optional, Union
 from .note import Note
 from .refs import UniformReference
 from .apps import ModelFromAttr, Account
+from .sqlish import GroupedResultSet, ResultSet, extract_groups
 from pydantic import BaseModel, Field, computed_field
 from pydantic_core import to_json, from_json
 
@@ -56,6 +57,10 @@ class StoredThing(StoredBlob):
     updated: Optional[float] = None
     size: Optional[int] = None
 
+    @property
+    def html_title(self):
+        return f'{self.data.icon} {self.data.title}'
+
     @computed_field
     @property
     def relative_path(self) -> str:
@@ -66,6 +71,9 @@ class StoredThing(StoredBlob):
 
     def save(self, backend):
         backend.save(self)
+
+    def link(self) -> str:
+        return os.path.join(self.relative_path + '.html')
 
     def clean_dict(self):
         d = self.data.dict()
@@ -79,22 +87,19 @@ class StoredThing(StoredBlob):
         for tag in self.data.tags:
             d[tag.key] = tag.render()
 
+        d['title'] = self.html_title
+
         return d
 
     @computed_field
     @property
     def identifier(self) -> UniformReference:
-        print(type(self.data))
-
-        if self.data.suggested_ident() is not None:
-            return UniformReference(app=self.urn.app, namespace=self.urn.namespace, ident=self.data.suggested_ident())
         return self.urn
 
     @classmethod
     def realise_from_path(cls, base, full_path):
         end = full_path.replace(base + os.path.sep, '')
         urn = UniformReference.from_path(end)
-        print(end, repr(urn))
 
         with open(full_path, 'r') as f:
             # here we need to be smarter about which class we're using?
@@ -225,30 +230,33 @@ class OverlayEngine(BaseModel):
                     add = False
                     continue
 
-                print(st.urn, k, v, '==', getattr(st.data, k))
                 if getattr(st.data, k) != v:
                     add = False
-            print(add)
             if add:
                 results.append(st)
         return results
 
     def query(self, query):
-        notes = [x.clean_dict() 
+        notes = [x.clean_dict()
                  for x in self.all()
                  if isinstance(x, StoredThing)]
 
-        tables = {}
+        # We have an 'all' table if you just want to search all types.
+        # or individual tables can be searched by type.
+        tables = {'__all__': []}
         for note in notes:
             if note['type'] not in tables:
                 tables[note['type']] = []
             tables[note['type']].append(note)
+            tables['__all__'].append(note)
 
-        def fix_tags(items):
+        def fix_tags(items, ensure=[]):
             # ensure that every item has every key.
             keys = set()
             for i in items:
                 keys |= set(i.keys())
+
+            keys |= set(ensure)
 
             for i in items:
                 for k in keys:
@@ -256,43 +264,33 @@ class OverlayEngine(BaseModel):
                         i[k] = ""
             return items
 
-        for k in ('project', 'log', 'task', 'file', 'account', 'note'):
-            if k not in tables:
-                tables[k] = []
-        tables = {k: fix_tags(v) for k, v in tables.items()}
+        res = parse_one(query)
 
+        # Not strictly correct, since e.g. where's might be included but. acceptable.
+        selects = [x.this.this for x in list(res.find_all(exp.Column))]
+        tables = {k: fix_tags(v, ensure=selects) for k, v in tables.items()}
+
+        # TODO: add any group by clauses to the select, otherwise we won't get
+        # that data back! they can then be hidden afterwards.
+        # TODO: maybe also add 'id' to the selects automatically? Or, a 'link' field?
         def groupless_behaviour(node):
             if isinstance(node, exp.Group):
                 return None
             return node
 
-        res = parse_one(query)
         desired_groups = list(res.find_all(exp.Group))
+
+        # a version without any group by
+        groupless_query = res.transform(groupless_behaviour).sql()
+        print(res.sql())
+
+        res = execute(groupless_query, tables=tables)
+        r = ResultSet(title=None, header=list(res.columns), rows=list(res.rows))
 
         # if we don't want any groupings, just return as-is
         if len(desired_groups) == 0:
-            return execute(query, tables=tables)
+            return GroupedResultSet(groups=[r])
 
-        # otherwsie drop the group query
-        groupless_query = res.transform(groupless_behaviour).sql()
         # and pull out our desired groups
         desired_groups = desired_groups[0].sql().replace('GROUP BY ', '').split(',')
-
-        preresults = execute(groupless_query, tables=tables)
-        results = {}
-
-        def select_group_key(row, columns, wanted_cols):
-            print(columns, wanted_cols)
-            indexes = [row[i] for (i, x)
-                in enumerate(columns)
-                if x in wanted_cols]
-            return '|'.join(indexes)
-
-
-        for row in preresults.rows:
-            key = select_group_key(row, preresults.columns, desired_groups)
-            print('key=', key)
-            if key not in results:
-                results[key] = []
-            results[key].append(row)
-        return results
+        return extract_groups(r, desired_groups)

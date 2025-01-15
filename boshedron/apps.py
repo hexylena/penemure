@@ -9,26 +9,19 @@ from datetime import datetime
 
 class Project(Note):
     type: str = 'project'
-    blocking: Optional[list[str]] = None
 
 
 class Page(Note):
     type: str = 'page'
     page_path: str
 
-    def suggested_ident(self):
-        return '../' + self.page_path
-
 
 class Task(Note):
     type: str = 'task'
-    blocking: Optional[list[str]] = None
 
 
 class Log(Note):
     type: str = 'log'
-    start_time: Optional[AwareDatetime] = None
-    end_time: Optional[AwareDatetime] = None
 
 
 class File(Note):
@@ -46,10 +39,14 @@ class File_S3(File, AttachmentMixin):
 class Account(Note):
     type: str = 'account'
     username: str
-    sameAs: Optional[list[Reference]] = None
 
-    def suggested_ident(self):
-        return self.username
+    @property
+    def icon(self):
+        if t := self.get_tag(typ='icon'):
+            # todo: how to handle normal values vs URLs vs URNs?
+            return t.value
+        return "👩‍🦰"
+
 
 class AccountGithubDotCom(Account):
     namespace: Optional[str] = 'gh'
