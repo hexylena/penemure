@@ -5,7 +5,7 @@ import requests
 import tempfile
 import shutil
 import os
-from pydantic import BaseModel, Field, AwareDatetime
+from pydantic import BaseModel, Field, PastDatetime
 from typing import Annotated
 from typing import Optional, Union, Any
 from datetime import datetime
@@ -42,7 +42,7 @@ class MarkdownBlock(BaseModel):
 class Note(BaseModel):
     title: str
     parents: Optional[list[str]] = None
-    contents: Optional[list[MarkdownBlock]] = None
+    contents: Optional[list[MarkdownBlock]] = Field(default_factory=list())
     # These must all be enumerated explicitly :|
     tags: list[Annotated[
         Union[Tag.get_subclasses()],
@@ -50,8 +50,8 @@ class Note(BaseModel):
     ]] = Field(default_factory=list)
 
     version: Optional[int] = 2
-    created: AwareDatetime = Field(default_factory=lambda : datetime.now().astimezone(ZoneInfo('Europe/Amsterdam')))
-    updated: AwareDatetime = Field(default_factory=lambda : datetime.now().astimezone(ZoneInfo('Europe/Amsterdam')))
+    created: PastDatetime = Field(default_factory=lambda : datetime.now())
+    updated: PastDatetime = Field(default_factory=lambda : datetime.now())
     namespace: Union[str, None] = None
     type: str = 'note'
     attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)
@@ -95,7 +95,7 @@ class Note(BaseModel):
 
         self.tags.append(tag)
 
-    def get_tag(self, typ: Optional[str] = None, title: Optional[str] = None, enforce_unique: bool = False):
+    def get_tag(self, typ: Optional[str] = None, title: Optional[str] = None, enforce_unique: bool = False) -> Tag:
         t = self.get_tags(typ, title)
         if enforce_unique and len(t) > 1:
             raise Exception(f"Non-unique tags for type={typ} and title={title}: {t}")
@@ -173,3 +173,39 @@ class Note(BaseModel):
             )
             updated_attachments.append(blob)
         self.attachments = updated_attachments
+
+    def start_unix(self):
+        t = self.get_tag(typ='date', title='Start Date')
+        if t is not None and isinstance(t, DateTimeTag):
+            return t.value.strftime("%s")
+
+    def start_date(self):
+        t = self.get_tag(typ='date', title='Start Date')
+        if t is not None and isinstance(t, DateTimeTag):
+            return t.value.date()
+
+    def start_time(self):
+        t = self.get_tag(typ='date', title='Start Date')
+        if t is not None and isinstance(t, DateTimeTag):
+            return t.value.time().strftime('%H:%M:%S')
+
+    def end_unix(self):
+        t = self.get_tag(typ='date', title='End Date')
+        if t is not None and isinstance(t, DateTimeTag):
+            return t.value.strftime("%s")
+
+    def end_date(self):
+        t = self.get_tag(typ='date', title='End Date')
+        if t is not None and isinstance(t, DateTimeTag):
+            return t.value.date()
+
+    def end_time(self):
+        t = self.get_tag(typ='date', title='End Date')
+        if t is not None and isinstance(t, DateTimeTag):
+            return t.value.time().strftime('%H:%M:%S')
+
+    def log_is_closed(self):
+        s = self.get_tag(typ='date', title='Start Date')
+        e = self.get_tag(typ='date', title='End Date')
+
+        return not(s is not None and e is not None)

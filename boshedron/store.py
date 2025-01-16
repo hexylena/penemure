@@ -89,6 +89,7 @@ class StoredThing(StoredBlob):
             d[tag.key] = tag.render()
 
         d['title'] = f'<a href="{self.urn.urn}#url">{self.html_title}</a>'
+        d['title_plain'] = f'{self.html_title}'
 
         return d
 
@@ -222,6 +223,11 @@ class OverlayEngine(BaseModel):
 
     def search(self, **kwargs):
         results = []
+        custom = None
+        if 'custom' in kwargs:
+            custom = kwargs['custom']
+            del kwargs['custom']
+
         for st in self.all():
             if not isinstance(st, StoredThing): continue
 
@@ -235,19 +241,32 @@ class OverlayEngine(BaseModel):
                     add = False
             if add:
                 results.append(st)
+
+        print(len(results))
+        if custom == 'open':
+            results = [x for x in results if x.data.log_is_closed()]
+        elif custom == 'not-open':
+            results = [x for x in results if not x.data.log_is_closed()]
+
+        print(len(results))
+
         return results
 
     @classmethod
     def group_by(cls, data: list[StoredThing], key):
         # not really a class method more of a utility? MOVE?
 
-        def get_created_date(s: StoredThing):
-            return s.data.created
+        def get_created_date(s: StoredThing) -> str:
+            return str(s.data.created.date())
 
         groups = []
-        data = sorted(data, key=get_created_date)
+        data = sorted(data, key=get_created_date)[::-1]
         if key == 'day':
-            groups = itertools.groupby(data, get_created_date)
+            groups = [(x, list(y)) for (x, y) in itertools.groupby(data, get_created_date)]
+        else:
+            raise Exception('unimplemented')
+
+        print(groups)
 
         return groups
 

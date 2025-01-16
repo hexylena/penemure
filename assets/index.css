@@ -206,3 +206,12 @@ div.kanban {
 	padding: 0.2rem 0.7rem;
 	border-radius: 10px;
 }
+input[type="date"] {
+	padding: .4rem 1rem;
+	width: 100%;
+	font-size: 2rem;
+	color: #111;
+	background-color: #fff;
+	border: .2rem solid #111;
+	border-radius: 0;
+}

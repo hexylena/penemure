@@ -7,154 +7,182 @@
 	<h1>Time Tracker</h1>
 	</hgroup>
 
-	<!--
-		todo: .Note is probably replacable with .Note
-	-- .Note --
-	-->
-	-- if .Note --
-	<form method="post">
+	{% for open_log in oe.search(type='log', custom='open') %}
+	<form  onsubmit="return false" class="open-log">
 		<fieldset>
-			<legend>Edit Current Log</legend>
+			<legend>Edit Log ({{ open_log.urn.urn }})</legend>
 
 			<label for="name">Name</label>
-			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="-- .Note.Title --">
+			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ open_log.data.title }}">
 
 			<label for="project">Parent(s)</label>
-			<select id="project" multiple data-placeholder="Parent(s)" name="project">
-				-- range $g := .Gn.GetStructuredNotes --
-				<optgroup label="--$g.Group--">
-					-- range $p := $g.Notes --
-					<option value="-- $p.NoteId--" -- if $.Note.HasParent $p.NoteId --selected-- end -->
-						-- $p.GetEmoji -- -- $p.Title | html --
+			<select id="{{ open_log.urn.urn.replace(':', '-') }}-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
+				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
+				<optgroup label="{{ group.title }}">
+					{% for (id, title, type) in group.rows %}
+					<option value="{{ id }}" -- if $.Note.HasParent $p.NoteId --selected-- end -->
+						{{ title }}
 					</option>
-					-- end--
+					{% endfor %}
 				</optgroup>
-				-- end --
+				{% endfor %}
 			</select>
 
-			<input id="note_id" type="hidden" name="note_id" value="-- .Note.NoteId --">
-			<label for="tags">tags</label>
-			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing" value="-- .Note.GetL "Tags" --">
+			<script>
+				new TomSelect("#{{ open_log.urn.urn.replace(':', '-')}}-select", {
+					plugins: ['remove_button'],
+					create: true,
+				});
+			</script>
 
-			<label for="start">Start Time</label>
-			<input type="time" id="start" name="start" value="-- (.Note.GetStartEndTime "start").Format "15:04:05"  --">
+			<input id="note_id" type="hidden" name="note_id" value="{{ open_log.urn.urn }}">
 
-			<label for="runtime">Duration</label>
-			<input type="text" id="runtime" name="runtime" value="TODO">
-			
-			<input id="action" type="hidden" name="action" value="stop">
-			<button type="submit">Stop</button>
-		</fieldset>
-	</form>
+			<div style="display: flex; margin-top: 0.5em; justify-content: space-between;">
+				<input type="hidden" value="{{ open_log.data.start_unix() }}" name="start_unix" >
+				<label for="start_date" style="max-width:10em">Start Date
+				<input name="start_date" type="date" value="{{ open_log.data.start_date() }}">
+				</label>
 
-	<h2>Notes</h2>
-	<form method="post">
-		<fieldset>
-			<legend>Add Notes</legend>
+				<label for="start" style="max-width:10em">Start Time
+				<input type="text" id="start" name="start" value="{{ open_log.data.start_time() }}">
+				</label>
+
+				<label for="runtime" style="max-width:10em">Duration
+				<input type="text" name="runtime" value="TODO">
+				</label>
+
+				<button type="submit">Stop</button>
+			</div>
+
 
 			<label for="notes">Contents</label>
-			<textarea id="notes" name="notes" placeholder="jrnl goes here" rows="20">-- .Note.RenderMarkdown --</textarea>
-			<input id="note_id" type="hidden" name="note_id" value="-- .Note.NoteId --">
+			<div id="{{ open_log.urn.urn.replace(':', '-') }}-notes">
+			{% for block in (open_log.data.contents or []) %}
+				<button onclick="insertbefore('{{ open_log.urn.urn.replace(':', '-') }}-notes', '{{ block.id }}')">+</button>
+				<input type="hidden" name="urn" value="{{ block.id }}">
+				<textarea name="notes" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+			{% endfor %}
+			<button onclick="insertbefore('{{ open_log.urn.urn.replace(':', '-') }}-notes')">+</button>
+			</div>
+
 			<button type="submit">Save Notes</button>
+
 		</fieldset>
 	</form>
+	{% endfor %}
 
-	-- else --
-	<form method="post">
-		<fieldset>
-			<legend>New Log</legend>
-			<label for="name">Name</label>
-			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
-
-			<label for="project">Parent(s)</label>
-			<select id="project" multiple data-placeholder="Parent(s)" name="project">
-				-- range $g := .Gn.GetStructuredNotes --
-				<optgroup label="--$g.Group--">
-					-- range $p := $g.Notes --
-					<option value="-- $p.NoteId--">-- $p.GetEmoji -- -- $p.Title | html --</option>
-					-- end--
-				</optgroup>
-				-- end --
-			</select>
-
-			<label for="tags">Tags</label>
-			<input type="text" id="tags" name="tags" placeholder="#email #dev #writing">
-
-			<label for="start">Start Time</label>
-			<input type="time" id="start" name="start">
-			<span id="runtime">1:00:00</span>
-			<input id="action" type="hidden" name="action" value="start">
-
-			<br>
-			<button type="submit">Start</button>
-		</fieldset>
-	</form>
-	-- end --
 
 	<h2>Older Logs</h2>
 	<table>
 		<thead>
 		</thead>
 		<tbody>
-			{% for log in oe.group_by(oe.search(type='log'), 'day') %}
+			{% for (date, logs) in oe.group_by(oe.search(type='log', custom='not-open'), 'day') %}
 			<tr>
-				<td colspan="5" class="header">-- $p.Date.Format "Monday, January 02" --</td>
+				<td colspan="4" class="header">{{ date }}</td>
 			</tr>
-			-- range $n := $p.Logs --
+			{% for log in logs %}
 			<tr>
-				<td><a href="-- $n.NoteId --.html">-- $n.Title --</a></td>
+				<td><a href="{{ log.urn.urn }}#url">{{ log.urn.urn }}#title</a></td>
 				<td>
 					-- range $par := $n.Parents --
 					<a href="-- $par --.html">-- $.Gn.GetNote $par --</a>
 					-- end --
 				</td>
 				<td>
-					-- range $par := $n.GetL "Tags" --
-					-- $par --
-					-- end --
-				</td>
-				<td>
-					<input type="text" value="-- $n.GetStartEndTime "start" --">
-					<input type="text" value="-- $n.GetStartEndTime "end" --">
+					<div style="display: flex">
+						<input name="start_date" type="date" value="{{ log.data.start_date() }}">
+						<input name="start_time" type="text" value="{{ log.data.start_time() }}">
+					</div>
+					<div style="display: flex">
+						<input name="end_date" type="date" value="{{ log.data.end_date() }}">
+						<input name="end_time" type="text" value="{{ log.data.end_time() }}">
+					</div>
 				</td>
 				<td>
 					<form method="post">
-						<input type="hidden" name="name" value="-- $n.Title --">
-						-- range $p := $n.Parents --
-						<input type="hidden" name="project" value="-- $p --">
-						-- end --
-						<input type="hidden" name="tags" value="-- range $par := $n.GetL "Tags" --,-- $par ---- end --">
+						<input type="hidden" name="urn" value="{{ log.urn.urn }}">
 						<input id="action" type="hidden" name="action" value="start">
 						<button type="submit">Continue</button>
 					</form>
 				</td>
 			</tr>
 			{% endfor %}
+			{% endfor %}
 		</tbody>
 	</table>
 
 
-	-- .Gn.GetLogsFormated --
-
 	<script>
-	new TomSelect("#project",-
-		plugins: ['remove_button'],
-		create: true,
-	-);
+		[...document.querySelectorAll("input[name='end_time'],input[name='start_time']")].forEach(i => i.addEventListener('focus', () => i.select()));
+		[...document.querySelectorAll("input[name='end_time'],input[name='start_time']")].forEach(i => i.addEventListener('change', () => {
+			if(i.value.length < 3) {
+				h = parseInt(i.value)
+				if (h < 7) {
+					h += 12
+				}
 
-	// from go
-	var is_running = -- if .Note --true-- else --false-- end --;
+				i.value = `${h.toString().padStart(2, "0")}:00:00`
+			} else if(i.value.length < 4) {
+				h = parseInt(i.value.toString().substring(0, 1))
+				m = parseInt(i.value.toString().substring(1))
 
-	if (! is_running) -
-		const start = document.getElementById("start");
-		var now = new Date();
-		start.value = now.toTimeString().substring(0,5);
+				// assume they mean PM?
+				if (h < 7) {
+					h += 12
+				}
+				i.value = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`
+			} else if(i.value.length == 4) {
+				h = parseInt(i.value.toString().substring(0, 2))
+				m = parseInt(i.value.toString().substring(2))
+				i.value = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`
+			}
+		}));
 
-		setTimeout(function()-
-			var now = new Date();
-			start.value = now.toTimeString().substring(0,5);
-		-, 5000);
-	-
+		function insertbefore(par, id) {
+			let ins = `
+				<input type="hidden" name="block_id" value="">
+				<label>Type
+				<select>
+					<option value="markdown">Markdown</option>
+					<option value="query-table">Table</option>
+					<option value="query-kanban">Kanban</option>
+				</select>
+				</label>
+				<textarea name="notes" rows="5" placeholder="jrnl goes here"></textarea>
+			`
+
+			if (id === undefined){
+				var e = document.getElementById(par)
+				e.innerHTML = ins + e.innerHTML
+			}
+		}
+
+	let now = new Date();
+	function Update(){
+		now = new Date();
+
+		[...document.querySelectorAll('.open-log')].forEach(form => {
+			start = form.querySelector('input[name="start_unix"]')
+			if(start.value !== "None"){
+				// Update the duration
+				var duration = (now - (parseInt(start.value) * 1000)) / 1000
+
+				hours = Math.floor(duration / 3600);
+				minutes = Math.floor((duration - (hours * 3600)) / 60);
+				seconds = Math.floor(duration - (hours * 3600) - (minutes * 60));
+
+				let runtime = form.querySelectorAll('input[name="runtime"]')[0]
+				runtime.value = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+
+			}
+		})
+	}
+	Update();
+
+	setInterval(function(){
+		Update();
+	}, 2000);
 
 	</script>
 
