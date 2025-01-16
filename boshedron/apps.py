@@ -1,10 +1,8 @@
 import os
-from pydantic import BaseModel, AwareDatetime
 from typing import Optional
-from .note import Note, Reference, UnresolvedReference
+from .note import Note, UnresolvedReference
 from .mixins import AttachmentMixin
 import requests
-from datetime import datetime
 
 
 class Project(Note):
@@ -14,6 +12,7 @@ class Project(Note):
 class Page(Note):
     type: str = 'page'
     page_path: str
+    # This is the only special case of an additional hardcoded attribute?
 
 
 class Task(Note):
@@ -22,6 +21,13 @@ class Task(Note):
 
 class Log(Note):
     type: str = 'log'
+    # Went back and forth again on whether or not to have start/end times baked
+    # into this class.
+    #
+    # I don't think i want that. it'd prevent e.g. tasks from having a
+    # start/end time.
+    #
+    # Instead if it's generic, we can do more useful things.
 
 
 class File(Note):

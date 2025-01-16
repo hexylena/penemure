@@ -88,6 +88,7 @@ class Note(BaseModel):
         return len([tag for tag in self.tags if tag.type == key]) > 0
 
     def add_tag(self, tag: Tag, unique: bool = False):
+        self.touch()
         if unique:
             # Remove any other values of this
             self.tags = [t for t in self.tags if t.type != tag.type]
@@ -124,24 +125,26 @@ class Note(BaseModel):
         c = [oe.find(q) for q in c]
         return c
 
-    def ensure_tag(self, key: str, value: str, icon=None):
+    def ensure_tag(self, key: str, value: str):
+        """
+        Simimlar to add_tag, except ensures there cannot be duplicates and
+        overwrites when there are. Great for adding an icon tag or a Start Time
+        (or similar) where there should only be one.
+        """
+        self.touch()
         # find a matching tag, generally there should only be ONE with that key.
-        t = [x for x in self.tags if x.type == key]
+        t = self.get_tags(typ=key)
         if len(t) == 0:
-            new_tag = Tag(type=key, title=key.capitalize(), values=[value])
-            if icon:
-                new_tag.icon = icon
+            new_tag = Tag(type=key, title=key, value=value)
             self.tags.append(new_tag)
         elif len(t) == 1:
             old_tag = t[0]
-            if icon:
-                old_tag.icon = icon
-            if value not in old_tag.values:
-                old_tag.values.append(value)
+            old_tag.value = value
         else:
             raise Exception("Too many tags")
 
     def persist_attachments(self, location):
+        self.touch()
         updated_attachments = []
         for attachment in self.attachments:
             if not isinstance(attachment, UnresolvedReference):

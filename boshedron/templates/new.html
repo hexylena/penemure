@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}New | {{ Config.Title | safe }}{% endblock %}
+
+{% block main %}
+	<hgroup>
+	<h1>Add a Note</h1>
+	</hgroup>
+
+	<form method="post">
+		<fieldset>
+			<legend>New Note</legend>
+
+			<label for="name">Name</label>
+			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
+
+			<label for="project">Parent(s)</label>
+			<select id="project" multiple data-placeholder="Parent(s)" name="project">
+				-- range $g := .Gn.GetStructuredNotes --
+				<optgroup label="--$g.Group--">
+					-- range $p := $g.Notes --
+					<option value="-- $p.NoteId--" -- if eq $p.NoteId $.Note.NoteId --selected--end-->-- $p.GetEmoji -- -- $p.Title | html --</option>
+					-- end--
+				</optgroup>
+				-- end --
+			</select>
+
+			<label for="type">Type</label>
+			<select id="type" name="type">
+				-- range $t := .Gn.GetTypes --
+				<option value="-- $t --"-- if eq $t $.Note.Type --selected-- end -->-- $t --</option>
+				-- end --
+			</select>
+
+
+			<label for="tags">tags</label>
+			<select id="tags" multiple data-placeholder="#email #dev #writing" name="tags">
+				-- range $g := .Gn.GetTags --
+					<option value="-- $g | html--">-- $g | html --</option>
+				-- end --
+			</select>
+
+			<label for="notes">Contents</label>
+			<textarea id="notes" name="notes" placeholder="jrnl goes here" rows="20"></textarea>
+
+			<table>
+				<caption>Page Metadata</caption>
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Title</th>
+						<th>Value</th>
+						<th>Icon</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="meta">
+				<tr id="meta_r0">
+					<td><input type="text" id="m_type" name="m_type" value="icon"></td>
+					<td><input type="text" id="m_titl" name="m_titl" value=""></td>
+					<td><input type="text" id="m_valu" name="m_valu" value=""></td>
+					<td><input type="text" id="m_icon" name="m_icon" value="📰"></td>
+					<td><button type="button" onclick="document.getElementById('meta_r0').remove()">❌</button></td>
+				</tr>
+				<tr id="meta_r1">
+					<td><input type="text" id="m_type" name="m_type" value="cover"></td>
+					<td><input type="text" id="m_titl" name="m_titl" value=""></td>
+					<td><input type="text" id="m_valu" name="m_valu" value="./assets/test.jpg"></td>
+					<td><input type="text" id="m_icon" name="m_icon" value=""></td>
+					<td><button type="button" onclick="document.getElementById('meta_r1').remove()">❌</button></td>
+				</tr>
+				</tbody>
+			</table>
+			<button type="button" onclick="addRow()">➕ Add Meta</button>
+
+			<br/>
+
+			<button type="submit">Save Notes</button>
+		</fieldset>
+	</form>
+
+	<script>
+
+	new TomSelect("#project",{
+		plugins: ['remove_button'],
+		create: true,
+	});
+
+	new TomSelect("#tags",{
+		plugins: ['remove_button'],
+		create: true,
+	});
+	function addRow() {
+		tr = document.getElementById("meta").insertRow();
+		// timestamp
+		tr.id = "meta_r" + Date.now();
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_type" name="m_type" value="">';
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_titl" name="m_titl" value="">';
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_valu" name="m_valu" value="">';
+		td = tr.insertCell();
+		td.innerHTML = '<input type="text" id="m_icon" name="m_icon" value="">';
+		td = tr.insertCell();
+		td.innerHTML = `<button type="button" onclick="document.getElementById('${tr.id}').remove()">❌</button>`;
+	}
+	</script>
+
+{% endblock %}

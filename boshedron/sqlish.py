@@ -27,6 +27,7 @@ def select_group_key(row: list[str], columns: list[str], wanted_cols: list[str])
 
 def extract_groups(r: ResultSet, desired_groups: list) -> GroupedResultSet:
     gr = GroupedResultSet(groups=[])
+    # TODO: replace with itertools.groupby
 
     t = {}
     for row in r.rows:

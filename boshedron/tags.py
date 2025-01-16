@@ -1,8 +1,10 @@
-from pydantic import BaseModel, Field, AwareDatetime
+from pydantic import BaseModel, Field, NaiveDatetime
 from typing import Literal
 from pydantic import ConfigDict
 from typing import Optional, Union, Any
 from enum import Enum
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from .refs import *
 
 
@@ -141,10 +143,18 @@ class LifecycleTag(Tag):
             return f'<span class="tag">{self.value_icon()} {self.value}</span>'
         return str(self.value)
 
-class DateTag(Tag):
+class DateTimeTag(Tag):
     type: Literal['date'] = 'date'
     title: str = 'Date'
-    value: AwareDatetime
+    timezone: str = 'Europe/Amsterdam'
+    value: NaiveDatetime = Field(default_factory=lambda: datetime.now())
+
+    @property
+    def datetime(self):
+        return self.value.astimezone(ZoneInfo(self.timezone))
+
+    def render(self):
+        return f'<span class="tag">{self.type}:{self.value} {self.timezone}</span>'
 
     @property
     def html_icon(self):

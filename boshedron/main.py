@@ -44,13 +44,14 @@ class Boshedron(BaseModel):
         stored = self.overlayengine.all()
         things = [x for x in stored if isinstance(x, StoredThing)]
 
-        with open(os.path.join(path, 'search.html'), 'w') as handle:
-            template = env.get_template('search.html')
-            config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
-            gn = {'VcsRev': 'deadbeefcafe'}
-            page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
-            page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
-            handle.write(page_content)
+        for fixed in('search.html', 'new.html', 'time.html'):
+            with open(os.path.join(path, fixed), 'w') as handle:
+                template = env.get_template(fixed)
+                config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
+                gn = {'VcsRev': 'deadbeefcafe'}
+                page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
+                page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
+                handle.write(page_content)
 
         for st in things:
             p = os.path.join(path, st.relative_path + '.html')

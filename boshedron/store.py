@@ -1,4 +1,5 @@
 import json
+import itertools
 from sqlglot import parse_one, exp
 import shutil
 import hashlib
@@ -235,6 +236,20 @@ class OverlayEngine(BaseModel):
             if add:
                 results.append(st)
         return results
+
+    @classmethod
+    def group_by(cls, data: list[StoredThing], key):
+        # not really a class method more of a utility? MOVE?
+
+        def get_created_date(s: StoredThing):
+            return s.data.created
+
+        groups = []
+        data = sorted(data, key=get_created_date)
+        if key == 'day':
+            groups = itertools.groupby(data, get_created_date)
+
+        return groups
 
     def query(self, query):
         notes = [x.clean_dict()
