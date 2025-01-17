@@ -40,6 +40,13 @@
 	</tr>
 	{% endif %}
 
+	<tr>
+		<td scope="row">Ancestors</td>
+		<td>{% for parent in note.data.get_lineage(oe) %}
+			{{parent }}
+		{% endfor %}</td>
+	</tr>
+
 	{% for tag in note.data.tags %}
 	<tr>
 		<td scope="row">{{ tag.html_icon }} {{ tag.title }}</td>

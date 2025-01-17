@@ -77,10 +77,13 @@ class Note(BaseModel):
     def resolve_parents(self, oe):
         return [oe.find(parent) for parent in self.get_parents()]
 
-    def get_lineage(self, oe):
+    def get_lineage(self, oe, d=0):
+        # TODO: this does not work at all.
         res = []
         for p in self.resolve_parents(oe):
-            res.append(p.get_lineage())
+            print(d, p.urn.urn, p.data.get_lineage(oe, d = d + 1))
+            for r in p.data.get_lineage(oe, d = d + 1):
+                res.append(r)
         return res
 
     @property
@@ -167,7 +170,6 @@ class Note(BaseModel):
             raise Exception("Too many tags")
 
     def persist_attachments(self, location):
-        self.touch()
         updated_attachments = []
         for attachment in self.attachments:
             if not isinstance(attachment, UnresolvedReference):
@@ -176,6 +178,7 @@ class Note(BaseModel):
 
             # attachments are all stored in file/blob namespace.
             if attachment.remote:
+                self.touch()
                 tmp = tempfile.NamedTemporaryFile(delete=False)
                 r = requests.get(attachment.path)
                 tmp.write(r.content)
