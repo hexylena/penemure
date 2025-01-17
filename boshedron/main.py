@@ -44,7 +44,7 @@ class Boshedron(BaseModel):
         stored = self.overlayengine.all()
         things = [x for x in stored if isinstance(x, StoredThing)]
 
-        for fixed in('search.html', 'new.html', 'time.html'):
+        for fixed in('search.html', 'new.html', 'time.html', 'redir.html'):
             with open(os.path.join(path, fixed), 'w') as handle:
                 template = env.get_template(fixed)
                 config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}

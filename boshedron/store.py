@@ -88,6 +88,7 @@ class StoredThing(StoredBlob):
         for tag in self.data.tags:
             d[tag.key] = tag.render()
 
+        # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.urn.urn}#url">{self.html_title}</a>'
         d['title_plain'] = f'{self.html_title}'
 

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Lookup Service | {{ Config.Title | safe }}{% endblock %}
+
+{% block main %}
+Redirecting...
+
+<script>
+const paths = {
+	{% for note in oe.search() %}
+	"{{ note.urn.urn }}": "{{ note.urn.urn }}#url",
+	{%- endfor %}
+};
+
+let params = new URL(document.location.toString()).searchParams;
+console.log(params);
+let url = paths[params.get('q').replace('web+boshedron:', '')]
+window.location = url
+</script>
+
+<!-- <a href="web+boshedron:urn:boshedron:page:index">web+boshedron://urn:boshedron:page:index</a> -->
+
+{% endblock %}

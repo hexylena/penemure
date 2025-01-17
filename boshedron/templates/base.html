@@ -68,6 +68,10 @@ await mermaid.run({
 	querySelector: 'pre code.language-mermaid',
 });
 
+navigator.registerProtocolHandler(
+  "web+boshedron",
+  "http://localhost:8000/export2/redir.html?q=%s",
+);
 		</script>
 	</body>
 </html>
