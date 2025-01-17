@@ -17,11 +17,11 @@ from .table import *
 
 
 
-
 class MarkdownBlock(BaseModel):
     contents: str
     author: UniformReference
     type: str = 'markdown'
+    id: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
     def render(self, oe, path):
         if self.type == 'markdown':
