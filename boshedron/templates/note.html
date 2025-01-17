@@ -31,6 +31,15 @@
 		<td>{{ note.urn.urn }}</td>
 	</tr>
 
+	{% if note.data.parents %}
+	<tr>
+		<td scope="row">Parents</td>
+		<td>{% for parent in note.data.resolve_parents(oe) %}
+			<a href="{{ parent.urn.urn }}#url">{{ parent.urn.urn }}#title</a>
+		{% endfor %}</td>
+	</tr>
+	{% endif %}
+
 	{% for tag in note.data.tags %}
 	<tr>
 		<td scope="row">{{ tag.html_icon }} {{ tag.title }}</td>
@@ -62,6 +71,18 @@
 {% for att in note.data.attachments %}
 {{ att }}
 {% endfor %}
+{% endif %}
+
+{% set res = oe.query("select id from __all__ where parents like '%" + note.urn.urn + "%' ") %}
+{% if res %}
+<h3>Children</h3>
+<ul>
+{% for kids in res.groups %}
+{% for kid in kids.rows %}
+<li><a href="{{ kid[0] }}#url">{{ kid[0] }}#title</a></li>
+{% endfor %}
+{% endfor %}
+</ul>
 {% endif %}
 
 <hr/>

@@ -21,6 +21,8 @@ class MarkdownBlock(BaseModel):
     contents: str
     author: UniformReference
     type: str = 'markdown'
+    # Planning to support transcluding blocks at some point with like
+    # urn:boshedron:note:deadbeef#dead-beef-cafe-4096
     id: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
     def render(self, oe, path):
@@ -35,14 +37,14 @@ class MarkdownBlock(BaseModel):
                 page_content = render_kanban(res)
 
         page_content = UniformReference.rewrite_urns(page_content, path, oe)
-        return f'<div class="block"><div class="contents">{page_content}</div><span class="author">{self.author.urn}</span></div>'
+        return f'<article class="block"><div class="contents">{page_content}</div><span class="author">{self.author.urn}</span></article>'
 
 
 # This describes the data stored in a StoredThing
 class Note(BaseModel):
     title: str
-    parents: Optional[list[str]] = None
-    contents: Optional[list[MarkdownBlock]] = Field(default_factory=list())
+    parents: Optional[list[UniformReference]] = Field(default_factory=list)
+    contents: Optional[list[MarkdownBlock]] = Field(default_factory=list)
     # These must all be enumerated explicitly :|
     tags: list[Annotated[
         Union[Tag.get_subclasses()],
@@ -59,6 +61,27 @@ class Note(BaseModel):
 
     def touch(self):
         self.updated = datetime.now()
+
+    def get_parents(self) -> list[UniformReference]:
+        return self.parents or []
+
+    def get_children(self, own_urn, oe) -> list[UniformReference]:
+        # semi-equivalent to oe.query("select id from __all__ where parents like '%own_urn%'")
+        kids = []
+        for note in oe.search():
+            if own_urn in note.data.get_parents():
+                kids.append(note)
+
+        return kids
+
+    def resolve_parents(self, oe):
+        return [oe.find(parent) for parent in self.get_parents()]
+
+    def get_lineage(self, oe):
+        res = []
+        for p in self.resolve_parents(oe):
+            res.append(p.get_lineage())
+        return res
 
     @property
     def icon(self):

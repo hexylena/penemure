@@ -92,6 +92,9 @@ class StoredThing(StoredBlob):
         d['title'] = f'<a href="{self.urn.urn}#url">{self.html_title}</a>'
         d['title_plain'] = f'{self.html_title}'
 
+        if d['parents'] is not None:
+            d['parents'] = ' XX '.join([x.urn for x in self.data.get_parents()])
+
         return d
 
     @computed_field
@@ -147,6 +150,10 @@ class FsBackend(BaseModel):
     def find(self, identifier: UniformReference) -> Union[StoredThing, StoredBlob]:
         return self.data[identifier]
 
+    def find_s(self, identifier: str) -> Union[StoredThing, StoredBlob]:
+        ufr = UniformReference.from_string(identifier)
+        return self.find(ufr)
+
     def get_path(self, identifier: UniformReference):
         st = self.find(identifier)
         return os.path.join(self.path, st.relative_path)
@@ -178,10 +185,12 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             backend.load()
 
-    def find(self, identifier: UniformReference):
+    def find(self, identifier: (UniformReference | str)):
         # Find the first version of this from all of our backends, to enable shadowing.
         for backend in self.backends:
             try:
+                if isinstance(identifier, str):
+                    return backend.find_s(identifier)
                 return backend.find(identifier)
             except KeyError:
                 pass
@@ -243,13 +252,10 @@ class OverlayEngine(BaseModel):
             if add:
                 results.append(st)
 
-        print(len(results))
         if custom == 'open':
             results = [x for x in results if x.data.log_is_closed()]
         elif custom == 'not-open':
             results = [x for x in results if not x.data.log_is_closed()]
-
-        print(len(results))
 
         return results
 
@@ -266,8 +272,6 @@ class OverlayEngine(BaseModel):
             groups = [(x, list(y)) for (x, y) in itertools.groupby(data, get_created_date)]
         else:
             raise Exception('unimplemented')
-
-        print(groups)
 
         return groups
 
@@ -321,6 +325,9 @@ class OverlayEngine(BaseModel):
 
         res = execute(groupless_query, tables=tables)
         r = ResultSet(title=None, header=list(res.columns), rows=list(res.rows))
+
+        if len(r.rows) == 0:
+            return None
 
         # if we don't want any groupings, just return as-is
         if len(desired_groups) == 0:

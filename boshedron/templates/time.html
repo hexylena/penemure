@@ -85,9 +85,11 @@
 			<tr>
 				<td><a href="{{ log.urn.urn }}#url">{{ log.urn.urn }}#title</a></td>
 				<td>
-					-- range $par := $n.Parents --
-					<a href="-- $par --.html">-- $.Gn.GetNote $par --</a>
-					-- end --
+					{% if log.data.parents %}
+						{% for parent in log.data.resolve_parents(oe) %}
+							<a href="{{ parent.urn.urn }}#url">{{ parent.urn.urn }}#title</a>
+						{% endfor %}
+					{% endif %}
 				</td>
 				<td>
 					<div style="display: flex">

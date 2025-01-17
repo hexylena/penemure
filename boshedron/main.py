@@ -68,7 +68,9 @@ class Boshedron(BaseModel):
                 template = env.get_template(requested_template)
                 config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
                 gn = {'VcsRev': 'deadbeefcafe'}
-                handle.write(template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify))
+                page_content = template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify)
+                page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
+                handle.write(page_content)
 
             for att in st.data.attachments:
                 if isinstance(att, ExternalReference) or isinstance(att, UnresolvedReference):
