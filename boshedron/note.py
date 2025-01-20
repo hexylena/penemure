@@ -43,7 +43,7 @@ class MarkdownBlock(BaseModel):
 # This describes the data stored in a StoredThing
 class Note(BaseModel):
     title: str
-    parents: Optional[list[UniformReference]] = Field(default_factory=list)
+    parents: Optional[list[UniformReference]] = Field(default_factory=lambda: list())
     contents: Optional[list[MarkdownBlock]] = Field(default_factory=list)
     # These must all be enumerated explicitly :|
     tags: list[Annotated[
@@ -78,12 +78,14 @@ class Note(BaseModel):
         return [oe.find(parent) for parent in self.get_parents()]
 
     def get_lineage(self, oe, d=0):
-        # TODO: this does not work at all.
         res = []
         for p in self.resolve_parents(oe):
-            print(d, p.urn.urn, p.data.get_lineage(oe, d = d + 1))
-            for r in p.data.get_lineage(oe, d = d + 1):
-                res.append(r)
+            res_sub = p.data.get_lineage(oe, d = d + 1)
+            if len(res_sub) == 0:
+                res.append([p.urn.urn])
+            else:
+                for r in res_sub:
+                    res.append([p.urn.urn, r])
         return res
 
     @property

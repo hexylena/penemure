@@ -92,8 +92,10 @@ class StoredThing(StoredBlob):
         d['title'] = f'<a href="{self.urn.urn}#url">{self.html_title}</a>'
         d['title_plain'] = f'{self.html_title}'
 
-        if d['parents'] is not None:
+        if d['parents'] is not None and len(d['parents']) > 0:
             d['parents'] = ' XX '.join([x.urn for x in self.data.get_parents()])
+        else:
+            d['parents'] = None
 
         return d
 
