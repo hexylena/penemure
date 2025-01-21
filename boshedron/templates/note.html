@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}{{ note.relative_path }} | {{ Config.Title | safe }}{% endblock %}
+{% block title %}{{ note.thing.relative_path }} | {{ Config.Title | safe }}{% endblock %}
 
 {% block main %}
-{% if note.data.cover_image() %}
+{% if note.thing.data.cover_image() %}
 <div>
-	<img src="{{ note.data.cover_image() }}" class="cover">
+	<img src="{{ note.thing.data.cover_image() }}" class="cover">
 </div>
 {% endif %}
 <hgroup>
 	<h1>
-		{{ note.data.icon }}
-		{{ note.data.title }}
+		{{ note.thing.data.icon }}
+		{{ note.thing.data.title }}
 	</h1>
 </hgroup>
 
@@ -28,13 +28,18 @@
 
 	<tr>
 		<td scope="row">URN</td>
-		<td>{{ note.urn.urn }}</td>
+		<td>{{ note.thing.urn.urn }}</td>
 	</tr>
 
-	{% if note.data.parents %}
+	<tr>
+		<td scope="row">Backend</td>
+		<td>{{ note.backend }}</td>
+	</tr>
+
+	{% if note.thing.data.parents %}
 	<tr>
 		<td scope="row">Parents</td>
-		<td>{% for parent in note.data.resolve_parents(oe) %}
+		<td>{% for parent in note.thing.data.resolve_parents(oe) %}
 			<a href="{{ parent.urn.urn }}#url">{{ parent.urn.urn }}#title</a>
 		{% endfor %}</td>
 	</tr>
@@ -42,12 +47,12 @@
 
 	<tr>
 		<td scope="row">Ancestors</td>
-		<td>{% for parent in note.data.get_lineage(oe) %}
+		<td>{% for parent in note.thing.data.get_lineage(oe) %}
 			{{parent}}
 		{% endfor %}</td>
 	</tr>
 
-	{% for tag in note.data.tags %}
+	{% for tag in note.thing.data.tags %}
 	<tr>
 		<td scope="row">{{ tag.html_icon }} {{ tag.title }}</td>
 		<td>{{ tag.render() }}</td>
@@ -56,31 +61,31 @@
 
 	<tr>
 		<td scope="row">📅 Created</td>
-		<td>{{ note.data.created }}</td>
+		<td>{{ note.thing.data.created }}</td>
 	</tr>
 
 	<tr>
 		<td scope="row">📅 Modified</td>
-		<td>{{ note.data.updated }}</td>
+		<td>{{ note.thing.data.updated }}</td>
 	</tr>
 
 	</tbody>
 </table>
 
-{% if note.data.contents %}
-{% for b in note.data.contents %}
+{% if note.thing.data.contents %}
+{% for b in note.thing.data.contents %}
 {{ b.render(oe, Config.ExportPrefix) }}
 {% endfor %}
 {% endif %}
 
-{% if note.data.attachments %}
+{% if note.thing.data.attachments %}
 <h3>Attachments</h3>
-{% for att in note.data.attachments %}
+{% for att in note.thing.data.attachments %}
 {{ att }}
 {% endfor %}
 {% endif %}
 
-{% set res = oe.query("select id from __all__ where parents like '%" + note.urn.urn + "%' ") %}
+{% set res = oe.query("select id from __all__ where parents like '%" + note.thing.urn.urn + "%' ") %}
 {% if res %}
 <h3>Children</h3>
 <ul>
@@ -96,7 +101,7 @@
 
 <details>
 	<summary>Queryable fields</summary>
-	<pre>{{ note.clean_dict() }}
+	<pre>{{ note.thing.clean_dict() }}
 </details>
 
 {% endblock %}

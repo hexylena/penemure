@@ -4,7 +4,7 @@ import shutil
 from jinja2 import Environment, PackageLoader, select_autoescape
 import os
 from typing import Optional
-from .store import GitJsonFilesBackend, OverlayEngine, StoredThing
+from .store import GitJsonFilesBackend, OverlayEngine, WrappedStoredThing
 from .apps import Page
 from .note import *
 from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
@@ -46,8 +46,7 @@ class Boshedron(BaseModel):
         )
 
         # export every note into the output according to templates.
-        stored = self.overlayengine.all()
-        things = [x for x in stored if isinstance(x, StoredThing)]
+        things = self.overlayengine.all_things()
 
         for fixed in('search.html', 'new.html', 'time.html', 'redir.html'):
             with open(os.path.join(path, fixed), 'w') as handle:
@@ -59,15 +58,15 @@ class Boshedron(BaseModel):
                 handle.write(page_content)
 
         for st in things:
-            p = os.path.join(path, st.relative_path + '.html')
+            p = os.path.join(path, st.thing.relative_path + '.html')
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
-            if isinstance(st.data, Page):
-                p = os.path.join(path, st.data.page_path + '.html')
+            if isinstance(st.thing.data, Page):
+                p = os.path.join(path, st.thing.data.page_path + '.html')
 
             with open(p, 'w') as handle:
                 requested_template = "note.html"
-                if tag := st.data.get_tag(typ='template'):
+                if tag := st.thing.data.get_tag(typ='template'):
                     requested_template = tag.value
 
                 template = env.get_template(requested_template)
@@ -77,13 +76,13 @@ class Boshedron(BaseModel):
                 page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
                 handle.write(page_content)
 
-            for att in st.data.attachments:
+            for att in st.thing.data.attachments:
                 if isinstance(att, ExternalReference) or isinstance(att, UnresolvedReference):
                     # TODO
                     continue
 
                 blob = self.overlayengine.find(att.id)
-                out = os.path.join(path, blob.relative_path + att.ext)
+                out = os.path.join(path, blob.thing.relative_path + att.ext)
 
                 if not os.path.exists(os.path.dirname(out)):
                     os.makedirs(os.path.dirname(out), exist_ok=True)

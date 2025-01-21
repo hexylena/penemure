@@ -7,7 +7,7 @@ import hashlib
 import os
 from sqlglot.executor import execute
 import glob
-from typing import Dict
+from typing import Dict, Tuple
 from typing import Optional, Union
 from .note import Note
 from .refs import UniformReference
@@ -41,7 +41,7 @@ class StoredBlob(BaseModel):
 
     @classmethod
     def realise_from_path(cls, base, full_path):
-        end = full_path.replace(base + os.path.sep, '')
+        end = full_path.replace(base, '').lstrip('/')
         urn = UniformReference.from_path(end)
 
         return cls(
@@ -50,6 +50,9 @@ class StoredBlob(BaseModel):
             updated=os.path.getmtime(full_path),
             size=os.path.getsize(full_path)
         )
+
+    def clean_dict(self):
+        raise NotImplementedError()
 
 
 class StoredThing(StoredBlob):
@@ -76,9 +79,10 @@ class StoredThing(StoredBlob):
     def link(self) -> str:
         return os.path.join(self.relative_path + '.html')
 
-    def clean_dict(self):
+    def clean_dict(self, backend=None):
         d = self.data.model_dump()
         d['id'] = self.urn.urn
+        d['backend'] = backend
 
         for k in ('contents', 'attachments', 'tags'):
             if k in d:
@@ -106,7 +110,7 @@ class StoredThing(StoredBlob):
 
     @classmethod
     def realise_from_path(cls, base, full_path):
-        end = full_path.replace(base + os.path.sep, '')
+        end = full_path.replace(base, '').lstrip('/')
         urn = UniformReference.from_path(end)
 
         with open(full_path, 'r') as f:
@@ -115,7 +119,7 @@ class StoredThing(StoredBlob):
             res = ModelFromAttr(data).model_validate(data)
 
         if res.namespace != urn.namespace:
-            print(f"Odd, {urn.namespace} != {res.namespace}")
+            print(f"Odd, {urn.namespace} != {res.namespace} (end={end})")
 
         return cls(
             urn=urn,
@@ -189,6 +193,27 @@ class GitJsonFilesBackend(BaseModel):
             self.data[st.identifier] = st
 
 
+class WrappedStored(BaseModel):
+    thing: StoredThing | StoredBlob
+    backend: Optional[str] = None
+
+    def not_blob(self):
+        return isinstance(self.thing, StoredThing)
+
+
+class WrappedStoredThing(BaseModel):
+    thing: StoredThing
+    backend: Optional[str] = None
+
+    def not_blob(self):
+        return True
+
+def narrow_thing(s: WrappedStored) -> WrappedStoredThing:
+    if isinstance(s.thing, StoredThing):
+        return WrappedStoredThing(thing=s.thing, backend=s.backend)
+    raise Exception()
+
+
 class OverlayEngine(BaseModel):
     backends: list[GitJsonFilesBackend]
 
@@ -196,59 +221,76 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             backend.load()
 
-    def find(self, identifier: (UniformReference | str)) -> StoredThing | StoredBlob | None:
+    def find(self, identifier: (UniformReference | str)) -> WrappedStored:
         # Find the first version of this from all of our backends, to enable shadowing.
         for backend in self.backends:
             try:
                 if isinstance(identifier, str):
-                    return backend.find_s(identifier)
-                return backend.find(identifier)
+                    return WrappedStored(thing=backend.find_s(identifier), backend=backend.name)
+                return WrappedStored(thing=backend.find(identifier), backend=backend.name)
             except KeyError:
                 pass
-        return None
+        raise KeyError(f"Cannot find {identifier}")
 
-    def get_path(self, st: Union[StoredThing, StoredBlob]):
+    def find_thing(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
+        return narrow_thing(self.find(identifier=identifier))
+
+    def get_path(self, st: Union[StoredThing, StoredBlob, WrappedStored, WrappedStoredThing]) -> str:
+        if isinstance(st, WrappedStored) or isinstance(st, WrappedStoredThing):
+            ident = st.thing.identifier
+        else:
+            ident = st.identifier
+
         for backend in self.backends:
             try:
-                return backend.get_path(st.identifier)
+                return backend.get_path(ident)
             except KeyError:
                 pass
+        raise KeyError(f"Cannot find {ident}")
 
-    def all(self, blobless=False):
+    def all(self) -> list[WrappedStored]:
         t = [self.find(k) for k in self.keys()]
-        if blobless:
-            return [x for x in t if isinstance(x, StoredThing)]
         return t
 
-    def all_things(self) -> list[StoredThing]:
-        return self.all(blobless=True)
+    def all_things(self) -> list[WrappedStoredThing]:
+        return [narrow_thing(x) for x in self.all() if x.not_blob()]
 
-    def keys(self):
+    def keys(self) -> set[UniformReference]:
         all_keys = set()
         for backend in self.backends:
             all_keys.update(backend.data.keys())
         return all_keys
 
-    def add(self, note: Note) -> StoredThing:
+    def add(self, note: Note, backend: Optional[str]=None) -> WrappedStoredThing:
         st = StoredThing(data=note, urn=UniformReference(app=note.type, namespace=note.namespace))
-        self.save_item(st)
-        return st
+        be = self.save_item(st, backend=backend)
+        return WrappedStoredThing(thing=st, backend=be)
 
-    def save_item(self, stored_thing: StoredThing):
+    def save_item(self, stored_thing: StoredThing, backend: Optional[str]=None) -> str:
         b = None
-        for backend in self.backends:
-            if backend.has(stored_thing.identifier):
-                b = backend
+
+        # TODO: Migrating?
+        if backend is not None:
+            for be in self.backends:
+                if be.name == backend:
+                    b = be
+                    break
+
+        for be in self.backends:
+            if be.has(stored_thing.identifier):
+                b = be
                 break
         else:
             b = self.backends[0]
-        b.save_item(stored_thing)
 
-    def save(self):
+        b.save_item(stored_thing)
+        return b.name
+
+    def save(self) -> None:
         for backend in self.backends:
             backend.save()
 
-    def search(self, **kwargs):
+    def search(self, **kwargs) -> list[WrappedStoredThing]:
         results = []
         custom = None
         if 'custom' in kwargs:
@@ -256,15 +298,15 @@ class OverlayEngine(BaseModel):
             del kwargs['custom']
 
         for st in self.all():
-            if not isinstance(st, StoredThing): continue
+            if not isinstance(st.thing, StoredThing): continue
 
             add = True
             for k, v in kwargs.items():
-                if not hasattr(st.data, k):
+                if not hasattr(st.thing.data, k):
                     add = False
                     continue
 
-                if getattr(st.data, k) != v:
+                if getattr(st.thing.data, k) != v:
                     add = False
             if add:
                 results.append(st)
@@ -292,10 +334,9 @@ class OverlayEngine(BaseModel):
 
         return groups
 
-    def query(self, query):
-        notes = [x.clean_dict()
-                 for x in self.all()
-                 if isinstance(x, StoredThing)]
+    def query(self, query) -> Optional[GroupedResultSet]:
+        notes = [x.thing.clean_dict(x.backend)
+                 for x in self.all_things()]
 
         # We have an 'all' table if you just want to search all types.
         # or individual tables can be searched by type.

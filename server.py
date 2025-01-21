@@ -15,8 +15,8 @@ from typing import List
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
 
-gb1 = GitJsonFilesBackend(name='main', path='/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend(name='alt', path='./projects/alt')
+gb1 = GitJsonFilesBackend(name='hexylena-issues', path='/home/user/projects/issues/')
+gb2 = GitJsonFilesBackend(name='pub', path='./projects/alt')
 
 bos = Boshedron(backends=[gb1, gb2])
 oe = bos.overlayengine
@@ -43,9 +43,9 @@ def render_fixed(fixed):
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
 
-def render_dynamic(st: StoredThing):
+def render_dynamic(st: WrappedStoredThing):
     requested_template: str = "note.html"
-    if tag := st.data.get_tag(typ='template'):
+    if tag := st.thing.data.get_tag(typ='template'):
         requested_template = tag.value or requested_template
 
     template = env.get_template(requested_template)
@@ -58,7 +58,7 @@ def render_dynamic(st: StoredThing):
 
 @app.get("/list")
 def list() -> list[StoredThing]:
-    return oe.all(blobless=True)
+    return oe.all_things()
 
 
 @app.get("/{page}.html", response_class=HTMLResponse)
@@ -121,7 +121,7 @@ async def custom_404_handler(request, _):
 @app.get("/", response_class=HTMLResponse)
 def index():
     # try and find an index page
-    index = [x for x in oe.all() if isinstance(x, StoredThing) and isinstance(x.data, Page) and x.data.page_path == 'index']
+    index = [x for x in oe.all_things() if isinstance(x.thing.data, Page) and x.thing.data.page_path == 'index']
     if len(index) == 0:
         raise Exception()
 
@@ -138,7 +138,7 @@ def read_items(a=None, b=None, c=None, d=None, e=None):
     p = ['urn', 'boshedron', a, b, p2]
     p = [x for x in p if x is not None and x != '']
     u = ':'.join(p)
-    note = oe.find(u)
+    note = oe.find_thing(u)
     if note is None:
         raise HTTPException(status_code=404, detail="Item not found")
     return render_dynamic(note)
