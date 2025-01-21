@@ -4,7 +4,7 @@ import shutil
 from jinja2 import Environment, PackageLoader, select_autoescape
 import os
 from typing import Optional
-from .store import FsBackend, OverlayEngine, StoredThing
+from .store import GitJsonFilesBackend, OverlayEngine, StoredThing
 from .apps import Page
 from .note import *
 from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
@@ -14,7 +14,7 @@ class Boshedron(BaseModel):
     title: str = "BOSHEDRON"
     about: str = '<b style="color:red">DROP AND RUN</b><br><br>DO NOT USE.'
     overlayengine: OverlayEngine = None
-    backends: list[FsBackend]
+    backends: list[GitJsonFilesBackend]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

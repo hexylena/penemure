@@ -1,4 +1,4 @@
-from boshedron.store import FsBackend, OverlayEngine, StoredThing
+from boshedron.store import GitJsonFilesBackend, OverlayEngine, StoredThing
 from boshedron.note import Note, MarkdownBlock
 from boshedron.tags import LifecycleEnum
 from boshedron.refs import UniformReference, UnresolvedReference
@@ -7,8 +7,8 @@ from boshedron.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-gb1 = FsBackend(name='main', path='projects/main')
-gb2 = FsBackend(name='alt', path='./projects/alt')
+gb1 = GitJsonFilesBackend(name='main', path='projects/main')
+gb2 = GitJsonFilesBackend(name='alt', path='./projects/alt')
 
 bos = Boshedron(backends=[gb1, gb2])
 oe = bos.overlayengine

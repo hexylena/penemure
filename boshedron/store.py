@@ -2,6 +2,7 @@ import json
 import itertools
 from sqlglot import parse_one, exp
 import shutil
+import subprocess
 import hashlib
 import os
 from sqlglot.executor import execute
@@ -12,7 +13,7 @@ from .note import Note
 from .refs import UniformReference
 from .apps import ModelFromAttr, Account
 from .sqlish import GroupedResultSet, ResultSet, extract_groups
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
 
 
@@ -125,10 +126,19 @@ class StoredThing(StoredBlob):
         )
 
 
-class FsBackend(BaseModel):
+class GitJsonFilesBackend(BaseModel):
     name: str
     path: str
     data: Dict[UniformReference, Union[StoredThing, StoredBlob]] = Field(default=dict())
+    last_update: Optional[PastDatetime] = None
+
+    def sync(self):
+        if self.last_update is not None:
+            pass # todo logic to not push/pull too frequently
+
+        subprocess.check_call(['git', 'add', '.'], cwd=self.path)
+        subprocess.check_call(['git', 'pull', '--rebase', 'origin', 'main'], cwd=self.path)
+        subprocess.check_call(['git', 'push', 'origin', 'main'], cwd=self.path)
 
     def save_item(self, stored_thing: StoredThing):
         """Save updates to an existing file."""
@@ -180,7 +190,7 @@ class FsBackend(BaseModel):
 
 
 class OverlayEngine(BaseModel):
-    backends: list[FsBackend]
+    backends: list[GitJsonFilesBackend]
 
     def load(self):
         for backend in self.backends:
