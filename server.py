@@ -15,7 +15,7 @@ from typing import List
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
 
-gb1 = GitJsonFilesBackend(name='main', path='projects/main')
+gb1 = GitJsonFilesBackend(name='main', path='/home/user/projects/issues/')
 gb2 = GitJsonFilesBackend(name='alt', path='./projects/alt')
 
 bos = Boshedron(backends=[gb1, gb2])
