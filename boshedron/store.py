@@ -3,7 +3,6 @@ from sqlglot import parse_one, exp
 from sqlglot.executor import execute
 from typing import Optional, Union
 from .note import Note
-from .back import *
 from .refs import UniformReference
 from .sqlish import GroupedResultSet, ResultSet, extract_groups
 from pydantic import BaseModel
@@ -142,6 +141,7 @@ class GitJsonFilesBackend(BaseBackend):
             pass # todo logic to not push/pull too frequently
 
         subprocess.check_call(['git', 'add', '.'], cwd=self.path)
+        subprocess.check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
         subprocess.check_call(['git', 'pull', '--rebase', 'origin', 'main'], cwd=self.path)
         subprocess.check_call(['git', 'push', 'origin', 'main'], cwd=self.path)
 
