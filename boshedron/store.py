@@ -350,7 +350,8 @@ class OverlayEngine(BaseModel):
             if be.has(stored_thing.identifier):
                 b = be
                 break
-        else:
+
+        if b is None:
             b = self.backends[0]
 
         b.save_item(stored_thing)

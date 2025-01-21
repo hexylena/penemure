@@ -6,7 +6,7 @@ from boshedron.tags import *
 import sys
 
 gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./projects/alt')
+gb2 = GitJsonFilesBackend.discover('./pub')
 bos = Boshedron(backends=[gb1, gb2])
 bos.load()
 
