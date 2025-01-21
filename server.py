@@ -61,23 +61,6 @@ def render_dynamic(st: WrappedStoredThing):
 def list() -> list[StoredThing]:
     return oe.all_things()
 
-
-@app.get("/{page}.html", response_class=HTMLResponse)
-def read_items(page: str):
-    if page in ('search', 'new', 'time', 'redir', 'edit'):
-        return render_fixed(page + '.html')
-
-    return f"""
-    <html>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>Look ma! HTML! {page}</h1>
-        </body>
-    </html>
-    """
-
 class FormData(BaseModel):
     title: str
     project: str | List[str]
@@ -130,6 +113,23 @@ def index():
         raise Exception()
 
     return render_dynamic(index[0])
+
+
+@app.get("/{page}.html", response_class=HTMLResponse)
+def fixed_page(page: str):
+    if page in ('search', 'new', 'time', 'redir', 'edit'):
+        return render_fixed(page + '.html')
+
+    return f"""
+    <html>
+        <head>
+            <title>Some HTML in here</title>
+        </head>
+        <body>
+            <h1>Look ma! HTML! {page}</h1>
+        </body>
+    </html>
+    """
 
 
 # Eww.

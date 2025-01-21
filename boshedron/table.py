@@ -29,6 +29,8 @@ def render_kanban(results: GroupedResultSet):
         page_content += f'<div class="kanban-column">'
         if group.title:
             page_content += f'<div class="title">{group.title.title()}</div>'
+        else:
+            page_content += f'<div class="title">Unknown</div>'
         for row in group.rows:
             page_content += f'<div class="card">'
             for x in row:
