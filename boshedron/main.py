@@ -6,6 +6,7 @@ import os
 from typing import Optional
 from .store import FsBackend, OverlayEngine, StoredThing
 from .apps import Page
+from .note import *
 from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
 
 
@@ -24,6 +25,10 @@ class Boshedron(BaseModel):
 
     def save(self):
         return self.overlayengine.save()
+
+    def apps(self):
+        """List registered 'apps'"""
+        return [p.model_fields['type'].default for p in Note.__subclasses__()] + [Note.model_fields['type'].default]
 
     def export(self, path):
         if not os.path.exists(path):

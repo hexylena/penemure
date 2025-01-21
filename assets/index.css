@@ -1,15 +1,8 @@
 :root {
-	--background: Canvas;
-	--background-o: #eee;
-	--color: CanvasText;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-	--background: CanvasText;
-	--background-o: #222;
-	--color: Canvas;
-  }
+	--background: light-dark(Canvas, CanvasText);
+	--background-o: light-dark(#eee, #222);
+	--color: light-dark(CanvasText, Canvas);
+	color-scheme: light dark;
 }
 
 body {

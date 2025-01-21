@@ -3,11 +3,11 @@
 {% block title %}{{ note.relative_path }} | {{ Config.Title | safe }}{% endblock %}
 
 {% block main %}
+{% if note.data.cover_image() %}
 <div>
-	-- if note.GetCover --
-	<img src="-- .Note.GetCover --" class="cover">
-	-- end --
+	<img src="{{ note.data.cover_image() }}" class="cover">
 </div>
+{% endif %}
 <hgroup>
 	<h1>
 		{{ note.data.icon }}

@@ -37,6 +37,9 @@
 			</span>
 			<span class="column" style="display: flex">
 				{% if Config.IsServing %}
+				<a href="{{ Config.ExportPrefix }}/new.html">➕</a> &nbsp;
+				<a href="{{ Config.ExportPrefix }}/edit.html">📝</a> &nbsp;
+				<a href="{{ Config.ExportPrefix }}/time.html">⏰</a> &nbsp;
 				{% endif %}
 
 				<form action="{{ Config.ExportPrefix }}/search.html">
@@ -70,7 +73,7 @@ await mermaid.run({
 
 navigator.registerProtocolHandler(
   "web+boshedron",
-  "http://localhost:8000/export2/redir.html?q=%s",
+  "http://localhost:8000/redir.html?q=%s",
 );
 		</script>
 	</body>

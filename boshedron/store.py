@@ -6,7 +6,6 @@ import hashlib
 import os
 from sqlglot.executor import execute
 import glob
-import uuid
 from typing import Dict
 from typing import Optional, Union
 from .note import Note
@@ -152,7 +151,7 @@ class FsBackend(BaseModel):
     def find(self, identifier: UniformReference) -> Union[StoredThing, StoredBlob]:
         return self.data[identifier]
 
-    def find_s(self, identifier: str) -> Union[StoredThing, StoredBlob]:
+    def find_s(self, identifier: str) -> StoredThing | StoredBlob:
         ufr = UniformReference.from_string(identifier)
         return self.find(ufr)
 
@@ -187,7 +186,7 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             backend.load()
 
-    def find(self, identifier: (UniformReference | str)):
+    def find(self, identifier: (UniformReference | str)) -> StoredThing | StoredBlob | None:
         # Find the first version of this from all of our backends, to enable shadowing.
         for backend in self.backends:
             try:
@@ -205,8 +204,14 @@ class OverlayEngine(BaseModel):
             except KeyError:
                 pass
 
-    def all(self):
-        return [self.find(k) for k in self.keys()]
+    def all(self, blobless=False):
+        t = [self.find(k) for k in self.keys()]
+        if blobless:
+            return [x for x in t if isinstance(x, StoredThing)]
+        return t
+
+    def all_things(self) -> list[StoredThing]:
+        return self.all(blobless=True)
 
     def keys(self):
         all_keys = set()
@@ -338,3 +343,6 @@ class OverlayEngine(BaseModel):
         # and pull out our desired groups
         desired_groups = desired_groups[0].sql().replace('GROUP BY ', '').split(',')
         return extract_groups(r, desired_groups)
+
+    def get_id(self):
+        return UniformReference(app='none').ident

@@ -11,38 +11,57 @@
 		<fieldset>
 			<legend>New Note</legend>
 
-			<label for="name">Name</label>
-			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?">
+			<label for="title">Title</label>
+			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?">
 
 			<label for="project">Parent(s)</label>
-			<select id="project" multiple data-placeholder="Parent(s)" name="project">
-				-- range $g := .Gn.GetStructuredNotes --
-				<optgroup label="--$g.Group--">
-					-- range $p := $g.Notes --
-					<option value="-- $p.NoteId--" -- if eq $p.NoteId $.Note.NoteId --selected--end-->-- $p.GetEmoji -- -- $p.Title | html --</option>
-					-- end--
+			<select id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
+				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
+				<optgroup label="{{ group.title }}">
+					{% for (id, title, type) in group.rows %}
+					<option value="{{ id }}" -- if $.Note.HasParent $p.NoteId --selected-- end -->
+						{{ title }}
+					</option>
+					{% endfor %}
 				</optgroup>
-				-- end --
+				{% endfor %}
 			</select>
+
+			<script>
+				new TomSelect("#parent-select", {
+					plugins: ['remove_button'],
+					create: true,
+				});
+			</script>
 
 			<label for="type">Type</label>
 			<select id="type" name="type">
-				-- range $t := .Gn.GetTypes --
-				<option value="-- $t --"-- if eq $t $.Note.Type --selected-- end -->-- $t --</option>
-				-- end --
-			</select>
-
-
-			<label for="tags">tags</label>
-			<select id="tags" multiple data-placeholder="#email #dev #writing" name="tags">
-				-- range $g := .Gn.GetTags --
-					<option value="-- $g | html--">-- $g | html --</option>
-				-- end --
+				{% for app in bos.apps() %}
+				<option value="{{ app }}" {% if app == 'note' %}selected{% endif %}>{{ app.title() }}</option>
+				{% endfor %}
 			</select>
 
 			<label for="notes">Contents</label>
-			<textarea id="notes" name="notes" placeholder="jrnl goes here" rows="20"></textarea>
 
+			<div id="notes" name='contents'>
+				<div class="block" style="display: flex">
+					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+					</div>
+					<div style="display: flex; flex-direction: column; flex-grow: 7">
+						<select id="type" name="content_type">
+							<option value="markdown">Markdown</option>
+							<option value="query-table">Query (Table)</option>
+							<option value="query-kanban">Query (Kanban)</option>
+						</select>
+						<input type="hidden" name="content_uuid" value="REPLACEME">
+						<textarea name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
+					</div>
+				</div>
+			</div>
+
+			<!--
 			<table>
 				<caption>Page Metadata</caption>
 				<thead>
@@ -72,6 +91,7 @@
 				</tbody>
 			</table>
 			<button type="button" onclick="addRow()">➕ Add Meta</button>
+			-->
 
 			<br/>
 
@@ -80,31 +100,25 @@
 	</form>
 
 	<script>
+// https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
+function uuid() {
+	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
+}
 
-	new TomSelect("#project",{
-		plugins: ['remove_button'],
-		create: true,
-	});
+	const template = document.querySelector('#notes .block').outerHTML;
+	document.querySelector('#notes .block input[name="content_uuid"]').value = uuid();
 
-	new TomSelect("#tags",{
-		plugins: ['remove_button'],
-		create: true,
-	});
-	function addRow() {
-		tr = document.getElementById("meta").insertRow();
-		// timestamp
-		tr.id = "meta_r" + Date.now();
-		td = tr.insertCell();
-		td.innerHTML = '<input type="text" id="m_type" name="m_type" value="">';
-		td = tr.insertCell();
-		td.innerHTML = '<input type="text" id="m_titl" name="m_titl" value="">';
-		td = tr.insertCell();
-		td.innerHTML = '<input type="text" id="m_valu" name="m_valu" value="">';
-		td = tr.insertCell();
-		td.innerHTML = '<input type="text" id="m_icon" name="m_icon" value="">';
-		td = tr.insertCell();
-		td.innerHTML = `<button type="button" onclick="document.getElementById('${tr.id}').remove()">❌</button>`;
+	function insertbefore(e){
+		let block = e.parentElement.parentElement;
+		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
 	}
+
+	function insertafter(e){
+		let block = e.parentElement.parentElement;
+		block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
+	}
+
+
 	</script>
 
 {% endblock %}

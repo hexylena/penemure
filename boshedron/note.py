@@ -237,3 +237,8 @@ class Note(BaseModel):
         e = self.get_tag(typ='date', title='End Date')
 
         return not(s is not None and e is not None)
+
+    def cover_image(self):
+        t = self.get_tag(typ='cover')
+        if t is not None:
+            return t.value

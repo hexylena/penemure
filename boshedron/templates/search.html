@@ -34,7 +34,7 @@
 		<th>Tags</th>
 		<th>Contributor(s)</th>
 	</tr>
-	{% for note in notes %}
+	{% for note in oe.all_things() %}
 	<tr>
 		<td><a class="urn" href="{{ note.urn.urn }}#url">{{ note.urn.urn }}#title</a></td>
 		<td>{{ note.data.type }}</td>
