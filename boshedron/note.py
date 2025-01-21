@@ -14,6 +14,7 @@ import uuid
 from .tags import *
 from .refs import *
 from .table import *
+from .back import *
 
 
 
@@ -35,9 +36,29 @@ class MarkdownBlock(BaseModel):
                 page_content = render_table(res)
             elif self.type == 'query-kanban':
                 page_content = render_kanban(res)
+            else:
+                raise NotImplementedError()
+        elif self.type.startswith('chart'):
+            if self.type == 'chart-table':
+                res = oe.query(self.contents, sql=True)
+                page_content = render_table(res)
+            elif self.type == 'chart-pie':
+                res = oe.query(self.contents, sql=True)
+                page_content = render_pie(res)
+            elif self.type == 'chart-gantt':
+                res = oe.query(self.contents) # non proper sql
+                page_content = render_gantt(res)
+        else:
+            raise NotImplementedError()
 
         page_content = UniformReference.rewrite_urns(page_content, path, oe)
-        return f'<article class="block"><div class="contents">{page_content}</div><span class="author">{self.author.urn}</span></article>'
+        # TODO: something better with author.
+        return f'''
+            <article class="block">
+                <div class="contents">{page_content}</div>
+                <!-- <span class="author">{self.author.urn}</span> -->
+            </article>
+        '''
 
 
 # This describes the data stored in a StoredThing
@@ -60,7 +81,7 @@ class Note(BaseModel):
 
 
     def touch(self):
-        self.updated = datetime.now()
+        self.updated = datetime.datetime.today()
 
     def get_parents(self) -> list[UniformReference]:
         return self.parents or []
@@ -69,7 +90,7 @@ class Note(BaseModel):
         # semi-equivalent to oe.query("select id from __all__ where parents like '%own_urn%'")
         kids = []
         for note in oe.search():
-            if own_urn in note.data.get_parents():
+            if own_urn in note.thing.data.get_parents():
                 kids.append(note)
 
         return kids
@@ -80,12 +101,12 @@ class Note(BaseModel):
     def get_lineage(self, oe, d=0):
         res = []
         for p in self.resolve_parents(oe):
-            res_sub = p.data.get_lineage(oe, d = d + 1)
+            res_sub = p.thing.data.get_lineage(oe, d = d + 1)
             if len(res_sub) == 0:
-                res.append([p.urn.urn])
+                res.append([p.thing.urn.urn])
             else:
                 for r in res_sub:
-                    res.append([p.urn.urn, r])
+                    res.append([p.thing.urn.urn, r])
         return res
 
     @property

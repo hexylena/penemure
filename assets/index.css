@@ -176,12 +176,13 @@ div.kanban {
 
 /* blocks */
 .contents {
-	border: 1px solid #ccc;
+	border-top: 1px solid #eee;
 	padding: 1em;
 }
 
 .block {
-	margin-top: 2em;
+	/* margin-top: 2em; */
+	position: relative;
 }
 
 .author {
@@ -193,6 +194,11 @@ div.kanban {
 	border-radius: 0% 0% 10px 10px / 0% 0% 10px 10px;
 	padding-inline-start: 1em;
 	padding-inline-end: 1em;
+
+	padding: 2px 6px;
+	position: absolute;
+	right: 0px;
+	top: 0px;
 }
 .tag {
 	border: 1px solid black;

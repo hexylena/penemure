@@ -50,6 +50,9 @@ class UniformReference(BaseModel, frozen=True):
             raise Exception("Unknown URN prefix")
 
         urn = urn[2:]
+        # Not sure about this
+        urn = [x for x in urn if x != '']
+
         if len(urn) == 3:
             return cls(app=urn[0], namespace=urn[1], ident=urn[2])
         elif len(urn) == 2:
@@ -67,7 +70,7 @@ class UniformReference(BaseModel, frozen=True):
             if u.group(3) == "title":
                 ref = oe.find(urn_ref)
                 # print(ref, urn_ref.urn)
-                return ref.html_title # should it be html by default?
+                return ref.thing.html_title # should it be html by default?
             elif u.group(3) == "url":
                 return prefix + '/' + urn_ref.url + '.html'
             else:

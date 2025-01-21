@@ -98,7 +98,7 @@
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
-				<option value="{{ backend.name }}">{{ backend.name }}</option>
+				<option value="{{ backend.name }}">{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}
 			</select>
 

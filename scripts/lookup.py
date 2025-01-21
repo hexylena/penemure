@@ -7,8 +7,8 @@ from boshedron.refs import *
 import sqlglot
 import sys
 
-gb1 = GitJsonFilesBackend(name='main', path='projects/main')
-# gb2 = GitJsonFilesBackend(name='alt', path='./projects/alt')
+gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
+gb2 = GitJsonFilesBackend.discover('./projects/alt')
 
 gb1.load()
 for k, v in gb1.data.items():

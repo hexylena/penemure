@@ -1,4 +1,5 @@
 from .sqlish import GroupedResultSet
+import datetime
 
 
 def render_table(results: GroupedResultSet):
@@ -11,7 +12,8 @@ def render_table(results: GroupedResultSet):
     colspan = len(results.groups[0].header)
 
     for group in results.groups:
-        page_content += f'<td colspan="{colspan}" class="header">{group.title}</td>'
+        if len(results.groups) > 1:
+            page_content += f'<tr><td colspan="{colspan}" class="header">{group.title}</td></tr>'
         for row in group.rows:
             page_content += "<tr>"
             page_content += "".join([f"<td>{x}</td>" for x in row])
@@ -34,4 +36,25 @@ def render_kanban(results: GroupedResultSet):
             page_content += "</div>"
         page_content += '</div>'
     page_content += "</div>"
+    return page_content
+
+def render_pie(results: GroupedResultSet):
+    page_content = ""
+    for group in results.groups:
+        # chartscss instead of mermaid?
+        page_content += f'<pre class="mermaid">pie title {group.title or ""}\n'
+        for row in group.rows:
+            page_content += f'    "{row[0]}" : {row[1]}\n'
+        page_content += '</pre>'
+    return page_content
+
+def render_gantt(results: GroupedResultSet):
+    page_content = f'<pre class="mermaid">gantt\n    dateFormat X\n    title Gantt\n'
+    for group in results.groups:
+        page_content += f'    section {group.title.title()}\n'
+        # chartscss instead of mermaid?
+        for row in group.rows:
+            page_content += f'        {row[0]} : {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
+
+    page_content += '</pre>'
     return page_content

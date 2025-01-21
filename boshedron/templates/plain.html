@@ -1,28 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{{ note.relative_path }} | {{ Config.Title | safe }}{% endblock %}
+{% block title %}{{ note.thing.relative_path }} | {{ Config.Title | safe }}{% endblock %}
 
 {% block main %}
 
-{% if note.data.contents %}
-{% for b in note.data.contents %}
+{% if note.thing.data.contents %}
+{% for b in note.thing.data.contents %}
 {{ b.render(oe, Config.ExportPrefix) }}
 {% endfor %}
 {% endif %}
-
-{% if note.data.attachments %}
-<h3>Attachments</h3>
-{% for att in note.data.attachments %}
-{{ att }}
-{% endfor %}
-{% endif %}
-
-<hr/>
-
-<details>
-	<summary>Queryable fields</summary>
-	<pre>{{ note.clean_dict() }}
-</details>
 
 {% endblock %}
 

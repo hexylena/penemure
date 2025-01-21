@@ -7,8 +7,8 @@ from boshedron.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-gb1 = GitJsonFilesBackend(name='main', path='projects/main')
-gb2 = GitJsonFilesBackend(name='alt', path='./projects/alt')
+gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
+gb2 = GitJsonFilesBackend.discover('./projects/alt')
 
 bos = Boshedron(backends=[gb1, gb2])
 oe = bos.overlayengine

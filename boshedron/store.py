@@ -1,18 +1,21 @@
-import json
 import itertools
 from sqlglot import parse_one, exp
-import shutil
-import subprocess
-import hashlib
-import os
 from sqlglot.executor import execute
+from typing import Optional, Union
+from .note import Note
+from .back import *
+from .refs import UniformReference
+from .sqlish import GroupedResultSet, ResultSet, extract_groups
+from pydantic import BaseModel
+import json
+import subprocess
+import os
 import glob
-from typing import Dict, Tuple
+from typing import Dict
 from typing import Optional, Union
 from .note import Note
 from .refs import UniformReference
 from .apps import ModelFromAttr, Account
-from .sqlish import GroupedResultSet, ResultSet, extract_groups
 from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
 
@@ -79,30 +82,6 @@ class StoredThing(StoredBlob):
     def link(self) -> str:
         return os.path.join(self.relative_path + '.html')
 
-    def clean_dict(self, backend=None):
-        d = self.data.model_dump()
-        d['id'] = self.urn.urn
-        d['backend'] = backend
-
-        for k in ('contents', 'attachments', 'tags'):
-            if k in d:
-                del d[k]
-
-        # TODO: shadowing?
-        for tag in self.data.tags:
-            d[tag.key] = tag.render()
-
-        # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
-        d['title'] = f'<a href="{self.urn.urn}#url">{self.html_title}</a>'
-        d['title_plain'] = f'{self.html_title}'
-
-        if d['parents'] is not None and len(d['parents']) > 0:
-            d['parents'] = ' XX '.join([x.urn for x in self.data.get_parents()])
-        else:
-            d['parents'] = None
-
-        return d
-
     @computed_field
     @property
     def identifier(self) -> UniformReference:
@@ -134,6 +113,10 @@ class BaseBackend(BaseModel):
     name: str
     description: str
     path: str
+
+    @property
+    def html_title(self):
+        return f'{self.description} ({self.name})'
 
     @classmethod
     def discover(cls, path):
@@ -227,15 +210,40 @@ class WrappedStored(BaseModel):
 
 class WrappedStoredThing(BaseModel):
     thing: StoredThing
-    backend: Optional[GitJsonFilesBackend] = None
+    backend: GitJsonFilesBackend
 
     def not_blob(self):
         return True
+
+    def clean_dict(self):
+        d = self.thing.data.model_dump()
+        d['id'] = self.thing.urn.urn
+        d['backend'] = self.backend.name
+
+        for k in ('contents', 'attachments', 'tags'):
+            if k in d:
+                del d[k]
+
+        # TODO: shadowing?
+        for tag in self.thing.data.tags:
+            d[tag.key] = tag.render()
+
+        # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
+        d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'
+        d['title_plain'] = f'{self.thing.html_title}'
+
+        if d['parents'] is not None and len(d['parents']) > 0:
+            d['parents'] = ' XX '.join([x.urn for x in self.thing.data.get_parents()])
+        else:
+            d['parents'] = None
+
+        return d
 
 def narrow_thing(s: WrappedStored) -> WrappedStoredThing:
     if isinstance(s.thing, StoredThing):
         return WrappedStoredThing(thing=s.thing, backend=s.backend)
     raise Exception()
+
 
 
 class OverlayEngine(BaseModel):
@@ -359,8 +367,8 @@ class OverlayEngine(BaseModel):
 
         return groups
 
-    def query(self, query) -> Optional[GroupedResultSet]:
-        notes = [x.thing.clean_dict(x.backend)
+    def make_a_db(self, ensure_present):
+        notes = [x.clean_dict()
                  for x in self.all_things()]
 
         # We have an 'all' table if you just want to search all types.
@@ -371,6 +379,15 @@ class OverlayEngine(BaseModel):
                 tables[note['type']] = []
             tables[note['type']].append(note)
             tables['__all__'].append(note)
+
+        tables['__backend__'] = [
+            {
+                'id': b.name,
+                'name': b.name,
+                'description': b.description,
+                'path': b.path}
+            for b in self.backends
+        ]
 
         def fix_tags(items, ensure=[]):
             # ensure that every item has every key.
@@ -386,11 +403,28 @@ class OverlayEngine(BaseModel):
                         i[k] = ""
             return items
 
+        tables = {k: fix_tags(v, ensure=ensure_present)
+                  for k, v in tables.items()}
+
+        # import pprint
+        # pprint.pprint(tables)
+        return tables
+
+    def query(self, query, sql=False) -> Optional[GroupedResultSet]:
+        # Allow overriding with keywords
+        if query.split(' ')[0] == 'GROUP':
+            sql = False
+            query = ' '.join(query.split(' ')[1:])
+        elif query.split(' ')[0] == 'SQL':
+            sql = True
+            query = ' '.join(query.split(' ')[1:])
+
+
         res = parse_one(query)
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
         selects = [x.this.this for x in list(res.find_all(exp.Column))]
-        tables = {k: fix_tags(v, ensure=selects) for k, v in tables.items()}
+        tables = self.make_a_db(selects)
 
         # TODO: add any group by clauses to the select, otherwise we won't get
         # that data back! they can then be hidden afterwards.
@@ -400,10 +434,14 @@ class OverlayEngine(BaseModel):
                 return None
             return node
 
-        desired_groups = list(res.find_all(exp.Group))
 
         # a version without any group by
-        groupless_query = res.transform(groupless_behaviour).sql()
+        if sql:
+            desired_groups = []
+            groupless_query = res.sql()
+        else:
+            desired_groups = list(res.find_all(exp.Group))
+            groupless_query = res.transform(groupless_behaviour).sql()
         print(res.sql())
 
         res = execute(groupless_query, tables=tables)
@@ -422,3 +460,9 @@ class OverlayEngine(BaseModel):
 
     def get_id(self):
         return UniformReference(app='none').ident
+
+    def get_backend(self, name: str) -> GitJsonFilesBackend:
+        for b in self.backends:
+            if b.name == name:
+                return b
+        raise KeyError(f"Could not find {name}")

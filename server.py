@@ -84,6 +84,7 @@ class FormData(BaseModel):
     content_type: List[Any]
     content_uuid: List[Any]
     content_note: List[Any]
+    backend: str
 
 @app.post("/new.html")
 def save_new(data: Annotated[FormData, Form()]):
@@ -106,8 +107,9 @@ def save_new(data: Annotated[FormData, Form()]):
         dj['parents'] = [UniformReference.from_string(x) for x in data.project]
 
     obj = ModelFromAttr(dj).model_validate(dj)
-    res = bos.overlayengine.add(obj)
-    return RedirectResponse(f"web+boshedron:{res.urn.urn}")
+    be = bos.overlayengine.get_backend(data.backend)
+    res = bos.overlayengine.add(obj, backend=be)
+    return RedirectResponse(f"web+boshedron:{res.thing.urn.urn}")
 
 @app.exception_handler(404)
 async def custom_404_handler(request, _):

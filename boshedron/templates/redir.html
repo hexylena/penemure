@@ -8,7 +8,7 @@ Redirecting...
 <script>
 const paths = {
 	{% for note in oe.search() %}
-	"{{ note.urn.urn }}": "{{ note.urn.urn }}#url",
+	"{{ note.thing.urn.urn }}": "{{ note.thing.urn.urn }}#url",
 	{%- endfor %}
 };
 
