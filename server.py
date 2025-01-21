@@ -51,6 +51,7 @@ def render_dynamic(st: WrappedStoredThing):
     template = env.get_template(requested_template)
     config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
+    print(repr(st))
     page_content = template.render(note=st, bos=bos, oe=bos.overlayengine, Config=config, Gn=gn, blob=blobify)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
@@ -120,6 +121,7 @@ async def custom_404_handler(request, _):
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
 
+@app.get("/index.html", response_class=HTMLResponse)
 @app.get("/", response_class=HTMLResponse)
 def index():
     # try and find an index page

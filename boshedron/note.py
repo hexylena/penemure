@@ -72,8 +72,8 @@ class Note(BaseModel):
     ]] = Field(default_factory=list)
 
     version: Optional[int] = 2
-    created: PastDatetime = Field(default_factory=lambda : datetime.now())
-    updated: PastDatetime = Field(default_factory=lambda : datetime.now())
+    created: PastDatetime = Field(default_factory=lambda : datetime.datetime.now())
+    updated: PastDatetime = Field(default_factory=lambda : datetime.datetime.now())
     namespace: Union[str, None] = None
     type: str = 'note'
     attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)

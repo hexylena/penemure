@@ -132,6 +132,9 @@ class BaseBackend(BaseModel):
 
         return cls.model_validate(data)
 
+    def __repr__(self):
+        return f'GitJsonFilesBackend(name={self.name}, description={self.description}, path={self.path})'
+
 
 class GitJsonFilesBackend(BaseBackend):
     data: Dict[UniformReference, Union[StoredThing, StoredBlob]] = Field(default=dict())
@@ -142,15 +145,16 @@ class GitJsonFilesBackend(BaseBackend):
             pass # todo logic to not push/pull too frequently
 
         has_changes = subprocess.check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
-        if len(has_changes) > 0:
-            print(f'{self.path} has changes, {has_changes}')
+        new_files =  subprocess.check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
+        if len(has_changes) > 0 or len(new_files) > 0:
+            print(f'{self.path} has changes, {len(has_changes)} || len({new_files})')
             subprocess.check_call(['git', 'add', '.'], cwd=self.path)
             subprocess.check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
 
         subprocess.check_call(['git', 'pull', '--rebase', 'origin', 'main'], cwd=self.path)
         subprocess.check_call(['git', 'push', 'origin', 'main'], cwd=self.path)
 
-    def save_item(self, stored_thing: StoredThing):
+    def save_item(self, stored_thing: StoredThing, fsync=True):
         """Save updates to an existing file."""
         self.data[stored_thing.identifier] = stored_thing
 
@@ -162,6 +166,16 @@ class GitJsonFilesBackend(BaseBackend):
 
         with open(full_path, 'wb') as f:
             f.write(to_json(stored_thing.data))
+
+        if fsync:
+            self.sync()
+
+    def remove_item(self, stored_thing: StoredThing, fsync=True):
+        del self.data[stored_thing.identifier]
+        full_path = os.path.join(self.path, stored_thing.relative_path)
+        os.unlink(full_path)
+        if fsync:
+            self.sync()
 
     def save(self):
         for v in self.data.values():
@@ -256,7 +270,6 @@ class OverlayEngine(BaseModel):
 
     def load(self):
         for backend in self.backends:
-            print(backend)
             backend.load()
 
     def find(self, identifier: (UniformReference | str)) -> WrappedStored:
@@ -269,6 +282,25 @@ class OverlayEngine(BaseModel):
             except KeyError:
                 pass
         raise KeyError(f"Cannot find {identifier}")
+
+    def migrate_backend(self, identifier: (UniformReference | str), backend: GitJsonFilesBackend) -> None:
+        ws = self.find(identifier)
+
+        if ws.backend == backend:
+            # Already in the right place
+            return
+
+        # Save to new backend
+        if not isinstance(ws.thing, StoredThing):
+            raise NotImplementedError("Haven't handled stored blob migration")
+
+        if ws.backend is None:
+            raise Exception("Missing backend")
+
+        backend.save_item(ws.thing, fsync=False)
+
+        # Remove from old backend
+        ws.backend.remove_item(ws.thing, fsync=False)
 
     def find_thing(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
         return narrow_thing(self.find(identifier=identifier))
