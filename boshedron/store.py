@@ -130,9 +130,27 @@ class StoredThing(StoredBlob):
         )
 
 
-class GitJsonFilesBackend(BaseModel):
+class BaseBackend(BaseModel):
     name: str
+    description: str
     path: str
+
+    @classmethod
+    def discover(cls, path):
+        meta = os.path.join(path, 'meta.json')
+        if os.path.exists(meta):
+            with open(meta, 'r') as handle:
+                data = json.load(handle)
+        else:
+            data = {'name': path, 'description': ''}
+            with open(meta, 'w') as handle:
+                json.dump(data, handle)
+        data['path'] = path
+
+        return cls.model_validate(data)
+
+
+class GitJsonFilesBackend(BaseBackend):
     data: Dict[UniformReference, Union[StoredThing, StoredBlob]] = Field(default=dict())
     last_update: Optional[PastDatetime] = None
 
@@ -185,6 +203,12 @@ class GitJsonFilesBackend(BaseModel):
             if os.path.isdir(path):
                 continue
 
+            # Ignore backend meta
+            if path.replace(self.path.rstrip('/') + '/', '') == 'meta.json':
+                continue
+
+            print('realising', self.path, path)
+
             if 'file/blob/' in path:
                 st = StoredBlob.realise_from_path(self.path, path)
             else:
@@ -195,7 +219,7 @@ class GitJsonFilesBackend(BaseModel):
 
 class WrappedStored(BaseModel):
     thing: StoredThing | StoredBlob
-    backend: Optional[str] = None
+    backend: Optional[GitJsonFilesBackend] = None
 
     def not_blob(self):
         return isinstance(self.thing, StoredThing)
@@ -203,7 +227,7 @@ class WrappedStored(BaseModel):
 
 class WrappedStoredThing(BaseModel):
     thing: StoredThing
-    backend: Optional[str] = None
+    backend: Optional[GitJsonFilesBackend] = None
 
     def not_blob(self):
         return True
@@ -219,6 +243,7 @@ class OverlayEngine(BaseModel):
 
     def load(self):
         for backend in self.backends:
+            print(backend)
             backend.load()
 
     def find(self, identifier: (UniformReference | str)) -> WrappedStored:
@@ -226,8 +251,8 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             try:
                 if isinstance(identifier, str):
-                    return WrappedStored(thing=backend.find_s(identifier), backend=backend.name)
-                return WrappedStored(thing=backend.find(identifier), backend=backend.name)
+                    return WrappedStored(thing=backend.find_s(identifier), backend=backend)
+                return WrappedStored(thing=backend.find(identifier), backend=backend)
             except KeyError:
                 pass
         raise KeyError(f"Cannot find {identifier}")
@@ -261,12 +286,12 @@ class OverlayEngine(BaseModel):
             all_keys.update(backend.data.keys())
         return all_keys
 
-    def add(self, note: Note, backend: Optional[str]=None) -> WrappedStoredThing:
+    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None) -> WrappedStoredThing:
         st = StoredThing(data=note, urn=UniformReference(app=note.type, namespace=note.namespace))
         be = self.save_item(st, backend=backend)
         return WrappedStoredThing(thing=st, backend=be)
 
-    def save_item(self, stored_thing: StoredThing, backend: Optional[str]=None) -> str:
+    def save_item(self, stored_thing: StoredThing, backend: Optional[GitJsonFilesBackend]=None) -> GitJsonFilesBackend:
         b = None
 
         # TODO: Migrating?
@@ -284,7 +309,7 @@ class OverlayEngine(BaseModel):
             b = self.backends[0]
 
         b.save_item(stored_thing)
-        return b.name
+        return b
 
     def save(self) -> None:
         for backend in self.backends:

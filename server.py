@@ -15,8 +15,8 @@ from typing import List
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
 
-gb1 = GitJsonFilesBackend(name='hexylena-issues', path='/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend(name='pub', path='./projects/alt')
+gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
+gb2 = GitJsonFilesBackend.discover('./projects/alt')
 
 bos = Boshedron(backends=[gb1, gb2])
 oe = bos.overlayengine

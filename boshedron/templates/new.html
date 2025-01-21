@@ -95,6 +95,13 @@
 
 			<br/>
 
+			<label for="backend">Backend</label>
+			<select id="backend" name="backend">
+				{% for backend in oe.backends %}
+				<option value="{{ backend.name }}">{{ backend.name }}</option>
+				{% endfor %}
+			</select>
+
 			<button type="submit">Save Notes</button>
 		</fieldset>
 	</form>
