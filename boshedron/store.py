@@ -141,8 +141,12 @@ class GitJsonFilesBackend(BaseBackend):
         if self.last_update is not None:
             pass # todo logic to not push/pull too frequently
 
-        subprocess.check_call(['git', 'add', '.'], cwd=self.path)
-        subprocess.check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
+        has_changes = subprocess.check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
+        if len(has_changes) > 0:
+            print(f'{self.path} has changes, {has_changes}')
+            subprocess.check_call(['git', 'add', '.'], cwd=self.path)
+            subprocess.check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
+
         subprocess.check_call(['git', 'pull', '--rebase', 'origin', 'main'], cwd=self.path)
         subprocess.check_call(['git', 'push', 'origin', 'main'], cwd=self.path)
 
