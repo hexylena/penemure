@@ -1,22 +1,23 @@
 import itertools
-from sqlglot import parse_one, exp
-from sqlglot.executor import execute
-from typing import Optional, Union
-from .note import Note
-from .refs import UniformReference
-from .sqlish import GroupedResultSet, ResultSet, extract_groups
-from pydantic import BaseModel
 import json
 import subprocess
 import os
 import glob
-from typing import Dict
-from typing import Optional, Union
+
+from .note import Note
+from .refs import UniformReference
+from .sqlish import GroupedResultSet, ResultSet, extract_groups
 from .note import Note
 from .refs import UniformReference
 from .apps import ModelFromAttr, Account
+from pydantic import BaseModel
 from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
+from sqlglot import parse_one, exp
+from sqlglot.executor import execute
+from typing import Dict
+from typing import Optional, Union
+from typing import Optional, Union
 
 
 class StoredBlob(BaseModel):
