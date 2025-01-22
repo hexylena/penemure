@@ -7,7 +7,7 @@ import sqlglot
 import sys
 
 gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./projects/alt')
+gb2 = GitJsonFilesBackend.discover('./pub')
 
 # gb1.sync()
 gb2.sync()
