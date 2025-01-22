@@ -11,14 +11,14 @@ from boshedron.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import List
+import os
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
 
-gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./pub')
-
-bos = Boshedron(backends=[gb1, gb2])
+REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
+backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
+bos = Boshedron(backends=backends)
 oe = bos.overlayengine
 oe.load()
 
