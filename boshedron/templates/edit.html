@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}New | {{ Config.Title | safe }}{% endblock %}
+
+{% block main %}
+	<hgroup>
+	<h1>Add a Note</h1>
+	</hgroup>
+
+	<form method="post">
+		<fieldset>
+			<legend>Editing Note {{ note.thing.urn.urn }}</legend>
+
+			<label for="title">Title</label>
+			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title }}">
+			<input type="hidden" name="urn" value="{{ note.thing.urn.urn }}">
+
+			<label for="project">Parent(s)</label>
+			<select id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
+
+				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
+				<optgroup label="{{ group.title }}">
+					{% for (id, title, type) in group.rows %}
+					<option value="{{ id }}" {% if note.thing.data.has_parent(id) %}selected{% endif %}>
+						{{ title }}
+					</option>
+					{% endfor %}
+				</optgroup>
+				{% endfor %}
+			</select>
+
+			<script>
+				new TomSelect("#parent-select", {
+					plugins: ['remove_button'],
+					create: true,
+				});
+			</script>
+
+			<label for="type">Type</label>
+			<select id="type" name="type">
+				{% for app in bos.apps() %}
+				<option value="{{ app }}" {% if app == note.thing.data.type %}selected{% endif %}>{{ app.title() }}</option>
+				{% endfor %}
+			</select>
+
+			<label for="notes">Contents</label>
+
+			<div id="notes" name='contents'>
+				{% for block in note.thing.data.contents %}
+				<div class="block" style="display: flex">
+					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+					</div>
+					<div style="display: flex; flex-direction: column; flex-grow: 7">
+						<select id="type" name="content_type">
+							{% for bt in blocktypes %}
+							<option value="{{ bt.value }}" {% if bt.value == block.type %}selected{% endif %}>{{ bt.pretty() }}</option>
+							{% endfor %}
+						</select>
+						<input type="hidden" name="content_uuid" value="{{ block.id }}">
+						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
+					</div>
+				</div>
+				{% endfor %}
+
+				<div id='default-block' class="block" style="display: flex">
+					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+					</div>
+					<div style="display: flex; flex-direction: column; flex-grow: 7">
+						<select id="type" name="content_type">
+							<option value="markdown">Markdown</option>
+							<option value="query-table">Query (Table)</option>
+							<option value="query-kanban">Query (Kanban)</option>
+						</select>
+						<input type="hidden" name="content_uuid" value="REPLACEME">
+						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
+						<textarea name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
+					</div>
+				</div>
+			</div>
+
+			<label for="backend">Backend</label>
+			<select id="backend" name="backend">
+				{% for backend in oe.backends %}
+				<option value="{{ backend.name }}" {% if note.backend.name == backend.name %}selected{%endif%}>{{ backend.description }} ({{ backend.name }})</option>
+				{% endfor %}
+			</select>
+
+			<button type="submit">Save Notes</button>
+		</fieldset>
+	</form>
+
+	<script>
+// https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
+function uuid() {
+	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
+}
+
+	const template = document.querySelector('#default-block').outerHTML;
+	document.querySelector('#default-block').remove();
+
+	function insertbefore(e){
+		let block = e.parentElement.parentElement;
+		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
+	}
+
+	function insertafter(e){
+		let block = e.parentElement.parentElement;
+		block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
+	}
+
+
+	</script>
+
+{% endblock %}
