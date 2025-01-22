@@ -69,6 +69,13 @@ def reload():
     bos.load()
     return [len(b.data.keys()) for b in oe.backends]
 
+@app.get("/sync")
+def sync():
+    for b in oe.backends:
+        b.sync()
+    bos.load()
+    return [len(b.data.keys()) for b in oe.backends]
+
 
 @app.get("/list")
 def list() -> list[StoredThing]:
