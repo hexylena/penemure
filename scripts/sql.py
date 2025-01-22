@@ -6,10 +6,9 @@ from boshedron.tags import *
 import sqlglot
 import sys
 
-gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./pub')
-
-bos = Boshedron(backends=[gb1, gb2])
+REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
+backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
+bos = Boshedron(backends=backends)
 bos.load()
 
 me = bos.overlayengine.search(type='account', namespace=None)[0]

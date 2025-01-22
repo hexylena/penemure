@@ -63,6 +63,12 @@ def render_dynamic(st: WrappedStoredThing):
     return HTMLResponse(page_content)
 
 
+@app.get("/reload")
+def reload():
+    bos.load()
+    return [len(b.data.keys()) for b in oe.backends]
+
+
 @app.get("/list")
 def list() -> list[StoredThing]:
     return oe.all_things()

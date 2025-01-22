@@ -6,8 +6,7 @@ from boshedron.tags import *
 import sqlglot
 import sys
 
-gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./pub')
-
-gb1.sync()
-gb2.sync()
+REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
+backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
+for b in backends:
+    b.sync()

@@ -1,0 +1,25 @@
+services:
+  web:
+    restart: always
+    build: .
+    environment:
+      REPOS: "/repos/project-management/pub:/repos/issues"
+    volumes:
+      - "${PWD}:/code/"
+      - "${PWD}/repos:/repos"
+    ports:
+      - 8484:8000
+  cron:
+    restart: always
+    build: .
+    command: |
+      bash -c "git config --global user.email rom@quark; git config --global user.name Rom; git config --global --add safe.directory /repos/project-management; git config --global --add safe.directory /repos/issues; while true; do python scripts/sync.py; curl http://web:8000/reload; sleep 600; done;"
+    environment:
+      REPOS: "/repos/project-management/pub:/repos/issues"
+    volumes:
+      - "${PWD}:/code/"
+      - "${PWD}/repos:/repos"
+      - "/root/.ssh/:/root/.ssh/"
+    links:
+      - web:web
+

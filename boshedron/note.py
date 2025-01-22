@@ -71,8 +71,8 @@ class MarkdownBlock(BaseModel):
         elif self.type.query_type():
             try:
                 res = oe.query(self.contents, via=parent.urn)
-            except:
-                return f"<b>ERROR</b> {self.contents}"
+            except Exception as e:
+                return f"<b>ERROR</b> {self.contents}<br>{e}"
 
             if self.type == BlockTypes.queryTable:
                 page_content = render_table(res)
