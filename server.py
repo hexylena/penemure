@@ -108,7 +108,7 @@ def save_new(data: Annotated[FormData, Form()]):
     obj = ModelFromAttr(dj).model_validate(dj)
     be = bos.overlayengine.get_backend(data.backend)
     res = bos.overlayengine.add(obj, backend=be)
-    return RedirectResponse(f"web+boshedron:{res.thing.urn.urn}")
+    return RedirectResponse(f"/redir/{res.thing.urn.urn}")
 
 @app.post("/edit/{urn}")
 def save_edit(urn: str, data: Annotated[FormData, Form()]):
@@ -135,7 +135,7 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
         oe.migrate_backend_thing(orig, be)
 
     print(orig.thing.data.contents)
-    return RedirectResponse(f"web+boshedron:{urn}")
+    return RedirectResponse(f"/redir/{urn}")
 
 @app.exception_handler(404)
 async def custom_404_handler(request, _):
@@ -161,6 +161,14 @@ def edit_get(urn: str):
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
     return render_fixed('edit.html', note, rewrite=False)
+
+
+@app.get("/redir/{urn}", response_class=HTMLResponse)
+@app.post("/redir/{urn}", response_class=HTMLResponse)
+def redir(urn: str):
+    u = UniformReference.from_string(urn)
+    # note = oe.find_thing(u)
+    return RedirectResponse(u.url)
 
 
 @app.get("/{page}.html", response_class=HTMLResponse)

@@ -55,7 +55,7 @@ class BlockTypes(Enum):
 class MarkdownBlock(BaseModel):
     contents: str
     author: UniformReference
-    type: BlockTypes = BlockTypes.markdown
+    type: str = 'markdown'
     # Planning to support transcluding blocks at some point with like
     # urn:boshedron:note:deadbeef#dead-beef-cafe-4096
     id: str = Field(default_factory=lambda : str(uuid.uuid4()))
@@ -63,35 +63,45 @@ class MarkdownBlock(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     def render(self, oe, path, parent):
-        if isinstance(self.type, str):
-            self.type = BlockTypes.from_str(self.type)
+        # if isinstance(self.type, str):
+        #     self.type = BlockTypes.from_str(self.type)
 
-        if self.type == BlockTypes.markdown:
-            page_content = markdown.markdown(self.contents, extensions=['tables', 'pymdownx.superfences'])
-        elif self.type.query_type():
+        if self.type == BlockTypes.markdown.value:
+            extension_configs = {
+                # "custom_fences": [
+                #     {
+                #         'name': 'mermaid',
+                #         'class': 'mermaid',
+                #         'format': pymdownx.superfences.fence_div_format
+                #     }
+                # ]
+            }
+            page_content = markdown.markdown(self.contents, extension_configs=extension_configs, 
+                                             extensions=['tables', 'footnotes', 'pymdownx.superfences', 'pymdownx.highlight'])
+        elif self.type.startswith('query'):
             try:
                 res = oe.query(self.contents, via=parent.urn)
             except Exception as e:
                 return f"<b>ERROR</b> {self.contents}<br>{e}"
 
-            if self.type == BlockTypes.queryTable:
+            if self.type == BlockTypes.queryTable.value:
                 page_content = render_table(res)
-            elif self.type == BlockTypes.queryKanban:
+            elif self.type == BlockTypes.queryKanban.value:
                 page_content = render_kanban(res)
             else:
-                raise NotImplementedError()
-        elif self.type.chart_type():
-            if self.type == BlockTypes.chartTable:
+                raise NotImplementedError(f"self.type={self.type}")
+        elif self.type.startswith('chart'):
+            if self.type == BlockTypes.chartTable.value:
                 res = oe.query(self.contents, sql=True, via=parent.urn)
                 page_content = render_table(res)
-            elif self.type == BlockTypes.chartPie:
+            elif self.type == BlockTypes.chartPie.value:
                 res = oe.query(self.contents, sql=True, via=parent.urn)
                 page_content = render_pie(res)
-            elif self.type == BlockTypes.chartGantt:
+            elif self.type == BlockTypes.chartGantt.value:
                 res = oe.query(self.contents, via=parent.urn) # non proper sql
                 page_content = render_gantt(res)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError(f"self.type={self.type}")
 
         page_content = UniformReference.rewrite_urns(page_content, path, oe)
         # TODO: something better with author.

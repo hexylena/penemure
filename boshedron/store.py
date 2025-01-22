@@ -429,7 +429,8 @@ class OverlayEngine(BaseModel):
 
         known_apps = [p.model_fields['type'].default for p in Note.__subclasses__()] + [Note.model_fields['type'].default]
         for app in known_apps:
-            tables[app] = []
+            if app not in tables:
+                tables[app] = []
 
         tables['__backend__'] = [
             {
