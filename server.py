@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.responses import RedirectResponse
+import starlette.status as status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from boshedron.store import *
@@ -108,7 +109,7 @@ def save_new(data: Annotated[FormData, Form()]):
     obj = ModelFromAttr(dj).model_validate(dj)
     be = bos.overlayengine.get_backend(data.backend)
     res = bos.overlayengine.add(obj, backend=be)
-    return RedirectResponse(f"/redir/{res.thing.urn.urn}")
+    return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
 
 @app.post("/edit/{urn}")
 def save_edit(urn: str, data: Annotated[FormData, Form()]):
@@ -135,7 +136,7 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
         oe.migrate_backend_thing(orig, be)
 
     print(orig.thing.data.contents)
-    return RedirectResponse(f"/redir/{urn}")
+    return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
 @app.exception_handler(404)
 async def custom_404_handler(request, _):
@@ -168,7 +169,7 @@ def edit_get(urn: str):
 def redir(urn: str):
     u = UniformReference.from_string(urn)
     # note = oe.find_thing(u)
-    return RedirectResponse(u.url)
+    return RedirectResponse(u.url, status_code=status.HTTP_302_FOUND)
 
 
 @app.get("/{page}.html", response_class=HTMLResponse)

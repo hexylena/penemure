@@ -151,8 +151,8 @@ class GitJsonFilesBackend(BaseBackend):
             subprocess.check_call(['git', 'add', '.'], cwd=self.path)
             subprocess.check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
 
-        subprocess.check_call(['git', 'pull', '--rebase', 'origin', 'main'], cwd=self.path)
-        subprocess.check_call(['git', 'push', 'origin', 'main'], cwd=self.path)
+        subprocess.check_call(['git', 'pull', '--rebase', 'origin'], cwd=self.path)
+        subprocess.check_call(['git', 'push', 'origin'], cwd=self.path)
 
     def save_item(self, stored_thing: StoredThing, fsync=True):
         """Save updates to an existing file."""
