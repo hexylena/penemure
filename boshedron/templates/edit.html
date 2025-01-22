@@ -72,9 +72,9 @@
 					</div>
 					<div style="display: flex; flex-direction: column; flex-grow: 7">
 						<select id="type" name="content_type">
-							<option value="markdown">Markdown</option>
-							<option value="query-table">Query (Table)</option>
-							<option value="query-kanban">Query (Kanban)</option>
+							{% for bt in blocktypes %}
+							<option value="{{ bt.value }}">{{ bt.pretty() }}</option>
+							{% endfor %}
 						</select>
 						<input type="hidden" name="content_uuid" value="REPLACEME">
 						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->

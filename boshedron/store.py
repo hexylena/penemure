@@ -240,7 +240,7 @@ class WrappedStoredThing(BaseModel):
     def not_blob(self):
         return True
 
-    def clean_dict(self):
+    def clean_dict(self, oe=None):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.urn
         d['backend'] = self.backend.name
@@ -256,6 +256,7 @@ class WrappedStoredThing(BaseModel):
         # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'
         d['title_plain'] = f'{self.thing.html_title}'
+        d['contributors'] = self.thing.data.get_contributors(oe)
 
         if d['parents'] is not None and len(d['parents']) > 0:
             d['parents'] = ' XX '.join([x.urn for x in self.thing.data.get_parents()])
@@ -414,7 +415,7 @@ class OverlayEngine(BaseModel):
         return groups
 
     def make_a_db(self, ensure_present):
-        notes = [x.clean_dict()
+        notes = [x.clean_dict(self)
                  for x in self.all_things()]
 
         # We have an 'all' table if you just want to search all types.
