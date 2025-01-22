@@ -16,5 +16,5 @@ contents = subprocess.check_output(['xsel', '-b']).decode('utf-8')
 
 res = Note(title=sys.argv[1], contents=[MarkdownBlock(contents=contents, author=UniformReference.from_string('urn:boshedron:account:hexylena'), type='markdown')])
 
-ws = bos.overlayengine.add(res, backend=gb2)
+ws = bos.overlayengine.add(res, backend=gb2, fsync=False)
 print(ws.thing.urn.urn)

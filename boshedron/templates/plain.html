@@ -6,7 +6,7 @@
 
 {% if note.thing.data.contents %}
 {% for b in note.thing.data.contents %}
-{{ b.render(oe, Config.ExportPrefix) }}
+{{ b.render(oe, Config.ExportPrefix, note.thing) }}
 {% endfor %}
 {% endif %}
 

@@ -37,9 +37,11 @@
 			</span>
 			<span class="column" style="display: flex">
 				{% if Config.IsServing %}
-				<a href="{{ Config.ExportPrefix }}/new.html">➕</a> &nbsp;
-				<a href="{{ Config.ExportPrefix }}/edit.html">📝</a> &nbsp;
-				<a href="{{ Config.ExportPrefix }}/time.html">⏰</a> &nbsp;
+				<a href="{{ Config.ExportPrefix }}/new">➕</a> &nbsp;
+				{% if note %}
+				<a href="{{ Config.ExportPrefix }}/edit/{{ note.thing.urn.urn }}">📝</a> &nbsp;
+				{% endif %}
+				<a href="{{ Config.ExportPrefix }}/time">⏰</a> &nbsp;
 				{% endif %}
 
 				<form action="{{ Config.ExportPrefix }}/search.html">

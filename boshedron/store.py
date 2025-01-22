@@ -177,13 +177,19 @@ class GitJsonFilesBackend(BaseBackend):
         if fsync:
             self.sync()
 
-    def save(self):
+    def save(self, fsync=True):
         for v in self.data.values():
             if isinstance(v, StoredThing):
-                self.save_item(v)
+                self.save_item(v, fsync=fsync)
 
     def find(self, identifier: UniformReference) -> Union[StoredThing, StoredBlob]:
-        return self.data[identifier]
+        if identifier in self.data:
+            return self.data[identifier]
+
+        for ident, ref in self.data.items():
+            if ident.ident == identifier.ident:
+                return ref
+        raise KeyError(f"Could not find {identifier.ident}")
 
     def find_s(self, identifier: str) -> StoredThing | StoredBlob:
         ufr = UniformReference.from_string(identifier)
@@ -284,8 +290,10 @@ class OverlayEngine(BaseModel):
         raise KeyError(f"Cannot find {identifier}")
 
     def migrate_backend(self, identifier: (UniformReference | str), backend: GitJsonFilesBackend) -> None:
-        ws = self.find(identifier)
+        ws = narrow_thing(self.find(identifier))
+        return self.migrate_backend_thing(ws=ws, backend=backend)
 
+    def migrate_backend_thing(self, ws: WrappedStoredThing, backend: GitJsonFilesBackend) -> None:
         if ws.backend == backend:
             # Already in the right place
             return
@@ -293,9 +301,6 @@ class OverlayEngine(BaseModel):
         # Save to new backend
         if not isinstance(ws.thing, StoredThing):
             raise NotImplementedError("Haven't handled stored blob migration")
-
-        if ws.backend is None:
-            raise Exception("Missing backend")
 
         backend.save_item(ws.thing, fsync=False)
 
@@ -331,12 +336,15 @@ class OverlayEngine(BaseModel):
             all_keys.update(backend.data.keys())
         return all_keys
 
-    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None) -> WrappedStoredThing:
+    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None, fsync=False) -> WrappedStoredThing:
         st = StoredThing(data=note, urn=UniformReference(app=note.type, namespace=note.namespace))
-        be = self.save_item(st, backend=backend)
+        be = self.save_item(st, backend=backend, fsync=fsync)
         return WrappedStoredThing(thing=st, backend=be)
 
-    def save_item(self, stored_thing: StoredThing, backend: Optional[GitJsonFilesBackend]=None) -> GitJsonFilesBackend:
+    def save_thing(self, ws: WrappedStoredThing, fsync=False) -> GitJsonFilesBackend:
+        return self.save_item(stored_thing=ws.thing, backend=ws.backend, fsync=fsync)
+
+    def save_item(self, stored_thing: StoredThing, backend: Optional[GitJsonFilesBackend]=None, fsync=False) -> GitJsonFilesBackend:
         b = None
 
         # TODO: Migrating?
@@ -354,12 +362,12 @@ class OverlayEngine(BaseModel):
         if b is None:
             b = self.backends[0]
 
-        b.save_item(stored_thing)
+        b.save_item(stored_thing, fsync=fsync)
         return b
 
-    def save(self) -> None:
+    def save(self, fsync=True) -> None:
         for backend in self.backends:
-            backend.save()
+            backend.save(fsync=fsync)
 
     def search(self, **kwargs) -> list[WrappedStoredThing]:
         results = []
@@ -418,6 +426,10 @@ class OverlayEngine(BaseModel):
             tables[note['type']].append(note)
             tables['__all__'].append(note)
 
+        known_apps = [p.model_fields['type'].default for p in Note.__subclasses__()] + [Note.model_fields['type'].default]
+        for app in known_apps:
+            tables[app] = []
+
         tables['__backend__'] = [
             {
                 'id': b.name,
@@ -448,7 +460,7 @@ class OverlayEngine(BaseModel):
         # pprint.pprint(tables)
         return tables
 
-    def query(self, query, sql=False) -> Optional[GroupedResultSet]:
+    def query(self, query, via=None, sql=False) -> Optional[GroupedResultSet]:
         # Allow overriding with keywords
         if query.split(' ')[0] == 'GROUP':
             sql = False
@@ -457,6 +469,8 @@ class OverlayEngine(BaseModel):
             sql = True
             query = ' '.join(query.split(' ')[1:])
 
+        if via is not None and 'SELF' in query:
+            query = query.replace('SELF', via.urn)
 
         res = parse_one(query)
 

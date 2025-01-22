@@ -39,8 +39,8 @@
 	{% if note.thing.data.parents %}
 	<tr>
 		<td scope="row">Parents</td>
-		<td>{% for parent in note.thing.data.resolve_parents(oe) %}
-			<a href="{{ parent.thing.urn.urn }}#url">{{ parent.thing.urn.urn }}#title</a>
+		<td>{% for parent in note.thing.data.get_parents() %}
+			<a href="{{ parent.urn }}#url">{{ parent.urn }}#title</a>
 		{% endfor %}</td>
 	</tr>
 	{% endif %}
@@ -74,7 +74,7 @@
 
 {% if note.thing.data.contents %}
 {% for b in note.thing.data.contents %}
-{{ b.render(oe, Config.ExportPrefix) }}
+{{ b.render(oe, Config.ExportPrefix, note.thing) }}
 {% endfor %}
 {% endif %}
 

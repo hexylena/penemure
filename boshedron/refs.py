@@ -68,17 +68,27 @@ class UniformReference(BaseModel, frozen=True):
                 raise Exception(f"Maybe mis-parsed URN, {urn_ref.urn} != {u.group(1)}")
 
             if u.group(3) == "title":
-                ref = oe.find(urn_ref)
+                try:
+                    ref = oe.find(urn_ref)
+                    return ref.thing.html_title # should it be html by default?
+                except KeyError:
+                    return urn_ref.urn
                 # print(ref, urn_ref.urn)
-                return ref.thing.html_title # should it be html by default?
             elif u.group(3) == "url":
                 return prefix + '/' + urn_ref.url + '.html'
+            elif u.group(3) == "link":
+                try:
+                    ref = oe.find(urn_ref)
+                    url = prefix + '/' + urn_ref.url + '.html'
+                    return f'<a href="{url}">{ref.thing.html_title}</a>' 
+                except KeyError:
+                    return f'<a href="#">{urn_ref.urn}</a>' 
             else:
                 return urn_ref.urn
             # print(u, u.group(3), ref)
             # return prefix + '/' + '/'.join(u.group(0).split(':')[2:]) + '.html'
 
-        contents = re.sub('(urn:boshedron:[a-z0-9:./-]+)(#(title|url))?', urn_to_url, contents)
+        contents = re.sub('(urn:boshedron:[a-z0-9:./-]+)(#(title|url|link))?', urn_to_url, contents)
 
         return contents
 

@@ -3,6 +3,9 @@ import datetime
 
 
 def render_table(results: GroupedResultSet):
+    if results is None:
+        return '<table></table>'
+
     page_content = "<table>"
 
     # Header is the same for each group so just take the first.
@@ -22,6 +25,9 @@ def render_table(results: GroupedResultSet):
     return page_content
 
 def render_kanban(results: GroupedResultSet):
+    if results is None:
+        return '<div class="kanban"></div>'
+
     page_content = '<div class="kanban">'
 
     # Header is the same for each group so just take the first.

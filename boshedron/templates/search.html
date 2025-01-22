@@ -41,7 +41,7 @@
 		<td>{{ note.thing.data.type }}</td>
 		<td>{% if note.thing.data.has_tag('status') %}{{ note.thing.data.get_tag('status').render() }}{% endif %}</td>
 		<td>{% for tag in note.thing.data.tags %}{{ tag.render() }}{% endfor %}</td>
-		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.thing.urn.urn }}#url">{{ c.thing.urn.urn }}#title</a>{% endfor %}</td>
+		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.urn }}#url">{{ c.urn }}#title</a>{% endfor %}</td>
 		<td>{{ note.backend.name }}</td>
 	</tr>
 	{% endfor %}

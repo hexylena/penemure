@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Form
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from boshedron.store import GitJsonFilesBackend, OverlayEngine, StoredThing
+from boshedron.store import *
 from boshedron.note import Note, MarkdownBlock
 from boshedron.tags import LifecycleEnum
 from boshedron.refs import UniformReference, UnresolvedReference
@@ -35,12 +35,18 @@ def blobify(b: BlobReference, width='40'):
     return f'<img width="{width}" src="{path}{b.id.url}{b.ext}">'
 
 
-def render_fixed(fixed):
+def render_fixed(fixed, note=None, rewrite=True):
     template = env.get_template(fixed)
     config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
-    page_content = template.render(bos=bos, oe=bos.overlayengine, Config=config, Gn=gn)
-    page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
+    kwargs = {'bos': bos, 'oe': bos.overlayengine, 'Config': config,
+              'Gn': gn, 'blocktypes': BlockTypes}
+    if note is not None:
+        kwargs['note'] = note
+
+    page_content = template.render(**kwargs)
+    if rewrite:
+        page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
 
 def render_dynamic(st: WrappedStoredThing):
@@ -62,15 +68,18 @@ def list() -> list[StoredThing]:
     return oe.all_things()
 
 class FormData(BaseModel):
+    urn: Optional[str] = None
     title: str
-    project: str | List[str]
+    project: Optional[str | List[str]] = []
     type: str
-    content_type: List[Any]
-    content_uuid: List[Any]
-    content_note: List[Any]
+    content_type: List[str]
+    content_uuid: List[str]
+    content_note: List[str]
+    content_author: List[str]
     backend: str
 
 @app.post("/new.html")
+@app.post("/new")
 def save_new(data: Annotated[FormData, Form()]):
     dj = {
         'title': data.title,
@@ -95,6 +104,33 @@ def save_new(data: Annotated[FormData, Form()]):
     res = bos.overlayengine.add(obj, backend=be)
     return RedirectResponse(f"web+boshedron:{res.thing.urn.urn}")
 
+@app.post("/edit/{urn}")
+def save_edit(urn: str, data: Annotated[FormData, Form()]):
+    u = UniformReference.from_string(urn)
+    orig = narrow_thing(oe.find(u))
+    orig.thing.data.title = data.title
+    orig.thing.data.type = data.type
+    orig.thing.data.contents = [
+        MarkdownBlock.model_validate({'contents': n, 'author': UniformReference.from_string(a),
+                                      'type': BlockTypes.from_str(t), 'id': u})
+        for (t, u, n, a) in zip(data.content_type, data.content_uuid, data.content_note, data.content_author)
+    ]
+    for b in orig.thing.data.contents:
+        print(b)
+
+    if isinstance(data.project, str):
+        orig.thing.data.parents = [UniformReference.from_string(data.project)]
+    elif data.project is not None:
+        orig.thing.data.parents = [UniformReference.from_string(x) for x in data.project]
+
+    oe.save_thing(orig, fsync=False)
+    be = oe.get_backend(data.backend)
+    if be != orig.backend.name:
+        oe.migrate_backend_thing(orig, be)
+
+    print(orig.thing.data.contents)
+    return RedirectResponse(f"web+boshedron:{urn}")
+
 @app.exception_handler(404)
 async def custom_404_handler(request, _):
     template = env.get_template('404.html')
@@ -114,10 +150,18 @@ def index():
 
     return render_dynamic(index[0])
 
+@app.get("/edit/{urn}", response_class=HTMLResponse)
+def edit_get(urn: str):
+    u = UniformReference.from_string(urn)
+    note = oe.find_thing(u)
+    return render_fixed('edit.html', note, rewrite=False)
+
 
 @app.get("/{page}.html", response_class=HTMLResponse)
+@app.get("/{page}", response_class=HTMLResponse)
 def fixed_page(page: str):
-    if page in ('search', 'new', 'time', 'redir', 'edit'):
+    page = page.replace('.html', '')
+    if page in ('search', 'new', 'time', 'redir'):
         return render_fixed(page + '.html')
 
     return f"""
@@ -137,11 +181,17 @@ def fixed_page(page: str):
 @app.get("/{a}/{b}/{c}/{d}.html", response_class=HTMLResponse)
 @app.get("/{a}/{b}/{c}.html", response_class=HTMLResponse)
 @app.get("/{a}/{b}.html", response_class=HTMLResponse)
+@app.get("/{a}/{b}/{c}/{d}/{e}", response_class=HTMLResponse)
+@app.get("/{a}/{b}/{c}/{d}", response_class=HTMLResponse)
+@app.get("/{a}/{b}/{c}", response_class=HTMLResponse)
+@app.get("/{a}/{b}", response_class=HTMLResponse)
 def read_items(a=None, b=None, c=None, d=None, e=None):
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
     p = ['urn', 'boshedron', a, b, p2]
     p = [x for x in p if x is not None and x != '']
     u = ':'.join(p)
+    if u.endswith('.html'):
+        u = u[0:-5]
     note = oe.find_thing(u)
     if note is None:
         raise HTTPException(status_code=404, detail="Item not found")

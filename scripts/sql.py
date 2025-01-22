@@ -7,7 +7,7 @@ import sqlglot
 import sys
 
 gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./projects/alt')
+gb2 = GitJsonFilesBackend.discover('./pub')
 
 bos = Boshedron(backends=[gb1, gb2])
 bos.load()
@@ -29,13 +29,26 @@ me = bos.overlayengine.search(type='account', namespace=None)[0]
 # ]
 # bos.save()
 
-def f(s):
-    return f'{str(s)[0:30]:30s}'
+def f(w, s):
+    return f'{str(s):{w}s}'
 
 res = bos.overlayengine.query(sys.argv[1], sql=True)
+if res is None:
+    sys.exit(1)
+
+colwidth = [20] * (len(res.groups[0].rows) + 5)
+
+for g in res.groups:
+    for i, v in enumerate(g.header):
+        if len(str(v)) > colwidth[i]:
+            colwidth[i] = len(str(v))
+    for r in g.rows:
+        for i, v in enumerate(r):
+            if len(str(v)) > colwidth[i]:
+                colwidth[i] = len(str(v))
+
 for g in res.groups:
     print(f'==== {g.title} ====')
-    
-    print(' | '.join(map(f, g.header)))
+    print(' | '.join([f(c, v) for (c, v) in zip(colwidth, g.header)]))
     for r in g.rows:
-        print(' | '.join(map(f, r)))
+        print(' | '.join([f(c, v) for (c, v) in zip(colwidth, r)]))

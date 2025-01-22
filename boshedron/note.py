@@ -14,38 +14,81 @@ import uuid
 from .tags import *
 from .refs import *
 from .table import *
+from enum import Enum
 
 
+class BlockTypes(Enum):
+    markdown = 'markdown'
+    queryTable = 'query-table'
+    queryKanban = 'query-kanban'
+    chartTable = 'chart-table'
+    chartPie = 'chart-pie'
+    chartGantt = 'chart-gantt'
+
+    def pretty(self):
+        return {
+            'markdown': 'Markdown',
+            'queryTable': 'SQLish Query: Table',
+            'queryKanban': 'SQL Query: 看板',
+            'chartTable': 'SQL Query: Table',
+            'chartPie': 'SQL Query: Pie Chart',
+            'chartGantt': 'SQLish Query: Gantt Chart',
+        }.get(self.name, self.name)
+
+    def chart_type(self):
+        return self.name.startswith('chart')
+
+    def query_type(self):
+        return self.name.startswith('query')
+
+    @classmethod
+    def from_str(cls, s):
+        return {
+            'markdown': cls.markdown,
+            'query-table': cls.queryTable,
+            'query-kanban': cls.queryKanban,
+            'chart-table': cls.chartTable,
+            'chart-pie': cls.chartPie,
+            'chart-gantt': cls.chartGantt
+        }[s]
 
 class MarkdownBlock(BaseModel):
     contents: str
     author: UniformReference
-    type: str = 'markdown'
+    type: BlockTypes = BlockTypes.markdown
     # Planning to support transcluding blocks at some point with like
     # urn:boshedron:note:deadbeef#dead-beef-cafe-4096
     id: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
-    def render(self, oe, path):
-        if self.type == 'markdown':
-            page_content = markdown.markdown(self.contents, extensions=['pymdownx.superfences'])
-        elif self.type.startswith('query'):
-            res = oe.query(self.contents)
+    model_config = ConfigDict(use_enum_values=True)
 
-            if self.type == 'query-table':
+    def render(self, oe, path, parent):
+        if isinstance(self.type, str):
+            self.type = BlockTypes.from_str(self.type)
+
+        if self.type == BlockTypes.markdown:
+            page_content = markdown.markdown(self.contents, extensions=['tables', 'pymdownx.superfences'])
+        elif self.type.query_type():
+            try:
+                res = oe.query(self.contents, via=parent.urn)
+            except:
+                return f"<b>ERROR</b> {self.contents}"
+
+            if self.type == BlockTypes.queryTable:
                 page_content = render_table(res)
-            elif self.type == 'query-kanban':
+            elif self.type == BlockTypes.queryKanban:
                 page_content = render_kanban(res)
             else:
                 raise NotImplementedError()
-        elif self.type.startswith('chart'):
-            if self.type == 'chart-table':
-                res = oe.query(self.contents, sql=True)
+        elif self.type.chart_type():
+            if self.type == BlockTypes.chartTable:
+                res = oe.query(self.contents, sql=True, via=parent.urn)
                 page_content = render_table(res)
-            elif self.type == 'chart-pie':
-                res = oe.query(self.contents, sql=True)
+            elif self.type == BlockTypes.chartPie:
+                res = oe.query(self.contents, sql=True, via=parent.urn)
                 page_content = render_pie(res)
-            elif self.type == 'chart-gantt':
-                res = oe.query(self.contents) # non proper sql
+            elif self.type == BlockTypes.chartGantt:
+                res = oe.query(self.contents, via=parent.urn) # non proper sql
                 page_content = render_gantt(res)
         else:
             raise NotImplementedError()
@@ -82,6 +125,9 @@ class Note(BaseModel):
     def touch(self):
         self.updated = datetime.datetime.today()
 
+    def has_parent(self, urn) -> bool:
+        return urn in [x.urn for x in self.get_parents()]
+
     def get_parents(self) -> list[UniformReference]:
         return self.parents or []
 
@@ -99,13 +145,17 @@ class Note(BaseModel):
 
     def get_lineage(self, oe, d=0):
         res = []
-        for p in self.resolve_parents(oe):
-            res_sub = p.thing.data.get_lineage(oe, d = d + 1)
-            if len(res_sub) == 0:
-                res.append([p.thing.urn.urn])
-            else:
-                for r in res_sub:
-                    res.append([p.thing.urn.urn, r])
+        for p_urn in self.get_parents():
+            try:
+                p = oe.find(p_urn)
+                res_sub = p.thing.data.get_lineage(oe, d = d + 1)
+                if len(res_sub) == 0:
+                    res.append([p.thing.urn.urn])
+                else:
+                    for r in res_sub:
+                        res.append([p.thing.urn.urn, r])
+            except KeyError:
+                res.append([p_urn])
         return res
 
     @property
@@ -169,9 +219,7 @@ class Note(BaseModel):
 
         for b in self.contents:
             c.append(b.author)
-        c = set(c)
-        c = [oe.find(q) for q in c]
-        return c
+        return set(c)
 
     def ensure_tag(self, key: str, value: str):
         """
