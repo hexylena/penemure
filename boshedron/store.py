@@ -1,4 +1,5 @@
 import itertools
+import datetime
 import json
 import subprocess
 import os
@@ -119,7 +120,7 @@ class BaseBackend(BaseModel):
         return f'{self.description} ({self.name})'
 
     @classmethod
-    def discover(cls, path):
+    def discover_meta(cls, path):
         meta = os.path.join(path, 'meta.json')
         if os.path.exists(meta):
             with open(meta, 'r') as handle:
@@ -129,7 +130,11 @@ class BaseBackend(BaseModel):
             with open(meta, 'w') as handle:
                 json.dump(data, handle)
         data['path'] = path
+        return data
 
+    @classmethod
+    def discover(cls, path):
+        data = cls.discover_meta(path)
         return cls.model_validate(data)
 
     def __repr__(self):
@@ -138,7 +143,19 @@ class BaseBackend(BaseModel):
 
 class GitJsonFilesBackend(BaseBackend):
     data: Dict[UniformReference, Union[StoredThing, StoredBlob]] = Field(default=dict())
-    last_update: Optional[PastDatetime] = None
+    last_update: PastDatetime = None
+    latest_commit: str = None
+
+    @classmethod
+    def discover(cls, path):
+        data = cls.discover_meta(path)
+        commit, commitdate = subprocess.check_output([
+            'git', 'log', '-n', '1', '--format=%H %at',
+        ], cwd=path).decode('utf-8').strip().split(' ')
+        data['latest_commit'] = commit
+        data['last_update'] = datetime.datetime.fromtimestamp(int(commitdate))
+
+        return cls.model_validate(data)
 
     def sync(self):
         if self.last_update is not None:
@@ -437,7 +454,10 @@ class OverlayEngine(BaseModel):
                 'id': b.name,
                 'name': b.name,
                 'description': b.description,
-                'path': b.path}
+                'path': b.path,
+                'last_commit': b.latest_commit,
+                'last_update': b.last_update,
+            }
             for b in self.backends
         ]
 

@@ -17,7 +17,7 @@ import os
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
 
-REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
+REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
 bos = Boshedron(backends=backends)
 oe = bos.overlayengine
