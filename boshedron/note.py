@@ -14,6 +14,7 @@ import uuid
 from .tags import *
 from .refs import *
 from .table import *
+from .util import *
 from enum import Enum
 
 
@@ -125,15 +126,15 @@ class Note(BaseModel):
     ]] = Field(default_factory=list)
 
     version: Optional[int] = 2
-    created: PastDatetime = Field(default_factory=lambda : datetime.datetime.now())
-    updated: PastDatetime = Field(default_factory=lambda : datetime.datetime.now())
+    created: PastDatetime = Field(default_factory=lambda : local_now())
+    updated: PastDatetime = Field(default_factory=lambda : local_now())
     namespace: Union[str, None] = None
     type: str = 'note'
     attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)
 
 
     def touch(self):
-        self.updated = datetime.datetime.today()
+        self.updated = local_now()
 
     def has_parent(self, urn) -> bool:
         return urn in [x.urn for x in self.get_parents()]
