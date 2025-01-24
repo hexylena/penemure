@@ -46,10 +46,11 @@
 			<label for="notes">Contents</label>
 
 			<div id="notes" name='contents'>
-				{% for block in note.thing.data.contents %}
-				<div class="block" style="display: flex">
+				{% for block in note.thing.data.get_contents() %}
+				<div class="block existing" style="display: flex">
 					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
 						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
 						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
 					</div>
 					<div style="display: flex; flex-direction: column; flex-grow: 7">
@@ -68,6 +69,7 @@
 				<div id='default-block' class="block" style="display: flex">
 					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
 						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
 						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
 					</div>
 					<div style="display: flex; flex-direction: column; flex-grow: 7">
@@ -101,11 +103,22 @@ function uuid() {
 }
 
 	const template = document.querySelector('#default-block').outerHTML;
-	document.querySelector('#default-block').remove();
+	if (document.querySelectorAll('#notes .block.existing').length > 0 ){
+		document.querySelector('#default-block').remove();
+	}
 
 	function insertbefore(e){
 		let block = e.parentElement.parentElement;
 		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
+	}
+
+	function remove(e){
+		let block = e.parentElement.parentElement;
+		if (document.querySelectorAll('#notes .block').length == 1){
+			block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
+		}
+
+		block.remove();
 	}
 
 	function insertafter(e){

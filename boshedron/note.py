@@ -223,12 +223,12 @@ class Note(BaseModel):
             tags.append(t)
         return tags
 
+    def get_contents(self) -> list:
+        return self.contents or []
+
     def get_contributors(self, oe):
         c = []
-        if self.contents is None:
-            return []
-
-        for b in self.contents:
+        for b in self.get_contents():
             c.append(b.author)
         return set(c)
 
