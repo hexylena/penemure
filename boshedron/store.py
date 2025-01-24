@@ -409,18 +409,18 @@ class OverlayEngine(BaseModel):
                 results.append(st)
 
         if custom == 'open':
-            results = [x for x in results if x.data.log_is_closed()]
+            results = [x for x in results if x.thing.data.log_is_closed()]
         elif custom == 'not-open':
-            results = [x for x in results if not x.data.log_is_closed()]
+            results = [x for x in results if not x.thing.data.log_is_closed()]
 
         return results
 
     @classmethod
-    def group_by(cls, data: list[StoredThing], key):
+    def group_by(cls, data: list[WrappedStoredThing], key):
         # not really a class method more of a utility? MOVE?
 
-        def get_created_date(s: StoredThing) -> str:
-            return str(s.data.created.date())
+        def get_created_date(s: WrappedStoredThing) -> str:
+            return str(s.thing.data.created.date())
 
         groups = []
         data = sorted(data, key=get_created_date)[::-1]

@@ -290,11 +290,13 @@ class Note(BaseModel):
         t = self.get_tag(typ='date', title='Start Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.date()
+        return self.created.date()
 
     def start_time(self):
         t = self.get_tag(typ='date', title='Start Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.time().strftime('%H:%M:%S')
+        return self.created.time()
 
     def end_unix(self):
         t = self.get_tag(typ='date', title='End Date')

@@ -145,6 +145,57 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
     print(orig.thing.data.contents)
     return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
+
+class TimeFormData(BaseModel):
+    urn: Optional[str] = None
+    title: str
+    project: Optional[str | List[str]] = []
+    content_type: List[str]
+    content_uuid: List[str]
+    content_note: List[str]
+    content_author: List[str]
+    backend: str
+    start_unix: int
+    end_unix: int
+    # Default
+    type: str = 'log'
+
+
+@app.post("/time.html")
+@app.post("/time")
+def save_new(data: Annotated[TimeFormData, Form()]):
+    if data.urn:
+        u = UniformReference.from_string(data.urn)
+        log = narrow_thing(oe.find(u))
+    else:
+        log = Log(title=data.title)
+        be = bos.overlayengine.get_backend(data.backend)
+        log = bos.overlayengine.add(log, backend=be)
+    return log.thing
+
+    # dj = {
+    #     'title': data.title,
+    #     'type': data.type,
+    #     'contents': [
+    #         {
+    #             'contents': n,
+    #             'author': {"app":"account","ident":"hexylena"}, # TODO
+    #             'type': t,
+    #             'id': u,
+    #         }
+    #         for (t, u, n) in zip(data.content_type, data.content_uuid, data.content_note)
+    #     ]
+    # }
+    # if isinstance(data.project, str):
+    #     dj['parents'] = [UniformReference.from_string(data.project)]
+    # else:
+    #     dj['parents'] = [UniformReference.from_string(x) for x in data.project]
+    #
+    # obj = ModelFromAttr(dj).model_validate(dj)
+    # be = bos.overlayengine.get_backend(data.backend)
+    # res = bos.overlayengine.add(obj, backend=be)
+    # return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
+
 @app.exception_handler(404)
 async def custom_404_handler(request, _):
     template = env.get_template('404.html')

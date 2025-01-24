@@ -8,15 +8,15 @@
 	</hgroup>
 
 	{% for open_log in oe.search(type='log', custom='open') %}
-	<form  onsubmit="return false" class="open-log">
+	<form class="open-log" method="post">
 		<fieldset>
-			<legend>Edit Log ({{ open_log.urn.urn }})</legend>
+			<legend>Edit Log ({{ open_log.thing.urn.urn }})</legend>
 
-			<label for="name">Name</label>
-			<input id="name" name="name" type="text" width="20" placeholder="What are you working on?" value="{{ open_log.data.title }}">
+			<label for="title">Title</label>
+			<input name="title" type="text" width="20" placeholder="What are you working on?" value="{{ open_log.thing.data.title }}">
 
 			<label for="project">Parent(s)</label>
-			<select id="{{ open_log.urn.urn.replace(':', '-') }}-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
+			<select id="{{ open_log.thing.urn.urn.replace(':', '-') }}-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
 				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
@@ -29,44 +29,80 @@
 			</select>
 
 			<script>
-				new TomSelect("#{{ open_log.urn.urn.replace(':', '-')}}-select", {
+				new TomSelect("#{{ open_log.thing.urn.urn.replace(':', '-')}}-select", {
 					plugins: ['remove_button'],
 					create: true,
 				});
 			</script>
 
-			<input id="note_id" type="hidden" name="note_id" value="{{ open_log.urn.urn }}">
+			<input type="hidden" name="urn" value="{{ open_log.thing.urn.urn }}">
 
 			<div style="display: flex; margin-top: 0.5em; justify-content: space-between;">
-				<input type="hidden" value="{{ open_log.data.start_unix() }}" name="start_unix" >
 				<label for="start_date" style="max-width:10em">Start Date
-				<input name="start_date" type="date" value="{{ open_log.data.start_date() }}">
+				<input name="start_date" type="date" value="{{ open_log.thing.data.start_date() }}">
 				</label>
 
 				<label for="start" style="max-width:10em">Start Time
-				<input type="text" id="start" name="start" value="{{ open_log.data.start_time() }}">
+				<input type="text" class="time" name="start_time" value="{{ open_log.thing.data.start_time() }}">
 				</label>
 
+				<input name="start_unix" type="hidden">
+				<input name="end_unix" type="hidden">
+
 				<label for="runtime" style="max-width:10em">Duration
-				<input type="text" name="runtime" value="TODO">
+				<input type="text" name="runtime" value="..." disabled>
 				</label>
 
 				<button type="submit">Stop</button>
 			</div>
 
+			<label for="contents">Contents</label>
+			<div name='contents'>
+				{% for block in open_log.thing.data.get_contents() %}
+				<div class="block existing" style="display: flex">
+					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
+						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+					</div>
+					<div style="display: flex; flex-direction: column; flex-grow: 7">
+						<select name="content_type">
+							{% for bt in blocktypes %}
+							<option value="{{ bt.value }}" {% if bt.value == block.type %}selected{% endif %}>{{ bt.pretty() }}</option>
+							{% endfor %}
+						</select>
+						<input type="hidden" name="content_uuid" value="{{ block.id }}">
+						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
+					</div>
+				</div>
+				{% endfor %}
 
-			<label for="notes">Contents</label>
-			<div id="{{ open_log.urn.urn.replace(':', '-') }}-notes">
-			{% for block in (open_log.data.contents or []) %}
-				<button onclick="insertbefore('{{ open_log.urn.urn.replace(':', '-') }}-notes', '{{ block.id }}')">+</button>
-				<input type="hidden" name="urn" value="{{ block.id }}">
-				<textarea name="notes" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
-			{% endfor %}
-			<button onclick="insertbefore('{{ open_log.urn.urn.replace(':', '-') }}-notes')">+</button>
+				<div id='default-block' class="block" style="display: flex">
+					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
+						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+					</div>
+					<div style="display: flex; flex-direction: column; flex-grow: 7">
+						<select name="content_type">
+							{% for bt in blocktypes %}
+							<option value="{{ bt.value }}">{{ bt.pretty() }}</option>
+							{% endfor %}
+						</select>
+						<input type="hidden" name="content_uuid" value="REPLACEME">
+						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
+						<textarea name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
+					</div>
+				</div>
 			</div>
 
-			<button type="submit">Save Notes</button>
-
+			<label for="backend">Backend</label>
+			<select id="backend" name="backend">
+				{% for backend in oe.backends %}
+				<option value="{{ backend.name }}" {% if open_log.backend.name == backend.name %}selected{%endif%}>{{ backend.description }} ({{ backend.name }})</option>
+				{% endfor %}
+			</select>
 		</fieldset>
 	</form>
 	{% endfor %}
@@ -82,110 +118,131 @@
 				<td colspan="4" class="header">{{ date }}</td>
 			</tr>
 			{% for log in logs %}
+			<form method="post">
 			<tr>
-				<td><a href="{{ log.urn.urn }}#url">{{ log.urn.urn }}#title</a></td>
+				<td><a href="{{ log.thing.urn.urn }}#url">{{ log.thing.urn.urn }}#title</a></td>
 				<td>
-					{% if log.data.parents %}
-						{% for parent in log.data.resolve_parents(oe) %}
-							<a href="{{ parent.urn.urn }}#url">{{ parent.urn.urn }}#title</a>
+					{% if log.thing.data.parents %}
+						{% for parent in log.thing.data.parents %}
+							<a href="{{ parent.urn }}#url">{{ parent.urn }}#title</a>
 						{% endfor %}
 					{% endif %}
 				</td>
 				<td>
 					<div style="display: flex">
-						<input name="start_date" type="date" value="{{ log.data.start_date() }}">
-						<input name="start_time" type="text" value="{{ log.data.start_time() }}">
+						<input name="start_date" type="date" value="{{ log.thing.data.start_date() }}">
+						<input name="start_time" class="time" type="text" value="{{ log.thing.data.start_time() }}">
 					</div>
 					<div style="display: flex">
-						<input name="end_date" type="date" value="{{ log.data.end_date() }}">
-						<input name="end_time" type="text" value="{{ log.data.end_time() }}">
+						<input name="end_date" type="date" value="{{ log.thing.data.end_date() }}">
+						<input name="end_time" class="time" type="text" value="{{ log.thing.data.end_time() }}">
 					</div>
 				</td>
 				<td>
-					<form method="post">
-						<input type="hidden" name="urn" value="{{ log.urn.urn }}">
-						<input id="action" type="hidden" name="action" value="start">
-						<button type="submit">Continue</button>
-					</form>
+						<input type="hidden" name="urn" value="{{ log.thing.urn.urn }}">
+						<input type="hidden" name="action" value="start">
+						<button name="submit" type="submit">Continue</button>
+						<button name="delete" type="button">Delete</button>
 				</td>
 			</tr>
+			</form>
 			{% endfor %}
 			{% endfor %}
 		</tbody>
 	</table>
 
 
-	<script>
-		[...document.querySelectorAll("input[name='end_time'],input[name='start_time']")].forEach(i => i.addEventListener('focus', () => i.select()));
-		[...document.querySelectorAll("input[name='end_time'],input[name='start_time']")].forEach(i => i.addEventListener('change', () => {
-			if(i.value.length < 3) {
-				h = parseInt(i.value)
-				if (h < 7) {
-					h += 12
-				}
+<script>
+// https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
+function uuid() {
+	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
+}
 
-				i.value = `${h.toString().padStart(2, "0")}:00:00`
-			} else if(i.value.length < 4) {
-				h = parseInt(i.value.toString().substring(0, 1))
-				m = parseInt(i.value.toString().substring(1))
+const template = document.querySelector('#default-block').outerHTML;
+if (document.querySelectorAll('#notes .block.existing').length > 0 ){
+	document.querySelector('#default-block').remove();
+}
 
-				// assume they mean PM?
-				if (h < 7) {
-					h += 12
-				}
-				i.value = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`
-			} else if(i.value.length == 4) {
-				h = parseInt(i.value.toString().substring(0, 2))
-				m = parseInt(i.value.toString().substring(2))
-				i.value = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`
-			}
-		}));
+function insertbefore(e){
+	let block = e.parentElement.parentElement;
+	block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
+}
 
-		function insertbefore(par, id) {
-			let ins = `
-				<input type="hidden" name="block_id" value="">
-				<label>Type
-				<select>
-					<option value="markdown">Markdown</option>
-					<option value="query-table">Table</option>
-					<option value="query-kanban">Kanban</option>
-				</select>
-				</label>
-				<textarea name="notes" rows="5" placeholder="jrnl goes here"></textarea>
-			`
+function remove(e){
+	let block = e.parentElement.parentElement;
+	if (document.querySelectorAll('#notes .block').length == 1){
+		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
+	}
 
-			if (id === undefined){
-				var e = document.getElementById(par)
-				e.innerHTML = ins + e.innerHTML
-			}
+	block.remove();
+}
+
+function insertafter(e){
+	let block = e.parentElement.parentElement;
+	block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
+}
+
+
+function simple_time_to_hms(value) {
+	if(value.length < 3) {
+		h = parseInt(value)
+		if (h < 7) {
+			h += 12
 		}
 
-	let now = new Date();
-	function Update(){
-		now = new Date();
+		return `${h.toString().padStart(2, "0")}:00:00`
+	} else if(value.length < 4) {
+		h = parseInt(value.toString().substring(0, 1))
+		m = parseInt(value.toString().substring(1))
 
-		[...document.querySelectorAll('.open-log')].forEach(form => {
-			start = form.querySelector('input[name="start_unix"]')
-			if(start.value !== "None"){
-				// Update the duration
-				var duration = (now - (parseInt(start.value) * 1000)) / 1000
-
-				hours = Math.floor(duration / 3600);
-				minutes = Math.floor((duration - (hours * 3600)) / 60);
-				seconds = Math.floor(duration - (hours * 3600) - (minutes * 60));
-
-				let runtime = form.querySelectorAll('input[name="runtime"]')[0]
-				runtime.value = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-
-			}
-		})
+		// assume they mean PM?
+		if (h < 7) {
+			h += 12
+		}
+		return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`
+	} else if(value.length == 4) {
+		h = parseInt(value.toString().substring(0, 2))
+		m = parseInt(value.toString().substring(2))
+		return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`
 	}
+}
+
+let now = new Date();
+
+// Automatically updating the duration.
+function Update(){
+	now = new Date();
+	[...document.querySelectorAll('.open-log')].forEach(form => {
+		let start_date = form.querySelector('input[name="start_date"]').value,
+		    start_time = form.querySelector('input[name="start_time"]').value,
+		    start_unix = form.querySelector('input[name="start_unix"]')
+		    end_unix = form.querySelector('input[name="end_unix"]');
+
+		end_unix.value = luxon.DateTime.now().toUnixInteger();
+		
+		if(start_date !== "" && start_date != "None" && start_time !== "" && start_time != "None"){
+			let start = luxon.DateTime.fromISO(`${start_date}T${start_time}`)
+			start_unix.value = start.toUnixInteger();
+			// Update the duration
+			var duration = luxon.DateTime.now().diff(start)
+			let runtime = form.querySelector('input[name="runtime"]')
+			runtime.value = duration.toISOTime() === null ? duration.toISO() : duration.toISOTime();
+		}
+	})
+}
+Update();
+
+
+[...document.querySelectorAll("input.time")].forEach(i => i.addEventListener('focus', () => i.select()));
+[...document.querySelectorAll("input.time")].forEach(i => i.addEventListener('change', () => {
+	i.value = simple_time_to_hms(i.value);
 	Update();
+}));
 
-	setInterval(function(){
-		Update();
-	}, 2000);
+setInterval(function(){
+	Update();
+}, 5000);
 
-	</script>
+</script>
 
 {% endblock %}
