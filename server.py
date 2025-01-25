@@ -275,7 +275,11 @@ def read_items(a=None, b=None, c=None, d=None, e=None):
     u = ':'.join(p)
     if u.endswith('.html'):
         u = u[0:-5]
-    note = oe.find_thing(u)
-    if note is None:
+
+    try:
+        note = oe.find_thing(u)
+        if note is None:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return render_dynamic(note)
+    except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
-    return render_dynamic(note)
