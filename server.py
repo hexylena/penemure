@@ -102,23 +102,46 @@ class FormData(BaseModel):
     content_author: List[str]
     backend: str
 
+class TimeFormData(BaseModel):
+    urn: Optional[str] = None
+    title: str
+    project: Optional[str | List[str]] = []
+    content_type: List[str]
+    content_uuid: List[str]
+    content_note: List[str]
+    content_author: List[str]
+    backend: str
+    start_unix: int
+    end_unix: int
+
+
+def extract_contents(data: FormData | TimeFormData, default_author=None):
+    if default_author is None:
+        a2 = UniformReference.model_validate({"app":"account","ident":"hexylena"}) # TODO
+    else:
+        a2 = UniformReference.model_validate(a) # TODO
+
+    res = []
+    for (t, u, n, a) in zip(data.content_type, data.content_uuid, data.content_note, data.content_author):
+        res.append(MarkdownBlock.model_validate({
+            'contents': n,
+            'author': a or a2,
+            'type': BlockTypes.from_str(t),
+            'id': u
+        }))
+    return res
+
 @app.post("/new.html")
 @app.post("/new")
 def save_new(data: Annotated[FormData, Form()]):
     dj = {
         'title': data.title,
         'type': data.type,
-        'contents': [
-            {
-                'contents': n,
-                'author': {"app":"account","ident":"hexylena"}, # TODO
-                'type': t,
-                'id': u,
-            }
-            for (t, u, n) in zip(data.content_type, data.content_uuid, data.content_note)
-        ]
+        'contents': extract_contents(data)
     }
-    if isinstance(data.project, str):
+    if data.project is None:
+        dj['parents'] = []
+    elif isinstance(data.project, str):
         dj['parents'] = [UniformReference.from_string(data.project)]
     else:
         dj['parents'] = [UniformReference.from_string(x) for x in data.project]
@@ -134,11 +157,7 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
     orig = narrow_thing(oe.find(u))
     orig.thing.data.title = data.title
     orig.thing.data.type = data.type
-    orig.thing.data.contents = [
-        MarkdownBlock.model_validate({'contents': n, 'author': UniformReference.from_string(a),
-                                      'type': BlockTypes.from_str(t), 'id': u})
-        for (t, u, n, a) in zip(data.content_type, data.content_uuid, data.content_note, data.content_author)
-    ]
+    orig.thing.data.contents = extract_contents(data)
     for b in orig.thing.data.contents:
         print(b)
 
@@ -173,7 +192,7 @@ class TimeFormData(BaseModel):
 
 @app.post("/time.html")
 @app.post("/time")
-def save_new(data: Annotated[TimeFormData, Form()]):
+def save_time(data: Annotated[TimeFormData, Form()]):
     if data.urn:
         u = UniformReference.from_string(data.urn)
         log = narrow_thing(oe.find(u))
@@ -181,6 +200,8 @@ def save_new(data: Annotated[TimeFormData, Form()]):
         log = Log(title=data.title)
         be = bos.overlayengine.get_backend(data.backend)
         log = bos.overlayengine.add(log, backend=be)
+
+    log.thing.contents = extract_contents(data)
     return log.thing
 
     # dj = {
