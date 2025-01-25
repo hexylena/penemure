@@ -207,11 +207,11 @@ def save_new(data: Annotated[TimeFormData, Form()]):
     # return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
 
 @app.exception_handler(404)
-async def custom_404_handler(request, _):
+def custom_404_handler(request, res):
     template = env.get_template('404.html')
     config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
-    page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn)
+    page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, error=res.detail)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
 
@@ -282,4 +282,4 @@ def read_items(a=None, b=None, c=None, d=None, e=None):
             raise HTTPException(status_code=404, detail="Item not found")
         return render_dynamic(note)
     except KeyError:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail=f"URN {u} not found")
