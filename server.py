@@ -116,6 +116,7 @@ class TimeFormData(BaseModel):
 
 
 def extract_contents(data: FormData | TimeFormData, default_author=None):
+    a2 = None
     if default_author is None:
         a2 = UniformReference.model_validate({"app":"account","ident":"hexylena"}) # TODO
     else:
@@ -123,6 +124,12 @@ def extract_contents(data: FormData | TimeFormData, default_author=None):
 
     res = []
     for (t, u, n, a) in zip(data.content_type, data.content_uuid, data.content_note, data.content_author):
+        if isinstance(a, str):
+            a = UniformReference.from_string(a)
+
+        if t.startswith('chart') or t.startswith('query'):
+            n = oe.fmt_query(n)
+
         res.append(MarkdownBlock.model_validate({
             'contents': n,
             'author': a or a2,
@@ -261,25 +268,6 @@ def redir(urn: str):
     return RedirectResponse(u.url, status_code=status.HTTP_302_FOUND)
 
 
-@app.get("/{page}.html", response_class=HTMLResponse)
-@app.get("/{page}", response_class=HTMLResponse)
-def fixed_page(page: str):
-    page = page.replace('.html', '')
-    if page in ('search', 'new', 'time', 'redir'):
-        return render_fixed(page + '.html')
-
-    return f"""
-    <html>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>Look ma! HTML! {page}</h1>
-        </body>
-    </html>
-    """
-
-
 # Eww.
 @app.get("/{a}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse)
 @app.get("/{a}/{b}/{c}/{d}.html", response_class=HTMLResponse)
@@ -304,3 +292,39 @@ def read_items(a=None, b=None, c=None, d=None, e=None):
         return render_dynamic(note)
     except KeyError:
         raise HTTPException(status_code=404, detail=f"URN {u} not found")
+
+@app.get('/manifest.json')
+def manifest():
+    return {
+        "background_color": "#ffffff",
+        "name":             bos.title,
+        "description":      bos.about,
+        "display":          "standalone",
+        "scope":            '/', # TODO: make this configurable
+        "icons":            [{
+            "src":   "/assets/favicon@256.png",
+            "type":  "image/png",
+            "sizes": "256x256",
+        }],
+        "start_url":        '/', # TODO
+        "theme_color":      "#CE3518",
+    }
+
+
+@app.get("/{page}.html", response_class=HTMLResponse)
+@app.get("/{page}", response_class=HTMLResponse)
+def fixed_page(page: str):
+    page = page.replace('.html', '')
+    if page in ('search', 'new', 'time', 'redir'):
+        return render_fixed(page + '.html')
+
+    return f"""
+    <html>
+        <head>
+            <title>Some HTML in here</title>
+        </head>
+        <body>
+            <h1>Look ma! HTML! {page}</h1>
+        </body>
+    </html>
+    """

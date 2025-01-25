@@ -14,7 +14,7 @@ from .apps import ModelFromAttr, Account
 from pydantic import BaseModel
 from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
-from sqlglot import parse_one, exp
+from sqlglot import parse_one, exp, transpile
 from sqlglot.executor import execute
 from typing import Dict
 from typing import Optional, Union
@@ -481,6 +481,16 @@ class OverlayEngine(BaseModel):
         # import pprint
         # pprint.pprint(tables)
         return tables
+
+    def fmt_query(self, query):
+        if query.split(' ')[0] == 'GROUP':
+            query = ' '.join(query.split(' ')[1:])
+            return 'GROUP' + transpile(query, pretty=True)[0]
+        elif query.split(' ')[0] == 'SQL':
+            query = ' '.join(query.split(' ')[1:])
+            return 'SQL ' + transpile(query, pretty=True)[0]
+        else:
+            return transpile(query, pretty=True)[0]
 
     def query(self, query, via=None, sql=False) -> Optional[GroupedResultSet]:
         # Allow overriding with keywords

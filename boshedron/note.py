@@ -61,6 +61,9 @@ class MarkdownBlock(BaseModel):
     # urn:boshedron:note:deadbeef#dead-beef-cafe-4096
     id: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
+    created: PastDatetime = Field(default_factory=lambda : local_now())
+    updated: PastDatetime = Field(default_factory=lambda : local_now())
+
     model_config = ConfigDict(use_enum_values=True)
 
     def render(self, oe, path, parent):
