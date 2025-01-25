@@ -13,9 +13,19 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import List
 import os
+import sentry_sdk
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
+
+
+if 'SENTRY_SDK' in os.environ:
+    sentry_sdk.init(
+        dsn=os.environ['SENTRY_SDK'],
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
+
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
