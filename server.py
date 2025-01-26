@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form
+from fastapi import FastAPI, HTTPException, Form, Response
 from fastapi.responses import RedirectResponse
 import starlette.status as status
 from fastapi.staticfiles import StaticFiles
@@ -309,6 +309,23 @@ def manifest():
         "start_url":        '/', # TODO
         "theme_color":      "#CE3518",
     }
+
+
+@app.get('/sitesearch.xml')
+def manifest():
+    data = f"""<?xml version="1.0"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>{bos.title}</ShortName>
+  <Description>{bos.about}</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="16" height="16" type="image/x-icon">/assets/favicon@256.png</Image>
+  <Url type="text/html" template="/search.html?q={ '{searchTerms}' }"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="/sitesearch.xml" />
+</OpenSearchDescription>
+    """
+    # <Url type="application/x-suggestions+json" template="[suggestionURL]"/>
+    return Response(content=data, media_type="application/opensearchdescription+xml")
 
 
 @app.get("/{page}.html", response_class=HTMLResponse)
