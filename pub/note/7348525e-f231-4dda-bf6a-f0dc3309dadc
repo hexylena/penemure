@@ -1,0 +1,48 @@
+{
+  "title": "Tags",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    },
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "9ebede41-b95c-4f57-b9a2-21ddcc8a207d"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "not sure i'm happy with the tags implementation, it's a bit rubbish.\r\n\r\n## problems\r\n\r\ncurrently they have many properties, stored directly on the tag.\r\n\r\nsearching for them is hard\r\n\r\nit is NOT KV. you can't pick a K and set a V. they support multi keys and are list shaped.\r\n\r\nNotions is essentially KV shaped with specific datatypes allowing multivalue, one assumes those are just stored comma sep inside. ",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "f138803e-ee32-415c-b7dd-0d309348fe59",
+      "created": "2025-01-26T16:46:22.309832Z",
+      "updated": "2025-01-26T16:46:22.309836Z"
+    },
+    {
+      "contents": "",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "fc61ec51-515b-4099-a1ea-fb94e411e543",
+      "created": "2025-01-26T16:46:22.309848Z",
+      "updated": "2025-01-26T16:46:22.309849Z"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-21T11:13:39.878116Z",
+  "updated": "2025-01-21T11:13:39.878120Z",
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

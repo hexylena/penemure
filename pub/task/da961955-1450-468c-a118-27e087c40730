@@ -1,0 +1,43 @@
+{
+  "title": "block transclude and search",
+  "parents": [
+    {
+      "app": "project",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## transclusion\r\n\r\nI need to be able to transclude/ reference a specific block. they have IDs so it should be as simple as something like\r\n\r\nur...deadbeef#block_id\r\n\r\n- [ ] number blocks rather than uuids?\r\n- [ ] how are they selected for @ing\r\n- [ ] should blocks have more properties/annotations. tags? should they have tags? I could see tagging a specific markdown block as \"type=decision\" and wanting to select all decision blocks.\r\n- [ ] expose blocks in SQL interface",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "35e096e2-d53b-41e2-8beb-6a49cb096aef",
+      "created": "2025-01-26T16:42:22.358885Z",
+      "updated": "2025-01-26T16:42:22.358893Z"
+    },
+    {
+      "contents": "## search\r\n\r\nsimilar to above I want to search blocks based on tags. ",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "17069fe0-744a-4eeb-864a-332231ae85fb",
+      "created": "2025-01-26T16:42:22.358917Z",
+      "updated": "2025-01-26T16:42:22.358918Z"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-26T16:42:22.358953Z",
+  "updated": "2025-01-26T16:42:22.358954Z",
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

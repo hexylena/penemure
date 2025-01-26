@@ -1,0 +1,31 @@
+{
+  "title": "Prevent circular parenting",
+  "parents": [
+    {
+      "app": "project",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "- limit ancestor search to N",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "585c5bea-d6d7-48e8-a313-0f60061db309",
+      "created": "2025-01-26T16:47:09.766140Z",
+      "updated": "2025-01-26T16:47:09.766147Z"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-26T16:47:09.766182Z",
+  "updated": "2025-01-26T16:47:09.766183Z",
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
