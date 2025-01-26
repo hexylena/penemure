@@ -20,9 +20,11 @@ for b in bos.backends:
         if not isinstance(v, StoredThing):
             continue
 
-        # print(v.created,v.updated, v.data.created, v.data.updated, )
-        v.data.created = v.data.created.replace(tzinfo=ZoneInfo("UTC"))
-        v.data.updated = v.data.updated.replace(tzinfo=ZoneInfo("UTC"))
-        # for x in (v.data.contents or []):
-        #     print('\t', x.created, x.updated)
+        print(v.created,v.updated, v.data.created, v.data.updated, )
+
+        v.data.created_unix = v.data.created.timestamp()
+        v.data.updated_unix = v.data.updated.timestamp()
+        for x in (v.data.contents or []):
+            x.created_unix = x.created.timestamp()
+            x.updated_unix = x.updated.timestamp()
     b.save(fsync=False)

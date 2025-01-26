@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "3b278413-cf72-4da1-b4b4-ee96501e1794",
-      "created": "2025-01-26T16:55:45.480095Z",
-      "updated": "2025-01-26T16:55:45.480103Z"
+      "created_unix": 1737890792.99803,
+      "updated_unix": 1737890792.998031
     },
     {
       "contents": "**resolution** let's have logs as a separate thing from tags.",
@@ -29,14 +29,16 @@
       },
       "type": "markdown",
       "id": "dd4a1ec0-a921-4865-8a30-3c36db2c4405",
-      "created": "2025-01-26T16:55:45.480126Z",
-      "updated": "2025-01-26T16:55:45.480128Z"
+      "created_unix": 1737890792.99803,
+      "updated_unix": 1737890792.998031
     }
   ],
   "tags": [],
   "version": 2,
   "created": "2025-01-22T17:30:35.708869Z",
   "updated": "2025-01-22T17:30:35.708875Z",
+  "created_unix": 1737567035.708869,
+  "updated_unix": 1737567035.708875,
   "namespace": null,
   "type": "task",
   "attachments": []

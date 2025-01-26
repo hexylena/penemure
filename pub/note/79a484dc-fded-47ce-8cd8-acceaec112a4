@@ -18,13 +18,17 @@
       "type": "markdown",
       "id": "ed193ec5-3236-4ac2-aed1-03ed5bd917fc",
       "created": "2025-01-26T12:26:32.998859+01:00",
-      "updated": "2025-01-26T12:26:32.998863+01:00"
+      "updated": "2025-01-26T12:26:32.998863+01:00",
+      "created_unix": 1737890792.998859,
+      "updated_unix": 1737890792.998863
     }
   ],
   "tags": [],
   "version": 2,
   "created": "2025-01-22T16:12:32.129950Z",
   "updated": "2025-01-22T16:12:32.129953Z",
+  "created_unix": 1737562352.12995,
+  "updated_unix": 1737562352.129953,
   "namespace": null,
   "type": "note",
   "attachments": []

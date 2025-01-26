@@ -18,7 +18,9 @@
       "type": "markdown",
       "id": "2902555b-6cf9-4bf2-b383-cc35e9816081",
       "created": "2025-01-26T12:26:32.997445+01:00",
-      "updated": "2025-01-26T12:26:32.997446+01:00"
+      "updated": "2025-01-26T12:26:32.997446+01:00",
+      "created_unix": 1737890792.997445,
+      "updated_unix": 1737890792.997446
     },
     {
       "contents": "coming back to Tags (it'd be nice if this hyperlinked to search for that hashtag) this would be complicated structured data to stick in a stringly value.\r\n\r\nI really would prefer a single tag shape to make editing easier. is that necessary? is it a UI/editing problem? the transport of the object between server and browser is the main issue. if it's a single shape that's easy, otherwise I have to recreate a certain amount of the python in js.",
@@ -30,7 +32,9 @@
       "type": "markdown",
       "id": "0cd602d6-d0b4-426e-bdab-66f4856839db",
       "created": "2025-01-26T12:26:32.997547+01:00",
-      "updated": "2025-01-26T12:26:32.997548+01:00"
+      "updated": "2025-01-26T12:26:32.997548+01:00",
+      "created_unix": 1737890792.997547,
+      "updated_unix": 1737890792.997548
     },
     {
       "contents": "localisation is also an issue. \"Start Date\" is a very English language string.",
@@ -42,7 +46,9 @@
       "type": "markdown",
       "id": "9ec09215-d6cd-421e-97e4-b71eec9822e5",
       "created": "2025-01-26T12:26:32.997551+01:00",
-      "updated": "2025-01-26T12:26:32.997552+01:00"
+      "updated": "2025-01-26T12:26:32.997552+01:00",
+      "created_unix": 1737890792.997551,
+      "updated_unix": 1737890792.997552
     },
     {
       "contents": "need to save  draft notes as .",
@@ -54,7 +60,9 @@
       "type": "markdown",
       "id": "6e59bc87-dc5f-4451-8e67-acf8661acafd",
       "created": "2025-01-26T12:26:32.997558+01:00",
-      "updated": "2025-01-26T12:26:32.997559+01:00"
+      "updated": "2025-01-26T12:26:32.997559+01:00",
+      "created_unix": 1737890792.997558,
+      "updated_unix": 1737890792.997559
     },
     {
       "contents": "> The database community has the famous saying “The log is the database; everything else is cache (or materialized views)” - often attributed to Pat Helland. T",
@@ -66,13 +74,17 @@
       "type": "markdown",
       "id": "4a63fb94-d2ed-4e59-8a60-43157a581065",
       "created": "2025-01-26T12:26:32.997564+01:00",
-      "updated": "2025-01-26T12:26:32.997564+01:00"
+      "updated": "2025-01-26T12:26:32.997564+01:00",
+      "created_unix": 1737890792.997564,
+      "updated_unix": 1737890792.997564
     }
   ],
   "tags": [],
   "version": 2,
   "created": "2025-01-22T16:28:25.556179Z",
   "updated": "2025-01-22T16:28:25.556185Z",
+  "created_unix": 1737563305.556179,
+  "updated_unix": 1737563305.556185,
   "namespace": null,
   "type": "note",
   "attachments": []

@@ -18,7 +18,9 @@
       "type": "markdown",
       "id": "c07c5395-f309-4a30-ac94-34e3844e19ce",
       "created": "2025-01-26T12:26:32.997736+01:00",
-      "updated": "2025-01-26T12:26:32.997737+01:00"
+      "updated": "2025-01-26T12:26:32.997737+01:00",
+      "created_unix": 1737890792.997736,
+      "updated_unix": 1737890792.997737
     },
     {
       "contents": "- [ ] show sync state in UI somewhere\r\n- [ ] track sync state of backends, we should know if notes were saved to us \r\n- [ ] sync backends only if needed? in parallel? maybe a force sync option?",
@@ -30,7 +32,9 @@
       "type": "markdown",
       "id": "5fe0421b-58d4-4d65-a5a5-0f40156aa456",
       "created": "2025-01-26T12:26:32.997740+01:00",
-      "updated": "2025-01-26T12:26:32.997741+01:00"
+      "updated": "2025-01-26T12:26:32.997741+01:00",
+      "created_unix": 1737890792.99774,
+      "updated_unix": 1737890792.997741
     },
     {
       "contents": "",
@@ -42,13 +46,17 @@
       "type": "markdown",
       "id": "REPLACEME",
       "created": "2025-01-26T12:26:32.997744+01:00",
-      "updated": "2025-01-26T12:26:32.997744+01:00"
+      "updated": "2025-01-26T12:26:32.997744+01:00",
+      "created_unix": 1737890792.997744,
+      "updated_unix": 1737890792.997744
     }
   ],
   "tags": [],
   "version": 2,
   "created": "2025-01-24T09:27:02.710441Z",
   "updated": "2025-01-24T09:27:02.710449Z",
+  "created_unix": 1737710822.710441,
+  "updated_unix": 1737710822.710449,
   "namespace": null,
   "type": "note",
   "attachments": []
