@@ -1,0 +1,31 @@
+{
+  "title": "Templates",
+  "parents": [
+    {
+      "app": "project",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "we want to define templates for an \"app\". (and decouple the app from code and make it more generic).\r\n\r\nwe should\r\n\r\n- stop having apps, they're just thin thin wrappers over note anyway. delete them.\r\n- allow \"apps\" via templates, these describe roughly a table/notion database.\r\n- (templates are an app tho, own namespace everything)\r\n- users can edit these templates, they define things like which Keys are present on a thing, what icon that key used, how to render that value\r\n\r\n\r\n## example\r\n\r\nwe want a Task template, it is going to use Template tags (maybe they're a block type, maybe they're a KV)\r\n\r\nfor:\r\n\r\n- Status, enum (a status subtype specifically, so we can easily pull the status from someone else's table), maybe some specific colours associated with the values. HTML shaped enum? Max=1\r\n- due date, future date shaped, display calendar picker, (or project relative dates)\r\n- priority, enum\r\n- is blocking, a reference type. (do we want to enforce any guarantees on that ref?) should that reference copy the resolution state, given that we may not be able to resolve something? ",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "41f96107-21eb-4793-8d98-cb79776eb9ee",
+      "created": "2025-01-26T17:08:40.548382Z",
+      "updated": "2025-01-26T17:08:40.548390Z"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-26T17:08:40.548427Z",
+  "updated": "2025-01-26T17:08:40.548429Z",
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}
