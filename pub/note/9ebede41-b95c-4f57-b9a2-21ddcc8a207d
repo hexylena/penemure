@@ -1,0 +1,55 @@
+{
+  "title": "Notion Databases ",
+  "parents": [
+    {
+      "app": "project",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "[Notions discussion of DB properties](https://www.notion.com/help/database-properties) is interesting to read. Especially their [relations](https://www.notion.so/help/relations-and-rollups#what-is-a-database-relation)\r\n\r\nyou get the feeling their model is indeed a real database underneath\r\n\r\nit makes me wonder if i should consider that shape\r\n\r\nwe could export csv more easily, in fact that somewhat explains their \"csv\" export when you do a gdpr request. and the mapping directly to a table, calling them database (tables).\r\n\r\nproperties really do exist on every row in the table, youd probably want a file with table data, and then separately the table metadata (meaning of each column, icon, type/how to interpret it).\r\n\r\nit doesn't explain how something like multiselect tags work. I guess that's a column property.\r\n\r\n\r\n",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "6063e463-07e8-4000-9f8e-6ec7c28106cb",
+      "created": "2025-01-26T16:38:12.338169Z",
+      "updated": "2025-01-26T16:38:12.338177Z"
+    },
+    {
+      "contents": "I think this would directly contradict the idea of Forms, and my plans around Logging where we'd be able to just add on log entries.\r\n\r\nmaybe logs and KV need to be separate. where KV are \"real\" columns on a \"table\" like notion, and logs is more like, contents but different",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d550ad96-7f63-4a92-a8e3-1fd5019b239c",
+      "created": "2025-01-26T16:38:12.338201Z",
+      "updated": "2025-01-26T16:38:12.338203Z"
+    },
+    {
+      "contents": "how do we handle multiple table definitions? this gets towards the \"templates\" a bit, that we want to define what a default Note looks like dynamically \r\n\r\nif we have two note definitions we can take the union, but what about conflicting column definitions? do we prefix them so they're clear? only the ones that are different? do we use the note template from the correct backend? how do we pick?\r\n\r\nin my case this will be hidden a lot in the three repos because no one will look at a single repo individually.\r\n\r\nso we need to have sane behaviour for e.g. a private note created based off the public template, where no private template exists. (would we encounter this if we use per backend templates?)",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "0e9be7fd-7ccb-400d-97c7-5ef951e467e5",
+      "created": "2025-01-26T16:38:12.338221Z",
+      "updated": "2025-01-26T16:38:12.338222Z"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-26T16:35:41.778329Z",
+  "updated": "2025-01-26T16:35:41.778330Z",
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

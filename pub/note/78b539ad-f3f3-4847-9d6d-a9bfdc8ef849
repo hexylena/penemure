@@ -17,8 +17,20 @@
       },
       "type": "markdown",
       "id": "3b278413-cf72-4da1-b4b4-ee96501e1794",
-      "created": "2025-01-26T12:26:32.998030+01:00",
-      "updated": "2025-01-26T12:26:32.998031+01:00"
+      "created": "2025-01-26T16:39:00.110241Z",
+      "updated": "2025-01-26T16:39:00.110249Z"
+    },
+    {
+      "contents": "**resolution** let's have logs as a separate thing from tags.",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "dd4a1ec0-a921-4865-8a30-3c36db2c4405",
+      "created": "2025-01-26T16:39:00.110272Z",
+      "updated": "2025-01-26T16:39:00.110274Z"
     }
   ],
   "tags": [],
