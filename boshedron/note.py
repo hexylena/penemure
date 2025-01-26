@@ -138,6 +138,8 @@ class Note(BaseModel):
 
     def touch(self):
         self.updated = local_now()
+        for c in (self.contents or []):
+            c.updated = local_now()
 
     def has_parent(self, urn) -> bool:
         return urn in [x.urn for x in self.get_parents()]
