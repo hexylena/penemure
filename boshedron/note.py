@@ -61,10 +61,18 @@ class MarkdownBlock(BaseModel):
     # urn:boshedron:note:deadbeef#dead-beef-cafe-4096
     id: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
-    created: PastDatetime = Field(default_factory=lambda : local_now())
-    updated: PastDatetime = Field(default_factory=lambda : local_now())
+    created_unix: float = 0
+    updated_unix: float = 0
 
     model_config = ConfigDict(use_enum_values=True)
+
+    @property
+    def created(self):
+        return datetime.datetime.fromtimestamp(self.created_unix, ZoneInfo('UTC'))
+
+    @property
+    def updated(self):
+        return datetime.datetime.fromtimestamp(self.updated_unix, ZoneInfo('UTC'))
 
     def render(self, oe, path, parent):
         # if isinstance(self.type, str):
@@ -129,12 +137,21 @@ class Note(BaseModel):
     ]] = Field(default_factory=list)
 
     version: Optional[int] = 2
-    created: PastDatetime = Field(default_factory=lambda : local_now())
-    updated: PastDatetime = Field(default_factory=lambda : local_now())
+    created_unix: float = 0
+    updated_unix: float = 0
+
     namespace: Union[str, None] = None
     type: str = 'note'
     attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)
 
+
+    @property
+    def created(self):
+        return datetime.datetime.fromtimestamp(self.created_unix, ZoneInfo('UTC'))
+
+    @property
+    def updated(self):
+        return datetime.datetime.fromtimestamp(self.updated_unix, ZoneInfo('UTC'))
 
     def touch(self):
         self.updated = local_now()
