@@ -1,1 +1,31 @@
-{"title":"Welcome","parents":[{"app":"note","namespace":null,"ident":"71596cb9-e3f4-44b4-9b21-974fff7b5201"}],"contents":[{"contents":"I have found myself unsatisfied with every single other project management solution so, i'm writing my own.\r\n\r\n[the usual laundry list of features](https://github.com/hexylena/project-management)\r\n\r\nwhy offline? it's faster, it's a feature my boss wants, and high key i support his desire given that it also reflects the experience of the global south and those in remote locations. Working on a train with rubbish internet is a total vibe and should be supported more easily. (But i also dream of interplanetary sync so,)\r\n\r\n[researchers in remote locations](https://brr.fyi/posts/engineering-for-slow-internet)\r\n\r\nhexy why is this formatted so so terribly, you ask. It's because i made clinically insane decisions around markdown processing. i regret all of my life decisions and will be replacing it.\r\n\r\nSome reasons why I wrote this: urn:boshedron:note:be939c4b-76e0-4ed0-a12b-da577b08cea7#link","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"92ade51a-2378-4153-a813-743f8fa27d48"}],"tags":[],"version":2,"created":"2025-01-22T12:35:57.129271","updated":"2025-01-22T12:35:57.129276","namespace":null,"type":"note","attachments":[]}
+{
+  "title": "Welcome",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "I have found myself unsatisfied with every single other project management solution so, i'm writing my own.\r\n\r\n[the usual laundry list of features](https://github.com/hexylena/project-management)\r\n\r\nwhy offline? it's faster, it's a feature my boss wants, and high key i support his desire given that it also reflects the experience of the global south and those in remote locations. Working on a train with rubbish internet is a total vibe and should be supported more easily. (But i also dream of interplanetary sync so,)\r\n\r\n[researchers in remote locations](https://brr.fyi/posts/engineering-for-slow-internet)\r\n\r\nhexy why is this formatted so so terribly, you ask. It's because i made clinically insane decisions around markdown processing. i regret all of my life decisions and will be replacing it.\r\n\r\nSome reasons why I wrote this: urn:boshedron:note:be939c4b-76e0-4ed0-a12b-da577b08cea7#link",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "92ade51a-2378-4153-a813-743f8fa27d48",
+      "created": "2025-01-26T12:26:32.998145+01:00",
+      "updated": "2025-01-26T12:26:32.998147+01:00"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-22T12:35:57.129271Z",
+  "updated": "2025-01-22T12:35:57.129276Z",
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

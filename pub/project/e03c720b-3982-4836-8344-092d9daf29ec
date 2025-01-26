@@ -1,1 +1,103 @@
-{"title":"Project Management","parents":[{"app":"project","namespace":null,"ident":"4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"}],"contents":[{"contents":"SELECT title FROM __all__ WHERE parents like '%SELF%'","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"query-table","id":"20d32e2e-d4b8-4fca-bb5a-0cefa5330f38"},{"contents":"# Work Log\r\n\r\none of my insane ideas was that \"i'd like my json files in a directory to be sort of a database queryable via SQL!\" and so I implemented the world's worst sql parser (subsequently replaced with a slightly better one in @0215a1e9-7e2b-4183-a0e3-ec8336560405) that would let the user filter flattened json blobs from their \"\"\"\"\"database\"\"\"\"\".\r\n\r\n(This is roughly similar to notion's ability to do the same, except probably worse and less friendly since their's has nice dropdowns.)\r\n","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"20d32e2e-d4b8-4fca-bb5a-0cefa5330f38"},{"contents":"SELECT title, start_time, end_time - start_time FROM log order by start_time","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"20d32e2e-d4b8-4fca-bb5a-0cefa5330f38"},{"contents":"# Tasks","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"20d32e2e-d4b8-4fca-bb5a-0cefa5330f38"},{"contents":"SELECT title, created FROM task GROUP BY Status order by created","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"20d32e2e-d4b8-4fca-bb5a-0cefa5330f38"},{"contents":"# Recently Modified","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"20d32e2e-d4b8-4fca-bb5a-0cefa5330f38"},{"contents":"SELECT title, type, created FROM tasks order by created desc limit 10","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"20d32e2e-d4b8-4fca-bb5a-0cefa5330f38"}],"tags":[],"version":2,"created":"2025-01-21T20:18:19.030145","updated":"2025-01-21T20:18:19.030150","namespace":null,"type":"project","attachments":[]}
+{
+  "title": "Project Management",
+  "parents": [
+    {
+      "app": "project",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "SELECT title FROM __all__ WHERE parents like '%SELF%'",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "20d32e2e-d4b8-4fca-bb5a-0cefa5330f38",
+      "created": "2025-01-26T12:26:33.000098+01:00",
+      "updated": "2025-01-26T12:26:33.000100+01:00"
+    },
+    {
+      "contents": "# Work Log\r\n\r\none of my insane ideas was that \"i'd like my json files in a directory to be sort of a database queryable via SQL!\" and so I implemented the world's worst sql parser (subsequently replaced with a slightly better one in @0215a1e9-7e2b-4183-a0e3-ec8336560405) that would let the user filter flattened json blobs from their \"\"\"\"\"database\"\"\"\"\".\r\n\r\n(This is roughly similar to notion's ability to do the same, except probably worse and less friendly since their's has nice dropdowns.)\r\n",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "20d32e2e-d4b8-4fca-bb5a-0cefa5330f38",
+      "created": "2025-01-26T12:26:33.000103+01:00",
+      "updated": "2025-01-26T12:26:33.000104+01:00"
+    },
+    {
+      "contents": "SELECT title, start_time, end_time - start_time FROM log order by start_time",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "20d32e2e-d4b8-4fca-bb5a-0cefa5330f38",
+      "created": "2025-01-26T12:26:33.000106+01:00",
+      "updated": "2025-01-26T12:26:33.000107+01:00"
+    },
+    {
+      "contents": "# Tasks",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "20d32e2e-d4b8-4fca-bb5a-0cefa5330f38",
+      "created": "2025-01-26T12:26:33.000109+01:00",
+      "updated": "2025-01-26T12:26:33.000110+01:00"
+    },
+    {
+      "contents": "SELECT title, created FROM task GROUP BY Status order by created",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "20d32e2e-d4b8-4fca-bb5a-0cefa5330f38",
+      "created": "2025-01-26T12:26:33.000112+01:00",
+      "updated": "2025-01-26T12:26:33.000113+01:00"
+    },
+    {
+      "contents": "# Recently Modified",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "20d32e2e-d4b8-4fca-bb5a-0cefa5330f38",
+      "created": "2025-01-26T12:26:33.000116+01:00",
+      "updated": "2025-01-26T12:26:33.000116+01:00"
+    },
+    {
+      "contents": "SELECT title, type, created FROM tasks order by created desc limit 10",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "20d32e2e-d4b8-4fca-bb5a-0cefa5330f38",
+      "created": "2025-01-26T12:26:33.000119+01:00",
+      "updated": "2025-01-26T12:26:33.000119+01:00"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-21T20:18:19.030145Z",
+  "updated": "2025-01-21T20:18:19.030150Z",
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}

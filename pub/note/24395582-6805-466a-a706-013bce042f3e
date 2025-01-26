@@ -1,1 +1,72 @@
-{"title":"Thoughts on \"Separation of Concerns\"","parents":[{"app":"note","namespace":null,"ident":"71596cb9-e3f4-44b4-9b21-974fff7b5201"},{"app":"project","namespace":null,"ident":"4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"}],"contents":[{"contents":"**[Separation of Concerns](https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/bugtracker-separate/) by sgtatham**\r\n\r\n\r\nWhile $this does not strictly aim to be a bug tracker but rather a generic project management tool (which, in essence, is a bug tracker and notes smushed together with some graphs. (it reminds me of how xhs is a bunch of other apps smushed together. maybe that's our tagline. xhs of pm ))\r\n\r\nwe've built a generic document store (with some oddities like layering) of course that can be functionally anything, someone could use this as a postgres backend if they were a bit silly. the important distinguishing features are what come on top that fashion the generic piece of steel into a blade.","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"2f7463d7-6a66-422c-95b9-98eb2305fb4c"},{"contents":"## fix version field\r\n\r\nyep, agreed. it's more relevant to store a specific commit as the reference for where something is fixed, rather than a version. it feels like the version is just the easiest thing for people to enter. maybe for us, for connected repositories, we should have a way to point to a specific commit? and then resolve which branches that commit is included on? it could be a plugin of course, a specific Tag type that can use its combination of commit + repo awareness to resolve into useful information when rendered?\r\n\r\nit shouldn't be anyone's task to update that pointer.\r\n\r\n> If you’re looking specifically for facts, you can’t just ask for ‘bugs with Fix Version < 1.3.0’.\r\n\r\nis an interesting inverse query, had not considered someone would want that in their bug tracker but of course that's logical. so, that data shouldn't just be resolved but persisted in such a way it can be calculated against later. the `<` is scary, is there a data structure that supports that, is `vers.split('.')` to get a tuple back a reasonable way to store that, that in turn the sqlglot queries can find it back?\r\n\r\n- [ ] need some ability to scan git logs for \"fixes #1234\" (a urn?)\r\n- [ ] turn that into a tag on that specific resolved note.\r\n- [ ] at a later date, re-scan and apply a \"Fix appears in branch X\"","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"d9a175b4-682b-44b0-9d02-892c8263a1e4"},{"contents":"## Two-tier Status and Resolution fields\r\n\r\n> If I want to find out what bugs exist in the code, I have to do a search that picks out tickets with state ‘Open’, and also tickets with state ‘Closed’ and resolution ‘Won’t Fix’.\r\n\r\nI can't imagine many PMs consider the second class as bugs,  but it is a useful thing to query.\r\n\r\nif we're copying every tag to the 'task' table when we go to query it it would be as simple as \r\n\r\n```sql\r\nselect title, status, resolution where status == 'open' or (status == 'closed' and resolution == 'won't-fix')\r\n```\r\n\r\ni'm still a bit worried about tags clobbering metadata on the table. maybe that's a \"you're holding it wrong\" issue, or, maybe it can be safe with prefixing tags with `t_` or `tag_` or just `_` in the column name and preventing those strings from being used for real tag names.\r\n\r\nsince tags are of the shape (type, value) i don't think there's a good query i can imagine for selecting status=closed & resolution=wontfix in a query like that. maybe needs a union or, join or something. \r\n\r\nor the tags table needs to be  reshaped for querying, as '(id, status, resolution, ... 50 other tags)'","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"8e3d3cc1-9202-44bb-bc6f-1450b41c35e4"},{"contents":"## Fake bugs for other kinds of to-do item\r\n\r\nI think this section really appealed to me when i originally read this and motivated some of this work. bugs, notes, documents, wiki, everything mixed together in one big happy pile, as it should be.\r\n\r\n> So you have to make a bug record, or a bug-like record, to represent your plan to implement that feature – in effect, representing the feature as a sort of ‘anti-bug’.\r\n\r\nthis will be solved here, just by being able to have a 'plan' shaped thing alongside a 'bug' shaped thing, and being able to transition between these two.\r\n\r\nthat transformation will be interesting, I guess we will retain all previous metadata, and just default to prioritising metadata that is default for the 'bug' profile.\r\n\r\nhow are these profiles managed? right now it's at the server implementation level which feels off. people will want different defaults.\r\n\r\nshould we then encode the shape of a bug (default tags) in the system somehow? every repo that wants to can ship their own version of the template.\r\n\r\n- [ ] template issues\r\n- [ ] customising the template of an 'app'. We should reduce app surface to be only what actual functionality is needed and see if we can eliminate it nearly entirely (except e.g. `file`)\r\n\r\n> In the prototypical case, you’d create a pair of parallel records in both tables. Someone reports a bug, so you have to make a facts record saying that the bug exists; you intend to fix it, so you make a plans record describing that intention. The system would certainly need to make it easy to do this double operation.\r\n\r\nI think this is solved more easily with documents. I'm, very anti-mongo, anti-docstores generally but, i think this is a use case that makes sense. \r\n\r\nand i'll add that it doesn't preclude a sql backend, it's just shitty ugly sql that has fewer columns than it could, or some severe denormalisation.","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"8c58cef4-7422-4780-bb9b-2187f4b48694"}],"tags":[],"version":2,"created":"2025-01-24T09:19:50.902526","updated":"2025-01-24T09:19:50.902541","namespace":null,"type":"note","attachments":[]}
+{
+  "title": "Thoughts on \"Separation of Concerns\"",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
+    },
+    {
+      "app": "project",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "**[Separation of Concerns](https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/bugtracker-separate/) by sgtatham**\r\n\r\n\r\nWhile $this does not strictly aim to be a bug tracker but rather a generic project management tool (which, in essence, is a bug tracker and notes smushed together with some graphs. (it reminds me of how xhs is a bunch of other apps smushed together. maybe that's our tagline. xhs of pm ))\r\n\r\nwe've built a generic document store (with some oddities like layering) of course that can be functionally anything, someone could use this as a postgres backend if they were a bit silly. the important distinguishing features are what come on top that fashion the generic piece of steel into a blade.",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "2f7463d7-6a66-422c-95b9-98eb2305fb4c",
+      "created": "2025-01-26T12:26:32.998306+01:00",
+      "updated": "2025-01-26T12:26:32.998308+01:00"
+    },
+    {
+      "contents": "## fix version field\r\n\r\nyep, agreed. it's more relevant to store a specific commit as the reference for where something is fixed, rather than a version. it feels like the version is just the easiest thing for people to enter. maybe for us, for connected repositories, we should have a way to point to a specific commit? and then resolve which branches that commit is included on? it could be a plugin of course, a specific Tag type that can use its combination of commit + repo awareness to resolve into useful information when rendered?\r\n\r\nit shouldn't be anyone's task to update that pointer.\r\n\r\n> If you’re looking specifically for facts, you can’t just ask for ‘bugs with Fix Version < 1.3.0’.\r\n\r\nis an interesting inverse query, had not considered someone would want that in their bug tracker but of course that's logical. so, that data shouldn't just be resolved but persisted in such a way it can be calculated against later. the `<` is scary, is there a data structure that supports that, is `vers.split('.')` to get a tuple back a reasonable way to store that, that in turn the sqlglot queries can find it back?\r\n\r\n- [ ] need some ability to scan git logs for \"fixes #1234\" (a urn?)\r\n- [ ] turn that into a tag on that specific resolved note.\r\n- [ ] at a later date, re-scan and apply a \"Fix appears in branch X\"",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d9a175b4-682b-44b0-9d02-892c8263a1e4",
+      "created": "2025-01-26T12:26:32.998310+01:00",
+      "updated": "2025-01-26T12:26:32.998311+01:00"
+    },
+    {
+      "contents": "## Two-tier Status and Resolution fields\r\n\r\n> If I want to find out what bugs exist in the code, I have to do a search that picks out tickets with state ‘Open’, and also tickets with state ‘Closed’ and resolution ‘Won’t Fix’.\r\n\r\nI can't imagine many PMs consider the second class as bugs,  but it is a useful thing to query.\r\n\r\nif we're copying every tag to the 'task' table when we go to query it it would be as simple as \r\n\r\n```sql\r\nselect title, status, resolution where status == 'open' or (status == 'closed' and resolution == 'won't-fix')\r\n```\r\n\r\ni'm still a bit worried about tags clobbering metadata on the table. maybe that's a \"you're holding it wrong\" issue, or, maybe it can be safe with prefixing tags with `t_` or `tag_` or just `_` in the column name and preventing those strings from being used for real tag names.\r\n\r\nsince tags are of the shape (type, value) i don't think there's a good query i can imagine for selecting status=closed & resolution=wontfix in a query like that. maybe needs a union or, join or something. \r\n\r\nor the tags table needs to be  reshaped for querying, as '(id, status, resolution, ... 50 other tags)'",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "8e3d3cc1-9202-44bb-bc6f-1450b41c35e4",
+      "created": "2025-01-26T12:26:32.998313+01:00",
+      "updated": "2025-01-26T12:26:32.998314+01:00"
+    },
+    {
+      "contents": "## Fake bugs for other kinds of to-do item\r\n\r\nI think this section really appealed to me when i originally read this and motivated some of this work. bugs, notes, documents, wiki, everything mixed together in one big happy pile, as it should be.\r\n\r\n> So you have to make a bug record, or a bug-like record, to represent your plan to implement that feature – in effect, representing the feature as a sort of ‘anti-bug’.\r\n\r\nthis will be solved here, just by being able to have a 'plan' shaped thing alongside a 'bug' shaped thing, and being able to transition between these two.\r\n\r\nthat transformation will be interesting, I guess we will retain all previous metadata, and just default to prioritising metadata that is default for the 'bug' profile.\r\n\r\nhow are these profiles managed? right now it's at the server implementation level which feels off. people will want different defaults.\r\n\r\nshould we then encode the shape of a bug (default tags) in the system somehow? every repo that wants to can ship their own version of the template.\r\n\r\n- [ ] template issues\r\n- [ ] customising the template of an 'app'. We should reduce app surface to be only what actual functionality is needed and see if we can eliminate it nearly entirely (except e.g. `file`)\r\n\r\n> In the prototypical case, you’d create a pair of parallel records in both tables. Someone reports a bug, so you have to make a facts record saying that the bug exists; you intend to fix it, so you make a plans record describing that intention. The system would certainly need to make it easy to do this double operation.\r\n\r\nI think this is solved more easily with documents. I'm, very anti-mongo, anti-docstores generally but, i think this is a use case that makes sense. \r\n\r\nand i'll add that it doesn't preclude a sql backend, it's just shitty ugly sql that has fewer columns than it could, or some severe denormalisation.",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "8c58cef4-7422-4780-bb9b-2187f4b48694",
+      "created": "2025-01-26T12:26:32.998316+01:00",
+      "updated": "2025-01-26T12:26:32.998317+01:00"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-24T09:19:50.902526Z",
+  "updated": "2025-01-24T09:19:50.902541Z",
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

@@ -182,7 +182,7 @@ class GitJsonFilesBackend(BaseBackend):
         stored_thing.data.persist_attachments(os.path.join(self.path, 'file', 'blob'))
 
         with open(full_path, 'wb') as f:
-            f.write(to_json(stored_thing.data))
+            f.write(to_json(stored_thing.data, indent=2))
 
         if fsync:
             self.sync()

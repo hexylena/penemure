@@ -1,1 +1,31 @@
-{"title":"Fix encoding of values into form","parents":[{"app":"note","namespace":null,"ident":"24395582-6805-466a-a706-013bce042f3e"}],"contents":[{"contents":"\" disappears from the title.","author":{"app":"account","namespace":null,"ident":"hexylena"},"type":"markdown","id":"665f2f95-0013-4554-b051-f582bba76296"}],"tags":[],"version":2,"created":"2025-01-24T09:23:15.070195","updated":"2025-01-24T09:23:15.070204","namespace":null,"type":"task","attachments":[]}
+{
+  "title": "Fix encoding of values into form",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "24395582-6805-466a-a706-013bce042f3e"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "\" disappears from the title.",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "665f2f95-0013-4554-b051-f582bba76296",
+      "created": "2025-01-26T12:26:32.999442+01:00",
+      "updated": "2025-01-26T12:26:32.999444+01:00"
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created": "2025-01-24T09:23:15.070195Z",
+  "updated": "2025-01-24T09:23:15.070204Z",
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
