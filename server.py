@@ -178,7 +178,7 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
     if be != orig.backend.name:
         oe.migrate_backend_thing(orig, be)
 
-    print(orig.thing.data.contents)
+    orig.thing.data.touch()
     return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
 
@@ -208,7 +208,8 @@ def save_time(data: Annotated[TimeFormData, Form()]):
         be = bos.overlayengine.get_backend(data.backend)
         log = bos.overlayengine.add(log, backend=be)
 
-    log.thing.contents = extract_contents(data)
+    log.thing.data.touch()
+    log.thing.data.contents = extract_contents(data)
     return log.thing
 
     # dj = {
