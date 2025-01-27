@@ -5,31 +5,6 @@ from .mixins import AttachmentMixin
 import requests
 
 
-class Project(Note):
-    type: str = 'project'
-
-
-class Page(Note):
-    type: str = 'page'
-    page_path: str
-    # This is the only special case of an additional hardcoded attribute?
-
-
-class Task(Note):
-    type: str = 'task'
-
-
-class Log(Note):
-    type: str = 'log'
-    # Went back and forth again on whether or not to have start/end times baked
-    # into this class.
-    #
-    # I don't think i want that. it'd prevent e.g. tasks from having a
-    # start/end time.
-    #
-    # Instead if it's generic, we can do more useful things.
-
-
 class File(Note):
     type: str = 'file'
     namespace: Optional[str] = 'meta'
@@ -66,18 +41,10 @@ class AccountGithubDotCom(Account):
 
 
 def ModelFromAttr(data):
-    if data['type'] == 'project':
-        return Project
-    elif data['type'] == 'log':
-        return Log
-    elif data['type'] == 'account':
+    if data['type'] == 'account':
         if data['namespace'] == 'gh':
             return AccountGithubDotCom
         return Account
-    elif data['type'] == 'page':
-        return Page
-    elif data['type'] == 'task':
-        return Task
     elif data['type'] == 'file':
         if data['namespace'] == 'meta':
             return File

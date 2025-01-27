@@ -248,7 +248,7 @@ def custom_404_handler(request, res):
 @app.get("/", response_class=HTMLResponse)
 def index():
     # try and find an index page
-    index = [x for x in oe.all_things() if isinstance(x.thing.data, Page) and x.thing.data.page_path == 'index']
+    index = [x for x in oe.all_things() if x.thing.data.type == 'page']
     if len(index) == 0:
         raise Exception()
 

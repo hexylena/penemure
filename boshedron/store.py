@@ -261,6 +261,8 @@ class WrappedStoredThing(BaseModel):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.urn
         d['backend'] = self.backend.name
+        d['created'] = self.thing.data.created
+        d['updated'] = self.thing.data.updated
 
         for k in ('contents', 'attachments', 'tags'):
             if k in d:

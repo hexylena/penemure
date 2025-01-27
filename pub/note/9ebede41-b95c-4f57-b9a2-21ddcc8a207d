@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "6063e463-07e8-4000-9f8e-6ec7c28106cb",
-      "created": "2025-01-26T16:51:17.371010Z",
-      "updated": "2025-01-26T16:51:17.371013Z"
+      "created": 1737970169,
+      "updated": 1737970169
     },
     {
       "contents": "I think this would directly contradict the idea of Forms, and my plans around Logging where we'd be able to just add on log entries.\r\n\r\nmaybe logs and KV need to be separate. where KV are \"real\" columns on a \"table\" like notion, and logs is more like, contents but different",
@@ -29,8 +29,8 @@
       },
       "type": "markdown",
       "id": "d550ad96-7f63-4a92-a8e3-1fd5019b239c",
-      "created": "2025-01-26T16:51:17.371021Z",
-      "updated": "2025-01-26T16:51:17.371021Z"
+      "created": 1737970169,
+      "updated": 1737970169
     },
     {
       "contents": "how do we handle multiple table definitions? this gets towards the \"templates\" a bit, that we want to define what a default Note looks like dynamically \r\n\r\nif we have two note definitions we can take the union, but what about conflicting column definitions? do we prefix them so they're clear? only the ones that are different? do we use the note template from the correct backend? how do we pick?\r\n\r\nin my case this will be hidden a lot in the three repos because no one will look at a single repo individually.\r\n\r\nso we need to have sane behaviour for e.g. a private note created based off the public template, where no private template exists. (would we encounter this if we use per backend templates?)",
@@ -41,8 +41,8 @@
       },
       "type": "markdown",
       "id": "0e9be7fd-7ccb-400d-97c7-5ef951e467e5",
-      "created": "2025-01-26T16:51:17.371027Z",
-      "updated": "2025-01-26T16:51:17.371027Z"
+      "created": 1737970169,
+      "updated": 1737970169
     },
     {
       "contents": "the roll up docs show that people might really interact with things via their tables rather than pages like i do.\r\n\r\ni can see that, you add a property to the table and want to fill in all the elements quickly.\r\n\r\ndo we need a way to take our SQL shaped data and make it more interactive? \r\n\r\n- we could forcibly insert ID as the first select and remove it from results, if there's a dupe in the query no one is the wiser.\r\n- then use that in our html output as an ID\r\n- then provide UI (ugh) to change an attribute and save it to the backend\r\n\r\nthis really implies we need to have a central store of metadata for KV and then allow just supplying values.\r\n\r\nthat lends itself to templates. the template stores the definition of the tag, and then the values are recorded more \"raw\".\r\n\r\nwell have to look up the template every time we want to render something tho.\r\n",
@@ -53,14 +53,14 @@
       },
       "type": "markdown",
       "id": "59b301fa-17f2-466c-8fa4-e97403fd296c",
-      "created": "2025-01-26T16:51:17.371032Z",
-      "updated": "2025-01-26T16:51:17.371033Z"
+      "created": 1737970169,
+      "updated": 1737970169
     }
   ],
   "tags": [],
   "version": 2,
-  "created": "2025-01-26T16:35:41.778329Z",
-  "updated": "2025-01-26T16:35:41.778330Z",
+  "created": 1737970169,
+  "updated": 1737970169,
   "namespace": null,
   "type": "note",
   "attachments": []
