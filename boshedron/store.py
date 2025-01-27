@@ -128,7 +128,7 @@ class BaseBackend(BaseModel):
         else:
             data = {'name': path, 'description': ''}
             with open(meta, 'w') as handle:
-                json.dump(data, handle)
+                json.dump(data, handle, indent=2)
         data['path'] = path
         return data
 
