@@ -10,10 +10,8 @@
   "contents": null,
   "tags": [
     {
-      "type": "status",
-      "title": "Status",
-      "icon": null,
-      "value": "done"
+      "key": "status",
+      "val": "done"
     }
   ],
   "version": 2,

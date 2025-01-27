@@ -12,3 +12,6 @@ except zoneinfo._common.ZoneInfoNotFoundError:
 
 def local_now():
     return datetime.datetime.now(tz=LOCAL_ZONE)
+
+def instance_but_not_subclass(obj, cls):
+    return type(obj) is cls

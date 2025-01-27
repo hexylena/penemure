@@ -1,8 +1,14 @@
-import os
 from typing import Optional
-from .note import Note, UnresolvedReference
+from pydantic import Field
+from .note import *
+from .tags import *
 from .mixins import AttachmentMixin
 import requests
+
+
+class Template(Note):
+    type: str = 'template'
+    tags: list[TemplateTag] = Field(default_factory=list)
 
 
 class File(Note):

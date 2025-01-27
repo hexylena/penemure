@@ -27,7 +27,11 @@ class Boshedron(BaseModel):
 
     def apps(self):
         """List registered 'apps'"""
-        return [p.model_fields['type'].default for p in Note.__subclasses__()] + [Note.model_fields['type'].default]
+        builtins = [p.model_fields['type'].default for p in Note.__subclasses__()]
+        seen = [x.thing.data.type for x in self.overlayengine.all_things()]
+        # TODO: add templates to mix.
+        res = list(set(builtins + seen + [Note.model_fields['type'].default]))
+        return sorted(res)
 
     def export(self, path):
         if not os.path.exists(path):

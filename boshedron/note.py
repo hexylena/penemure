@@ -2,6 +2,7 @@ import hashlib
 import markdown
 import magic
 import requests
+import time
 import tempfile
 import shutil
 import os
@@ -61,8 +62,8 @@ class MarkdownBlock(BaseModel):
     # urn:boshedron:note:deadbeef#dead-beef-cafe-4096
     id: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
-    created_unix: float = 0
-    updated_unix: float = 0
+    created_unix: float = Field(default_factory=lambda : time.time())
+    updated_unix: float = Field(default_factory=lambda : time.time())
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -131,14 +132,11 @@ class Note(BaseModel):
     parents: Optional[list[UniformReference]] = Field(default_factory=lambda: list())
     contents: Optional[list[MarkdownBlock]] = Field(default_factory=list)
     # These must all be enumerated explicitly :|
-    tags: list[Annotated[
-        Union[Tag.get_subclasses()],
-        Field(discriminator="type")
-    ]] = Field(default_factory=list)
+    tags: list[Tag] = Field(default_factory=list)
 
     version: Optional[int] = 2
-    created_unix: float = 0
-    updated_unix: float = 0
+    created_unix: float = Field(default_factory=lambda : time.time())
+    updated_unix: float = Field(default_factory=lambda : time.time())
 
     namespace: Union[str, None] = None
     type: str = 'note'
@@ -154,9 +152,9 @@ class Note(BaseModel):
         return datetime.datetime.fromtimestamp(self.updated_unix, ZoneInfo('UTC'))
 
     def touch(self):
-        self.updated = local_now()
+        self.updated_unix = time.time()
         for c in (self.contents or []):
-            c.updated = local_now()
+            c.updated_unix = time.time()
 
     def has_parent(self, urn) -> bool:
         return urn in [x.urn for x in self.get_parents()]
@@ -193,15 +191,15 @@ class Note(BaseModel):
 
     @property
     def icon(self):
-        if t:= self.get_tag(typ='icon'):
-            return t[0].value_icon()
+        # if t:= self.get_tag(typ='icon'):
+        #     return t[0].value_icon()
 
         if self.type == "project":
             return "📁"
         elif self.type == "task":
-            tag = self.get_tag(typ='status')
-            if tag is not None:
-                return tag.value_icon()
+            # tag = self.get_tag(key='status')
+            # if tag is not None:
+            #     return tag.value_icon()
             return '?'
         elif self.type == "account":
             return "👩‍🦰"
@@ -216,13 +214,13 @@ class Note(BaseModel):
 
 
     def has_tag(self, key: str):
-        return len([tag for tag in self.tags if tag.type == key]) > 0
+        return len([tag for tag in self.tags if tag.key == key]) > 0
 
     def add_tag(self, tag: Tag, unique: bool = False):
         self.touch()
         if unique:
             # Remove any other values of this
-            self.tags = [t for t in self.tags if t.type != tag.type]
+            self.tags = [t for t in self.tags if t.key != tag.key]
 
         self.tags.append(tag)
 
@@ -235,12 +233,12 @@ class Note(BaseModel):
 
         return t[0]
 
-    def get_tags(self, typ: Optional[str] = None, title: Optional[str] = None):
+    def get_tags(self, key: Optional[str] = None, val: Optional[str] = None):
         tags = []
         for t in self.tags:
-            if typ is not None and t.type != typ:
+            if key is not None and t.key != key:
                 continue
-            if title is not None and t.title != title:
+            if val is not None and t.val != val:
                 continue
             tags.append(t)
         return tags

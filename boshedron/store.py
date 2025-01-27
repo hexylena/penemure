@@ -232,8 +232,6 @@ class GitJsonFilesBackend(BaseBackend):
             if path.replace(self.path.rstrip('/') + '/', '') == 'meta.json':
                 continue
 
-            print('realising', self.path, path)
-
             if 'file/blob/' in path:
                 st = StoredBlob.realise_from_path(self.path, path)
             else:
@@ -263,6 +261,7 @@ class WrappedStoredThing(BaseModel):
         d['backend'] = self.backend.name
         d['created'] = self.thing.data.created
         d['updated'] = self.thing.data.updated
+        d['system'] = self.thing.data.type in ('template', )
 
         for k in ('contents', 'attachments', 'tags'):
             if k in d:

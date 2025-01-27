@@ -25,10 +25,8 @@
   ],
   "tags": [
     {
-      "type": "status",
-      "title": "Status",
-      "icon": null,
-      "value": "backlog"
+      "key": "status",
+      "val": "backlog"
     }
   ],
   "version": 2,

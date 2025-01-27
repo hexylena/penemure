@@ -125,10 +125,8 @@
   ],
   "tags": [
     {
-      "type": "template",
-      "title": "Template",
-      "icon": null,
-      "value": "plain.html"
+      "key": "template",
+      "val": "plain.html"
     }
   ],
   "version": 2,
