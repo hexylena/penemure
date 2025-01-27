@@ -7,7 +7,7 @@
 	<h1>Add a Note</h1>
 	</hgroup>
 
-	<form method="post">
+	<form method="post" action="/new">
 		<fieldset>
 			<legend>New Note</legend>
 
@@ -30,30 +30,57 @@
 			<script>
 				new TomSelect("#parent-select", {
 					plugins: ['remove_button'],
-					create: true,
 				});
 			</script>
 
 			<label for="type">Type</label>
 			<select id="type" name="type">
 				{% for app in bos.apps() %}
-				<option value="{{ app }}" {% if app == 'note' %}selected{% endif %}>{{ app.title() }}</option>
+				<option value="{{ app }}"
+					{% if template %}{% if template.type == app %}selected{% endif %}
+					{% elif app == 'note' %} selected
+					{% endif %}
+				>{{ app.title() }}</option>
+
 				{% endfor %}
 			</select>
+			{{ note }}
 
 			<label for="notes">Contents</label>
 
 			<div id="notes" name='contents'>
-				<div class="block" style="display: flex">
+				{% if template %}
+				{% for block in template.contents %}
+				<div class="block existing" style="display: flex">
 					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
 						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
 						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
 					</div>
 					<div style="display: flex; flex-direction: column; flex-grow: 7">
 						<select id="type" name="content_type">
-							<option value="markdown">Markdown</option>
-							<option value="query-table">Query (Table)</option>
-							<option value="query-kanban">Query (Kanban)</option>
+							{% for bt in blocktypes %}
+							<option value="{{ bt.value }}" {% if bt.value == block.type %}selected{% endif %}>{{ bt.pretty() }}</option>
+							{% endfor %}
+						</select>
+						<input type="hidden" name="content_uuid" value="{{ block.id }}">
+						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
+					</div>
+				</div>
+				{% endfor %}
+				{% endif %}
+				<div id='default-block' class="block" style="display: flex">
+					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
+						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+					</div>
+					<div style="display: flex; flex-direction: column; flex-grow: 7">
+						<select id="type" name="content_type">
+							{% for bt in blocktypes %}
+							<option value="{{ bt.value }}">{{ bt.pretty() }}</option>
+							{% endfor %}
 						</select>
 						<input type="hidden" name="content_uuid" value="REPLACEME">
 						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
@@ -62,39 +89,36 @@
 				</div>
 			</div>
 
-			<!--
-			<table>
-				<caption>Page Metadata</caption>
-				<thead>
-					<tr>
-						<th>Type</th>
-						<th>Title</th>
+			<label for="tags">Tags</label>
+			<div id="tags" name="tags">
+				<table>
+					<thead>
+						<th>Actions</th>
+						<th>Key</th>
 						<th>Value</th>
-						<th>Icon</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody id="meta">
-				<tr id="meta_r0">
-					<td><input type="text" id="m_type" name="m_type" value="icon"></td>
-					<td><input type="text" id="m_titl" name="m_titl" value=""></td>
-					<td><input type="text" id="m_valu" name="m_valu" value=""></td>
-					<td><input type="text" id="m_icon" name="m_icon" value="📰"></td>
-					<td><button type="button" onclick="document.getElementById('meta_r0').remove()">❌</button></td>
-				</tr>
-				<tr id="meta_r1">
-					<td><input type="text" id="m_type" name="m_type" value="cover"></td>
-					<td><input type="text" id="m_titl" name="m_titl" value=""></td>
-					<td><input type="text" id="m_valu" name="m_valu" value="./assets/test.jpg"></td>
-					<td><input type="text" id="m_icon" name="m_icon" value=""></td>
-					<td><button type="button" onclick="document.getElementById('meta_r1').remove()">❌</button></td>
-				</tr>
-				</tbody>
-			</table>
-			<button type="button" onclick="addRow()">➕ Add Meta</button>
-			-->
-
-			<br/>
+					</thead>
+					<tbody>
+						{% if template %}
+						{% for tag in template.tags %}
+						<tr class='tag existing'>
+							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
+							<td>
+								{{ tag.val_html }}
+								<input type="text" name="tag_val" placeholder="value" value="{{ tag.val_safe | escape }}"/>
+							</td>
+						</tr>
+						{% endfor %}
+						{% endif %}
+						<tr id="default-tag" class="tag">
+							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><input type="text" name="tag_key" placeholder="key"/></td>
+							<td><input type="text" name="tag_val" placeholder="value"/></td>
+						</tr>
+					</tbody>
+				</table>
+				<button type="button" onclick="appendtag()">+</button>
+			</div>
 
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
@@ -113,17 +137,46 @@ function uuid() {
 	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
 }
 
-	const template = document.querySelector('#notes .block').outerHTML;
-	document.querySelector('#notes .block input[name="content_uuid"]').value = uuid();
+	const template = document.querySelector('#default-block').outerHTML;
+	if (document.querySelectorAll('#notes .block.existing').length > 0 ){
+		document.querySelector('#default-block').remove();
+	}
+
+	const templateTag = document.querySelector('#default-tag').outerHTML;
+	document.querySelector('#default-tag').remove();
+	if (document.querySelectorAll('#tags .tag.existing').length > 0 ){
+	}
 
 	function insertbefore(e){
 		let block = e.parentElement.parentElement;
 		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
 	}
 
+	function remove(e){
+		let block = e.parentElement.parentElement;
+		if (document.querySelectorAll('#notes .block').length == 1){
+			block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
+		}
+
+		block.remove();
+	}
+
+	function removetag(e){
+		let tag = e.parentElement.parentElement;
+		if (document.querySelectorAll('#notes .tag').length == 1){
+			tag.insertAdjacentHTML('beforebegin', templateTag.replaceAll('REPLACEME', uuid()))
+		}
+
+		tag.remove();
+	}
+
 	function insertafter(e){
 		let block = e.parentElement.parentElement;
 		block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
+	}
+
+	function appendtag(e){
+		document.querySelector('#tags table tbody').insertAdjacentHTML('beforeend', templateTag);
 	}
 
 

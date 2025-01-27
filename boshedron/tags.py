@@ -8,6 +8,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from .refs import *
 
+FIELD_SEP = chr(0x001E)
+
 
 class LifecycleEnum(Enum):
     backlog = 'backlog'
@@ -30,29 +32,32 @@ class LifecycleEnum(Enum):
             return "📝"
 
 
-class TemplateTag(BaseModel):
-    key: str
-    val: dict
+class TemplateValue(BaseModel):
+    type: (Literal['enum'] | Literal['status'] | Literal['float'] |
+           Literal['urn'] | Literal['date'] | Literal['bool'] | Literal['sql']
+           | Literal['str'] | Literal['int'])
+    values: list[Any]
+    colors: Optional[list[str]] = None
+    default: Optional[Any] = None
+    n_max: int = 1
+    n_min: int = 1
 
-    @property
-    def val_safe(self):
-        return json.dumps(self.val)
+    def is_multi(self):
+        return self.n_max > 1
 
-    def render(self):
-        if hasattr(self.val, 'html_icon'):
-            return getattr(self.val, 'html_icon', '!!') + " " + str(self.val)
-        return f'<span class="template tag">{self.val}</span>'
+    def get_val_default(self) -> str:
+        if self.default is not None:
+            if self.is_multi():
+                return FIELD_SEP.join(map(str, self.default))
+            else:
+                return self.default
+        return ''
 
-##
-# Theory: all tags are k:v where v is singular. if you want multiple V, add
-# multiple tags.
-#
-# (this... sucks? but the data modelling is easier.)
 
 class Tag(BaseModel):
     # TODO: is there any sane usecase for multi-valued tags that are used everywhere?
     key: str
-    val: str
+    val: str | float | bool | int | UniformReference | datetime
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -63,7 +68,28 @@ class Tag(BaseModel):
     def render(self):
         if hasattr(self.val, 'html_icon'):
             return getattr(self.val, 'html_icon', '!!') + " " + str(self.val)
-        return f'<span class="tag">{self.key}:{self.val}</span>'
+        # TODO: this needs knowledge of the template for e.g. colors
+        return f'<span class="tag" title="{self.key}">{self.icon} {self.val}</span>'
+
+    def val_input(self):
+        # TODO: this needs knowledge of the template.
+        pass
+
+    @property
+    def icon(self) -> str:
+        if self.key == 'status':
+            if self.val == 'done':
+                return "✅"
+            elif self.val in ('inprogress', 'planning', 'backlog'):
+                return "🚧"
+            elif self.val == 'blocked':
+                return "🚫"
+            else:
+                return "📝"
+
+        return '‽'
+
+
 #
 #     @property
 #     def html_icon(self) -> str:
@@ -235,3 +261,48 @@ class Tag(BaseModel):
 # #     type: Literal['template'] = 'template'
 # #     value: str = 'note.html'
 # #     title: str = 'Template'
+
+# Here's notions: https://www.notion.com/help/database-properties
+#
+# __      Created by       Automatically records the person who created the item. Auto-generated and not editable.
+# __      Created time     Records the timestamp of an item's creation. Auto-generated and not editable.
+# __      Last edited by   Records the person who edited the item last. Auto-updated and not editable.
+# __      Last edited time Records the timestamp of an item's last edit. Auto-updated and not editable.
+# bool    Checkbox         Use a checkbox to indicate whether a condition is true or false. Useful for lightweight task tracking.
+# date    Date             Accepts a date or a date range (time optional). Useful for deadlines, especially with calendar and timeline views.
+# enum    Multi-Select     Choose one or more options from a list of tags. Useful for tagging items across multiple categories.
+# enum    Select           Choose one option from a list of tags. Useful for categorization.
+# enum(v) Status           Track this item’s progress using status tags categorized by To-do, In Progress, or Complete.
+# float   Number           Accepts numbers. These can also be formatted as currency or progress bars. Useful for tracking counts, prices, or completion.
+# ref     File             Upload files and images for easy retrieval. Useful for storing documents and photos.
+# ref     Person           Tag anyone in your Notion workspace. Useful for assigning tasks or referencing relevant team members.
+# ref     Relation         Connect databases and mention database pages. Useful for connecting items across your workspace. Learn more here →
+# sql     Formula          Perform calculations based on other properties using Notion’s formula language. Learn more here and here →
+# sql     Rollup           View and aggregate information about properties from relation properties. Useful for summarizing interconnected data. Learn more here →
+# str     Email            Accepts an email address and launches your mail client when clicked.
+# str     Phone            Accepts a phone number and prompts your device to call it when clicked.
+# str     Text             Add text that can be formatted. Great for summaries, notes, and descriptions!
+# str     URL              Accepts a link to a website and opens the link in a new tab when clicked.
+# Not sure about these:
+# ??      Button           Automate specific actions with one click. Learn more here →
+# ??      ID               Automatically creates a numerical ID for each item. IDs are unique and cannot be manually changed.
+
+class TemplateTag(BaseModel):
+    key: str
+    val: TemplateValue
+
+    @property
+    def val_safe(self):
+        return json.dumps(self.val)
+
+    def instantiate(self) -> Tag:
+        # Turn a TemplateTag into a TagTag
+
+        val = self.val.get_val_default()
+        t = Tag(key=self.key, val=val)
+        return t
+
+    def render(self):
+        if hasattr(self.val, 'html_icon'):
+            return getattr(self.val, 'html_icon', '!!') + " " + str(self.val)
+        return f'<span class="template tag">{self.val}</span>'

@@ -2,7 +2,7 @@
   "title": "block transclude and search",
   "parents": [
     {
-      "app": "project",
+      "app": "note",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "35e096e2-d53b-41e2-8beb-6a49cb096aef",
-      "created_unix": 1737970169,
-      "updated_unix": 1737970169
+      "created_unix": 1737991161.332254,
+      "updated_unix": 1737991161.332255
     },
     {
       "contents": "## search\r\n\r\nsimilar to above I want to search blocks based on tags. ",
@@ -29,14 +29,19 @@
       },
       "type": "markdown",
       "id": "17069fe0-744a-4eeb-864a-332231ae85fb",
-      "created_unix": 1737970169,
-      "updated_unix": 1737970169
+      "created_unix": 1737991161.3322642,
+      "updated_unix": 1737991161.3322647
     }
   ],
-  "tags": [],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    }
+  ],
   "version": 2,
-  "created_unix": 1737970169,
-  "updated_unix": 1737970169,
+  "created_unix": 1737970169.0,
+  "updated_unix": 1737970169.0,
   "namespace": null,
   "type": "task",
   "attachments": []

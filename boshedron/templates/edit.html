@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}New | {{ Config.Title | safe }}{% endblock %}
+{% block title %}Editing {{ note.thing.data.title }} | {{ Config.Title | safe }}{% endblock %}
 
 {% block main %}
 	<hgroup>
@@ -32,7 +32,6 @@
 			<script>
 				new TomSelect("#parent-select", {
 					plugins: ['remove_button'],
-					create: true,
 				});
 			</script>
 
@@ -135,6 +134,8 @@ function uuid() {
 
 	const templateTag = document.querySelector('#default-tag').outerHTML;
 	document.querySelector('#default-tag').remove();
+	if (document.querySelectorAll('#tags .tag.existing').length > 0 ){
+	}
 
 	function insertbefore(e){
 		let block = e.parentElement.parentElement;

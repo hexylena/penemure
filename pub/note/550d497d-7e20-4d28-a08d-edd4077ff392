@@ -2,7 +2,7 @@
   "title": "Prevent circular parenting",
   "parents": [
     {
-      "app": "project",
+      "app": "note",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
@@ -17,14 +17,19 @@
       },
       "type": "markdown",
       "id": "585c5bea-d6d7-48e8-a313-0f60061db309",
-      "created_unix": 1737970169,
-      "updated_unix": 1737970169
+      "created_unix": 1737991165.592346,
+      "updated_unix": 1737991165.592347
     }
   ],
-  "tags": [],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    }
+  ],
   "version": 2,
-  "created_unix": 1737970169,
-  "updated_unix": 1737970169,
+  "created_unix": 1737970169.0,
+  "updated_unix": 1737970169.0,
   "namespace": null,
   "type": "task",
   "attachments": []

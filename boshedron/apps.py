@@ -10,6 +10,15 @@ class Template(Note):
     type: str = 'template'
     tags: list[TemplateTag] = Field(default_factory=list)
 
+    def instantiate(self) -> Note:
+        data = self.model_dump()
+        # TODO: rewrite tags
+        # TODO: rewrite author from blocks?
+        data['tags'] = [t.instantiate() for t in self.tags]
+        data['type'] = self.title # TODO: validation
+        obj = Note.model_validate(data)
+        return obj
+
 
 class File(Note):
     type: str = 'file'
@@ -29,7 +38,7 @@ class Account(Note):
 
     @property
     def icon(self):
-        if t := self.get_tag(typ='icon'):
+        if t := self.get_tag(key='icon'):
             # todo: how to handle normal values vs URLs vs URNs?
             return t.value
         return "👩‍🦰"

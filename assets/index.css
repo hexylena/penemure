@@ -167,6 +167,35 @@ div.kanban {
 	}
 }
 
+div.card-group {
+	display: flex;
+	flex-direction: column;
+
+	.cards {
+		display: flex;
+		flex-wrap: wrap;
+
+		.card {
+			border: 2px solid black;
+			margin: 0.5rem;
+			max-width: 31%;
+			min-width: 14em;
+			a {
+				text-decoration: unset;
+				div {
+					padding: 0.5rem 1rem;
+				}
+			}
+		}
+		.card.linked:hover {
+			box-shadow: 4px 4px 0 black;
+		}
+		.card.linked:active {
+			box-shadow: 2px 2px 0 black;
+		}
+	}
+}
+
 .error {
 	border: 2px solid red;
 	padding: .4rem 1rem;

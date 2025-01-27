@@ -262,6 +262,7 @@ class WrappedStoredThing(BaseModel):
         d['created'] = self.thing.data.created
         d['updated'] = self.thing.data.updated
         d['system'] = self.thing.data.type in ('template', )
+        d['blurb'] = self.thing.data.blurb
 
         for k in ('contents', 'attachments', 'tags'):
             if k in d:

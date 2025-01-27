@@ -23,6 +23,7 @@ class BlockTypes(Enum):
     markdown = 'markdown'
     queryTable = 'query-table'
     queryKanban = 'query-kanban'
+    queryCards = 'query-cards'
     chartTable = 'chart-table'
     chartPie = 'chart-pie'
     chartGantt = 'chart-gantt'
@@ -35,6 +36,7 @@ class BlockTypes(Enum):
             'chartTable': 'SQL Query: Table',
             'chartPie': 'SQL Query: Pie Chart',
             'chartGantt': 'SQLish Query: Gantt Chart',
+            'queryCards': 'SQL Query: Cards',
         }.get(self.name, self.name)
 
     def chart_type(self):
@@ -51,7 +53,8 @@ class BlockTypes(Enum):
             'query-kanban': cls.queryKanban,
             'chart-table': cls.chartTable,
             'chart-pie': cls.chartPie,
-            'chart-gantt': cls.chartGantt
+            'chart-gantt': cls.chartGantt,
+            'query-cards': cls.queryCards,
         }[s]
 
 class MarkdownBlock(BaseModel):
@@ -109,6 +112,8 @@ class MarkdownBlock(BaseModel):
                 page_content = render_table(res)
             elif self.type == BlockTypes.queryKanban.value:
                 page_content = render_kanban(res)
+            elif self.type == BlockTypes.queryCards.value:
+                page_content = render_cards(res)
             else:
                 raise NotImplementedError(f"self.type={self.type}")
         elif self.type.startswith('chart'):
@@ -159,6 +164,17 @@ class Note(BaseModel):
     def updated(self):
         return datetime.datetime.fromtimestamp(self.updated_unix, ZoneInfo('UTC'))
 
+    @property
+    def blurb(self):
+        text = ''
+        for x in self.get_contents():
+            if x.type == 'markdown':
+                text += x.contents
+
+            if len(text) > 120:
+                return text[0:120]
+        return text.replace('\n', ' ').replace('\r', ' ')
+
     def touch(self):
         self.updated_unix = time.time()
         for c in (self.contents or []):
@@ -199,16 +215,16 @@ class Note(BaseModel):
 
     @property
     def icon(self):
-        # if t:= self.get_tag(typ='icon'):
+        # if t:= self.get_tag(key='icon'):
         #     return t[0].value_icon()
 
         if self.type == "project":
             return "📁"
         elif self.type == "task":
-            # tag = self.get_tag(key='status')
-            # if tag is not None:
-            #     return tag.value_icon()
-            return '?'
+            tag = self.get_tag(key='status')
+            if tag is not None:
+                print(tag)
+                return tag.icon
         elif self.type == "account":
             return "👩‍🦰"
         elif self.type in ('note', 'page'):
@@ -232,10 +248,10 @@ class Note(BaseModel):
 
         self.tags.append(tag)
 
-    def get_tag(self, typ: Optional[str] = None, title: Optional[str] = None, enforce_unique: bool = False) -> Tag:
-        t = self.get_tags(typ, title)
+    def get_tag(self, key: Optional[str] = None, enforce_unique: bool = False) -> Tag:
+        t = self.get_tags(key)
         if enforce_unique and len(t) > 1:
-            raise Exception(f"Non-unique tags for type={typ} and title={title}: {t}")
+            raise Exception(f"Non-unique tags for key={key}")
         if len(t) == 0:
             return None
 
@@ -268,7 +284,7 @@ class Note(BaseModel):
         """
         self.touch()
         # find a matching tag, generally there should only be ONE with that key.
-        t = self.get_tags(typ=key)
+        t = self.get_tags(key=key)
         if len(t) == 0:
             new_tag = Tag(type=key, title=key, value=value)
             self.tags.append(new_tag)
@@ -310,44 +326,44 @@ class Note(BaseModel):
         self.attachments = updated_attachments
 
     def start_unix(self):
-        t = self.get_tag(typ='date', title='Start Date')
+        t = self.get_tag(key='date', title='Start Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.strftime("%s")
 
     def start_date(self):
-        t = self.get_tag(typ='date', title='Start Date')
+        t = self.get_tag(key='date', title='Start Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.date()
         return self.created.date()
 
     def start_time(self):
-        t = self.get_tag(typ='date', title='Start Date')
+        t = self.get_tag(key='date', title='Start Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.time().strftime('%H:%M:%S')
         return self.created.time()
 
     def end_unix(self):
-        t = self.get_tag(typ='date', title='End Date')
+        t = self.get_tag(key='date', title='End Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.strftime("%s")
 
     def end_date(self):
-        t = self.get_tag(typ='date', title='End Date')
+        t = self.get_tag(key='date', title='End Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.date()
 
     def end_time(self):
-        t = self.get_tag(typ='date', title='End Date')
+        t = self.get_tag(key='date', title='End Date')
         if t is not None and isinstance(t, DateTimeTag):
             return t.value.time().strftime('%H:%M:%S')
 
     def log_is_closed(self):
-        s = self.get_tag(typ='date', title='Start Date')
-        e = self.get_tag(typ='date', title='End Date')
+        s = self.get_tag(key='date', title='Start Date')
+        e = self.get_tag(key='date', title='End Date')
 
         return not(s is not None and e is not None)
 
     def cover_image(self):
-        t = self.get_tag(typ='cover')
+        t = self.get_tag(key='cover')
         if t is not None:
-            return t.value
+            return t.val

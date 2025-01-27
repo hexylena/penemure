@@ -46,7 +46,7 @@ def blobify(b: BlobReference, width='40'):
     return f'<img width="{width}" src="{path}{b.id.url}{b.ext}">'
 
 
-def render_fixed(fixed, note=None, rewrite=True):
+def render_fixed(fixed, note=None, rewrite=True, note_template=None):
     template = env.get_template(fixed)
     config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
@@ -55,6 +55,9 @@ def render_fixed(fixed, note=None, rewrite=True):
     if note is not None:
         kwargs['note'] = note
 
+    if note_template is not None:
+        kwargs['template'] = note_template
+
     page_content = template.render(**kwargs)
     if rewrite:
         page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
@@ -62,7 +65,7 @@ def render_fixed(fixed, note=None, rewrite=True):
 
 def render_dynamic(st: WrappedStoredThing):
     requested_template: str = "note.html"
-    if tag := st.thing.data.get_tag(typ='template'):
+    if tag := st.thing.data.get_tag(key='template'):
         requested_template = tag.val or requested_template
 
     template = env.get_template(requested_template)
@@ -140,6 +143,17 @@ def extract_contents(data: FormData | TimeFormData, default_author=None):
         }))
     return res
 
+@app.get("/new/{template}", response_class=HTMLResponse)
+@app.get("/new", response_class=HTMLResponse)
+def get_new(template: Optional[str] = None):
+    tpl = oe.search(type='template', title=template)
+    if len(tpl) > 0:
+        # TODO: how to select which template?
+        tpl = tpl[0]
+        assert isinstance(tpl.thing.data, Template)
+        return render_fixed('new.html', note_template=tpl.thing.data.instantiate())
+    return render_fixed('new.html')
+
 @app.post("/new.html")
 @app.post("/new")
 def save_new(data: Annotated[FormData, Form()]):
@@ -154,6 +168,13 @@ def save_new(data: Annotated[FormData, Form()]):
         dj['parents'] = [UniformReference.from_string(data.project)]
     else:
         dj['parents'] = [UniformReference.from_string(x) for x in data.project]
+
+    if data.type == 'template':
+        dj['tags'] = [
+                TemplateTag.model_validate({'key': k, 'val': json.loads(v)})
+                for (k, v) in zip(data.tag_key, data.tag_val)]
+    else:
+        dj['tags'] = [Tag(key=k, val=v) for (k, v) in zip(data.tag_key, data.tag_val)]
 
     # raise Exception()
 
@@ -182,7 +203,7 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
                 TemplateTag.model_validate({'key': k, 'val': json.loads(v)})
                 for (k, v) in zip(data.tag_key, data.tag_val)]
     else:
-        orig.thing.data.tags = [Tag(k, v) for (k, v) in zip(data.tag_key, data.tag_val)]
+        orig.thing.data.tags = [Tag(key=k, val=v) for (k, v) in zip(data.tag_key, data.tag_val)]
 
     # print(data)
     # raise Exception()

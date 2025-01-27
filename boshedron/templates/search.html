@@ -74,7 +74,7 @@ function search(){
 	}
 
 	// Include search term in page title
-	document.getElementsByTagName("title")[0].innerText = `${textQuery} | GTN Materials Search`
+	document.getElementsByTagName("title")[0].innerText = `${textQuery} | {{ Config.Title }}`
 	console.log(`Searching! ${textQuery} ${typeFilter}`)
 
 	// Which should be hidden

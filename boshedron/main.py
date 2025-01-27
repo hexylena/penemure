@@ -65,7 +65,7 @@ class Boshedron(BaseModel):
 
             with open(p, 'w') as handle:
                 requested_template = "note.html"
-                if tag := st.thing.data.get_tag(typ='template'):
+                if tag := st.thing.data.get_tag(key='template'):
                     requested_template = tag.value
 
                 template = env.get_template(requested_template)

@@ -5,11 +5,6 @@
       "app": "note",
       "namespace": null,
       "ident": "53854679-f096-417f-8350-a2f43d80a3b3"
-    },
-    {
-      "app": "project",
-      "namespace": null,
-      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
   ],
   "contents": [
@@ -22,10 +17,8 @@
       },
       "type": "markdown",
       "id": "811bd695-9e4b-4f9b-8414-df286b5c56d5",
-      "created": "2025-01-26T12:26:32.999294+01:00",
-      "updated": "2025-01-26T12:26:32.999296+01:00",
-      "created_unix": 1737890792.999294,
-      "updated_unix": 1737890792.999296
+      "created_unix": 1737990980.287575,
+      "updated_unix": 1737990980.287576
     },
     {
       "contents": "",
@@ -36,16 +29,17 @@
       },
       "type": "markdown",
       "id": "REPLACEME",
-      "created": "2025-01-26T12:26:32.999299+01:00",
-      "updated": "2025-01-26T12:26:32.999300+01:00",
-      "created_unix": 1737890792.999299,
-      "updated_unix": 1737890792.9993
+      "created_unix": 1737990980.287585,
+      "updated_unix": 1737990980.2875853
     }
   ],
-  "tags": [],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    }
+  ],
   "version": 2,
-  "created": "2025-01-22T14:23:21.332066Z",
-  "updated": "2025-01-22T14:23:21.332071Z",
   "created_unix": 1737555801.332066,
   "updated_unix": 1737555801.332071,
   "namespace": null,

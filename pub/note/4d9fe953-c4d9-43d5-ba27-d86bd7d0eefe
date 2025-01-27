@@ -11,8 +11,8 @@
       },
       "type": "markdown",
       "id": "REPLACEME",
-      "created_unix": 1737976619.0682955,
-      "updated_unix": 1737976619.0682967
+      "created_unix": 1737991259.203385,
+      "updated_unix": 1737991259.2033865
     },
     {
       "contents": "SELECT\n  title,\n  type,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  title_plain ASC",
@@ -23,11 +23,16 @@
       },
       "type": "query-table",
       "id": "REPLACEME",
-      "created_unix": 1737976619.0692885,
-      "updated_unix": 1737976619.0692892
+      "created_unix": 1737991259.204219,
+      "updated_unix": 1737991259.2042198
     }
   ],
-  "tags": [],
+  "tags": [
+    {
+      "key": "cover",
+      "val": "/assets/test.jpg"
+    }
+  ],
   "version": 2,
   "created_unix": 1736507101.876954,
   "updated_unix": 1737976610.147584,
