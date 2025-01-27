@@ -483,23 +483,23 @@ class OverlayEngine(BaseModel):
         return tables
 
     def fmt_query(self, query):
-        if query.split(' ')[0] == 'GROUP':
-            query = ' '.join(query.split(' ')[1:])
+        if query[0:5] == 'GROUP':
+            query = query[5:]
             return 'GROUP' + transpile(query, pretty=True)[0]
-        elif query.split(' ')[0] == 'SQL':
-            query = ' '.join(query.split(' ')[1:])
+        elif query[0:3] == 'SQL':
+            query = query[3:]
             return 'SQL ' + transpile(query, pretty=True)[0]
         else:
             return transpile(query, pretty=True)[0]
 
     def query(self, query, via=None, sql=False) -> Optional[GroupedResultSet]:
         # Allow overriding with keywords
-        if query.split(' ')[0] == 'GROUP':
+        if query[0:5] == 'GROUP':
+            query = query[5:]
             sql = False
-            query = ' '.join(query.split(' ')[1:])
-        elif query.split(' ')[0] == 'SQL':
+        elif query[0:3] == 'SQL':
+            query = query[3:]
             sql = True
-            query = ' '.join(query.split(' ')[1:])
 
         if via is not None and 'SELF' in query:
             query = query.replace('SELF', via.urn)
