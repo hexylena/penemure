@@ -58,5 +58,7 @@ def ModelFromAttr(data):
             return File_S3
         else:
             return Note
+    elif data['type'] == 'template':
+        return Template
     else:
         return Note

@@ -127,6 +127,10 @@
     {
       "key": "template",
       "val": "plain.html"
+    },
+    {
+      "key": "page_path",
+      "val": "index"
     }
   ],
   "version": 2,

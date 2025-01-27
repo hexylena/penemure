@@ -75,6 +75,14 @@ class MarkdownBlock(BaseModel):
     def updated(self):
         return datetime.datetime.fromtimestamp(self.updated_unix, ZoneInfo('UTC'))
 
+    def clean_dict(self, note_urn) -> dict:
+        d = self.model_dump()
+        d['parent'] = note_urn
+        d['author'] = self.author.urn
+        d['created'] = self.created
+        d['updated'] = self.updated
+        return d
+
     def render(self, oe, path, parent):
         # if isinstance(self.type, str):
         #     self.type = BlockTypes.from_str(self.type)
@@ -243,7 +251,7 @@ class Note(BaseModel):
             tags.append(t)
         return tags
 
-    def get_contents(self) -> list:
+    def get_contents(self) -> list[MarkdownBlock]:
         return self.contents or []
 
     def get_contributors(self, oe):

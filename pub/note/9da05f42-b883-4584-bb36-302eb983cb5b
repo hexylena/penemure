@@ -1,0 +1,43 @@
+{
+  "title": "SQLish",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "Sqlish lets ya do crazy things like print out the structure of all internal tables. ",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "8226f35e-a274-408f-aa3a-d73cb67d0420",
+      "created_unix": 1737976884.3471007,
+      "updated_unix": 1737976884.347102
+    },
+    {
+      "contents": "SELECT\n  table,\n  type,\n  column\nFROM __table__\nGROUP BY\n  table\nORDER BY\n  column ASC",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "10855a01-831c-47af-b5e6-e89cb1d24ef4",
+      "created_unix": 1737976884.3477805,
+      "updated_unix": 1737976884.3477814
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1737976707.5468948,
+  "updated_unix": 1737976859.3274522,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

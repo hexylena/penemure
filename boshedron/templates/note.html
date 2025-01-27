@@ -54,7 +54,7 @@
 
 	{% for tag in note.thing.data.tags %}
 	<tr>
-		<td scope="row">{{ tag.html_icon }} {{ tag.title }}</td>
+		<td scope="row">{{ tag.html_icon }} {{ tag.key }}</td>
 		<td>{{ tag.render() }}</td>
 	</tr>
 	{% endfor %}
@@ -85,13 +85,13 @@
 {% endfor %}
 {% endif %}
 
-{% set res = oe.query("select id from __all__ where parents like '%" + note.thing.urn.urn + "%' ") %}
+{% set res = oe.query("select id, type from __all__ where parents like '%" + note.thing.urn.ident + "%' order by type asc") %}
 {% if res %}
 <h3>Children</h3>
 <ul>
 {% for kids in res.groups %}
 {% for kid in kids.rows %}
-<li><a href="{{ kid[0] }}#url">{{ kid[0] }}#title</a></li>
+<li><a href="{{ kid[0] }}#url">{{ kid[0] }}#title</a> {{ kid[1]}}</li>
 {% endfor %}
 {% endfor %}
 </ul>

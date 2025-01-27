@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, NaiveDatetime
+import json
 from typing import Literal
 from pydantic import ConfigDict
 from typing import Optional, Union, Any
@@ -33,6 +34,15 @@ class TemplateTag(BaseModel):
     key: str
     val: dict
 
+    @property
+    def val_safe(self):
+        return json.dumps(self.val)
+
+    def render(self):
+        if hasattr(self.val, 'html_icon'):
+            return getattr(self.val, 'html_icon', '!!') + " " + str(self.val)
+        return f'<span class="template tag">{self.val}</span>'
+
 ##
 # Theory: all tags are k:v where v is singular. if you want multiple V, add
 # multiple tags.
@@ -45,6 +55,10 @@ class Tag(BaseModel):
     val: str
 
     model_config = ConfigDict(use_enum_values=True)
+
+    @property
+    def val_safe(self):
+        return self.val
 
     def render(self):
         if hasattr(self.val, 'html_icon'):

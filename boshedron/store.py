@@ -416,6 +416,14 @@ class OverlayEngine(BaseModel):
 
         return results
 
+    def apps(self):
+        """List registered 'apps'"""
+        builtins = [p.model_fields['type'].default for p in Note.__subclasses__()]
+        seen = [x.thing.data.type for x in self.all_things()]
+        # TODO: add templates to mix.
+        res = list(set(builtins + seen + [Note.model_fields['type'].default]))
+        return sorted(res)
+
     @classmethod
     def group_by(cls, data: list[WrappedStoredThing], key):
         # not really a class method more of a utility? MOVE?
@@ -438,15 +446,20 @@ class OverlayEngine(BaseModel):
 
         # We have an 'all' table if you just want to search all types.
         # or individual tables can be searched by type.
-        tables = {'__all__': []}
+        tables = {'__all__': [], '__block__': []}
         for note in notes:
             if note['type'] not in tables:
                 tables[note['type']] = []
             tables[note['type']].append(note)
             tables['__all__'].append(note)
 
-        known_apps = [p.model_fields['type'].default for p in Note.__subclasses__()] + [Note.model_fields['type'].default]
-        for app in known_apps:
+        for note in self.all_things():
+            n = note.thing
+            for block in n.data.get_contents():
+                tables['__block__'].append(block.clean_dict(n.urn.urn))
+
+
+        for app in self.apps():
             if app not in tables:
                 tables[app] = []
 
@@ -479,6 +492,21 @@ class OverlayEngine(BaseModel):
         tables = {k: fix_tags(v, ensure=ensure_present)
                   for k, v in tables.items()}
 
+        # Shitty meta description
+        tables['__table__'] = []
+        for table_name, rows in tables.items():
+            for col, val in rows[0].items():
+                tables['__table__'].append({
+                    'table': table_name,
+                    'column': col,
+                    'type': str(type(val)).replace('<', '&lt;').replace('>', '&gt;')
+                })
+
+        # for k, v in tables.items():
+        #     print(f'==== {k} ====')
+        #     for vv in v:
+        #         print(vv.keys())
+        #
         # import pprint
         # pprint.pprint(tables)
         return tables
@@ -503,7 +531,7 @@ class OverlayEngine(BaseModel):
             sql = True
 
         if via is not None and 'SELF' in query:
-            query = query.replace('SELF', via.urn)
+            query = query.replace('SELF', via.ident)
 
         res = parse_one(query)
 

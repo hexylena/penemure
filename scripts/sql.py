@@ -35,7 +35,7 @@ res = bos.overlayengine.query(sys.argv[1], sql=True)
 if res is None:
     sys.exit(1)
 
-colwidth = [20] * (len(res.groups[0].rows) + 5)
+colwidth = [20] * (len(res.groups[0].rows) + 30)
 
 for g in res.groups:
     for i, v in enumerate(g.header):

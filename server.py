@@ -63,7 +63,7 @@ def render_fixed(fixed, note=None, rewrite=True):
 def render_dynamic(st: WrappedStoredThing):
     requested_template: str = "note.html"
     if tag := st.thing.data.get_tag(typ='template'):
-        requested_template = tag.value or requested_template
+        requested_template = tag.val or requested_template
 
     template = env.get_template(requested_template)
     config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
@@ -87,19 +87,21 @@ def sync():
     return [len(b.data.keys()) for b in oe.backends]
 
 
-@app.get("/list")
-def list() -> list[StoredThing]:
-    return oe.all_things()
+# @app.get("/list")
+# def list() -> list[StoredThing]:
+#     return oe.all_things()
 
 class FormData(BaseModel):
     urn: Optional[str] = None
     title: str
-    project: Optional[str | List[str]] = []
+    project: Optional[str | List[str]] = Field(default_factory=list)
     type: str
     content_type: List[str]
     content_uuid: List[str]
     content_note: List[str]
     content_author: List[str]
+    tag_key: List[str] = Field(default_factory=list)
+    tag_val: List[str] = Field(default_factory=list)
     backend: str
 
 class TimeFormData(BaseModel):
@@ -153,6 +155,8 @@ def save_new(data: Annotated[FormData, Form()]):
     else:
         dj['parents'] = [UniformReference.from_string(x) for x in data.project]
 
+    # raise Exception()
+
     obj = ModelFromAttr(dj).model_validate(dj)
     be = bos.overlayengine.get_backend(data.backend)
     res = bos.overlayengine.add(obj, backend=be)
@@ -172,6 +176,16 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
         orig.thing.data.parents = [UniformReference.from_string(data.project)]
     elif data.project is not None:
         orig.thing.data.parents = [UniformReference.from_string(x) for x in data.project]
+
+    if data.type == 'template' or isinstance(orig.thing.data, Template):
+        orig.thing.data.tags = [
+                TemplateTag.model_validate({'key': k, 'val': json.loads(v)})
+                for (k, v) in zip(data.tag_key, data.tag_val)]
+    else:
+        orig.thing.data.tags = [Tag(k, v) for (k, v) in zip(data.tag_key, data.tag_val)]
+
+    # print(data)
+    # raise Exception()
 
     oe.save_thing(orig, fsync=False)
     be = oe.get_backend(data.backend)

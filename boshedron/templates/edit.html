@@ -85,6 +85,32 @@
 				</div>
 			</div>
 
+			<label for="tags">Tags</label>
+			<div id="tags" name="tags">
+				<table>
+					<thead>
+						<th>Actions</th>
+						<th>Key</th>
+						<th>Value</th>
+					</thead>
+					<tbody>
+						{% for tag in note.thing.data.tags %}
+						<tr class='tag existing'>
+							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
+							<td><input type="text" name="tag_val" placeholder="value" value="{{ tag.val_safe | escape }}"/></td>
+						</tr>
+						{% endfor %}
+						<tr id="default-tag" class="tag">
+							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><input type="text" name="tag_key" placeholder="key"/></td>
+							<td><input type="text" name="tag_val" placeholder="value"/></td>
+						</tr>
+					</tbody>
+				</table>
+				<button type="button" onclick="appendtag()">+</button>
+			</div>
+
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
@@ -107,6 +133,9 @@ function uuid() {
 		document.querySelector('#default-block').remove();
 	}
 
+	const templateTag = document.querySelector('#default-tag').outerHTML;
+	document.querySelector('#default-tag').remove();
+
 	function insertbefore(e){
 		let block = e.parentElement.parentElement;
 		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
@@ -121,9 +150,22 @@ function uuid() {
 		block.remove();
 	}
 
+	function removetag(e){
+		let tag = e.parentElement.parentElement;
+		if (document.querySelectorAll('#notes .tag').length == 1){
+			tag.insertAdjacentHTML('beforebegin', templateTag.replaceAll('REPLACEME', uuid()))
+		}
+
+		tag.remove();
+	}
+
 	function insertafter(e){
 		let block = e.parentElement.parentElement;
 		block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
+	}
+
+	function appendtag(e){
+		document.querySelector('#tags table tbody').insertAdjacentHTML('beforeend', templateTag);
 	}
 
 
