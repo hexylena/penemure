@@ -4,22 +4,28 @@ services:
     build: .
     environment:
       REPOS: "/repos/project-management/pub:/repos/issues"
+      TZ: "Europe/Amsterdam"
+      SENTRY_SDK: "http://f709b153c1dd4e309664cdef67cf4c12@192.168.2.12:8000/1"
     volumes:
       - "${PWD}:/code/"
       - "${PWD}/repos:/repos"
+      - "/root/.ssh/:/root/.ssh/"
+      - "/root/.gitconfig:/root/.gitconfig"
     ports:
       - 8484:8000
   cron:
     restart: always
     build: .
     command: |
-      bash -c "git config --global user.email rom@quark; git config --global user.name Rom; git config --global --add safe.directory /repos/project-management; git config --global --add safe.directory /repos/issues; while true; do python scripts/sync.py; curl http://web:8000/reload; sleep 600; done;"
+      bash -c "while true; do python scripts/sync.py && curl http://web:8000/reload; sleep 600; done;"
     environment:
       REPOS: "/repos/project-management/pub:/repos/issues"
+      TZ: "Europe/Amsterdam"
     volumes:
       - "${PWD}:/code/"
       - "${PWD}/repos:/repos"
       - "/root/.ssh/:/root/.ssh/"
+      - "/root/.gitconfig:/root/.gitconfig"
     links:
       - web:web
 
