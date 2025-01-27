@@ -11,11 +11,11 @@
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created": "2025-01-26T12:26:32.999734+01:00",
-      "updated": "2025-01-26T12:26:32.999736+01:00"
+      "created": "2025-01-27T07:59:44.687191Z",
+      "updated": "2025-01-27T07:59:44.687199Z"
     },
     {
-      "contents": "select title, parents, type, backend from __all__ where parents is null group by type order by type asc",
+      "contents": "SELECT\n  title,\n  parents,\n  type,\n  backend\nFROM __all__\nWHERE\n  parents IS NULL\nGROUP BY\n  type\nORDER BY\n  type DESC,\n  title ASC",
       "author": {
         "app": "account",
         "namespace": null,
@@ -23,8 +23,8 @@
       },
       "type": "query-table",
       "id": "61f8fbdb-50e0-4bb0-a2d4-1d94bb3b21d0",
-      "created": "2025-01-26T12:26:32.999739+01:00",
-      "updated": "2025-01-26T12:26:32.999740+01:00"
+      "created": "2025-01-27T07:59:44.688913Z",
+      "updated": "2025-01-27T07:59:44.688917Z"
     },
     {
       "contents": "## Current issue progress",
@@ -35,11 +35,11 @@
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created": "2025-01-26T12:26:32.999742+01:00",
-      "updated": "2025-01-26T12:26:32.999743+01:00"
+      "created": "2025-01-27T07:59:44.688948Z",
+      "updated": "2025-01-27T07:59:44.688949Z"
     },
     {
-      "contents": "select title, status, created::date, updated - created, backend as duration from task group by status",
+      "contents": "SELECT\n  title,\n  status,\n  CAST(created AS DATE),\n  updated - created,\n  backend AS duration\nFROM task\nGROUP BY\n  status",
       "author": {
         "app": "account",
         "namespace": null,
@@ -47,8 +47,8 @@
       },
       "type": "query-kanban",
       "id": "3dc98087-0754-41f1-b6be-1a84449a297c",
-      "created": "2025-01-26T12:26:32.999747+01:00",
-      "updated": "2025-01-26T12:26:32.999747+01:00"
+      "created": "2025-01-27T07:59:44.690330Z",
+      "updated": "2025-01-27T07:59:44.690333Z"
     },
     {
       "contents": "## Note Storage Location",
@@ -59,11 +59,11 @@
       },
       "type": "markdown",
       "id": "8d3b7cea-28d1-4a94-b48f-a2dac946fb65",
-      "created": "2025-01-26T12:26:32.999750+01:00",
-      "updated": "2025-01-26T12:26:32.999750+01:00"
+      "created": "2025-01-27T07:59:44.690360Z",
+      "updated": "2025-01-27T07:59:44.690362Z"
     },
     {
-      "contents": "SELECT\r\n  __all__.backend as Name, \r\n  min(__backend__.description) as Description,\r\n  min(substr(__backend__.last_commit, 1, 8)) as LastCommit,\r\n  min(__backend__.last_update) as LastUpdate,\r\n   count(*) as Count \r\nFROM __all__ left join __backend__ on __all__.backend = __backend__.id group by __all__.backend",
+      "contents": "SELECT\n  __all__.backend AS Name,\n  MIN(__backend__.description) AS Description,\n  MIN(SUBSTRING(__backend__.last_commit, 1, 8)) AS LastCommit,\n  MIN(__backend__.last_update) AS LastUpdate,\n  COUNT(*) AS Count\nFROM __all__\nLEFT JOIN __backend__\n  ON __all__.backend = __backend__.id\nGROUP BY\n  __all__.backend",
       "author": {
         "app": "account",
         "namespace": null,
@@ -71,11 +71,11 @@
       },
       "type": "chart-table",
       "id": "0e28c29f-7744-4ad8-ae7f-0e97314edb06",
-      "created": "2025-01-26T12:26:32.999754+01:00",
-      "updated": "2025-01-26T12:26:32.999754+01:00"
+      "created": "2025-01-27T07:59:44.694554Z",
+      "updated": "2025-01-27T07:59:44.694560Z"
     },
     {
-      "contents": "SELECT backend, COUNT(*) FROM __all__ GROUP BY backend",
+      "contents": "SELECT\n  backend,\n  COUNT(*)\nFROM __all__\nGROUP BY\n  backend",
       "author": {
         "app": "account",
         "namespace": null,
@@ -83,11 +83,11 @@
       },
       "type": "chart-pie",
       "id": "8fbc6705-69c9-4d7e-856f-c822e9b09312",
-      "created": "2025-01-26T12:26:32.999759+01:00",
-      "updated": "2025-01-26T12:26:32.999759+01:00"
+      "created": "2025-01-27T07:59:44.695537Z",
+      "updated": "2025-01-27T07:59:44.695540Z"
     },
     {
-      "contents": "GROUP SELECT title_plain, created, updated, type FROM __all__ order by type asc GROUP BY type",
+      "contents": "GROUPSELECT\n  title_plain,\n  created,\n  updated,\n  type\nFROM __all__\nGROUP BY\n  type\nORDER BY\n  type ASC",
       "author": {
         "app": "account",
         "namespace": null,
@@ -95,8 +95,8 @@
       },
       "type": "chart-gantt",
       "id": "19ada4d5-b85f-4a61-aae2-30158ac3f356",
-      "created": "2025-01-26T12:26:32.999762+01:00",
-      "updated": "2025-01-26T12:26:32.999763+01:00"
+      "created": "2025-01-27T07:59:44.696640Z",
+      "updated": "2025-01-27T07:59:44.696643Z"
     },
     {
       "contents": "## Recent",
@@ -107,11 +107,11 @@
       },
       "type": "markdown",
       "id": "0171c2dc-ebce-4490-94ad-aff05f658f0a",
-      "created": "2025-01-26T12:26:32.999765+01:00",
-      "updated": "2025-01-26T12:26:32.999765+01:00"
+      "created": "2025-01-27T07:59:44.696671Z",
+      "updated": "2025-01-27T07:59:44.696672Z"
     },
     {
-      "contents": "select title, created, updated, type, backend from __all__ order by updated desc limit 10",
+      "contents": "SELECT\n  title,\n  created,\n  updated,\n  type,\n  backend\nFROM __all__\nORDER BY\n  updated DESC\nLIMIT 10",
       "author": {
         "app": "account",
         "namespace": null,
@@ -119,8 +119,8 @@
       },
       "type": "query-table",
       "id": "7cb6ea73-4a8a-42df-a183-2261e2fd50c4",
-      "created": "2025-01-26T12:26:32.999768+01:00",
-      "updated": "2025-01-26T12:26:32.999769+01:00"
+      "created": "2025-01-27T07:59:44.697784Z",
+      "updated": "2025-01-27T07:59:44.697787Z"
     }
   ],
   "tags": [
