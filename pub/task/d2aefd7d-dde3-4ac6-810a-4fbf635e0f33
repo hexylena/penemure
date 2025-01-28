@@ -1,0 +1,64 @@
+{
+  "title": "fix night mode colours on gantt",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## Description\r\n\r\ntodo",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "REPLACEME",
+      "created_unix": 1738060740.2372758,
+      "updated_unix": 1738060740.237277
+    },
+    {
+      "contents": "## Work on this Issue\r\n\r\n(todo, make this a gantt in the template, and add 'self')",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "c17d038f-6aa1-44da-9332-1d1a3bfad6eb",
+      "created_unix": 1738060740.2372985,
+      "updated_unix": 1738060740.237299
+    },
+    {
+      "contents": "SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
+      "created_unix": 1738060740.2388644,
+      "updated_unix": 1738060740.2388654
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738060740.2389264,
+  "updated_unix": 1738060740.2389276,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
