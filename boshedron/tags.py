@@ -35,12 +35,18 @@ class LifecycleEnum(Enum):
 class TemplateValue(BaseModel):
     type: (Literal['enum'] | Literal['status'] | Literal['float'] |
            Literal['urn'] | Literal['date'] | Literal['bool'] | Literal['sql']
-           | Literal['str'] | Literal['int'])
-    values: list[Any]
+           | Literal['str'] | Literal['iso3166'] | Literal['int'])
+    values: Optional[list[Any]] = Field(default_factory=list)
     colors: Optional[list[str]] = None
     default: Optional[Any] = None
     n_max: int = 1
     n_min: int = 1
+
+    def get_values(self):
+        if self.type == 'iso3166':
+            return ['DE', 'NL', 'BE', "FR", 'UK']
+        else:
+            return self.values
 
     def is_multi(self):
         return self.n_max > 1
