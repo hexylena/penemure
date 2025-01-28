@@ -421,8 +421,9 @@ class OverlayEngine(BaseModel):
         """List registered 'apps'"""
         builtins = [p.model_fields['type'].default for p in Note.__subclasses__()]
         seen = [x.thing.data.type for x in self.all_things()]
+        tpls = [x.thing.data.title for x in self.all_things() if x.thing.data.type == 'template']
         # TODO: add templates to mix.
-        res = list(set(builtins + seen + [Note.model_fields['type'].default]))
+        res = list(set(builtins + seen + tpls + [Note.model_fields['type'].default]))
         return sorted(res)
 
     @classmethod
