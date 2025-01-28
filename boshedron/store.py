@@ -497,6 +497,8 @@ class OverlayEngine(BaseModel):
         # Shitty meta description
         tables['__table__'] = []
         for table_name, rows in tables.items():
+            if len(rows) == 0:
+                continue
             for col, val in rows[0].items():
                 tables['__table__'].append({
                     'table': table_name,
