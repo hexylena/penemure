@@ -1,0 +1,31 @@
+{
+  "title": "Use git trailers?",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "[see this](https://alchemists.io/articles/git_trailers) to xref our system? maybe easier to query the logs for it.\r\n\r\n```\r\ngit commit --message \"Fixed log format\" \\\r\n           --trailer \"Issue: abc\" \\\r\n           --trailer \"Milestone: patch\" \\\r\n           --trailer \"Tracker: tana\"\r\ngit show\r\n```",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "REPLACEME",
+      "created_unix": 1738070495.9135158,
+      "updated_unix": 1738070495.913517
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1738070495.9135609,
+  "updated_unix": 1738070495.913562,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
