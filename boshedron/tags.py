@@ -293,8 +293,7 @@ class TemplateTag(BaseModel):
 
     @property
     def val_safe(self):
-        return json.dumps(self.val)
-
+        return json.dumps(self.val.model_dump())
     def instantiate(self) -> Tag:
         # Turn a TemplateTag into a TagTag
 
