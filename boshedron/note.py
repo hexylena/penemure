@@ -9,7 +9,7 @@ import os
 from pydantic import BaseModel, Field, PastDatetime
 from typing import Annotated
 from typing import Optional, Union, Any
-from datetime import datetime
+import datetime
 from zoneinfo import ZoneInfo
 import uuid
 from .tags import *
@@ -286,11 +286,11 @@ class Note(BaseModel):
         # find a matching tag, generally there should only be ONE with that key.
         t = self.get_tags(key=key)
         if len(t) == 0:
-            new_tag = Tag(type=key, title=key, value=value)
+            new_tag = Tag(key=key, val=value)
             self.tags.append(new_tag)
         elif len(t) == 1:
             old_tag = t[0]
-            old_tag.value = value
+            old_tag.val = value
         else:
             raise Exception("Too many tags")
 
@@ -325,41 +325,30 @@ class Note(BaseModel):
             updated_attachments.append(blob)
         self.attachments = updated_attachments
 
-    def start_unix(self):
-        t = self.get_tag(key='date', title='Start Date')
-        if t is not None and isinstance(t, DateTimeTag):
-            return t.value.strftime("%s")
 
-    def start_date(self):
-        t = self.get_tag(key='date', title='Start Date')
-        if t is not None and isinstance(t, DateTimeTag):
-            return t.value.date()
-        return self.created.date()
+    def _fmt_datetime(self, t: Tag, a: Literal['date'] | Literal['time'] | Literal['unix']):
+        if a == 'unix':
+            return float(str(t.val))
 
-    def start_time(self):
-        t = self.get_tag(key='date', title='Start Date')
-        if t is not None and isinstance(t, DateTimeTag):
-            return t.value.time().strftime('%H:%M:%S')
-        return self.created.time()
+        d = datetime.datetime.fromtimestamp(float(str(t.val)), ZoneInfo("UTC"))
+        if a == 'date':
+            return d.date()
+        elif a == 'time':
+            return d.time()
 
-    def end_unix(self):
-        t = self.get_tag(key='date', title='End Date')
-        if t is not None and isinstance(t, DateTimeTag):
-            return t.value.strftime("%s")
+    def start(self, a: Literal['date'] | Literal['time'] | Literal['unix'] = 'date'):
+        t = self.get_tag(key='start_date')
+        if t is not None:
+            return self._fmt_datetime(t, a)
 
-    def end_date(self):
-        t = self.get_tag(key='date', title='End Date')
-        if t is not None and isinstance(t, DateTimeTag):
-            return t.value.date()
-
-    def end_time(self):
-        t = self.get_tag(key='date', title='End Date')
-        if t is not None and isinstance(t, DateTimeTag):
-            return t.value.time().strftime('%H:%M:%S')
+    def end(self, a: Literal['date'] | Literal['time'] | Literal['unix'] = 'date'):
+        t = self.get_tag(key='end_date')
+        if t is not None:
+            return self._fmt_datetime(t, a)
 
     def log_is_closed(self):
-        s = self.get_tag(key='date', title='Start Date')
-        e = self.get_tag(key='date', title='End Date')
+        s = self.get_tag(key='start_date')
+        e = self.get_tag(key='end_date')
 
         return not(s is not None and e is not None)
 

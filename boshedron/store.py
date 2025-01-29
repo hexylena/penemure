@@ -434,7 +434,7 @@ class OverlayEngine(BaseModel):
             return str(s.thing.data.created.date())
 
         groups = []
-        data = sorted(data, key=get_created_date)[::-1]
+        data = sorted(data, key=lambda x: x.thing.data.created)[::-1]
         if key == 'day':
             groups = [(x, list(y)) for (x, y) in itertools.groupby(data, get_created_date)]
         else:

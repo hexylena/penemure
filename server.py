@@ -124,8 +124,8 @@ def extract_contents(data: FormData | TimeFormData, default_author=None):
     a2 = None
     if default_author is None:
         a2 = UniformReference.model_validate({"app":"account","ident":"hexylena"}) # TODO
-    else:
-        a2 = UniformReference.model_validate(a) # TODO
+    # else:
+    #     a2 = UniformReference.model_validate(a) # TODO
 
     res = []
     for (t, u, n, a) in zip(data.content_type, data.content_uuid, data.content_note, data.content_author):
@@ -134,6 +134,9 @@ def extract_contents(data: FormData | TimeFormData, default_author=None):
 
         if t.startswith('chart') or t.startswith('query'):
             n = oe.fmt_query(n)
+
+        if u == 'REPLACEME':
+            u = str(uuid.uuid4())
 
         res.append(MarkdownBlock.model_validate({
             'contents': n,
@@ -229,16 +232,29 @@ class TimeFormData(BaseModel):
     urn: Optional[str] = None
     title: str
     project: Optional[str | List[str]] = []
-    content_type: List[str]
-    content_uuid: List[str]
-    content_note: List[str]
-    content_author: List[str]
+    content_type: Optional[List[str]] = []
+    content_uuid: Optional[List[str]] = []
+    content_note: Optional[List[str]] = []
+    content_author: Optional[List[str]] = []
     backend: str
-    start_unix: int
-    end_unix: int
+    start_unix: float = Field(default_factory=lambda: time.time())
+    end_unix: Optional[float] = None
     # Default
     type: str = 'log'
 
+class PatchTimeFormData(BaseModel):
+    urn: str
+    start_unix: float
+    end_unix: float
+
+@app.patch("/time")
+def patch_time(data: Annotated[PatchTimeFormData, Form()]):
+    u = UniformReference.from_string(data.urn)
+    log = narrow_thing(oe.find(u))
+    log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
+    log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
+    oe.save_thing(log, fsync=False)
+    return log
 
 @app.post("/time.html")
 @app.post("/time")
@@ -247,36 +263,17 @@ def save_time(data: Annotated[TimeFormData, Form()]):
         u = UniformReference.from_string(data.urn)
         log = narrow_thing(oe.find(u))
     else:
-        log = Log(title=data.title)
+        log = Note(title=data.title, type='log')
         be = bos.overlayengine.get_backend(data.backend)
         log = bos.overlayengine.add(log, backend=be)
 
     log.thing.data.touch()
     log.thing.data.contents = extract_contents(data)
-    return log.thing
+    log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
+    if data.end_unix:
+        log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
 
-    # dj = {
-    #     'title': data.title,
-    #     'type': data.type,
-    #     'contents': [
-    #         {
-    #             'contents': n,
-    #             'author': {"app":"account","ident":"hexylena"}, # TODO
-    #             'type': t,
-    #             'id': u,
-    #         }
-    #         for (t, u, n) in zip(data.content_type, data.content_uuid, data.content_note)
-    #     ]
-    # }
-    # if isinstance(data.project, str):
-    #     dj['parents'] = [UniformReference.from_string(data.project)]
-    # else:
-    #     dj['parents'] = [UniformReference.from_string(x) for x in data.project]
-    #
-    # obj = ModelFromAttr(dj).model_validate(dj)
-    # be = bos.overlayengine.get_backend(data.backend)
-    # res = bos.overlayengine.add(obj, backend=be)
-    # return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 @app.exception_handler(404)
 def custom_404_handler(request, res):

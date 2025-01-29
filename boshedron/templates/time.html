@@ -7,6 +7,55 @@
 	<h1>Time Tracker</h1>
 	</hgroup>
 
+	<script>
+		function unixToDateTime(unix){
+			let dt = luxon.DateTime.fromMillis(unix * 1000);
+			return [
+				dt.toISODate(),
+				dt.toLocaleString(luxon.DateTime.TIME_24_WITH_SECONDS)
+			];
+		}
+	</script>
+
+	<form method="post">
+		<fieldset>
+			<legend>What are you working on?</legend>
+
+			<label for="title">Title</label>
+			<input name="title" type="text" width="20" placeholder="Task">
+
+			<label for="project">Parent(s)</label>
+			<select id="new-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
+				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
+				<optgroup label="{{ group.title }}">
+					{% for (id, title, type) in group.rows %}
+					<option value="{{ id }}">
+						{{ title }}
+					</option>
+					{% endfor %}
+				</optgroup>
+				{% endfor %}
+			</select>
+
+			<script>
+				new TomSelect("#new-select", {
+					plugins: ['remove_button'],
+					create: true,
+				});
+			</script>
+
+			<label for="backend">Backend</label>
+			<select id="backend" name="backend">
+				{% for backend in oe.backends %}
+				<option value="{{ backend.name }}">{{ backend.description }} ({{ backend.name }})</option>
+				{% endfor %}
+			</select>
+
+			<button type="submit">Start</button>
+		</fieldset>
+	</form>
+
+
 	{% for open_log in oe.search(type='log', custom='open') %}
 	<form class="open-log" method="post">
 		<fieldset>
@@ -39,12 +88,24 @@
 
 			<div style="display: flex; margin-top: 0.5em; justify-content: space-between;">
 				<label for="start_date" style="max-width:10em">Start Date
-				<input name="start_date" type="date" value="{{ open_log.thing.data.start_date() }}">
+				<input id="{{ open_log.thing.urn.urn.replace(':', '-') }}-start-date" 
+					name="start_date" type="date">
 				</label>
 
 				<label for="start" style="max-width:10em">Start Time
-				<input type="text" class="time" name="start_time" value="{{ open_log.thing.data.start_time() }}">
+				<input id="{{ open_log.thing.urn.urn.replace(':', '-') }}-start-time" 
+					type="text" class="time" name="start_time">
 				</label>
+
+				<script>
+					var sd = document.getElementById("{{ open_log.thing.urn.urn.replace(':', '-') }}-start-date"),
+					    st = document.getElementById("{{ open_log.thing.urn.urn.replace(':', '-') }}-start-time");
+
+					// Convert this to a local (user preferred) timezone.
+					[a, b] = unixToDateTime({{ open_log.thing.data.start('unix') }})
+					sd.value = a;
+					st.value = b;
+				</script>
 
 				<input name="start_unix" type="hidden">
 				<input name="end_unix" type="hidden">
@@ -120,7 +181,8 @@
 			{% for log in logs %}
 			<form method="post">
 			<tr>
-				<td><a href="{{ log.thing.urn.urn }}#url">{{ log.thing.urn.urn }}#title</a></td>
+				{% set u = log.thing.urn.urn %}
+				<td><a href="{{ u }}#url">{{ log.thing.urn.urn }}#title</a></td>
 				<td>
 					{% if log.thing.data.parents %}
 						{% for parent in log.thing.data.parents %}
@@ -130,13 +192,22 @@
 				</td>
 				<td>
 					<div style="display: flex">
-						<input name="start_date" type="date" value="{{ log.thing.data.start_date() }}">
-						<input name="start_time" class="time" type="text" value="{{ log.thing.data.start_time() }}">
+						<input data-urn="{{u}}" id="{{u}}-sd" name="start_date" class="patch" type="date">
+						<input data-urn="{{u}}" id="{{u}}-st" name="start_time" class="patch time" type="text">
 					</div>
 					<div style="display: flex">
-						<input name="end_date" type="date" value="{{ log.thing.data.end_date() }}">
-						<input name="end_time" class="time" type="text" value="{{ log.thing.data.end_time() }}">
+						<input data-urn="{{u}}" id="{{u}}-ed" name="end_date" class="patch" type="date">
+						<input data-urn="{{u}}" id="{{u}}-et" name="end_time" class="patch time" type="text">
 					</div>
+					<script>
+						var [std, stt] = unixToDateTime({{ log.thing.data.start('unix') }});
+						var [etd, ett] = unixToDateTime({{ log.thing.data.end('unix') }});
+
+						document.getElementById("{{u}}-sd").value = std
+						document.getElementById("{{u}}-st").value = stt
+						document.getElementById("{{u}}-ed").value = etd
+						document.getElementById("{{u}}-et").value = ett
+					</script>
 				</td>
 				<td>
 						<input type="hidden" name="urn" value="{{ log.thing.urn.urn }}">
@@ -158,28 +229,30 @@ function uuid() {
 	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
 }
 
-const template = document.querySelector('#default-block').outerHTML;
-if (document.querySelectorAll('#notes .block.existing').length > 0 ){
-	document.querySelector('#default-block').remove();
-}
+if (document.querySelector('#default-block')){
+	const template = document.querySelector('#default-block').outerHTML;
+	if (document.querySelectorAll('#notes .block.existing').length > 0 ){
+		document.querySelector('#default-block').remove();
+	}
 
-function insertbefore(e){
-	let block = e.parentElement.parentElement;
-	block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
-}
-
-function remove(e){
-	let block = e.parentElement.parentElement;
-	if (document.querySelectorAll('#notes .block').length == 1){
+	function insertbefore(e){
+		let block = e.parentElement.parentElement;
 		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
 	}
 
-	block.remove();
-}
+	function remove(e){
+		let block = e.parentElement.parentElement;
+		if (document.querySelectorAll('#notes .block').length == 1){
+			block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
+		}
 
-function insertafter(e){
-	let block = e.parentElement.parentElement;
-	block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
+		block.remove();
+	}
+
+	function insertafter(e){
+		let block = e.parentElement.parentElement;
+		block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
+	}
 }
 
 
@@ -232,11 +305,35 @@ function Update(){
 }
 Update();
 
+function Patch(urn){
+	console.log(`patch ${urn}`);
+	let std = document.getElementById(`${urn}-sd`).value,
+	    stt = document.getElementById(`${urn}-st`).value,
+	    etd = document.getElementById(`${urn}-ed`).value,
+	    ett = document.getElementById(`${urn}-et`).value,
+	    st = luxon.DateTime.fromISO(`${std}T${stt}`),
+	    et = luxon.DateTime.fromISO(`${etd}T${ett}`)
+
+	const data = new URLSearchParams();
+	data.append('urn', urn);
+	data.append('start_unix', st.toUnixInteger());
+	data.append('end_unix', et.toUnixInteger());
+
+	fetch("/time", {
+		method: "PATCH",
+		body: data
+	});
+	/* TODO: handle errors */
+}
 
 [...document.querySelectorAll("input.time")].forEach(i => i.addEventListener('focus', () => i.select()));
 [...document.querySelectorAll("input.time")].forEach(i => i.addEventListener('change', () => {
 	i.value = simple_time_to_hms(i.value);
 	Update();
+}));
+
+[...document.querySelectorAll("input.patch")].forEach(i => i.addEventListener('change', () => {
+	Patch(i.dataset.urn)
 }));
 
 setInterval(function(){

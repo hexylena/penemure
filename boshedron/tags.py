@@ -35,8 +35,8 @@ class LifecycleEnum(Enum):
 class TemplateValue(BaseModel):
     type: (Literal['enum'] | Literal['status'] | Literal['float'] |
            Literal['urn'] | Literal['date'] | Literal['bool'] | Literal['sql']
-           | Literal['str'] | Literal['iso3166'] | Literal['int'] | Literal['future_date'])
-    values: Optional[list[Any]] = Field(default_factory=list)
+           | Literal['str'] | Literal['iso3166'] | Literal['int'] | Literal['future_date'] | Literal['unix_time'])
+    values: Optional[list[str]] = Field(default_factory=list)
     title: Optional[str] = None
     colors: Optional[list[str]] = None
     default: Optional[Any] = None

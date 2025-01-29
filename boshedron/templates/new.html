@@ -12,14 +12,15 @@
 			<legend>New Note</legend>
 
 			<label for="title">Title</label>
-			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?">
+			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" 
+				{% if template %}value="{{ template.title }}"{% endif %}>
 
 			<label for="project">Parent(s)</label>
 			<select id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
 				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
-					<option value="{{ id }}" -- if $.Note.HasParent $p.NoteId --selected-- end -->
+					<option data-urn="{{id}}" value="{{ id }}">
 						{{ title }}
 					</option>
 					{% endfor %}
@@ -28,6 +29,11 @@
 			</select>
 
 			<script>
+				var params = (new URL(document.location)).searchParams;
+				if(params.get('parent')){
+					let els = document.querySelector(`#parent-select option[data-urn="${params.get('parent')}"]`)
+					els.selected = true;
+				}
 				new TomSelect("#parent-select", {
 					plugins: ['remove_button'],
 				});
@@ -123,9 +129,15 @@
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
-				<option value="{{ backend.name }}">{{ backend.description }} ({{ backend.name }})</option>
+				<option data-backend="{{ backend.name }}" value="{{ backend.name }}">{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}
 			</select>
+			<script>
+				if(params.get('backend')){
+					let els = document.querySelector(`#backend option[data-backend="${params.get('backend')}"]`)
+					els.selected = true;
+				}
+			</script>
 
 			<button type="submit">Save Notes</button>
 		</fieldset>
