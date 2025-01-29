@@ -60,13 +60,16 @@ class Boshedron(BaseModel):
             p = os.path.join(path, st.thing.relative_path + '.html')
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
-            if isinstance(st.thing.data, Page):
-                p = os.path.join(path, st.thing.data.page_path + '.html')
+
+            if st.thing.data.has_tag('page_path'):
+                t = st.thing.data.get_tag('page_path')
+                p = os.path.join(path, t.val + '.html')
 
             with open(p, 'w') as handle:
                 requested_template = "note.html"
                 if tag := st.thing.data.get_tag(key='template'):
-                    requested_template = tag.value
+                    requested_template = tag.val
+                    print(requested_template)
 
                 template = env.get_template(requested_template)
                 config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
