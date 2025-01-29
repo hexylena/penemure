@@ -227,7 +227,7 @@ class Note(BaseModel):
         elif self.type == "account":
             return "👩‍🦰"
         elif self.type in ('note', 'page'):
-            return "🗒"
+            return "📓"
         elif self.type == 'log':
             return "⏰"
         elif self.type == 'file':
