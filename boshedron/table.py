@@ -59,11 +59,30 @@ def render_pie(results: GroupedResultSet) -> str:
 def render_gantt(results: GroupedResultSet) -> str:
     page_content = f'<pre class="mermaid">gantt\n    dateFormat X\n    title Gantt\n'
     for group in results.groups:
-        page_content += f'    section {group.title.title()}\n'
-        # chartscss instead of mermaid?
+        if group.title:
+            page_content += f'    section {group.title.title()}\n'
+
+        # TODO: are we assuming specific columns have specific values? or can we be smart?
+        try:
+            url_idx = group.header.index('url')
+        except ValueError:
+            url_idx = None
+
+        try:
+            id_idx = group.header.index('id')
+        except ValueError:
+            id_idx = None
+
         # TODO: active, done, crit, milestone are valid tags.
         for row in group.rows:
-            page_content += f'        {row[0].replace(":", " ")} : {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
+            if id_idx:
+                page_content += f'        {row[0].replace(":", " ")} : {row[id_idx]}, {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
+            else:
+                page_content += f'        {row[0].replace(":", " ")} : {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
+
+        if url_idx and id_idx:
+            for row in group.rows:
+                page_content += f'    click {row[id_idx]} href "{row[url_idx]}"'
 
     page_content += '</pre>'
     return page_content

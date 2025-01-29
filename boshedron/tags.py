@@ -70,6 +70,8 @@ class TemplateValue(BaseModel):
     def get_tag_value(self, value):
         if self.type == 'unix_time':
             return datetime.datetime.fromtimestamp(float(value), ZoneInfo('UTC'))
+        elif self.type == 'future_date':
+            return datetime.datetime.strptime(value, "%Y-%m-%d")
         return value
 
     # purposely shadow .value on a real tag.

@@ -18,10 +18,10 @@
 			<label for="project">Parent(s)</label>
 			<select id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
 
-				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
+				{% for group in oe.query('select id, urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
-					{% for (id, title, type) in group.rows %}
-					<option value="{{ id }}" {% if note.thing.data.has_parent(id) %}selected{% endif %}>
+					{% for (id, urn, title, type) in group.rows %}
+					<option value="{{ urn }}" {% if note.thing.data.has_parent(urn) %}selected{% endif %}>
 						{{ title }}
 					</option>
 					{% endfor %}

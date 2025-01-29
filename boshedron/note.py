@@ -223,7 +223,6 @@ class Note(BaseModel):
         elif self.type == "task":
             tag = self.get_tag(key='status')
             if tag is not None:
-                print(tag)
                 return tag.icon
         elif self.type == "account":
             return "👩‍🦰"

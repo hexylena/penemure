@@ -85,7 +85,7 @@
 {% endfor %}
 {% endif %}
 
-{% set res = oe.query("select id, type from __all__ where parents like '%" + note.thing.urn.ident + "%' order by type asc") %}
+{% set res = oe.query("select urn, type from __all__ where parents like '%" + note.thing.urn.ident + "%' order by type asc") %}
 {% if res %}
 <h3>Children</h3>
 <ul>

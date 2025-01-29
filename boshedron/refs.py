@@ -47,7 +47,7 @@ class UniformReference(BaseModel, frozen=True):
     def from_string(cls, raw_urn: str):
         urn = raw_urn.split(':')
         if urn[0:2] != ['urn', 'boshedron']:
-            raise Exception("Unknown URN prefix")
+            raise Exception(f"Unknown URN prefix: {urn}")
 
         urn = urn[2:]
         # Not sure about this

@@ -257,7 +257,9 @@ class WrappedStoredThing(BaseModel):
 
     def clean_dict(self, oe=None, template=None):
         d = self.thing.data.model_dump()
-        d['id'] = self.thing.urn.urn
+        d['id'] = self.thing.urn.ident
+        d['urn'] = self.thing.urn.urn
+        d['url'] = f"/redir/{self.thing.urn.urn}"
         d['backend'] = self.backend.name
         d['created'] = self.thing.data.created
         d['updated'] = self.thing.data.updated
