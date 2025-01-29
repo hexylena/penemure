@@ -146,13 +146,21 @@ def extract_contents(data: FormData | TimeFormData, default_author=None):
 @app.get("/new/{template}", response_class=HTMLResponse)
 @app.get("/new", response_class=HTMLResponse)
 def get_new(template: Optional[str] = None):
+    if template is None:
+        return render_fixed('new.html')
+
+    if template.startswith('urn:boshedron:'):
+        # Then they're providing a note ref.
+        u = UniformReference.from_string(template)
+        orig = narrow_thing(oe.find(u))
+        return render_fixed('new.html', note_template=orig.thing.data)
+
     tpl = oe.search(type='template', title=template)
     if len(tpl) > 0:
         # TODO: how to select which template?
         tpl = tpl[0]
         assert isinstance(tpl.thing.data, Template)
         return render_fixed('new.html', note_template=tpl.thing.data.instantiate())
-    return render_fixed('new.html')
 
 @app.post("/new.html")
 @app.post("/new")
