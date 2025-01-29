@@ -1,5 +1,5 @@
 {
-  "title": "task",
+  "title": "Manifest.json",
   "parents": [
     {
       "app": "note",
@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "acf07365-63bd-44d9-80c3-b5104b977b04",
-      "created_unix": 1738151555.131572,
-      "updated_unix": 1738151555.1315734
+      "created_unix": 1738151600.192781,
+      "updated_unix": 1738151600.1927834
     },
     {
       "contents": "SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
@@ -29,8 +29,8 @@
       },
       "type": "query-table",
       "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
-      "created_unix": 1738151555.133803,
-      "updated_unix": 1738151555.133804
+      "created_unix": 1738151600.1951165,
+      "updated_unix": 1738151600.1951184
     }
   ],
   "tags": [
