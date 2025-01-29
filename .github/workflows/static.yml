@@ -40,6 +40,9 @@ jobs:
           python-version: '3.12'
           architecture: 'x64'
 
+      - name: Deps
+        run: pip install -r requirements.txt
+
       - name: Export example site
         run: python scripts/export.py pub
 
