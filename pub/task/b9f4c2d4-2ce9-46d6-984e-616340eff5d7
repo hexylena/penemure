@@ -1,0 +1,52 @@
+{
+  "title": "task",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "manifest JSON doesn't encode the description properly",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "acf07365-63bd-44d9-80c3-b5104b977b04",
+      "created_unix": 1738151555.131572,
+      "updated_unix": 1738151555.1315734
+    },
+    {
+      "contents": "SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
+      "created_unix": 1738151555.133803,
+      "updated_unix": 1738151555.133804
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738151555.1338615,
+  "updated_unix": 1738151555.1338627,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
