@@ -61,8 +61,9 @@ def render_gantt(results: GroupedResultSet) -> str:
     for group in results.groups:
         page_content += f'    section {group.title.title()}\n'
         # chartscss instead of mermaid?
+        # TODO: active, done, crit, milestone are valid tags.
         for row in group.rows:
-            page_content += f'        {row[0]} : {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
+            page_content += f'        {row[0].replace(":", " ")} : {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
 
     page_content += '</pre>'
     return page_content

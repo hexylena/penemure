@@ -255,7 +255,7 @@ class WrappedStoredThing(BaseModel):
     def not_blob(self):
         return True
 
-    def clean_dict(self, oe=None):
+    def clean_dict(self, oe=None, template=None):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.urn
         d['backend'] = self.backend.name
@@ -270,7 +270,7 @@ class WrappedStoredThing(BaseModel):
 
         # TODO: shadowing?
         for tag in self.thing.data.tags:
-            d[tag.key] = tag.render()
+            d[tag.key] = tag.value(template)
 
         # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'
@@ -443,11 +443,18 @@ class OverlayEngine(BaseModel):
         return groups
 
     def make_a_db(self, ensure_present):
-        notes = [x.clean_dict(self)
+        templates = {
+            x.thing.data.title: x.thing.data
+            for x in self.all_things()
+            if x.thing.data.type == 'template'}
+        
+
+        notes = [x.clean_dict(self, template=templates.get(x.thing.data.type, None))
                  for x in self.all_things()]
 
         # We have an 'all' table if you just want to search all types.
         # or individual tables can be searched by type.
+
         tables = {'__all__': [], '__block__': []}
         for note in notes:
             if note['type'] not in tables:

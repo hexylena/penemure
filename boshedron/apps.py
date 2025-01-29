@@ -19,6 +19,10 @@ class Template(Note):
         obj = Note.model_validate(data)
         return obj
 
+    def get_tag_value(self, key, value):
+        t = [x for x in self.tags if x.key == key][0]
+        return t.val.get_tag_value(value)
+
 
 class File(Note):
     type: str = 'file'

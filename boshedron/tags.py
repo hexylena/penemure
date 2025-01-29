@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import ConfigDict
 from typing import Optional, Union, Any
 from enum import Enum
-from datetime import datetime
+import datetime
 from zoneinfo import ZoneInfo
 from .refs import *
 
@@ -67,16 +67,30 @@ class TemplateValue(BaseModel):
                 return self.default
         return ''
 
+    def get_tag_value(self, value):
+        if self.type == 'unix_time':
+            return datetime.datetime.fromtimestamp(float(value), ZoneInfo('UTC'))
+        return value
+
+    # purposely shadow .value on a real tag.
+    def value(self):
+        return self.val
+
 
 class Tag(BaseModel):
     # TODO: is there any sane usecase for multi-valued tags that are used everywhere?
     key: str
-    val: str | float | bool | int | UniformReference | datetime
+    val: str | float | bool | int | UniformReference | datetime.datetime
 
     model_config = ConfigDict(use_enum_values=True)
 
     @property
     def val_safe(self):
+        return self.val
+
+    def value(self, template=None):
+        if template:
+            return template.get_tag_value(self.key, self.val)
         return self.val
 
     def render(self):
@@ -319,3 +333,7 @@ class TemplateTag(BaseModel):
         if hasattr(self.val, 'html_icon'):
             return getattr(self.val, 'html_icon', '!!') + " " + str(self.val)
         return f'<span class="template tag">{self.val}</span>'
+
+    # purposely shadow .value on a real tag.
+    def value(self, template=None):
+        return self.val
