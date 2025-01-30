@@ -1,0 +1,25 @@
+{
+  "title": "",
+  "parents": [],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "3473003b-ac62-4031-bb02-15b441281ae7",
+      "created_unix": 1738266493.0106063,
+      "updated_unix": 1738266493.010608
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1738266493.0106378,
+  "updated_unix": 1738266493.0106392,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

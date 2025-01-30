@@ -1,0 +1,46 @@
+{
+  "title": "custom emoji support",
+  "parents": [],
+  "contents": [
+    {
+      "contents": "https://facelessuser.github.io/pymdown-extensions/extensions/emoji/#default-emoji-generators-png",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "731a22fa-4f1c-455b-960b-a5d609d04282",
+      "created_unix": 1738266522.9173243,
+      "updated_unix": 1738266522.9173257
+    },
+    {
+      "contents": "SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
+      "created_unix": 1738266522.9190233,
+      "updated_unix": 1738266522.9190245
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738266522.919078,
+  "updated_unix": 1738266522.9190798,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
