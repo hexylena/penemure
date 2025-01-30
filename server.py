@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 from typing import List
 import os
 import sentry_sdk
+import copy
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
@@ -255,6 +256,19 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
     oe.save_thing(log, fsync=False)
     return log
+
+@app.post("/time/continue")
+def patch_time(data: Annotated[PatchTimeFormData, Form()]):
+    u = UniformReference.from_string(data.urn)
+    log = narrow_thing(oe.find(u))
+
+    # Copy title, parents only
+    new_log = Note(title=log.thing.data.title, type='log')
+    new_log = bos.overlayengine.add(new_log, backend=log.backend)
+    new_log.thing.data.parents = copy.copy(log.thing.data.parents)
+    new_log.thing.data.ensure_tag(key='start_date', value=str(time.time()))
+    return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
+
 
 @app.post("/time.html")
 @app.post("/time")

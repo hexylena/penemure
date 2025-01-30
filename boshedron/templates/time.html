@@ -179,9 +179,9 @@
 				<td colspan="4" class="header">{{ date }}</td>
 			</tr>
 			{% for log in logs %}
-			<form method="post">
+			{% set u = log.thing.urn.urn %}
+			<form method="post" action="/time/continue" data-urn="{{ u }}">
 			<tr>
-				{% set u = log.thing.urn.urn %}
 				<td><a href="{{ u }}#url">{{ log.thing.urn.urn }}#title</a></td>
 				<td>
 					{% if log.thing.data.parents %}
@@ -210,6 +210,8 @@
 					</script>
 				</td>
 				<td>
+						<input name="start_unix" type="hidden" value="{{ log.thing.data.start('unix') }}">
+						<input name="end_unix" type="hidden" value="{{ log.thing.data.end('unix') }}">
 						<input type="hidden" name="urn" value="{{ log.thing.urn.urn }}">
 						<input type="hidden" name="action" value="start">
 						<button name="submit" type="submit">Continue</button>
@@ -318,6 +320,8 @@ function Patch(urn){
 	data.append('urn', urn);
 	data.append('start_unix', st.toUnixInteger());
 	data.append('end_unix', et.toUnixInteger());
+	document.querySelector(`form[data-urn="${urn}"] input[name="start_unix"]`).value = st.toUnixInteger()
+	document.querySelector(`form[data-urn="${urn}"] input[name="end_unix"]`).value = et.toUnixInteger()
 
 	fetch("/time", {
 		method: "PATCH",
