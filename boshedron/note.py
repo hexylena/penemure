@@ -101,7 +101,7 @@ class MarkdownBlock(BaseModel):
                 # ]
             }
             page_content = markdown.markdown(self.contents, extension_configs=extension_configs, 
-                                             extensions=['tables', 'footnotes', 'pymdownx.superfences', 'pymdownx.highlight', 'markdown_checklist.extension'])
+                    extensions=['tables', 'footnotes', 'pymdownx.superfences', 'pymdownx.highlight', 'markdown_checklist.extension', 'sane_lists', 'smarty', 'codehilite', 'pymdownx.blocks.details'])
         elif self.type.startswith('query'):
             try:
                 res = oe.query(self.contents, via=parent.urn)
