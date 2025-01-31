@@ -49,5 +49,6 @@ for g in res.groups:
 for g in res.groups:
     print(f'==== {g.title} ====')
     print(' | '.join([f(c, v) for (c, v) in zip(colwidth, g.header)]))
+    print(' | '.join([f(c, type(v)) for (c, v) in zip(colwidth, g.rows[0])]))
     for r in g.rows:
         print(' | '.join([f(c, v) for (c, v) in zip(colwidth, r)]))

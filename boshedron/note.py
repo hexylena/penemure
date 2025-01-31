@@ -97,6 +97,7 @@ class MarkdownBlock(BaseModel):
         # if isinstance(self.type, str):
         #     self.type = BlockTypes.from_str(self.type)
 
+        a = time.time()
         if self.type == BlockTypes.markdown.value:
             extension_configs = {
                 # "custom_fences": [
@@ -131,12 +132,13 @@ class MarkdownBlock(BaseModel):
                 res = oe.query(self.contents, sql=True, via=parent.urn)
                 page_content = render_pie(res)
             elif self.type == BlockTypes.chartGantt.value:
-                res = oe.query(self.contents, via=parent.urn) # non proper sql
+                res = oe.query(self.contents, via=parent.urn, sql=False) # non proper sql
                 page_content = render_gantt(res)
         else:
             raise NotImplementedError(f"self.type={self.type}")
 
         page_content = UniformReference.rewrite_urns(page_content, path, oe)
+        print('render', self.type, time.time() - a)
         # TODO: something better with author.
         return f'''
             <article class="block">

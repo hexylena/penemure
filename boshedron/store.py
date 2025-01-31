@@ -1,7 +1,7 @@
 import itertools
+import time
 import datetime
 import json
-import subprocess
 import os
 import glob
 
@@ -466,11 +466,47 @@ class OverlayEngine(BaseModel):
         return groups
 
     _cache = None
+    _cache_sqlite = None
+    _enable_sqlite = os.environ.get('SQLITE', 'false') != 'false'
     def make_a_db(self, ensure_present):
+        if self._enable_sqlite:
+            import sqlite3
+            if self._cache_sqlite is None:
+                self._cache_sqlite = sqlite3.connect(":memory:", check_same_thread=False)
+                # self._cache_sqlite = sqlite3.connect(".cache")
+
+        # Saves less time than I thought. hmm.
+        # return self._make_a_db(ensure_present)
         if self._cache is None or any([x.thing.data.model_has_changed for x in self.all_things()]):
             print("Loading SQL DB")
             res = self._make_a_db(ensure_present)
+            a = time.time()
             self._cache = res
+            print(f"Created HASH in {time.time() - a}")
+            if self._enable_sqlite:
+                a = time.time()
+                for table, rows in res.items():
+                    if len(rows) == 0:
+                        continue
+                    okeys = sorted(rows[0].keys())
+                    qokeys = [f"'{x}'" for x in okeys]
+                    qqkeys = ['?' for x in okeys]
+
+                    stmt = f"DROP TABLE IF EXISTS {table}"
+                    self._cache_sqlite.execute(stmt)
+
+                    stmt = f"CREATE TABLE {table}({', '.join(qokeys)})"
+                    self._cache_sqlite.execute(stmt)
+
+                    data = [
+                        [sqlite3_type(row[ok]) for ok in okeys]
+                        for row in rows
+                    ]
+                    stmt = f"INSERT INTO {table} VALUES({', '.join(qqkeys)})"
+                    self._cache_sqlite.executemany(stmt, data)
+                self._cache_sqlite.commit()
+                print(f"Created SQLITE3 DB in {time.time() - a}")
+
             return res
         else:
             print("Using cached SQL DB")
@@ -481,7 +517,6 @@ class OverlayEngine(BaseModel):
             x.thing.data.title: x.thing.data
             for x in self.all_things()
             if x.thing.data.type == 'template'}
-        
 
         notes = [x.clean_dict(self, template=templates.get(x.thing.data.type, None))
                  for x in self.all_things()]
@@ -549,32 +584,43 @@ class OverlayEngine(BaseModel):
 
         return tables
 
-    def fmt_query(self, query):
+    def query_type(self, query):
         if query[0:5] == 'GROUP':
-            query = query[5:]
-            return 'GROUP' + transpile(query, pretty=True)[0]
+            return 'GROUP', query[5:].strip()
         elif query[0:3] == 'SQL':
-            query = query[3:]
-            return 'SQL ' + transpile(query, pretty=True)[0]
+            return 'SQL', query[3:].strip()
         else:
-            return transpile(query, pretty=True)[0]
+            return 'SQL', query
+
+    def fmt_query(self, query):
+        qtype, qselect = self.query_type(query)
+        print('fmt query', qtype, qselect)
+        return qtype + ' ' +transpile(qselect, pretty=True)[0]
 
     def query(self, query, via=None, sql=False) -> Optional[GroupedResultSet]:
         # Allow overriding with keywords
-        if query[0:5] == 'GROUP':
-            query = query[5:]
+        qtype, qselect = self.query_type(query)
+        if qtype == 'GROUP':
             sql = False
-        elif query[0:3] == 'SQL':
-            query = query[3:]
+        elif qtype == 'SQL':
             sql = True
+        else:
+            sql = True
+
+        query = qselect
 
         if via is not None and 'SELF' in query:
             query = query.replace('SELF', via.ident)
 
         res = parse_one(query)
+        print(res.sql())
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
         selects = [x.this.this for x in list(res.find_all(exp.Column))]
+        print('before', selects)
+        if len(selects) > 0:
+            selects = [x.sql() for x in res]
+        print('after', selects)
         tables = self.make_a_db(selects)
 
         # TODO: add any group by clauses to the select, otherwise we won't get
@@ -585,7 +631,6 @@ class OverlayEngine(BaseModel):
                 return None
             return node
 
-
         # a version without any group by
         if sql:
             desired_groups = []
@@ -593,10 +638,18 @@ class OverlayEngine(BaseModel):
         else:
             desired_groups = list(res.find_all(exp.Group))
             groupless_query = res.transform(groupless_behaviour).sql()
-        print(res.sql())
 
-        res = execute(groupless_query, tables=tables)
-        r = ResultSet(title=None, header=list(res.columns), rows=list(res.rows))
+        if self._cache_sqlite:
+            a = time.time()
+            results = self._cache_sqlite.execute(groupless_query)
+            print(f'Executed query in {time.time() - a}')
+            header = [x.split(' AS ')[1] if ' AS ' in x else x for x in selects]
+            r = ResultSet(title=None, header=header, rows=list(results))
+        else:
+            a = time.time()
+            results = execute(groupless_query, tables=tables)
+            print(f'Executed query in {time.time() - a}')
+            r = ResultSet(title=None, header=list(results.columns), rows=list(results.rows))
 
         if len(r.rows) == 0:
             return None
@@ -627,8 +680,11 @@ class OverlayEngine(BaseModel):
                 yield []
         else:
             for p_urn in parents:
-                p = narrow_thing(self.find(p_urn))
-                if lineage is not None:
-                    yield from self.get_lineage(p, lineage=lineage + [p.thing.urn])
-                else:
-                    yield from self.get_lineage(p, lineage=[p.thing.urn])
+                try:
+                    p = narrow_thing(self.find(p_urn))
+                    if lineage is not None:
+                        yield from self.get_lineage(p, lineage=lineage + [p.thing.urn])
+                    else:
+                        yield from self.get_lineage(p, lineage=[p.thing.urn])
+                except KeyError:
+                    yield [p_urn]

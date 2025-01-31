@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ note.thing.relative_path }} | {{ Config.Title | safe }}{% endblock %}
+{% block title %}{{ note.thing.data.title }} | {{ Config.Title | safe }}{% endblock %}
 
 {% block main %}
 
@@ -11,4 +11,3 @@
 {% endif %}
 
 {% endblock %}
-

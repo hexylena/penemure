@@ -56,6 +56,18 @@ def render_pie(results: GroupedResultSet) -> str:
         page_content += '</pre>'
     return page_content
 
+def get_index(group, col):
+        try:
+            return group.header.index(col)
+        except ValueError:
+            return None
+
+def get_time(t):
+    try:
+        return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S.%f%z')
+    except ValueError:
+        return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S%z')
+
 def render_gantt(results: GroupedResultSet) -> str:
     page_content = f'<pre class="mermaid">gantt\n    dateFormat X\n     axisFormat %b %dm- %Hh%M\n    title Gantt\n'
     for group in results.groups:
@@ -63,26 +75,24 @@ def render_gantt(results: GroupedResultSet) -> str:
             page_content += f'    section {group.title.title()}\n'
 
         # TODO: are we assuming specific columns have specific values? or can we be smart?
-        try:
-            url_idx = group.header.index('url')
-        except ValueError:
-            url_idx = None
-
-        try:
-            id_idx = group.header.index('id')
-        except ValueError:
-            id_idx = None
+        indexes = {
+            k: get_index(group, k)
+            for k in ('url', 'id', 'time_start', 'time_end')
+        }
 
         # TODO: active, done, crit, milestone are valid tags.
         for row in group.rows:
-            if id_idx:
-                page_content += f'        {row[0].replace(":", " ")} : {row[id_idx]}, {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
-            else:
-                page_content += f'        {row[0].replace(":", " ")} : {row[1].strftime("%s")}, {row[2].strftime("%s")}\n'
+            time_start = get_time(row[indexes['time_start']])
+            time_end = get_time(row[indexes['time_end']])
 
-        if url_idx and id_idx:
+            if indexes['id']:
+                page_content += f'        {row[0].replace(":", " ")} : {row[indexes['id']]}, {time_start.strftime("%s")}, {time_end.strftime("%s")}\n'
+            else:
+                page_content += f'        {row[0].replace(":", " ")} : {time_start.strftime("%s")}, {time_end.strftime("%s")}\n'
+
+        if indexes['id'] and indexes['url']:
             for row in group.rows:
-                page_content += f'    click {row[id_idx]} href "{row[url_idx]}"'
+                page_content += f'    click {indexes["id"]} href "{indexes["url"]}"'
 
     page_content += '</pre>'
     return page_content

@@ -65,6 +65,7 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None):
     return HTMLResponse(page_content)
 
 def render_dynamic(st: WrappedStoredThing):
+    a = time.time()
     requested_template: str = "note.html"
     if tag := st.thing.data.get_tag(key='template'):
         requested_template = tag.val or requested_template
@@ -74,6 +75,7 @@ def render_dynamic(st: WrappedStoredThing):
     gn = {'VcsRev': 'deadbeefcafe'}
     page_content = template.render(note=st, bos=bos, oe=bos.overlayengine, Config=config, Gn=gn, blob=blobify)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
+    print(time.time() - a)
     return HTMLResponse(page_content)
 
 
