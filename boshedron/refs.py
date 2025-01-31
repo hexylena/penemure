@@ -61,6 +61,12 @@ class UniformReference(BaseModel, frozen=True):
             raise Exception(f"Cannot parse URN: {raw_urn}")
 
     @classmethod
+    def match_string(cls, a, b):
+        urn_a = cls.from_string(a)
+        urn_b = cls.from_string(b)
+        return urn_a.ident == urn_b.ident
+
+    @classmethod
     def rewrite_urns(cls, contents: str, prefix: str, oe) -> str:
         def urn_to_url(u: re.Match):
             urn_ref = cls.from_string(u.group(1))

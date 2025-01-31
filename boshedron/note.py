@@ -204,7 +204,8 @@ class Note(ChangeDetectionMixin, BaseModel):
             c.updated_unix = time.time()
 
     def has_parent(self, urn) -> bool:
-        return urn in [x.urn for x in self.get_parents()]
+        return any([UniformReference.match_string(x.urn, urn)
+                    for x in self.get_parents()])
 
     def get_parents(self) -> list[UniformReference]:
         return self.parents or []

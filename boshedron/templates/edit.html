@@ -1,19 +1,19 @@
 {% extends "base_edit.html" %}
 
-{% block description %}{{ note.thing.data.title | safe }}: {{ note.thing.data.blurb | safe }}{% endblock %}
-{% block title %}Editing {{ note.thing.data.title }} | {{ Config.Title | safe }}{% endblock %}
+{% block description %}{{ note.thing.data.title | e }}: {{ note.thing.data.blurb | e }}{% endblock %}
+{% block title %}Editing {{ note.thing.data.title | e }} | {{ Config.Title | e }}{% endblock %}
 
 {% block main %}
 	<hgroup>
-	<h1>Add a Note</h1>
+	<h1>Editing {{ note.thing.data.title | e }}</h1>
 	</hgroup>
 
 	<form method="post">
 		<fieldset>
-			<legend>Editing Note {{ note.thing.urn.urn }}</legend>
+			<legend>Editing Note {{ note.thing.urn.urn | e }}</legend>
 
 			<label for="title">Title</label>
-			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title }}">
+			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title | e }}">
 			<input type="hidden" name="urn" value="{{ note.thing.urn.urn }}">
 
 			<label for="project">Parent(s)</label>
@@ -22,7 +22,7 @@
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
 					<option data-urn="{{id}}" value="{{ id }}" {% if note.thing.data.has_parent(id) %}selected{% endif %}>
-						{{ title }}
+					{{ title }}
 					</option>
 					{% endfor %}
 				</optgroup>
