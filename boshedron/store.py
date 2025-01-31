@@ -476,7 +476,7 @@ class OverlayEngine(BaseModel):
 
     _cache = None
     _cache_sqlite = None
-    _enable_sqlite = os.environ.get('SQLITE', 'false') != 'false'
+    _enable_sqlite = True # os.environ.get('SQLITE', 'false') != 'false'
     def make_a_db(self, ensure_present):
         if self._enable_sqlite:
             import sqlite3
