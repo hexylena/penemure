@@ -111,13 +111,17 @@ def render_cards(results: GroupedResultSet) -> str:
             else:
                 page_content += f'<div class="title">Unknown</div>'
 
+        indexes = {
+            k: get_index(group, k)
+            for k in ('urn', 'title', 'blurb')
+        }
+
         page_content += '<div class="cards">' # Cards
         for row in group.rows:
             page_content += f'<div class="card linked">'
-            (urn, title, blurb) = row[0:3]
-            page_content += f'<a href="{urn}#url">'
-            page_content += f'<div><b>{title}</b></div>'
-            page_content += f'<div>{blurb}</div>'
+            page_content += f'<a href="{row[indexes["urn"]]}#url">'
+            page_content += f'<div><b>{row[indexes["title"]]}</b></div>'
+            page_content += f'<div>{row[indexes["blurb"]]}</div>'
             for other in row[3:]:
                 page_content += f'<div>{other}</div>'
             page_content += f'</a>'

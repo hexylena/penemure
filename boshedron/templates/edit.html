@@ -173,7 +173,20 @@ function uuid() {
 		document.querySelector('#tags table tbody').insertAdjacentHTML('beforeend', templateTag);
 	}
 
+var tribute = new Tribute({
+  values: [
+    {% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
+    {% for (id, title) in group.rows %}
+	  { key: "{{ title | e}}", value: "{{ id }}#link" },
+    {% endfor %}
+    {% endfor %}
+  ],
+  selectTemplate: function (item) {
+    return item.original.value;
+  },
+});
+tribute.attach(document.querySelectorAll("textarea"));
 
-	</script>
+</script>
 
 {% endblock %}

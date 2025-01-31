@@ -36,8 +36,8 @@ class BlockTypes(Enum):
             'queryKanban': 'SQL Query: 看板',
             'chartTable': 'SQL Query: Table',
             'chartPie': 'SQL Query: Pie Chart',
-            'chartGantt': 'SQLish Query: Gantt Chart',
-            'queryCards': 'SQL Query: Cards',
+            'chartGantt': 'SQLish Query: Gantt Chart (expects columns url, id, time_start, time_end)',
+            'queryCards': 'SQL Query: Cards (expects columns urn, title, blurb)',
         }.get(self.name, self.name)
 
     def chart_type(self):

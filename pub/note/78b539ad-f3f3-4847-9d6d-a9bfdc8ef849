@@ -5,6 +5,11 @@
       "app": "note",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    },
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "5ed982ec-804b-48d5-b3c6-d243db39739d"
     }
   ],
   "contents": [
@@ -17,8 +22,8 @@
       },
       "type": "markdown",
       "id": "3b278413-cf72-4da1-b4b4-ee96501e1794",
-      "created_unix": 1737991124.7608743,
-      "updated_unix": 1737991124.7608752
+      "created_unix": 1738340183.3526208,
+      "updated_unix": 1738340183.3526216
     },
     {
       "contents": "**resolution** let's have logs as a separate thing from tags.",
@@ -29,8 +34,8 @@
       },
       "type": "markdown",
       "id": "dd4a1ec0-a921-4865-8a30-3c36db2c4405",
-      "created_unix": 1737991124.7608845,
-      "updated_unix": 1737991124.7608848
+      "created_unix": 1738340183.3526306,
+      "updated_unix": 1738340183.3526309
     }
   ],
   "tags": [

@@ -2,14 +2,14 @@
   "title": "UX",
   "parents": [
     {
-      "app": "project",
+      "app": "note",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
   ],
   "contents": [
     {
-      "contents": "- [ ] auto create issue with parent + backend set to those of current page (easy to change later but, saves time.)\r\n- [ ] select text + auto-create issues from it\r\n    - needs a reasonable UI, probably all client side too\r\n    - present as a table of the properties that will be set/created?\r\n    - rewrite as URNs here.\r\n- [ ] @ things. I need to be able to @ things anywhere and pop a search dialog. [x](https://stackoverflow.com/questions/7146659/handling-enter-key-on-text-area-using-javascript)\r\n- [ ] tags that accept refs should prompt for them.\r\n- [ ] TAG UI.\r\n- [ ] auto-save/stash new notes so they aren't lost. (maybe this involves /new/ redirecting to `/new/<uuid>` so we can be sure it'll be saved.)\r\n- [ ] encoding of lt/gt\r\n- [ ] indent/de-dent? do we need a better textarea?",
+      "contents": "- [ ] auto create issue with parent + backend set to those of current page (easy to change later but, saves time.)\r\n- [ ] select text + auto-create issues from it\r\n\r\n    - needs a reasonable UI, probably all client side too\r\n    - present as a table of the properties that will be set/created?\r\n    - rewrite as URNs here.\r\n\r\n- [x] @ things. I need to be able to @ things anywhere and pop a search dialog. https://github.com/zurb/tribute worked a charm\r\n- [ ] tags that accept refs should prompt for them.\r\n- [ ] TAG UI.\r\n- [ ] auto-save/stash new notes so they aren't lost. (maybe this involves /new/ redirecting to `/new/<uuid>` so we can be sure it'll be saved.)\r\n- [ ] encoding of lt/gt\r\n- [ ] indent/de-dent? do we need a better textarea?",
       "author": {
         "app": "account",
         "namespace": null,
@@ -17,14 +17,14 @@
       },
       "type": "markdown",
       "id": "967d9317-fc05-4f37-943f-8ce78a76c14a",
-      "created_unix": 1737890793.00027,
-      "updated_unix": 1737890793.000272
+      "created_unix": 1738341610.820175,
+      "updated_unix": 1738341610.8201756
     }
   ],
   "tags": [],
   "version": 2,
   "created_unix": 1737715424.865713,
-  "updated_unix": 1737715424.86572,
+  "updated_unix": 1738341600.7564344,
   "namespace": null,
   "type": "project",
   "attachments": []

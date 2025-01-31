@@ -17,11 +17,11 @@
       },
       "type": "markdown",
       "id": "acf07365-63bd-44d9-80c3-b5104b977b04",
-      "created_unix": 1738151600.192781,
-      "updated_unix": 1738151600.1927834
+      "created_unix": 1738340071.560304,
+      "updated_unix": 1738340071.5603049
     },
     {
-      "contents": "SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "contents": "SQL SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
       "author": {
         "app": "account",
         "namespace": null,
@@ -29,14 +29,14 @@
       },
       "type": "query-table",
       "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
-      "created_unix": 1738151600.1951165,
-      "updated_unix": 1738151600.1951184
+      "created_unix": 1738340071.5621583,
+      "updated_unix": 1738340071.5621588
     }
   ],
   "tags": [
     {
       "key": "status",
-      "val": "backlog"
+      "val": "done"
     },
     {
       "key": "priority",
