@@ -1,4 +1,5 @@
 import zoneinfo
+import subprocess
 import datetime
 import os
 
@@ -15,3 +16,18 @@ def local_now():
 
 def instance_but_not_subclass(obj, cls):
     return type(obj) is cls
+
+def rebase_path(full_path, base):
+    # TODO: there's gotta be a better way.
+    full_path = os.path.abspath(full_path)
+    full_base = os.path.abspath(base)
+
+    return full_path.replace(full_base, '').lstrip('/')
+
+def subprocess_check_call(*args, **kwargs):
+    print(['subprocess', 'check_call'], args, kwargs)
+    return subprocess.check_call(*args, **kwargs)
+
+def subprocess_check_output(*args, **kwargs):
+    print(['subprocess', 'check_output'], args, kwargs)
+    return subprocess.check_output(*args, **kwargs)

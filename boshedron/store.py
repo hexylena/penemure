@@ -11,6 +11,7 @@ from .sqlish import GroupedResultSet, ResultSet, extract_groups
 from .note import Note
 from .refs import UniformReference
 from .apps import ModelFromAttr, Account
+from .util import *
 from pydantic import BaseModel
 from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
@@ -45,7 +46,7 @@ class StoredBlob(BaseModel):
 
     @classmethod
     def realise_from_path(cls, base, full_path):
-        end = full_path.replace(base, '').lstrip('/')
+        end = rebase_path(full_path, base)
         urn = UniformReference.from_path(end)
 
         return cls(
@@ -149,7 +150,7 @@ class GitJsonFilesBackend(BaseBackend):
     @classmethod
     def discover(cls, path):
         data = cls.discover_meta(path)
-        commit, commitdate = subprocess.check_output([
+        commit, commitdate = subprocess_check_output([
             'git', 'log', '-n', '1', '--format=%H %at',
         ], cwd=path).decode('utf-8').strip().split(' ')
         data['latest_commit'] = commit
@@ -161,15 +162,15 @@ class GitJsonFilesBackend(BaseBackend):
         if self.last_update is not None:
             pass # todo logic to not push/pull too frequently
 
-        has_changes = subprocess.check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
-        new_files =  subprocess.check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
+        has_changes = subprocess_check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
+        new_files =  subprocess_check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
         if len(has_changes) > 0 or len(new_files) > 0:
             print(f'{self.path} has changes, {len(has_changes)} || len({new_files})')
-            subprocess.check_call(['git', 'add', '.'], cwd=self.path)
-            subprocess.check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
+            # subprocess_check_call(['git', 'add', '.'], cwd=self.path)
+            subprocess_check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
 
-        subprocess.check_call(['git', 'pull', '--rebase', 'origin'], cwd=self.path)
-        subprocess.check_call(['git', 'push', 'origin'], cwd=self.path)
+        subprocess_check_call(['git', 'pull', '--rebase'], cwd=self.path)
+        subprocess_check_call(['git', 'push'], cwd=self.path)
 
     def save_item(self, stored_thing: StoredThing, fsync=True):
         """Save updates to an existing file."""
@@ -184,6 +185,8 @@ class GitJsonFilesBackend(BaseBackend):
         with open(full_path, 'wb') as f:
             f.write(to_json(stored_thing.data, indent=2))
 
+        subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
+
         if fsync:
             self.sync()
 
@@ -191,6 +194,7 @@ class GitJsonFilesBackend(BaseBackend):
         del self.data[stored_thing.identifier]
         full_path = os.path.join(self.path, stored_thing.relative_path)
         os.unlink(full_path)
+        subprocess_check_call(['git', 'rm', rebase_path(full_path, self.path)], cwd=self.path)
         if fsync:
             self.sync()
 
