@@ -46,6 +46,7 @@
 				{% if note %}
 				<a href="{{ Config.ExportPrefix }}/edit/{{ note.thing.urn.urn }}" title="Edit">📝</a> &nbsp;
 				<a href="{{ Config.ExportPrefix }}/new/{{ note.thing.urn.urn }}" title="Duplicate">➿</a> &nbsp;
+				<a href="{{ Config.ExportPrefix }}/delete_question/{{ note.thing.urn.urn }}" title="Delete">❌</a> &nbsp;
 				{% endif %}
 				<a href="{{ Config.ExportPrefix }}/time{% if note %}?parent={{ note.thing.urn.urn}}&backend={{ note.backend.name }}{% endif %}"
 				   title="Log Time">

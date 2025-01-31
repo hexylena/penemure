@@ -232,6 +232,33 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
     orig.thing.data.touch()
     return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
+@app.get("/delete_question/{urn}")
+def delete_question(urn: str):
+    u = UniformReference.from_string(urn)
+    try:
+        thing = oe.find(u)
+    except KeyError:
+        return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
+
+    template = env.get_template('delete.html')
+    gn = {'VcsRev': 'deadbeefcafe'}
+    page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, note=thing)
+    page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
+    return HTMLResponse(page_content)
+
+
+@app.get("/delete/{urn}")
+def delete(urn: str):
+    u = UniformReference.from_string(urn)
+    try:
+        thing = oe.find(u)
+    except KeyError:
+        return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
+
+    orig = narrow_thing(thing)
+    orig.backend.remove_item(orig.thing)
+    return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
+
 
 class TimeFormData(BaseModel):
     urn: Optional[str] = None

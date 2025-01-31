@@ -197,7 +197,7 @@ class GitJsonFilesBackend(BaseBackend):
         if fsync:
             self.sync()
 
-    def remove_item(self, stored_thing: StoredThing, fsync=True):
+    def remove_item(self, stored_thing: StoredThing, fsync=False):
         del self.data[stored_thing.identifier]
         full_path = os.path.join(self.path, stored_thing.relative_path)
         os.unlink(full_path)
