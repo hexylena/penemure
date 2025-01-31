@@ -46,10 +46,18 @@ path = ''
 def blobify(b: BlobReference, width='40'):
     return f'<img width="{width}" src="{path}{b.id.url}{b.ext}">'
 
+config = {
+    'ExportPrefix': path,
+    'IsServing': True,
+    'Title': bos.title,
+    'About': bos.about,
+    'MarkdownBlock': MarkdownBlock,
+    'UniformReference': UniformReference,
+    'System': UniformReference.from_string('urn:boshedron:account:system'),
+}
 
 def render_fixed(fixed, note=None, rewrite=True, note_template=None):
     template = env.get_template(fixed)
-    config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
     kwargs = {'bos': bos, 'oe': bos.overlayengine, 'Config': config,
               'Gn': gn, 'blocktypes': BlockTypes}
@@ -71,7 +79,6 @@ def render_dynamic(st: WrappedStoredThing):
         requested_template = tag.val or requested_template
 
     template = env.get_template(requested_template)
-    config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
     page_content = template.render(note=st, bos=bos, oe=bos.overlayengine, Config=config, Gn=gn, blob=blobify)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
@@ -292,7 +299,6 @@ def save_time(data: Annotated[TimeFormData, Form()]):
 @app.exception_handler(404)
 def custom_404_handler(request, res):
     template = env.get_template('404.html')
-    config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
     page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, error=res.detail)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)

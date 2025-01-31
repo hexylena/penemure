@@ -15,7 +15,7 @@
       "updated_unix": 1737890792.998538
     },
     {
-      "contents": "SELECT\n  title,\n  created,\n  contributors,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nORDER BY\n  created ASC",
+      "contents": "SELECT\n  title,\n  created,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nORDER BY\n  created ASC",
       "author": {
         "app": "account",
         "namespace": null,
