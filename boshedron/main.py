@@ -9,6 +9,14 @@ from .note import *
 from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
 
 
+config = {
+    'IsServing': False,
+    'MarkdownBlock': MarkdownBlock,
+    'UniformReference': UniformReference,
+    'System': UniformReference.from_string('urn:boshedron:account:system'),
+}
+
+
 class Boshedron(BaseModel):
     title: str = "BOSHEDRON"
     about: str = '<b style="color:red">DROP AND RUN</b><br><br>DO NOT USE.'
@@ -50,7 +58,7 @@ class Boshedron(BaseModel):
         for fixed in('search.html', 'redir.html'):
             with open(os.path.join(path, fixed), 'w') as handle:
                 template = env.get_template(fixed)
-                config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
+                config.update({'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about})
                 gn = {'VcsRev': 'deadbeefcafe'}
                 page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
                 page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
@@ -66,7 +74,7 @@ class Boshedron(BaseModel):
                 requested_template = tag.val
 
             template = env.get_template(requested_template)
-            config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
+            config.update({'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about})
             gn = {'VcsRev': 'deadbeefcafe'}
             page_content = template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify)
             page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
