@@ -585,9 +585,9 @@ class OverlayEngine(BaseModel):
         return tables
 
     def query_type(self, query):
-        if query[0:5] == 'GROUP':
+        if query[0:5].upper() == 'GROUP':
             return 'GROUP', query[5:].strip()
-        elif query[0:3] == 'SQL':
+        elif query[0:3].upper() == 'SQL':
             return 'SQL', query[3:].strip()
         else:
             return 'SQL', query
@@ -605,7 +605,7 @@ class OverlayEngine(BaseModel):
         elif qtype == 'SQL':
             sql = True
         else:
-            sql = True
+            sql = sql
 
         query = qselect
 

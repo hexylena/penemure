@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ note.thing.data.title }} | {{ Config.Title | safe }}{% endblock %}
+{% block title %}{{ note.thing.data.title | e }} | {{ Config.Title | e }}{% endblock %}
 
 {% block main %}
 {% if note.thing.data.cover_image() %}

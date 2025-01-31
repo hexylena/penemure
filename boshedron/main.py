@@ -61,21 +61,24 @@ class Boshedron(BaseModel):
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
 
+            requested_template = "note.html"
+            if tag := st.thing.data.get_tag(key='template'):
+                requested_template = tag.val
+
+            template = env.get_template(requested_template)
+            config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
+            gn = {'VcsRev': 'deadbeefcafe'}
+            page_content = template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify)
+            page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
+
+            with open(p, 'w') as handle:
+                handle.write(page_content)
+
             if st.thing.data.has_tag('page_path'):
                 t = st.thing.data.get_tag('page_path')
                 p = os.path.join(path, t.val + '.html')
-
-            with open(p, 'w') as handle:
-                requested_template = "note.html"
-                if tag := st.thing.data.get_tag(key='template'):
-                    requested_template = tag.val
-
-                template = env.get_template(requested_template)
-                config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
-                gn = {'VcsRev': 'deadbeefcafe'}
-                page_content = template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify)
-                page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
-                handle.write(page_content)
+                with open(p, 'w') as handle:
+                    handle.write(page_content)
 
             for att in st.thing.data.attachments:
                 if isinstance(att, ExternalReference) or isinstance(att, UnresolvedReference):

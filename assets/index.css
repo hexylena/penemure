@@ -1,7 +1,7 @@
 :root {
-	--background: light-dark(Canvas, CanvasText);
+	--background: Canvas; /* light-dark(Canvas, CanvasText); */
 	--background-o: light-dark(#eee, #222);
-	--color: light-dark(CanvasText, Canvas);
+	--color: CanvasText; /* light-dark(CanvasText, Canvas); */
 	color-scheme: light dark;
 }
 
