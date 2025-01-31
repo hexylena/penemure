@@ -28,6 +28,8 @@ class LifecycleEnum(Enum):
             return "🚧"
         elif self == LifecycleEnum.blocked:
             return "🚫"
+        elif self == LifecycleEnum.canceled:
+            return "❌"
         else:
             return "📝"
 
@@ -101,9 +103,14 @@ class Tag(BaseModel):
         # TODO: this needs knowledge of the template for e.g. colors
         return f'<span class="tag" title="{self.key}">{self.icon} {self.val}</span>'
 
-    def val_input(self):
+    def render_input(self, template):
         # TODO: this needs knowledge of the template.
-        pass
+        relevant_template_tag = [x for x in template.thing.data.tags if x.key == self.key]
+        if len(relevant_template_tag) > 0:
+            relevant_template_tag = relevant_template_tag[0]
+            return relevant_template_tag.render_input(self.val)
+
+        return f"""<input type="text" name="tag_val" placeholder="value" value="{self.val}"/>"""
 
     @property
     def icon(self) -> str:
@@ -114,6 +121,8 @@ class Tag(BaseModel):
                 return "🚧"
             elif self.val == 'blocked':
                 return "🚫"
+            elif self.val in ('canceled', 'cancelled'):
+                return "❌"
             else:
                 return "📝"
 
@@ -339,3 +348,17 @@ class TemplateTag(BaseModel):
     # purposely shadow .value on a real tag.
     def value(self, template=None):
         return self.val
+
+
+    def render_input(self, value):
+        if self.val.type == 'status':
+            out = """<select name="tag_val">"""
+            for option in (self.val.values or []):
+                if option == value:
+                    out += f'<option value="{option}" selected>{option}</option>'
+                else:
+                    out += f'<option value="{option}">{option}</option>'
+            return out + '</select>'
+
+
+        return f"""<input type="text" name="tag_val" placeholder="value" value="{value}"/>"""

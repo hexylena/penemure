@@ -37,7 +37,7 @@
 	</tr>
 	{% for note in oe.all_things() %}
 	<tr>
-		<td><a class="urn" href="{{ note.thing.urn.urn }}#url">{{ note.thing.urn.urn }}#title</a></td>
+		<td><a class="urn" href="{{ note.thing.urn.urn }}#url">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
 		<td>{{ note.thing.data.type }}</td>
 		<td>{% if note.thing.data.has_tag('status') %}{{ note.thing.data.get_tag('status').render() }}{% endif %}</td>
 		<td>{% for tag in note.thing.data.tags %}{{ tag.render() }}{% endfor %}</td>

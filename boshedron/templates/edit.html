@@ -99,7 +99,9 @@
 						<tr class='tag existing'>
 							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
-							<td><input type="text" name="tag_val" placeholder="value" value="{{ tag.val_safe | escape }}"/></td>
+							<td>
+								{{ tag.render_input(note.get_template(oe)) }}
+							</td>
 						</tr>
 						{% endfor %}
 						<tr id="default-tag" class="tag">

@@ -1,6 +1,6 @@
 {% extends "base_edit.html" %}
 
-{% block title %}Log Time | {{ Config.Title | safe }}{% endblock %}
+{% block title %}Log Time | {{ Config.Title | escape }}{% endblock %}
 
 {% block main %}
 	<hgroup>
@@ -26,10 +26,10 @@
 
 			<label for="project">Parent(s)</label>
 			<select id="new-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
-				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
+				{% for group in oe.query('select urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
-					<option value="{{ id }}">
+					<option data-urn="{{id}}" value="{{ id }}">
 						{{ title }}
 					</option>
 					{% endfor %}
@@ -38,9 +38,13 @@
 			</select>
 
 			<script>
+				var params = (new URL(document.location)).searchParams;
+				if(params.get('parent')){
+					let els = document.querySelector(`#new-select option[data-urn="${params.get('parent')}"]`)
+					if (els) { els.selected = true; }
+				}
 				new TomSelect("#new-select", {
 					plugins: ['remove_button'],
-					create: true,
 				});
 			</script>
 
@@ -62,7 +66,7 @@
 			<legend>Edit Log ({{ open_log.thing.urn.urn }})</legend>
 
 			<label for="title">Title</label>
-			<input name="title" type="text" width="20" placeholder="What are you working on?" value="{{ open_log.thing.data.title }}">
+			<input name="title" type="text" width="20" placeholder="What are you working on?" value="{{ open_log.thing.data.title | e }}">
 
 			<label for="project">Parent(s)</label>
 			<select id="{{ open_log.thing.urn.urn.replace(':', '-') }}-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
@@ -70,7 +74,7 @@
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
 					<option value="{{ id }}" -- if $.Note.HasParent $p.NoteId --selected-- end -->
-						{{ title }}
+						{{ title | e }}
 					</option>
 					{% endfor %}
 				</optgroup>
@@ -133,7 +137,7 @@
 							{% endfor %}
 						</select>
 						<input type="hidden" name="content_uuid" value="{{ block.id }}">
-						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents | e }}</textarea>
 						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
 					</div>
 				</div>
@@ -180,8 +184,8 @@
 			</tr>
 			{% for log in logs %}
 			{% set u = log.thing.urn.urn %}
-			<form method="post" action="/time/continue" data-urn="{{ u }}">
 			<tr>
+			<form method="post" action="/time/continue" data-urn="{{ u }}">
 				<td><a href="{{ u }}#url">{{ log.thing.urn.urn }}#title</a></td>
 				<td>
 					{% if log.thing.data.parents %}
@@ -217,8 +221,8 @@
 						<button name="submit" type="submit">Continue</button>
 						<button name="delete" type="button">Delete</button>
 				</td>
-			</tr>
 			</form>
+			</tr>
 			{% endfor %}
 			{% endfor %}
 		</tbody>

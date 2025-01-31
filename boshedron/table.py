@@ -57,7 +57,7 @@ def render_pie(results: GroupedResultSet) -> str:
     return page_content
 
 def render_gantt(results: GroupedResultSet) -> str:
-    page_content = f'<pre class="mermaid">gantt\n    dateFormat X\n     axisFormat %b %d %Hh%M\n    title Gantt\n'
+    page_content = f'<pre class="mermaid">gantt\n    dateFormat X\n     axisFormat %b %dm- %Hh%M\n    title Gantt\n'
     for group in results.groups:
         if group.title:
             page_content += f'    section {group.title.title()}\n'

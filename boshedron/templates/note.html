@@ -36,6 +36,7 @@
 		<td>{{ note.backend.html_title }}</td>
 	</tr>
 
+	<!--
 	{% if note.thing.data.parents %}
 	<tr>
 		<td scope="row">Parents</td>
@@ -44,11 +45,17 @@
 		{% endfor %}</td>
 	</tr>
 	{% endif %}
+	-->
 
 	<tr>
 		<td scope="row">Ancestors</td>
-		<td>{% for parent in note.thing.data.get_lineage(oe) %}
-			{{parent}}
+		<td>{% for chain in oe.get_lineage(note) %}
+			<div>
+				{% for p in chain %}
+				{% if loop.index > 1 %}→{% endif %}
+				<a href="{{ p.urn }}#url">{{ p.urn }}#title</a>
+				{% endfor %}
+			</div>
 		{% endfor %}</td>
 	</tr>
 
@@ -101,7 +108,13 @@
 
 <details>
 	<summary>Queryable fields</summary>
-	<pre>{{ note.clean_dict() | escape }}</pre>
+	<table>
+		{% for k, v in note.clean_dict(oe).items() %}
+		<tr>
+			<td>{{k|e}}</td><td>{{v|e}}</td>
+		</tr>
+		{% endfor %}
+	</table>
 </details>
 
 {% endblock %}

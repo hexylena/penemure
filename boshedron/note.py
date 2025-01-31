@@ -204,21 +204,6 @@ class Note(BaseModel):
     def resolve_parents(self, oe):
         return [oe.find(parent) for parent in self.get_parents()]
 
-    def get_lineage(self, oe, d=0):
-        res = []
-        for p_urn in self.get_parents():
-            try:
-                p = oe.find(p_urn)
-                res_sub = p.thing.data.get_lineage(oe, d = d + 1)
-                if len(res_sub) == 0:
-                    res.append([p.thing.urn.urn])
-                else:
-                    for r in res_sub:
-                        res.append([p.thing.urn.urn, r])
-            except KeyError:
-                res.append([p_urn])
-        return res
-
     @property
     def icon(self):
         # if t:= self.get_tag(key='icon'):

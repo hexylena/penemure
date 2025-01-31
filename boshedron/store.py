@@ -17,8 +17,7 @@ from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
 from sqlglot import parse_one, exp, transpile
 from sqlglot.executor import execute
-from typing import Dict
-from typing import Optional, Union
+from typing import Dict, Generator
 from typing import Optional, Union
 
 
@@ -259,6 +258,12 @@ class WrappedStoredThing(BaseModel):
     def not_blob(self):
         return True
 
+    def get_template(self, oe=None):
+        res = oe.search(type='template', title=self.thing.data.type)
+        if len(res) > 0:
+            return res[0]
+        return None
+
     def clean_dict(self, oe=None, template=None):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.ident
@@ -284,10 +289,15 @@ class WrappedStoredThing(BaseModel):
         #d['contributors'] = self.thing.data.get_contributors(oe)
 
         if d['parents'] is not None and len(d['parents']) > 0:
-            d['parents'] = ' XX '.join([x.urn for x in self.thing.data.get_parents()])
+            d['parents'] = ' '.join([x.urn for x in self.thing.data.get_parents()])
         else:
             d['parents'] = None
 
+        ancestors = []
+        for ancestor_chain in oe.get_lineage(self):
+            for thing in ancestor_chain:
+                ancestors.append(thing.urn)
+        d['ancestors'] = ' '.join(set(ancestors))
         return d
 
 def narrow_thing(s: WrappedStored) -> WrappedStoredThing:
@@ -596,3 +606,18 @@ class OverlayEngine(BaseModel):
             if b.name == name:
                 return b
         raise KeyError(f"Could not find {name}")
+
+    def get_lineage(self, note: WrappedStoredThing, lineage=None): # -> Generator[list[WrappedStoredThing]]:
+        parents = note.thing.data.get_parents()
+        if len(parents) == 0:
+            if lineage is not None:
+                yield lineage
+            else:
+                yield []
+        else:
+            for p_urn in parents:
+                p = narrow_thing(self.find(p_urn))
+                if lineage is not None:
+                    yield from self.get_lineage(p, lineage=lineage + [p.thing.urn])
+                else:
+                    yield from self.get_lineage(p, lineage=[p.thing.urn])
