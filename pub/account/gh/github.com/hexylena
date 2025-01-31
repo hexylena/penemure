@@ -2,13 +2,30 @@
   "title": "Helena",
   "parents": null,
   "contents": null,
-  "tags": [],
+  "tags": [
+    {
+      "key": "icon",
+      "val": "https://avatars.githubusercontent.com/u/458683?v=4"
+    },
+    {
+      "key": "description",
+      "val": "(Experiencing reduced availability, feel free to ping, expect delayed responses.)\r\n\r\nSystems Witch ✨ Casting the spell to make the servers work 🧙‍♀️"
+    }
+  ],
   "version": 2,
   "created_unix": 1736507101.622802,
-  "updated_unix": 1737117000.059692,
+  "updated_unix": 1738339176.3329837,
   "namespace": "gh",
   "type": "account",
   "attachments": [
+    {
+      "id": {
+        "app": "file",
+        "namespace": "blob",
+        "ident": "e3387c6a6dfdec10e0705d08787692330f93573f244776e471b4e782838175f1"
+      },
+      "type": "image/png"
+    },
     {
       "id": {
         "app": "file",

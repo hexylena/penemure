@@ -7,16 +7,21 @@ from boshedron.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./projects/alt')
+REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
+backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
+bos = Boshedron(backends=backends)
+bos.load()
 
-bos = Boshedron(backends=[gb1, gb2])
-oe = bos.overlayengine
-oe.load()
+me = bos.overlayengine.search(type='account', namespace='gh')[0]
+me.thing.data.update()
+print(me)
+bos.save(fsync=False)
 
 # account = Account(username='hexylena', title='Helena')
 # account = oe.add(account)
 #
+
+
 # gh = AccountGithubDotCom(title='Helena', username='hexylena')
 # gh.update()
 # # Turned into a stored thing
@@ -57,5 +62,3 @@ oe.load()
 # oe.load()
 # for f in oe.all():
 #     print(repr(f))
-
-print(bos.export("export2"))

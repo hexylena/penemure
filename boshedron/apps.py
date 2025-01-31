@@ -54,7 +54,7 @@ class AccountGithubDotCom(Account):
     def update(self):
         # TODO: if the file is too recently updated, don't hit the API again.
         data = requests.get(f'https://api.github.com/users/{self.username}').json()
-        self.ensure_tag('icon', data['avatar_url'], icon=data['avatar_url'])
+        self.ensure_tag('icon', data['avatar_url'])
         self.ensure_tag('description', data['bio'])
         self.attachments.append(UnresolvedReference(path=data['avatar_url'], remote=True))
 
