@@ -7,9 +7,9 @@
       "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
     },
     {
-      "app": "project",
+      "app": "note",
       "namespace": null,
-      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
     }
   ],
   "contents": [
@@ -22,8 +22,8 @@
       },
       "type": "markdown",
       "id": "2f7463d7-6a66-422c-95b9-98eb2305fb4c",
-      "created_unix": 1737890792.998306,
-      "updated_unix": 1737890792.998308
+      "created_unix": 1738338966.6746192,
+      "updated_unix": 1738338966.67462
     },
     {
       "contents": "## fix version field\r\n\r\nyep, agreed. it's more relevant to store a specific commit as the reference for where something is fixed, rather than a version. it feels like the version is just the easiest thing for people to enter. maybe for us, for connected repositories, we should have a way to point to a specific commit? and then resolve which branches that commit is included on? it could be a plugin of course, a specific Tag type that can use its combination of commit + repo awareness to resolve into useful information when rendered?\r\n\r\nit shouldn't be anyone's task to update that pointer.\r\n\r\n> If you’re looking specifically for facts, you can’t just ask for ‘bugs with Fix Version < 1.3.0’.\r\n\r\nis an interesting inverse query, had not considered someone would want that in their bug tracker but of course that's logical. so, that data shouldn't just be resolved but persisted in such a way it can be calculated against later. the `<` is scary, is there a data structure that supports that, is `vers.split('.')` to get a tuple back a reasonable way to store that, that in turn the sqlglot queries can find it back?\r\n\r\n- [ ] need some ability to scan git logs for \"fixes #1234\" (a urn?)\r\n- [ ] turn that into a tag on that specific resolved note.\r\n- [ ] at a later date, re-scan and apply a \"Fix appears in branch X\"",
@@ -34,8 +34,8 @@
       },
       "type": "markdown",
       "id": "d9a175b4-682b-44b0-9d02-892c8263a1e4",
-      "created_unix": 1737890792.99831,
-      "updated_unix": 1737890792.998311
+      "created_unix": 1738338966.674629,
+      "updated_unix": 1738338966.6746292
     },
     {
       "contents": "## Two-tier Status and Resolution fields\r\n\r\n> If I want to find out what bugs exist in the code, I have to do a search that picks out tickets with state ‘Open’, and also tickets with state ‘Closed’ and resolution ‘Won’t Fix’.\r\n\r\nI can't imagine many PMs consider the second class as bugs,  but it is a useful thing to query.\r\n\r\nif we're copying every tag to the 'task' table when we go to query it it would be as simple as \r\n\r\n```sql\r\nselect title, status, resolution where status == 'open' or (status == 'closed' and resolution == 'won't-fix')\r\n```\r\n\r\ni'm still a bit worried about tags clobbering metadata on the table. maybe that's a \"you're holding it wrong\" issue, or, maybe it can be safe with prefixing tags with `t_` or `tag_` or just `_` in the column name and preventing those strings from being used for real tag names.\r\n\r\nsince tags are of the shape (type, value) i don't think there's a good query i can imagine for selecting status=closed & resolution=wontfix in a query like that. maybe needs a union or, join or something. \r\n\r\nor the tags table needs to be  reshaped for querying, as '(id, status, resolution, ... 50 other tags)'",
@@ -46,8 +46,8 @@
       },
       "type": "markdown",
       "id": "8e3d3cc1-9202-44bb-bc6f-1450b41c35e4",
-      "created_unix": 1737890792.998313,
-      "updated_unix": 1737890792.998314
+      "created_unix": 1738338966.6746345,
+      "updated_unix": 1738338966.6746347
     },
     {
       "contents": "## Fake bugs for other kinds of to-do item\r\n\r\nI think this section really appealed to me when i originally read this and motivated some of this work. bugs, notes, documents, wiki, everything mixed together in one big happy pile, as it should be.\r\n\r\n> So you have to make a bug record, or a bug-like record, to represent your plan to implement that feature – in effect, representing the feature as a sort of ‘anti-bug’.\r\n\r\nthis will be solved here, just by being able to have a 'plan' shaped thing alongside a 'bug' shaped thing, and being able to transition between these two.\r\n\r\nthat transformation will be interesting, I guess we will retain all previous metadata, and just default to prioritising metadata that is default for the 'bug' profile.\r\n\r\nhow are these profiles managed? right now it's at the server implementation level which feels off. people will want different defaults.\r\n\r\nshould we then encode the shape of a bug (default tags) in the system somehow? every repo that wants to can ship their own version of the template.\r\n\r\n- [ ] template issues\r\n- [ ] customising the template of an 'app'. We should reduce app surface to be only what actual functionality is needed and see if we can eliminate it nearly entirely (except e.g. `file`)\r\n\r\n> In the prototypical case, you’d create a pair of parallel records in both tables. Someone reports a bug, so you have to make a facts record saying that the bug exists; you intend to fix it, so you make a plans record describing that intention. The system would certainly need to make it easy to do this double operation.\r\n\r\nI think this is solved more easily with documents. I'm, very anti-mongo, anti-docstores generally but, i think this is a use case that makes sense. \r\n\r\nand i'll add that it doesn't preclude a sql backend, it's just shitty ugly sql that has fewer columns than it could, or some severe denormalisation.",
@@ -58,8 +58,8 @@
       },
       "type": "markdown",
       "id": "8c58cef4-7422-4780-bb9b-2187f4b48694",
-      "created_unix": 1737890792.998316,
-      "updated_unix": 1737890792.998317
+      "created_unix": 1738338966.67464,
+      "updated_unix": 1738338966.6746402
     }
   ],
   "tags": [],
