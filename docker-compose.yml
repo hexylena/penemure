@@ -35,7 +35,6 @@ services:
     container_name: ts-hxpm
     hostname: hxpm
     environment:
-      - TS_AUTHKEY=tskey-auth-kiHPNptuAA21CNTRL-AzTECxQABmcrokF68cqsecTYUw93KhyVS
       - TS_EXTRA_ARGS=--advertise-tags=tag:container
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_SERVE_CONFIG=/config/config.json
