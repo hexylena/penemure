@@ -72,7 +72,6 @@ def render_dynamic(st: WrappedStoredThing):
     template = env.get_template(requested_template)
     config = {'ExportPrefix': path, 'IsServing': True, 'Title': bos.title, 'About': bos.about}
     gn = {'VcsRev': 'deadbeefcafe'}
-    print(repr(st))
     page_content = template.render(note=st, bos=bos, oe=bos.overlayengine, Config=config, Gn=gn, blob=blobify)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
@@ -202,8 +201,6 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
     orig.thing.data.title = data.title
     orig.thing.data.type = data.type
     orig.thing.data.set_contents(extract_contents(data))
-    for b in orig.thing.data.contents:
-        print(b)
 
     if isinstance(data.project, str):
         orig.thing.data.set_parents([UniformReference.from_string(data.project)])
@@ -216,9 +213,6 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
                 for (k, v) in zip(data.tag_key, data.tag_val)]
     else:
         orig.thing.data.tags = [Tag(key=k, val=v) for (k, v) in zip(data.tag_key, data.tag_val)]
-
-    # print(data)
-    # raise Exception()
 
     oe.save_thing(orig, fsync=False)
     be = oe.get_backend(data.backend)

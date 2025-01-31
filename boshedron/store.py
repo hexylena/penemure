@@ -408,7 +408,7 @@ class OverlayEngine(BaseModel):
         b.save_item(stored_thing, fsync=fsync)
         return b
 
-    def save(self, fsync=False) -> None:
+    def save(self, fsync=True) -> None:
         for backend in self.backends:
             backend.save(fsync=fsync)
 
@@ -465,7 +465,18 @@ class OverlayEngine(BaseModel):
 
         return groups
 
+    _cache = None
     def make_a_db(self, ensure_present):
+        if self._cache is None or any([x.thing.data.model_has_changed for x in self.all_things()]):
+            print("Loading SQL DB")
+            res = self._make_a_db(ensure_present)
+            self._cache = res
+            return res
+        else:
+            print("Using cached SQL DB")
+            return self._cache
+
+    def _make_a_db(self, ensure_present):
         templates = {
             x.thing.data.title: x.thing.data
             for x in self.all_things()
@@ -536,13 +547,6 @@ class OverlayEngine(BaseModel):
                     'type': str(type(val)).replace('<', '&lt;').replace('>', '&gt;')
                 })
 
-        # for k, v in tables.items():
-        #     print(f'==== {k} ====')
-        #     for vv in v:
-        #         print(vv.keys())
-        #
-        # import pprint
-        # pprint.pprint(tables)
         return tables
 
     def fmt_query(self, query):

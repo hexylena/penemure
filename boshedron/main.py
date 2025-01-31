@@ -69,7 +69,6 @@ class Boshedron(BaseModel):
                 requested_template = "note.html"
                 if tag := st.thing.data.get_tag(key='template'):
                     requested_template = tag.val
-                    print(requested_template)
 
                 template = env.get_template(requested_template)
                 config = {'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about}
