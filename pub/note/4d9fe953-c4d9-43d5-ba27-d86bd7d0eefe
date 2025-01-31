@@ -10,21 +10,21 @@
         "ident": "hexylena"
       },
       "type": "markdown",
-      "id": "REPLACEME",
-      "created_unix": 1737991259.203385,
-      "updated_unix": 1737991259.2033865
+      "id": "346b8887-b58a-4218-a3d4-020cbf585f09",
+      "created_unix": 1738327088.1809537,
+      "updated_unix": 1738327088.180955
     },
     {
-      "contents": "SELECT\n  title,\n  type,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  title_plain ASC",
+      "contents": "SELECT\n  title,\n  type,\n  backend\nFROM __all__\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  title_plain ASC",
       "author": {
         "app": "account",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "query-table",
-      "id": "REPLACEME",
-      "created_unix": 1737991259.204219,
-      "updated_unix": 1737991259.2042198
+      "id": "c26e545b-006f-42d9-8b6b-86667079d5fc",
+      "created_unix": 1738327088.181672,
+      "updated_unix": 1738327088.1816733
     }
   ],
   "tags": [

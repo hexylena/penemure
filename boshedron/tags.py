@@ -104,6 +104,8 @@ class Tag(BaseModel):
         return f'<span class="tag" title="{self.key}">{self.icon} {self.val}</span>'
 
     def render_input(self, template):
+        if template is None:
+            return f"""<input type="text" name="tag_val" placeholder="value" value="{self.val}"/>"""
         # TODO: this needs knowledge of the template.
         relevant_template_tag = [x for x in template.thing.data.tags if x.key == self.key]
         if len(relevant_template_tag) > 0:

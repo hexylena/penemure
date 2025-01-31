@@ -287,10 +287,9 @@ def save_time(data: Annotated[TimeFormData, Form()]):
     new_parents = (data.project or [])
     if new_parents:
         log.thing.data.parents = [UniformReference.from_string(p) for p in new_parents]
-
-    print(log.thing.data)
     if data.end_unix:
         log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
+    bos.overlayengine.save_thing(log)
 
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 

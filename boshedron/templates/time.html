@@ -70,10 +70,10 @@
 
 			<label for="project">Parent(s)</label>
 			<select id="{{ open_log.thing.urn.urn.replace(':', '-') }}-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
-				{% for group in oe.query('select id, title_plain, type from __all__ group by type').groups %}
+				{% for group in oe.query('select urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
-					<option value="{{ id }}" -- if $.Note.HasParent $p.NoteId --selected-- end -->
+					<option value="{{ id }}" {% if open_log.thing.data.has_parent(id) %}selected{% endif %}>
 						{{ title | e }}
 					</option>
 					{% endfor %}
