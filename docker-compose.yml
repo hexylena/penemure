@@ -6,6 +6,7 @@ services:
       REPOS: "/repos/project-management/pub:/repos/issues"
       TZ: "Europe/Amsterdam"
       SENTRY_SDK: "http://f709b153c1dd4e309664cdef67cf4c12@192.168.2.12:8000/1"
+      SQLITE: 'true'
     volumes:
       - "${PWD}:/code/"
       - "${PWD}/repos:/repos"
@@ -29,3 +30,20 @@ services:
     links:
       - web:web
 
+  ts:
+    image: tailscale/tailscale:v1.76
+    container_name: ts-hxpm
+    hostname: hxpm
+    environment:
+      - TS_AUTHKEY=tskey-auth-kiHPNptuAA21CNTRL-AzTECxQABmcrokF68cqsecTYUw93KhyVS
+      - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_SERVE_CONFIG=/config/config.json
+    volumes:
+      - ${PWD}/ts/state:/var/lib/tailscale
+      - ${PWD}/ts/config/config.json:/config/config.json
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
