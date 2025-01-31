@@ -91,7 +91,7 @@ class StoredThing(StoredBlob):
 
     @classmethod
     def realise_from_path(cls, base, full_path):
-        end = full_path.replace(base, '').lstrip('/')
+        end = full_path.replace(base, '').lstrip('/').rstrip('.json')
         urn = UniformReference.from_path(end)
 
         with open(full_path, 'r') as f:
