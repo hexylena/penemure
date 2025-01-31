@@ -353,7 +353,7 @@ class TemplateTag(BaseModel):
 
 
     def render_input(self, value):
-        if self.val.type == 'status':
+        if self.val.type in ('status', 'enum', 'iso3166') :
             out = """<select name="tag_val">"""
             for option in (self.val.values or []):
                 if option == value:

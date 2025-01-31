@@ -21,7 +21,7 @@
 				{% for group in oe.query('group select urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
-					<option data-urn="{{id}}" value="{{ id }}">
+					<option data-urn="{{id}}" value="{{ id }}" {% if note.thing.data.has_parent(id) %}selected{% endif %}>
 						{{ title }}
 					</option>
 					{% endfor %}

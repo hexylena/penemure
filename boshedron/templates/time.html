@@ -26,7 +26,7 @@
 
 			<label for="project">Parent(s)</label>
 			<select id="new-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
-				{% for group in oe.query('select urn, title_plain, type from __all__ group by type').groups %}
+				{% for group in oe.query('group select urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
 					<option data-urn="{{id}}" value="{{ id }}">

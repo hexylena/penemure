@@ -58,7 +58,7 @@ class UniformReference(BaseModel, frozen=True):
         elif len(urn) == 2:
             return cls(app=urn[0], namespace=None, ident=urn[1])
         else:
-            raise Exception("Cannot parse URN")
+            raise Exception(f"Cannot parse URN: {raw_urn}")
 
     @classmethod
     def rewrite_urns(cls, contents: str, prefix: str, oe) -> str:
