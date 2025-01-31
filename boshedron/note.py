@@ -87,6 +87,12 @@ class MarkdownBlock(BaseModel):
         return d
 
     def render(self, oe, path, parent):
+        try:
+            return self._render(oe, path, parent)
+        except Exception as e:
+            return f'Error: {e}'
+
+    def _render(self, oe, path, parent):
         # if isinstance(self.type, str):
         #     self.type = BlockTypes.from_str(self.type)
 
