@@ -8,6 +8,7 @@ from boshedron.note import Note, MarkdownBlock
 from boshedron.tags import LifecycleEnum
 from boshedron.refs import UniformReference, UnresolvedReference
 from boshedron.apps import *
+from boshedron.errr import *
 from boshedron.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -351,6 +352,13 @@ def read_items(a=None, b=None, c=None, d=None, e=None):
         if note is None:
             raise HTTPException(status_code=404, detail="Item not found")
         return render_dynamic(note)
+    except OnlyNonBlobs:
+        blob = oe.find(u)
+        path = oe.get_path(blob)
+        with open(path, 'rb') as handle:
+            # TODO: blob types
+            return Response(content=handle.read(), media_type='image/png')
+
     except KeyError:
         raise HTTPException(status_code=404, detail=f"URN {u} not found")
 

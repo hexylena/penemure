@@ -12,6 +12,7 @@ from .note import Note
 from .refs import UniformReference
 from .apps import ModelFromAttr, Account
 from .util import *
+from .errr import *
 from pydantic import BaseModel
 from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
@@ -310,7 +311,7 @@ class WrappedStoredThing(BaseModel):
 def narrow_thing(s: WrappedStored) -> WrappedStoredThing:
     if isinstance(s.thing, StoredThing):
         return WrappedStoredThing(thing=s.thing, backend=s.backend)
-    raise Exception()
+    raise OnlyNonBlobs("This is a blob")
 
 
 

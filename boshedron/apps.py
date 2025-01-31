@@ -42,9 +42,13 @@ class Account(Note):
 
     @property
     def icon(self):
+        for attachment in self.attachments:
+            if isinstance(attachment, BlobReference) and attachment.type in ('image/png', 'image/jpeg', 'image/jpg', 'image/webp'):
+                return f'<img src="/{attachment.id.url}" alt="avatar" style="width: 1em">'
+
         if t := self.get_tag(key='icon'):
             # todo: how to handle normal values vs URLs vs URNs?
-            return t.value
+            return f'<img src="{t.val}" alt="avatar" style="width: 1em">'
         return "👩‍🦰"
 
 

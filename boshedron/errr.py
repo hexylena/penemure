@@ -1,0 +1,2 @@
+class OnlyNonBlobs(Exception):
+    pass
