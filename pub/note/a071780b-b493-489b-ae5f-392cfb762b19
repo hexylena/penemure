@@ -17,11 +17,11 @@
       },
       "type": "markdown",
       "id": "7c0a3293-8fa8-4746-bd2a-54d5e2ce7e79",
-      "created_unix": 1737890792.998688,
-      "updated_unix": 1737890792.998689
+      "created_unix": 1738337370.9262466,
+      "updated_unix": 1738337370.9262476
     },
     {
-      "contents": "GROUP select title, status from task group by status order by created",
+      "contents": "GROUP SELECT\n  title,\n  status\nFROM task\nGROUP BY\n  status\nORDER BY\n  created",
       "author": {
         "app": "account",
         "namespace": null,
@@ -29,8 +29,8 @@
       },
       "type": "query-table",
       "id": "517f71ec-83cb-479e-a60d-7dd64e1b2e02",
-      "created_unix": 1737890792.998692,
-      "updated_unix": 1737890792.998693
+      "created_unix": 1738337370.926765,
+      "updated_unix": 1738337370.9267657
     },
     {
       "contents": "Or formatted as a Kanban board:",
@@ -41,11 +41,11 @@
       },
       "type": "markdown",
       "id": "810c9b74-ff66-46a5-a420-11fd80a19cf3",
-      "created_unix": 1737890792.998695,
-      "updated_unix": 1737890792.998695
+      "created_unix": 1738337370.9267764,
+      "updated_unix": 1738337370.9267766
     },
     {
-      "contents": "GROUP select title, status from task group by status order by created",
+      "contents": "GROUP SELECT\n  title,\n  status\nFROM task\nGROUP BY\n  status\nORDER BY\n  created",
       "author": {
         "app": "account",
         "namespace": null,
@@ -53,8 +53,8 @@
       },
       "type": "query-kanban",
       "id": "9b38b366-87d6-4bc5-9c25-390a335683f6",
-      "created_unix": 1737890792.998698,
-      "updated_unix": 1737890792.998698
+      "created_unix": 1738337370.9271035,
+      "updated_unix": 1738337370.927104
     },
     {
       "contents": "# Kanban\r\n\r\nOr heck just show everything in the kanban",
@@ -65,11 +65,11 @@
       },
       "type": "markdown",
       "id": "ec1277ba-7a44-4dea-836b-ff2b0df40737",
-      "created_unix": 1737890792.998704,
-      "updated_unix": 1737890792.998705
+      "created_unix": 1738337370.927114,
+      "updated_unix": 1738337370.9271142
     },
     {
-      "contents": "GROUP select title, author, created, assignee, type from __all__ group by type order by created",
+      "contents": "GROUP SELECT\n  title,\n  author,\n  created,\n  assignee,\n  type\nFROM __all__\nGROUP BY\n  type\nORDER BY\n  created",
       "author": {
         "app": "account",
         "namespace": null,
@@ -77,8 +77,8 @@
       },
       "type": "query-kanban",
       "id": "34369f2f-386d-41a0-9782-3383548af4e0",
-      "created_unix": 1737890792.998708,
-      "updated_unix": 1737890792.998709
+      "created_unix": 1738337370.9277878,
+      "updated_unix": 1738337370.9277883
     },
     {
       "contents": "## Gantt\r\n\r\nThis is truly cursed :3\r\n\r\n```\r\nselect title_plain, created, updated, type from __all__ group by type\r\n```\r\n\r\nthe first column is assumed to be the title, the second two are start/end times. they're auto-formatted as unix for mermaid",
@@ -89,11 +89,11 @@
       },
       "type": "markdown",
       "id": "7ebbcbe0-cb28-4b90-974d-fff14dc7f484",
-      "created_unix": 1737890792.998711,
-      "updated_unix": 1737890792.998712
+      "created_unix": 1738337370.9278002,
+      "updated_unix": 1738337370.9278004
     },
     {
-      "contents": "GROUP select title_plain, created, updated, type from __all__ group by type",
+      "contents": "GROUP SELECT\n  title_plain,\n  created AS time_start,\n  updated AS time_end,\n  type\nFROM __all__\nGROUP BY\n  type",
       "author": {
         "app": "account",
         "namespace": null,
@@ -101,8 +101,8 @@
       },
       "type": "chart-gantt",
       "id": "5bdad83e-af7b-41e5-bfbc-3b224e7361fe",
-      "created_unix": 1737890792.998714,
-      "updated_unix": 1737890792.998714
+      "created_unix": 1738337370.9281826,
+      "updated_unix": 1738337370.9281828
     },
     {
       "contents": "Or if you just want straight up graphs, let's turn\r\n\r\n```SQL\r\nselect type, count(type) from __all__ group by type\r\n```\r\n\r\ninto a pie chart",
@@ -113,11 +113,11 @@
       },
       "type": "markdown",
       "id": "0f980fc0-dff9-47ca-a809-0e34a88c828b",
-      "created_unix": 1737890792.998717,
-      "updated_unix": 1737890792.998717
+      "created_unix": 1738337370.928191,
+      "updated_unix": 1738337370.9281912
     },
     {
-      "contents": "select type, count(type) from __all__ group by type",
+      "contents": "SQL SELECT\n  type,\n  COUNT(type)\nFROM __all__\nGROUP BY\n  type",
       "author": {
         "app": "account",
         "namespace": null,
@@ -125,8 +125,8 @@
       },
       "type": "chart-pie",
       "id": "f6664e11-5477-45dc-958a-ae33ec412b5c",
-      "created_unix": 1737890792.998719,
-      "updated_unix": 1737890792.99872
+      "created_unix": 1738337370.9285262,
+      "updated_unix": 1738337370.9285264
     }
   ],
   "tags": [],
