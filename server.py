@@ -352,8 +352,9 @@ def read_items(a=None, b=None, c=None, d=None, e=None):
 def manifest():
     return {
         "background_color": "#ffffff",
-        "name":             bos.title,
-        "description":      bos.about,
+        # TODO: better san
+        "name":             bos.title.replace('"', '”'),
+        "description":      bos.about.replace('"', '”'),
         "display":          "standalone",
         "scope":            '/', # TODO: make this configurable
         "icons":            [{

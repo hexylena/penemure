@@ -1,5 +1,6 @@
-{% extends "base.html" %}
+{% extends "base_edit.html" %}
 
+{% block description %}{{ note.thing.data.title | safe }}: {{ note.thing.data.blurb | safe }}{% endblock %}
 {% block title %}Editing {{ note.thing.data.title }} | {{ Config.Title | safe }}{% endblock %}
 
 {% block main %}
