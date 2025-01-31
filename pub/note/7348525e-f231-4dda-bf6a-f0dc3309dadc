@@ -22,8 +22,8 @@
       },
       "type": "markdown",
       "id": "f138803e-ee32-415c-b7dd-0d309348fe59",
-      "created_unix": 1737970169,
-      "updated_unix": 1737970169
+      "created_unix": 1737970169.0,
+      "updated_unix": 1737970169.0
     },
     {
       "contents": "",
@@ -34,14 +34,14 @@
       },
       "type": "markdown",
       "id": "fc61ec51-515b-4099-a1ea-fb94e411e543",
-      "created_unix": 1737970169,
-      "updated_unix": 1737970169
+      "created_unix": 1737970169.0,
+      "updated_unix": 1737970169.0
     }
   ],
   "tags": [],
   "version": 2,
-  "created_unix": 1737970169,
-  "updated_unix": 1737970169,
+  "created_unix": 1737970169.0,
+  "updated_unix": 1737970169.0,
   "namespace": null,
   "type": "note",
   "attachments": []

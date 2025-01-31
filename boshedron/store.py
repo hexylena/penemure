@@ -95,7 +95,10 @@ class StoredThing(StoredBlob):
 
         with open(full_path, 'r') as f:
             # here we need to be smarter about which class we're using?
-            data = from_json(f.read())
+            try:
+                data = from_json(f.read())
+            except ValueError as ve:
+                print(f"Error reading {full_path}: {ve}")
             res = ModelFromAttr(data).model_validate(data)
 
         if res.namespace != urn.namespace:
@@ -182,7 +185,11 @@ class GitJsonFilesBackend(BaseBackend):
         stored_thing.data.persist_attachments(os.path.join(self.path, 'file', 'blob'))
 
         with open(full_path, 'wb') as f:
+            if not stored_thing.data.model_has_changed:
+                print("Writing this despite no changes")
             f.write(to_json(stored_thing.data, indent=2))
+
+        stored_thing.data.model_reset_changed()
 
         subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
 
@@ -401,7 +408,7 @@ class OverlayEngine(BaseModel):
         b.save_item(stored_thing, fsync=fsync)
         return b
 
-    def save(self, fsync=True) -> None:
+    def save(self, fsync=False) -> None:
         for backend in self.backends:
             backend.save(fsync=fsync)
 

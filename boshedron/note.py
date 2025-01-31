@@ -6,6 +6,7 @@ import time
 import tempfile
 import shutil
 import os
+from pydantic_changedetect import ChangeDetectionMixin
 from pydantic import BaseModel, Field, PastDatetime
 from typing import Annotated
 from typing import Optional, Union, Any
@@ -146,7 +147,7 @@ class MarkdownBlock(BaseModel):
 
 
 # This describes the data stored in a StoredThing
-class Note(BaseModel):
+class Note(ChangeDetectionMixin, BaseModel):
     title: str
     parents: Optional[list[UniformReference]] = Field(default_factory=lambda: list())
     contents: Optional[list[MarkdownBlock]] = Field(default_factory=list)
@@ -161,6 +162,20 @@ class Note(BaseModel):
     type: str = 'note'
     attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)
 
+    def set_parents(self, parents: list[UniformReference]):
+        if parents != self.parents:
+            self.model_set_changed("parents", original=self.parents)
+            self.parents = parents
+
+    def set_contents(self, contents: list[MarkdownBlock]):
+        if contents != self.contents:
+            self.model_set_changed("contents", original=self.contents)
+            self.contents = contents
+
+    def set_tags(self, tags: list[Tag]):
+        if tags != self.tags:
+            self.model_set_changed("tags", original=self.tags)
+            self.tags = tags
 
     @property
     def created(self):
@@ -232,13 +247,14 @@ class Note(BaseModel):
 
     def add_tag(self, tag: Tag, unique: bool = False):
         self.touch()
+        self.model_set_changed("tags", original=self.tags)
         if unique:
             # Remove any other values of this
             self.tags = [t for t in self.tags if t.key != tag.key]
 
         self.tags.append(tag)
 
-    def get_tag(self, key: Optional[str] = None, enforce_unique: bool = False) -> Tag:
+    def get_tag(self, key: Optional[str] = None, enforce_unique: bool = False) -> Optional[Tag]:
         t = self.get_tags(key)
         if enforce_unique and len(t) > 1:
             raise Exception(f"Non-unique tags for key={key}")
@@ -260,7 +276,7 @@ class Note(BaseModel):
     def get_contents(self) -> list[MarkdownBlock]:
         return self.contents or []
 
-    def get_contributors(self, oe):
+    def get_contributors(self, _oe):
         c = []
         for b in self.get_contents():
             c.append(b.author)
@@ -273,6 +289,7 @@ class Note(BaseModel):
         (or similar) where there should only be one.
         """
         self.touch()
+        self.model_set_changed("tags", original=self.tags)
         # find a matching tag, generally there should only be ONE with that key.
         t = self.get_tags(key=key)
         if len(t) == 0:

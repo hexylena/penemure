@@ -201,14 +201,14 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
     orig = narrow_thing(oe.find(u))
     orig.thing.data.title = data.title
     orig.thing.data.type = data.type
-    orig.thing.data.contents = extract_contents(data)
+    orig.thing.data.set_contents(extract_contents(data))
     for b in orig.thing.data.contents:
         print(b)
 
     if isinstance(data.project, str):
-        orig.thing.data.parents = [UniformReference.from_string(data.project)]
+        orig.thing.data.set_parents([UniformReference.from_string(data.project)])
     elif data.project is not None:
-        orig.thing.data.parents = [UniformReference.from_string(x) for x in data.project]
+        orig.thing.data.set_parents([UniformReference.from_string(x) for x in data.project])
 
     if data.type == 'template' or isinstance(orig.thing.data, Template):
         orig.thing.data.tags = [
@@ -265,7 +265,7 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     # Copy title, parents only
     new_log = Note(title=log.thing.data.title, type='log')
     new_log = bos.overlayengine.add(new_log, backend=log.backend)
-    new_log.thing.data.parents = copy.copy(log.thing.data.parents)
+    new_log.thing.data.set_parents(copy.copy(log.thing.data.parents))
     new_log.thing.data.ensure_tag(key='start_date', value=str(time.time()))
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
@@ -282,11 +282,11 @@ def save_time(data: Annotated[TimeFormData, Form()]):
         log = bos.overlayengine.add(log, backend=be)
 
     log.thing.data.touch()
-    log.thing.data.contents = extract_contents(data)
+    log.thing.data.set_contents(extract_contents(data))
     log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
     new_parents = (data.project or [])
     if new_parents:
-        log.thing.data.parents = [UniformReference.from_string(p) for p in new_parents]
+        log.thing.data.set_parents([UniformReference.from_string(p) for p in new_parents])
     if data.end_unix:
         log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
     bos.overlayengine.save_thing(log)

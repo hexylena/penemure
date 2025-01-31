@@ -22,8 +22,8 @@ class Boshedron(BaseModel):
     def load(self):
         return self.overlayengine.load()
 
-    def save(self):
-        return self.overlayengine.save()
+    def save(self, fsync=False):
+        return self.overlayengine.save(fsync=fsync)
 
     def apps(self):
         """List registered 'apps'"""
