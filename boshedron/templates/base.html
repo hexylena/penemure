@@ -39,13 +39,15 @@
 			</span>
 			<span class="column" style="display: flex">
 				{% if Config.IsServing %}
-				<a href="{{ Config.ExportPrefix }}/new{% if note %}?parent={{ note.thing.urn.urn}}&backend={{ note.backend.name }}{% endif %}"
+				<a href="{{ Config.ExportPrefix }}/new{% if note %}?parent={{ note.thing.urn.urn}}&backend={{ note.backend.name }}{% endif %}" 
+				   title="New"
 					>➕</a> &nbsp;
 				{% if note %}
-				<a href="{{ Config.ExportPrefix }}/edit/{{ note.thing.urn.urn }}">📝</a> &nbsp;
+				<a href="{{ Config.ExportPrefix }}/edit/{{ note.thing.urn.urn }}" title="Edit">📝</a> &nbsp;
 				<a href="{{ Config.ExportPrefix }}/new/{{ note.thing.urn.urn }}" title="Duplicate">➿</a> &nbsp;
 				{% endif %}
-				<a href="{{ Config.ExportPrefix }}/time{% if note %}?parent={{ note.thing.urn.urn}}&backend={{ note.backend.name }}{% endif %}">
+				<a href="{{ Config.ExportPrefix }}/time{% if note %}?parent={{ note.thing.urn.urn}}&backend={{ note.backend.name }}{% endif %}"
+				   title="Log Time">
 					⏰</a> &nbsp;
 				{% endif %}
 
