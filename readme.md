@@ -34,16 +34,15 @@ Academic weapons :sparkle:
     - [ ] roles (v0)
     - [ ] start/end dates (use this when showing date pickers) (v0)
     - [ ] key resources (docs/pdfs/logos/etc.) (v1)
-    - [ ] Child projects with own sharing (v1)
+    - [x] Child projects with own sharing (v1)
     - [ ] filter out blocked. (v0)
-    - [ ] Groups of Tasks - what did she mean by this? The world will never know.
     - [ ] Views
         - [x] List (v0)
         - [ ] Timeline (v1)
-        - [ ] Board (v1)
+        - [x] Kanban Board (v1)
         - [ ] Calendar (v1)
         - [ ] workflows (v2)
-        - [ ] dashboards (low) (v2)
+        - [x] dashboards with graphs (low) (v2)
 
 - [x] tasks (v0)
     - [x] title (v0)
@@ -55,7 +54,6 @@ Academic weapons :sparkle:
     - [x] children (subtasks) (v0)
     - [x] blocking/blocked-by (v0)
     - [x] projects: multiple selection (v0)
-    - [ ] in project: Group of Tasks - ibid, does it mean like, lists within a project? can this be modelled as a task?
 
 - [ ] repeating tasks (v3)
     - [ ] daily/weekly/etc.
@@ -70,15 +68,14 @@ Academic weapons :sparkle:
     - [ ] Back date time
     - [x] associate to a specific task (one task can be made up of multiple time-management segments, maybe they're also conceptually 'tasks', just a 'quick subtask')
 
-- [ ] Server
-    - [ ] Using this from a folder sucks, it needs a permanently online server
-    - [ ] Should this be per-user? Or?
+- [x] Server
+    - [x] Using this from a folder sucks, it needs a permanently online server
 
 - [ ] People
     - [ ] Allow assigning people without them existing in the system, just @ them. If a @{user} exists, use that for avatar/etc. (v0)
 
-- [ ] Teams
-    - [ ] Create arbitrary sub-groups of teams.
+- [x] Teams
+    - [x] Create arbitrary sub-groups of teams.
 
 - [ ] Workflows
     - [ ] Move tasks around, modify them. Re-assign, etc. (v2)
@@ -129,112 +126,6 @@ project (it's a task!)
 ```
 
 yeah that actually sounds sensible weirdly.
-
-### Data Model
-
-Here's a task
-
-```yaml
-id: 6af26813-27e6-4f6b-9f20-324320a7d923
-title: My Task
-_meta:
-  icon: task
-_tags:
-  - title: URL
-    icon: 1.png
-    type: text
-    value: https://example.com
-  - title: Asignee
-    icon: 1.png
-    type: people
-    values: [jane, bob, f90db3bd-0fee-4320-855d-7ec3451f48dc]
-_blocks:
- - type: h1
-   contents: blah
- - type: p
-   contents: blah
-```
-
-And a page with a 'view'
-
-```yaml
-id: 6af26813-27e6-4f6b-9f20-324320a7d923
-title: Tasks
-_meta:
-  icon: page
-_tags:
-  - title: Parent
-    type: link
-    values: [@8c7b8634-445b-4efc-894c-314030ae0e16]
-_blocks:
- - type: h1
-   contents: Tasks
- - type: list
-   contents: 'select * from tasks group by project' # TODO
-```
-
-And a simple 'note' page
-
-```yaml
-id: 4b42389c-4b63-4c4b-ab73-9950d4affeae
-title: My Page
-_meta:
-  icon: 0.png
-_tags:
-  - title: URL
-    icon: 1.png
-    type: text
-    value: https://example.com
-  - title: Verified
-    type: verified
-    values: true
-  - title: Parent
-    type: link
-    values: [@8c7b8634-445b-4efc-894c-314030ae0e16]
-_blocks:
- - type: h1
-   contents: Heading
- - type: p
-   contents: here is a short story about my nightmares. mainly date-times.
-```
-
-#### Types
-
-markdown:
-
-- h1/2/3 {4/5/6}
-- todo list (automatically registers as sub-tasks
-- table
-- bullet/numbered
-- details/summary
-- blockquote
-- code
-- divider
-- TeX
-
-advanced:
-
-- url (link preview?)
-- image
-- file
-
-database links/queries:
-
-- table
-- kanban board
-- gallery
-- list
-- calendar
-- timeline
-
-misc:
-
-- breadcrumbs
-- 2/3/4/5 columns
-- mermaid
-- link to person/page/date
-- @ a day/time, and then have that show up in queries somehow????
-- embed pdf
 
 ## Roadmap
 
