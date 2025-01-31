@@ -70,6 +70,14 @@ class StoredThing(StoredBlob):
     def html_title(self):
         return f'{self.data.icon} {self.data.title}'
 
+    @property
+    def txt_title(self):
+        # TODO: rubbish way to strip html
+        if self.data.icon and len(self.data.icon) < 4:
+            return f'{self.data.icon} {self.data.title}'
+        else:
+            return self.data.title
+
     @computed_field
     @property
     def relative_path(self) -> str:
@@ -293,7 +301,7 @@ class WrappedStoredThing(BaseModel):
 
         # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'
-        d['title_plain'] = f'{self.thing.html_title}'
+        d['title_plain'] = f'{self.thing.txt_title}'
         #d['contributors'] = self.thing.data.get_contributors(oe)
 
         if d['parents'] is not None and len(d['parents']) > 0:
