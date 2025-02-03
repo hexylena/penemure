@@ -21,7 +21,7 @@
       "updated_unix": 1738568315.2472103
     },
     {
-      "contents": "SQL SELECT\n  id,\n  title,\n  status,\n  priority\nFROM task\nORDER BY\n  id ASC",
+      "contents": "GROUP SELECT\n  id,\n  title,\n  status,\n  priority\nFROM task\nORDER BY\n  id ASC",
       "author": {
         "app": "account",
         "namespace": null,

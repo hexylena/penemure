@@ -640,25 +640,27 @@ class OverlayEngine(BaseModel):
                 return None
             return node
 
+
         # a version without any group by
         if sql:
             desired_groups = []
             groupless_query = res.sql()
         else:
             desired_groups = list(res.find_all(exp.Group))
-            groupless_query = res.transform(groupless_behaviour).sql()
+            groupless_query = res.transform(groupless_behaviour)
+            # We want to be sure that EVERY query also checks for the ID.
+            # >>> res = parse_one('SELECT title_plain, created, updated, type, id, url FROM __all__ GROUP BY title_plain ORDER BY type, created ASC, updated DESC')
+            # >>> res.args['expressions'].append(parse_one('id AS __internal__'))
+            # I don't think this will handle CTEs well, so let's restrict it to GROUP sqlss
+            groupless_query.args['expressions'].append(parse_one('id AS _internal_id_'))
+            groupless_query = groupless_query.sql()
 
-        if self._cache_sqlite:
-            a = time.time()
-            results = self._cache_sqlite.execute(groupless_query)
-            print(f'Executed query in {time.time() - a}')
-            header = [x.split(' AS ')[1] if ' AS ' in x else x for x in selects]
-            r = ResultSet(title=None, header=header, rows=list(results))
-        else:
-            a = time.time()
-            results = execute(groupless_query, tables=tables)
-            print(f'Executed query in {time.time() - a}')
-            r = ResultSet(title=None, header=list(results.columns), rows=list(results.rows))
+        a = time.time()
+        results = self._cache_sqlite.execute(groupless_query)
+        print(f'Executed query in {time.time() - a}')
+        header = [x.split(' AS ')[1] if ' AS ' in x else x for x in selects]
+        r = ResultSet.build(header, list(results), has_id=not(sql))
+        # r = ResultSet(title=None, header=header, rows=list(results))
 
         if len(r.rows) == 0:
             return None

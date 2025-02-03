@@ -17,8 +17,8 @@ def render_table(results: GroupedResultSet) -> str:
     for group in results.groups:
         if len(results.groups) > 1:
             page_content += f'<tr><td colspan="{colspan}" class="header">{group.title}</td></tr>'
-        for row in group.rows:
-            page_content += "<tr>"
+        for row_id, row in group.enum():
+            page_content += f'<tr id="{row_id}">'
             page_content += "".join([f"<td>{x}</td>" for x in row])
             page_content += "</tr>"
     page_content += "</tbody></table>"
