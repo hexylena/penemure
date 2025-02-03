@@ -37,23 +37,28 @@
 				{% endfor %}
 			</select>
 
-			<script>
-				var params = (new URL(document.location)).searchParams;
-				if(params.get('parent')){
-					let els = document.querySelector(`#new-select option[data-urn="${params.get('parent')}"]`)
-					if (els) { els.selected = true; }
-				}
-				new TomSelect("#new-select", {
-					plugins: ['remove_button'],
-				});
-			</script>
-
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
 				<option value="{{ backend.name }}">{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}
 			</select>
+
+			<script>
+				var params = (new URL(document.location)).searchParams;
+				if(params.get('parent')){
+					let els = document.querySelector(`#new-select option[data-urn="${params.get('parent')}"]`)
+					if (els) { els.selected = true; }
+				}
+				if(params.get('backend')){
+					console.log('backend')
+					let els = document.querySelector(`#backend option[value="${params.get('backend')}"]`)
+					if (els) { els.selected = true; }
+				}
+				new TomSelect("#new-select", {
+					plugins: ['remove_button'],
+				});
+			</script>
 
 			<button type="submit">Start</button>
 		</fieldset>
@@ -70,7 +75,7 @@
 
 			<label for="project">Parent(s)</label>
 			<select id="{{ open_log.thing.urn.urn.replace(':', '-') }}-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
-				{% for group in oe.query('select urn, title_plain, type from __all__ group by type').groups %}
+				{% for group in oe.query('group select urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
 					<option value="{{ id }}" {% if open_log.thing.data.has_parent(id) %}selected{% endif %}>
@@ -163,7 +168,7 @@
 			</div>
 
 			<label for="backend">Backend</label>
-			<select id="backend" name="backend">
+			<select name="backend">
 				{% for backend in oe.backends %}
 				<option value="{{ backend.name }}" {% if open_log.backend.name == backend.name %}selected{%endif%}>{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}

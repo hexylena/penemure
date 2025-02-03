@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "We need editable tables, that's really a killer feature of notion. That you can sql select some data, and the results you get back, are actually mutable in place. So let's try and implement that.\r\n\r\nLet's build a table real quick with some notable properties:\r\n\r\n- a non mutable field (id)\r\n- a mutable object attribute (title)\r\n- a tag based attribute\r\n- a tag based attribute that I didn't used to fill in automatically so will be missing in places.",
+      "contents": "We need editable tables, that's really a killer feature of notion. That you can sql select some data, and the results you get back, are actually mutable in place. So let's try and implement that.\r\n\r\nLet's build a table real quick with some notable properties:\r\n\r\n- a non mutable field (id)\r\n- a mutable object attribute (title)\r\n- oh wait, we have three variants of that mutable object attribute, and the edit should essentially go to the last one.\r\n- a tag based attribute\r\n- a tag based attribute that I didn't used to fill in automatically so will be missing in places.",
       "author": {
         "app": "account",
         "namespace": null,
@@ -17,11 +17,11 @@
       },
       "type": "markdown",
       "id": "ea5f52d3-7afd-47ce-9076-b92d280e9408",
-      "created_unix": 1738568315.2472093,
-      "updated_unix": 1738568315.2472103
+      "created_unix": 1738570395.1797254,
+      "updated_unix": 1738570395.1797266
     },
     {
-      "contents": "GROUP SELECT\n  id,\n  title,\n  status,\n  priority\nFROM task\nORDER BY\n  id ASC",
+      "contents": "GROUP SELECT\n  id,\n  title,\n  title_plain,\n  title_txt,\n  status,\n  priority\nFROM task\nORDER BY\n  id ASC",
       "author": {
         "app": "account",
         "namespace": null,
@@ -29,11 +29,11 @@
       },
       "type": "query-table",
       "id": "ec633c72-a0ad-4c6d-96db-f92c1c00e077",
-      "created_unix": 1738568315.2479544,
-      "updated_unix": 1738568315.247955
+      "created_unix": 1738570395.1805122,
+      "updated_unix": 1738570395.1805134
     },
     {
-      "contents": "we'll need to \r\n\r\n- [ ] add ID to every query, just, as a dupe, and then extract that into the `ResultSet`\r\n- [ ] add that into the HTML\r\n- [ ] a new /patch route that accepts a tuple `(id, column, value)`\r\n- [ ] JS to enable this",
+      "contents": "we'll need to \r\n\r\n- [x] add ID to every query, just, as a dupe, and then extract that into the `ResultSet`\r\n- [x] add that into the HTML\r\n- [ ] a new /patch route that accepts a tuple `(id, column, value)`\r\n- [ ] JS to enable this\r\n",
       "author": {
         "app": "account",
         "namespace": null,
@@ -41,14 +41,26 @@
       },
       "type": "markdown",
       "id": "5fff7d9e-7ba1-4db2-9120-9876994d9422",
-      "created_unix": 1738568315.247967,
-      "updated_unix": 1738568315.2479675
+      "created_unix": 1738570395.1805284,
+      "updated_unix": 1738570395.1805289
+    },
+    {
+      "contents": "## Misc Thoughts\r\n\r\nwe do sort of want to communicate to the frontend what the type of that column is. We'll need that for someday-UI, is it a status tag (enum) that needs to be rendered with the select box when clicked on?\r\n\r\nDo we care that this impacts 'real' sql queries? Or do we operate under the assumption that $someday we'll have a UI that hides the SQL and correctly applies `GROUP`/`SQL` based on ",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "567f9820-46c0-47b8-afad-3ffd2c7b864f",
+      "created_unix": 1738570395.1805365,
+      "updated_unix": 1738570395.1805367
     }
   ],
   "tags": [],
   "version": 2,
   "created_unix": 1738568194.9313946,
-  "updated_unix": 1738568310.8061414,
+  "updated_unix": 1738570162.2384448,
   "namespace": null,
   "type": "project",
   "attachments": []

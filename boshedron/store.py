@@ -302,6 +302,7 @@ class WrappedStoredThing(BaseModel):
         # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'
         d['title_plain'] = f'{self.thing.txt_title}'
+        d['title_txt'] = f'{self.thing.data.title}'
         #d['contributors'] = self.thing.data.get_contributors(oe)
 
         if d['parents'] is not None and len(d['parents']) > 0:
