@@ -37,8 +37,9 @@ def render_kanban(results: GroupedResultSet) -> str:
             page_content += f'<div class="title">{group.title.title()}</div>'
         else:
             page_content += f'<div class="title">Unknown</div>'
-        for row in group.rows:
-            page_content += f'<div class="card">'
+
+        for row_id, row in group.enum():
+            page_content += f'<div class="card" id="{row_id}">'
             for x in row:
                 page_content += f'<div>{x}</div>'
             page_content += "</div>"
@@ -77,22 +78,19 @@ def render_gantt(results: GroupedResultSet) -> str:
         # TODO: are we assuming specific columns have specific values? or can we be smart?
         indexes = {
             k: get_index(group, k)
-            for k in ('url', 'id', 'time_start', 'time_end')
+            for k in ('url', 'time_start', 'time_end')
         }
 
         # TODO: active, done, crit, milestone are valid tags.
-        for row in group.rows:
+        for row_id, row in group.enum():
             time_start = get_time(row[indexes['time_start']])
             time_end = get_time(row[indexes['time_end']])
 
-            if indexes['id']:
-                page_content += f'        {row[0].replace(":", " ")} : {row[indexes['id']]}, {time_start.strftime("%s")}, {time_end.strftime("%s")}\n'
-            else:
-                page_content += f'        {row[0].replace(":", " ")} : {time_start.strftime("%s")}, {time_end.strftime("%s")}\n'
+            page_content += f'        {row[0].replace(":", " ")} : {row_id}, {time_start.strftime("%s")}, {time_end.strftime("%s")}\n'
 
-        if indexes['id'] and indexes['url']:
-            for row in group.rows:
-                page_content += f'    click {indexes["id"]} href "{indexes["url"]}"'
+        if indexes['url']:
+            for row_id, row in group.enum():
+                page_content += f'    click {row_id} href "{indexes["url"]}"'
 
     page_content += '</pre>'
     return page_content
@@ -117,8 +115,8 @@ def render_cards(results: GroupedResultSet) -> str:
         }
 
         page_content += '<div class="cards">' # Cards
-        for row in group.rows:
-            page_content += f'<div class="card linked">'
+        for row_id, row in group.enum():
+            page_content += f'<div class="card linked" id="{row_id}">'
             page_content += f'<a href="{row[indexes["urn"]]}#url">'
             page_content += f'<div><b>{row[indexes["title"]]}</b></div>'
             page_content += f'<div>{row[indexes["blurb"]]}</div>'
