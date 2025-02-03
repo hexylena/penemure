@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Prepare to Delete | {{ Config.Title | safe }}{% endblock %}
+
+{% block main %}
+	<hgroup>
+	<h1>Are you CERTAIN</h1>
+	<p>that you wish to delete the following page permanently (ish)</p>
+	</hgroup>
+
+	<table>
+		<tr><td>Title</td><td>{{ note.thing.data.title }}</td></tr>
+		<tr><td>URN</td><td>{{ note.thing.urn.urn }}</td></tr>
+		<tr><td>Stored in</td><td>{{ note.backend.name }} ({{ note.backend.description }})</td></tr>
+	</table>
+
+	<p>
+	<a href="/">NO TAKE ME BACK</a>
+	<br/>
+	<br/>
+	<br/>
+	<a href="/delete/{{ note.thing.urn.urn }}">YES Please Delete</a>
+	</p>
+
+{% endblock %}
