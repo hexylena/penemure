@@ -213,10 +213,14 @@ const textarea = document.querySelector("textarea");
 textarea.addEventListener("select", select);
 
 async function extractIssues(urn, be, bid){
-	let txt = document.querySelector(`div[data-urn="${bid}"] textarea`)
-	text = txt.value.substring(txt.selectionStart, txt.selectionEnd).trim();
+	const  txt = document.querySelector(`div[data-urn="${bid}"] textarea`),
+		slst = txt.selectionStart,
+		slse = txt.selectionEnd,
+		issues_text = txt.value.substring(txt.selectionStart, txt.selectionEnd).trim(),
+		textPre = txt.value.substring(0, txt.selectionStart),
+		textPost = txt.value.substring(txt.selectionEnd);
 	
-	let issues = text.split('\n').map((x) => {
+	let issues = issues_text.split('\n').map((x) => {
 		if (x.startsWith('- [x]')){
 			return [true, x.replace('- [x]', '').trim()]
 		} else if (x.startsWith('- [ ]')){
@@ -226,7 +230,6 @@ async function extractIssues(urn, be, bid){
 		}
 		return [false, x.trim()]
 	})
-	console.log("Extract things", issues)
 	data = {
 		project: urn,
 		titles: issues.map(x => x[1]),
@@ -234,7 +237,6 @@ async function extractIssues(urn, be, bid){
 		backend: be,
 		type: 'task',
 	}
-	console.log(data)
 	const myHeaders = new Headers();
 	myHeaders.append("Content-Type", "application/json");
 
@@ -243,7 +245,8 @@ async function extractIssues(urn, be, bid){
 		headers: myHeaders,
 		body: JSON.stringify(data),
 	});
-	console.log(response);
+	const json = await response.json();
+	txt.value = textPre + json.map(urn => `- ${urn}#link`).join('\n') + textPost
 }
 
 /*
