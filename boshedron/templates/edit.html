@@ -48,7 +48,7 @@
 
 			<div id="notes" name='contents'>
 				{% for block in note.thing.data.get_contents() %}
-				<div class="block existing" style="display: flex">
+				<div data-urn="{{ block.id }}" class="block existing" style="display: flex">
 					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
 						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
 						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
@@ -62,6 +62,9 @@
 						</select>
 						<input type="hidden" name="content_uuid" value="{{ block.id }}">
 						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+						<div class="controls">
+							<button type="button" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', '{{ block.id }}')">Extract Issues</button>
+						</div>
 						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
 					</div>
 				</div>
@@ -82,6 +85,9 @@
 						<input type="hidden" name="content_uuid" value="REPLACEME">
 						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
 						<textarea name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
+						<div class="controls">
+							<button type="button" disabled>Extract Issues</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -187,6 +193,73 @@ var tribute = new Tribute({
 });
 tribute.attach(document.querySelectorAll("textarea"));
 
+//[...document.querySelectorAll('textarea')]
+
+function select(event){
+	let ta = event.target,
+	    urn = ta.parentNode.parentNode.dataset.urn,
+	    be = document.querySelector("#backend").value,
+	    selection = event.target.value.substring(
+	        event.target.selectionStart,
+	        event.target.selectionEnd,
+	    )
+	    bt = ta.parentNode.querySelector(".controls button")
+
+	bt.disabled = false // Enable the action
+	console.log(urn, be, selection);
+}
+
+const textarea = document.querySelector("textarea");
+textarea.addEventListener("select", select);
+
+async function extractIssues(urn, be, bid){
+	let txt = document.querySelector(`div[data-urn="${bid}"] textarea`)
+	text = txt.value.substring(txt.selectionStart, txt.selectionEnd).trim();
+	
+	let issues = text.split('\n').map((x) => {
+		if (x.startsWith('- [x]')){
+			return [true, x.replace('- [x]', '').trim()]
+		} else if (x.startsWith('- [ ]')){
+			return [false, x.replace('- [ ]', '').trim()]
+		} else if (x.startsWith('- ')){
+			return [false, x.replace('- ', '').trim()]
+		}
+		return [false, x.trim()]
+	})
+	console.log("Extract things", issues)
+	data = {
+		project: urn,
+		titles: issues.map(x => x[1]),
+		tags: issues.map(x => { return {status: x[0] ? 'done': 'backlog' }}),
+		backend: be,
+		type: 'task',
+	}
+	console.log(data)
+	const myHeaders = new Headers();
+	myHeaders.append("Content-Type", "application/json");
+
+	const response = await fetch("/new/multi", {
+		method: "POST",
+		headers: myHeaders,
+		body: JSON.stringify(data),
+	});
+	console.log(response);
+}
+
+/*
+    // Obtain the object reference for the <textarea>
+    var txtarea = document.getElementById("mytextarea");
+
+    // Obtain the index of the first selected character
+    var start = txtarea.selectionStart;
+
+    // Obtain the index of the last selected character
+    var finish = txtarea.selectionEnd;
+
+    // Obtain the selected text
+    var sel = txtarea.value.substring(start, finish);
+
+*/
 </script>
 
 {% endblock %}

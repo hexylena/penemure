@@ -297,7 +297,6 @@ class WrappedStoredThing(BaseModel):
 
         # TODO: shadowing?
         for tag in self.thing.data.tags:
-            print(tag, template.title if template else None)
             d[tag.key] = tag.value(template)
 
         # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
@@ -308,8 +307,13 @@ class WrappedStoredThing(BaseModel):
 
         if d['parents'] is not None and len(d['parents']) > 0:
             d['parents'] = ' '.join([x.urn for x in self.thing.data.get_parents()])
+            try:
+                d['parent_first_title'] = oe.find_thing(self.thing.data.parents[0].urn).thing.data.title
+            except KeyError:
+                d['parent_first_title'] = None
         else:
             d['parents'] = None
+            d['parent_first_title'] = None
 
         ancestors = []
         for ancestor_chain in oe.get_lineage(self):
@@ -656,6 +660,8 @@ class OverlayEngine(BaseModel):
             # I don't think this will handle CTEs well, so let's restrict it to GROUP sqlss
             groupless_query.args['expressions'].append(parse_one('id AS _internal_id_'))
             groupless_query = groupless_query.sql()
+
+        print(f'=> {groupless_query}')
 
         a = time.time()
         results = self._cache_sqlite.execute(groupless_query)

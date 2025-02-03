@@ -13,7 +13,7 @@ from boshedron.errr import *
 from boshedron.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from typing import List
+from typing import List, Tuple, Dict
 import os
 import sentry_sdk
 import copy
@@ -233,6 +233,27 @@ def save_new(data: Annotated[FormData, Form()]):
     be = bos.overlayengine.get_backend(data.backend)
     res = bos.overlayengine.add(obj, backend=be)
     return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
+
+
+class NewMultiData(BaseModel):
+    project: str
+    titles: List[str]
+    tags: List[Dict[str, str]]
+    type: str = 'task'
+    backend: str
+
+@app.post("/new/multi", tags=['mutate'])
+def save_new_multi(data: NewMultiData):
+    res = []
+    be = bos.overlayengine.get_backend(data.backend)
+
+    for (title, tags) in zip(data.titles, data.tags):
+        n = Note(title=title, type=data.type)
+        n.parents = [UniformReference.from_string(data.project)]
+        n.tags = [Tag(key=k, val=v) for (k, v) in tags.items()]
+        r = bos.overlayengine.add(n, backend=be)
+        res.append(r.thing.urn.urn)
+    return res
 
 @app.post("/edit/{urn}", tags=['mutate'])
 def save_edit(urn: str, data: Annotated[FormData, Form()]):

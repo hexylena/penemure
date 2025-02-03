@@ -24,6 +24,29 @@ def render_table(results: GroupedResultSet) -> str:
     page_content += "</tbody></table>"
     return page_content
 
+def render_table_editable(results: GroupedResultSet) -> str:
+    if results is None:
+        return '<table></table>'
+
+    page_content = "<table>"
+
+    # Header is the same for each group so just take the first.
+    page_content += "<thead><tr>"
+    page_content += "".join([f"<th>{x.title()}</th>" for x in results.groups[0].header])
+    page_content += "</tr></thead><tbody>"
+    colspan = len(results.groups[0].header)
+
+    for group in results.groups:
+        if len(results.groups) > 1:
+            page_content += f'<tr><td colspan="{colspan}" class="header">{group.title}</td></tr>'
+        for row_id, row in group.enum():
+            page_content += f'<tr id="{row_id}">'
+            # TODO: how do we know the true internal type/value?
+            page_content += "".join([f"<td>{x}</td>" for x in row])
+            page_content += "</tr>"
+    page_content += "</tbody></table>"
+    return page_content
+
 def render_kanban(results: GroupedResultSet) -> str:
     if results is None:
         return '<div class="kanban"></div>'
@@ -65,9 +88,12 @@ def get_index(group, col):
 
 def get_time(t):
     try:
-        return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S.%f%z')
+        return datetime.datetime.strptime(t, '%s')
     except ValueError:
-        return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S%z')
+        try:
+            return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S.%f%z')
+        except ValueError:
+            return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S%z')
 
 def render_gantt(results: GroupedResultSet) -> str:
     page_content = f'<pre class="mermaid">gantt\n    dateFormat X\n     axisFormat %b %dm- %Hh%M\n    title Gantt\n'
@@ -78,19 +104,21 @@ def render_gantt(results: GroupedResultSet) -> str:
         # TODO: are we assuming specific columns have specific values? or can we be smart?
         indexes = {
             k: get_index(group, k)
-            for k in ('url', 'time_start', 'time_end')
+            for k in ('url', 'time_start', 'time_end', 'title')
         }
+        print(group)
 
         # TODO: active, done, crit, milestone are valid tags.
         for row_id, row in group.enum():
             time_start = get_time(row[indexes['time_start']])
             time_end = get_time(row[indexes['time_end']])
+            title = row[indexes['title']].replace(":", " ")
 
-            page_content += f'        {row[0].replace(":", " ")} : {row_id}, {time_start.strftime("%s")}, {time_end.strftime("%s")}\n'
+            page_content += f'        {title} : {row_id}, {time_start.strftime("%s")}, {time_end.strftime("%s")}\n'
 
         if indexes['url']:
             for row_id, row in group.enum():
-                page_content += f'    click {row_id} href "{indexes["url"]}"'
+                page_content += f'    click {row_id} href "{row[indexes["url"]]}"\n'
 
     page_content += '</pre>'
     return page_content
@@ -116,15 +144,16 @@ def render_cards(results: GroupedResultSet) -> str:
 
         page_content += '<div class="cards">' # Cards
         for row_id, row in group.enum():
-            page_content += f'<div class="card linked" id="{row_id}">'
-            page_content += f'<a href="{row[indexes["urn"]]}#url">'
+            page_content += f'<div class="card linked" id="{row_id}"><a href="{row[indexes["urn"]]}#url">'
             page_content += f'<div><b>{row[indexes["title"]]}</b></div>'
             page_content += f'<div>{row[indexes["blurb"]]}</div>'
+            page_content += '<div>'
             for other in row[3:]:
-                page_content += f'<span style="background: red">{other}</span>'
-            page_content += f'</a>'
+                if other is not None and len(other) > 0:
+                    page_content += f'<span class="tag">{other}</span>'
+            page_content += '</div>'
 
-            page_content += "</div>"
+            page_content += "</a></div>"
         page_content += '</div>' # Cards
 
         page_content += '</div>'

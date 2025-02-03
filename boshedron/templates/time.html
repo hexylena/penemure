@@ -353,6 +353,20 @@ setInterval(function(){
 	Update();
 }, 5000);
 
+var tribute = new Tribute({
+  values: [
+    {% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
+    {% for (id, title) in group.rows %}
+	  { key: "{{ title | e}}", value: "{{ id }}" },
+    {% endfor %}
+    {% endfor %}
+  ],
+  selectTemplate: function (item) {
+    return item.original.value + "#link";
+  },
+});
+tribute.attach(document.querySelectorAll("textarea"));
+
 </script>
 
 {% endblock %}

@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "ea5f52d3-7afd-47ce-9076-b92d280e9408",
-      "created_unix": 1738573053.9384325,
-      "updated_unix": 1738573053.9384341
+      "created_unix": 1738575386.0574708,
+      "updated_unix": 1738575386.057472
     },
     {
       "contents": "GROUP SELECT\n  id,\n  title,\n  title_plain,\n  title_txt,\n  status,\n  priority\nFROM task\nORDER BY\n  id ASC",
@@ -27,10 +27,10 @@
         "namespace": null,
         "ident": "hexylena"
       },
-      "type": "query-table",
+      "type": "query-table-edit",
       "id": "ec633c72-a0ad-4c6d-96db-f92c1c00e077",
-      "created_unix": 1738573053.9394336,
-      "updated_unix": 1738573053.9394343
+      "created_unix": 1738575386.0584378,
+      "updated_unix": 1738575386.0584385
     },
     {
       "contents": "we'll need to \r\n\r\n- [x] add ID to every query, just, as a dupe, and then extract that into the `ResultSet`\r\n- [x] add that into the HTML\r\n- [ ] a new /patch route that accepts a tuple `(id, column, value)`\r\n- [ ] JS to enable this\r\n",
@@ -41,8 +41,8 @@
       },
       "type": "markdown",
       "id": "5fff7d9e-7ba1-4db2-9120-9876994d9422",
-      "created_unix": 1738573053.9394517,
-      "updated_unix": 1738573053.9394522
+      "created_unix": 1738575386.0584543,
+      "updated_unix": 1738575386.0584545
     },
     {
       "contents": "## Misc Thoughts\r\n\r\nwe do sort of want to communicate to the frontend what the type of that column is. We'll need that for someday-UI, is it a status tag (enum) that needs to be rendered with the select box when clicked on?\r\n\r\nDo we care that this impacts 'real' sql queries? Or do we operate under the assumption that $someday we'll have a UI that hides the SQL and correctly applies `GROUP`/`SQL` based on ",
@@ -53,8 +53,32 @@
       },
       "type": "markdown",
       "id": "567f9820-46c0-47b8-afad-3ffd2c7b864f",
-      "created_unix": 1738573053.9394593,
-      "updated_unix": 1738573053.9394596
+      "created_unix": 1738575386.0584614,
+      "updated_unix": 1738575386.0584617
+    },
+    {
+      "contents": "## Work Log",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "539277f5-5426-476f-b340-61b06a228882",
+      "created_unix": 1738575386.058469,
+      "updated_unix": 1738575386.0584693
+    },
+    {
+      "contents": "GROUP SELECT\n  title_plain AS title,\n  url,\n  start_date AS time_start,\n  end_date AS time_end\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "chart-gantt",
+      "id": "4d11cc70-512d-4723-97e2-50652242d204",
+      "created_unix": 1738575386.0594852,
+      "updated_unix": 1738575386.0594864
     }
   ],
   "tags": [
@@ -65,7 +89,7 @@
   ],
   "version": 2,
   "created_unix": 1738568194.9313946,
-  "updated_unix": 1738570162.2384448,
+  "updated_unix": 1738575000.2799962,
   "namespace": null,
   "type": "project",
   "attachments": []

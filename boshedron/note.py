@@ -23,6 +23,7 @@ from enum import Enum
 class BlockTypes(Enum):
     markdown = 'markdown'
     queryTable = 'query-table'
+    queryTableEditable = 'query-table-edit'
     queryKanban = 'query-kanban'
     queryCards = 'query-cards'
     chartTable = 'chart-table'
@@ -33,6 +34,7 @@ class BlockTypes(Enum):
         return {
             'markdown': 'Markdown',
             'queryTable': 'SQLish Query: Table',
+            'queryTableEditable': 'Editable Table',
             'queryKanban': 'SQL Query: 看板',
             'chartTable': 'SQL Query: Table',
             'chartPie': 'SQL Query: Pie Chart',
@@ -56,6 +58,7 @@ class BlockTypes(Enum):
             'chart-pie': cls.chartPie,
             'chart-gantt': cls.chartGantt,
             'query-cards': cls.queryCards,
+            'query-table-edit': cls.queryTableEditable,
         }[s]
 
 class MarkdownBlock(BaseModel):
@@ -118,6 +121,8 @@ class MarkdownBlock(BaseModel):
 
             if self.type == BlockTypes.queryTable.value:
                 page_content = render_table(res)
+            elif self.type == BlockTypes.queryTableEditable.value:
+                page_content = render_table_editable(res)
             elif self.type == BlockTypes.queryKanban.value:
                 page_content = render_kanban(res)
             elif self.type == BlockTypes.queryCards.value:

@@ -11,8 +11,8 @@
       },
       "type": "markdown",
       "id": "346b8887-b58a-4218-a3d4-020cbf585f09",
-      "created_unix": 1738573688.4714372,
-      "updated_unix": 1738573688.471439
+      "created_unix": 1738575709.550401,
+      "updated_unix": 1738575709.5504026
     },
     {
       "contents": "## Sub-projects",
@@ -23,11 +23,11 @@
       },
       "type": "markdown",
       "id": "506dd886-c58c-4786-8af5-6a71ae10be23",
-      "created_unix": 1738573688.47145,
-      "updated_unix": 1738573688.4714506
+      "created_unix": 1738575709.5504143,
+      "updated_unix": 1738575709.5504148
     },
     {
-      "contents": "GROUP SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb\nFROM __all__\nWHERE\n  parents LIKE '%SELF%' AND type = 'project'\nORDER BY\n  type DESC,\n  title_plain ASC",
+      "contents": "GROUP SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb,\n  milestone\nFROM __all__\nWHERE\n  parents LIKE '%SELF%' AND type = 'project'\nORDER BY\n  type DESC,\n  title_plain ASC",
       "author": {
         "app": "account",
         "namespace": null,
@@ -35,8 +35,8 @@
       },
       "type": "query-cards",
       "id": "a5915c1d-b650-4ed1-88f2-80ae0fc8a1cb",
-      "created_unix": 1738573688.472713,
-      "updated_unix": 1738573688.472714
+      "created_unix": 1738575709.5517206,
+      "updated_unix": 1738575709.5517218
     },
     {
       "contents": "## Milestones",
@@ -47,8 +47,8 @@
       },
       "type": "markdown",
       "id": "e9d43e61-9ed4-41bf-bec6-113c52c1d90e",
-      "created_unix": 1738573688.4727309,
-      "updated_unix": 1738573688.472731
+      "created_unix": 1738575709.551741,
+      "updated_unix": 1738575709.5517414
     },
     {
       "contents": "SQL SELECT\n  title,\n  DATE(created) AS created\nFROM milestone\nWHERE\n  type = 'milestone' AND parents LIKE '%SELF%'",
@@ -59,8 +59,8 @@
       },
       "type": "query-table",
       "id": "638a12bf-0243-45b4-9158-deb2fe4b7d05",
-      "created_unix": 1738573688.4735608,
-      "updated_unix": 1738573688.4735615
+      "created_unix": 1738575709.552573,
+      "updated_unix": 1738575709.5525734
     },
     {
       "contents": "## TODO List",
@@ -71,8 +71,8 @@
       },
       "type": "markdown",
       "id": "965239e6-2e30-4e69-9563-8c08fab28e1f",
-      "created_unix": 1738573688.4735768,
-      "updated_unix": 1738573688.4735773
+      "created_unix": 1738575709.552587,
+      "updated_unix": 1738575709.5525873
     },
     {
       "contents": "GROUP SELECT\n  title,\n  status\nFROM task\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  status\nORDER BY\n  title_plain ASC",
@@ -83,8 +83,8 @@
       },
       "type": "query-kanban",
       "id": "727c0758-3b97-464e-a619-b47fe659aa7c",
-      "created_unix": 1738573688.4742262,
-      "updated_unix": 1738573688.4742267
+      "created_unix": 1738575709.5537505,
+      "updated_unix": 1738575709.5537512
     },
     {
       "contents": "GROUP SELECT\n  title,\n  type,\n  backend\nFROM __all__\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  title_plain ASC",
@@ -95,8 +95,32 @@
       },
       "type": "query-table",
       "id": "c26e545b-006f-42d9-8b6b-86667079d5fc",
-      "created_unix": 1738573688.4755733,
-      "updated_unix": 1738573688.4755745
+      "created_unix": 1738575709.5560048,
+      "updated_unix": 1738575709.5560057
+    },
+    {
+      "contents": "## Work Log",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "ae5adaab-878d-4235-b06b-793f35ec0710",
+      "created_unix": 1738575709.5560207,
+      "updated_unix": 1738575709.556021
+    },
+    {
+      "contents": "GROUP SELECT\n  title_plain AS title,\n  url,\n  start_date AS time_start,\n  end_date AS time_end,\n  parent_first_title\nFROM log\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  parent_first_title",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "chart-gantt",
+      "id": "7fade5ab-25cc-433d-9513-185589c48f13",
+      "created_unix": 1738575709.5567648,
+      "updated_unix": 1738575709.5567656
     }
   ],
   "tags": [
@@ -107,7 +131,7 @@
   ],
   "version": 2,
   "created_unix": 1736507101.876954,
-  "updated_unix": 1738340528.6458664,
+  "updated_unix": 1738575471.0291235,
   "namespace": null,
   "type": "project",
   "attachments": []
