@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Form, Response
 from fastapi.responses import RedirectResponse
 import starlette.status as status
 from fastapi.staticfiles import StaticFiles
+from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from boshedron.store import *
 from boshedron.note import Note, MarkdownBlock
@@ -17,7 +18,42 @@ import os
 import sentry_sdk
 import copy
 
-app = FastAPI()
+
+REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
+backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
+bos = Boshedron(backends=backends)
+oe = bos.overlayengine
+oe.load()
+
+
+tags_metadata = [
+    {
+        "name": "system",
+        "description": "Manage the system itself and it's concept of the external world",
+    },
+    {
+        "name": "view",
+        "description": "Render items",
+    },
+    {
+        "name": "mutate",
+        "description": "Create/add/update/delete items",
+    },
+]
+
+app = FastAPI(
+    title=bos.title,
+    description=bos.about,
+    contact={
+        "name": "hexylena",
+        "url": "https://hexylena.galaxians.org/",
+    },
+    license_info={
+        "name": "EUPL-1.2",
+        "url": "https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12",
+    },
+    openapi_tags=tags_metadata
+)
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
 
 
@@ -28,12 +64,6 @@ if 'SENTRY_SDK' in os.environ:
         profiles_sample_rate=1.0,
     )
 
-
-REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
-backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-bos = Boshedron(backends=backends)
-oe = bos.overlayengine
-oe.load()
 
 env = Environment(
     loader=PackageLoader("boshedron", "templates"),
@@ -87,18 +117,18 @@ def render_dynamic(st: WrappedStoredThing):
     return HTMLResponse(page_content)
 
 
-@app.get("/reload")
+
+@app.get("/reload", tags=['system'])
 def reload():
     bos.load()
     return [len(b.data.keys()) for b in oe.backends]
 
-@app.get("/sync")
+@app.get("/sync", tags=['system'])
 def sync():
     for b in oe.backends:
         b.sync()
     bos.load()
     return [len(b.data.keys()) for b in oe.backends]
-
 
 # @app.get("/list")
 # def list() -> list[StoredThing]:
@@ -156,8 +186,8 @@ def extract_contents(data: FormData | TimeFormData, default_author=None):
         }))
     return res
 
-@app.get("/new/{template}", response_class=HTMLResponse)
-@app.get("/new", response_class=HTMLResponse)
+@app.get("/new/{template}", response_class=HTMLResponse, tags=['mutate'])
+@app.get("/new", response_class=HTMLResponse, tags=['mutate'])
 def get_new(template: Optional[str] = None):
     if template is None:
         return render_fixed('new.html')
@@ -175,8 +205,8 @@ def get_new(template: Optional[str] = None):
         assert isinstance(tpl.thing.data, Template)
         return render_fixed('new.html', note_template=tpl.thing.data.instantiate())
 
-@app.post("/new.html")
-@app.post("/new")
+@app.post("/new.html", tags=['mutate'])
+@app.post("/new", tags=['mutate'])
 def save_new(data: Annotated[FormData, Form()]):
     dj = {
         'title': data.title,
@@ -204,7 +234,7 @@ def save_new(data: Annotated[FormData, Form()]):
     res = bos.overlayengine.add(obj, backend=be)
     return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
 
-@app.post("/edit/{urn}")
+@app.post("/edit/{urn}", tags=['mutate'])
 def save_edit(urn: str, data: Annotated[FormData, Form()]):
     u = UniformReference.from_string(urn)
     orig = narrow_thing(oe.find(u))
@@ -232,7 +262,7 @@ def save_edit(urn: str, data: Annotated[FormData, Form()]):
     orig.thing.data.touch()
     return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
-@app.get("/delete_question/{urn}")
+@app.get("/delete_question/{urn}", tags=['mutate'])
 def delete_question(urn: str):
     u = UniformReference.from_string(urn)
     try:
@@ -247,7 +277,7 @@ def delete_question(urn: str):
     return HTMLResponse(page_content)
 
 
-@app.get("/delete/{urn}")
+@app.get("/delete/{urn}", tags=['mutate'])
 def delete(urn: str):
     u = UniformReference.from_string(urn)
     try:
@@ -279,7 +309,7 @@ class PatchTimeFormData(BaseModel):
     start_unix: float
     end_unix: float
 
-@app.patch("/time")
+@app.patch("/time", tags=['mutate'])
 def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     u = UniformReference.from_string(data.urn)
     log = narrow_thing(oe.find(u))
@@ -288,7 +318,7 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     oe.save_thing(log, fsync=False)
     return log
 
-@app.post("/time/continue")
+@app.post("/time/continue", tags=['mutate'])
 def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     u = UniformReference.from_string(data.urn)
     log = narrow_thing(oe.find(u))
@@ -301,8 +331,8 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 
-@app.post("/time.html")
-@app.post("/time")
+@app.post("/time.html", tags=['mutate'])
+@app.post("/time", tags=['mutate'])
 def save_time(data: Annotated[TimeFormData, Form()]):
     if data.urn:
         u = UniformReference.from_string(data.urn)
@@ -332,8 +362,8 @@ def custom_404_handler(request, res):
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
 
-@app.get("/index.html", response_class=HTMLResponse)
-@app.get("/", response_class=HTMLResponse)
+@app.get("/index.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/", response_class=HTMLResponse, tags=['view'])
 def index():
     # try and find an index page
     index = [x for x in oe.all_things() if x.thing.data.type == 'page']
@@ -342,15 +372,15 @@ def index():
 
     return render_dynamic(index[0])
 
-@app.get("/edit/{urn}", response_class=HTMLResponse)
+@app.get("/edit/{urn}", response_class=HTMLResponse, tags=['mutate'])
 def edit_get(urn: str):
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
     return render_fixed('edit.html', note, rewrite=False)
 
 
-@app.get("/redir/{urn}", response_class=HTMLResponse)
-@app.post("/redir/{urn}", response_class=HTMLResponse)
+@app.get("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
+@app.post("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
 def redir(urn: str):
     u = UniformReference.from_string(urn)
     # note = oe.find_thing(u)
@@ -358,14 +388,14 @@ def redir(urn: str):
 
 
 # Eww.
-@app.get("/{a}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse)
-@app.get("/{a}/{b}/{c}/{d}.html", response_class=HTMLResponse)
-@app.get("/{a}/{b}/{c}.html", response_class=HTMLResponse)
-@app.get("/{a}/{b}.html", response_class=HTMLResponse)
-@app.get("/{a}/{b}/{c}/{d}/{e}", response_class=HTMLResponse)
-@app.get("/{a}/{b}/{c}/{d}", response_class=HTMLResponse)
-@app.get("/{a}/{b}/{c}", response_class=HTMLResponse)
-@app.get("/{a}/{b}", response_class=HTMLResponse)
+@app.get("/{a}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{a}/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{a}/{b}/{c}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{a}/{b}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{a}/{b}/{c}/{d}/{e}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{a}/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{a}/{b}/{c}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{a}/{b}", response_class=HTMLResponse, tags=['view'])
 def read_items(a=None, b=None, c=None, d=None, e=None):
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
     p = ['urn', 'boshedron', a, b, p2]
@@ -389,7 +419,7 @@ def read_items(a=None, b=None, c=None, d=None, e=None):
     except KeyError:
         raise HTTPException(status_code=404, detail=f"URN {u} not found")
 
-@app.get('/manifest.json')
+@app.get('/manifest.json', tags=['view'])
 def manifest():
     return {
         "background_color": "#ffffff",
@@ -408,8 +438,8 @@ def manifest():
     }
 
 
-@app.get('/sitesearch.xml')
-def manifest():
+@app.get('/sitesearch.xml', tags=['view'])
+def search():
     data = f"""<?xml version="1.0"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
@@ -425,8 +455,8 @@ def manifest():
     return Response(content=data, media_type="application/opensearchdescription+xml")
 
 
-@app.get("/{page}.html", response_class=HTMLResponse)
-@app.get("/{page}", response_class=HTMLResponse)
+@app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{page}", response_class=HTMLResponse, tags=['view'])
 def fixed_page(page: str):
     page = page.replace('.html', '')
     if page in ('search', 'new', 'time', 'redir'):

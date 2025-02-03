@@ -1,0 +1,55 @@
+{
+  "title": "Editable Tables",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "We need editable tables, that's really a killer feature of notion. That you can sql select some data, and the results you get back, are actually mutable in place. So let's try and implement that.\r\n\r\nLet's build a table real quick with some notable properties:\r\n\r\n- a non mutable field (id)\r\n- a mutable object attribute (title)\r\n- a tag based attribute\r\n- a tag based attribute that I didn't used to fill in automatically so will be missing in places.",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "ea5f52d3-7afd-47ce-9076-b92d280e9408",
+      "created_unix": 1738568315.2472093,
+      "updated_unix": 1738568315.2472103
+    },
+    {
+      "contents": "SQL SELECT\n  id,\n  title,\n  status,\n  priority\nFROM task\nORDER BY\n  id ASC",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "ec633c72-a0ad-4c6d-96db-f92c1c00e077",
+      "created_unix": 1738568315.2479544,
+      "updated_unix": 1738568315.247955
+    },
+    {
+      "contents": "we'll need to \r\n\r\n- [ ] add ID to every query, just, as a dupe, and then extract that into the `ResultSet`\r\n- [ ] add that into the HTML\r\n- [ ] a new /patch route that accepts a tuple `(id, column, value)`\r\n- [ ] JS to enable this",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "5fff7d9e-7ba1-4db2-9120-9876994d9422",
+      "created_unix": 1738568315.247967,
+      "updated_unix": 1738568315.2479675
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1738568194.9313946,
+  "updated_unix": 1738568310.8061414,
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}
