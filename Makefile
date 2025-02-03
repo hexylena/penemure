@@ -1,11 +1,5 @@
-expor:
-	find *.go */*.go projects/ templates/ assets/ | entr -r bash -c "date && go fmt; go build && ./pm export"
-
 serve:
-	find *.go */*.go projects/ templates/ assets/ | entr -r bash -c "date && go fmt; go build && ./pm serve"
+	find boshedron/templates -type f | entr -r fastapi dev server.py
 
-list_go_files:
-	go list -json ./... | jq '[.Dir, .GoFiles] | .[0] + "/" + .[1][] '
-
-fmt:
-	go fmt $$(go list ./...)
+export:
+	python scripts/export.py pub
