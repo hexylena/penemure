@@ -60,6 +60,9 @@ def extract_groups(r: ResultSet, desired_groups: list) -> GroupedResultSet:
             t[sk] = []
         t[sk].append((row_id, row))
 
-    for k, v in t.items():
-        gr.groups.append(ResultSet(title=k, header=r.header, row_ids=v[0], rows=v[1]))
+    for group_name, rows in t.items():
+        gr.groups.append(ResultSet(title=group_name,
+                                   header=r.header,
+                                   row_ids=[x[0] for x in rows],
+                                   rows=[x[1] for x in rows]))
     return gr
