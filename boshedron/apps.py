@@ -20,8 +20,10 @@ class Template(Note):
         return obj
 
     def get_tag_value(self, key, value):
-        t = [x for x in self.tags if x.key == key][0]
-        return t.val.get_tag_value(value)
+        t = [x for x in self.tags if x.key == key]
+        if len(t) > 0:
+            return t[0].val.get_tag_value(value)
+        return value
 
 
 class File(Note):

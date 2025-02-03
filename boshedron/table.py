@@ -121,7 +121,7 @@ def render_cards(results: GroupedResultSet) -> str:
             page_content += f'<div><b>{row[indexes["title"]]}</b></div>'
             page_content += f'<div>{row[indexes["blurb"]]}</div>'
             for other in row[3:]:
-                page_content += f'<div>{other}</div>'
+                page_content += f'<span style="background: red">{other}</span>'
             page_content += f'</a>'
 
             page_content += "</div>"

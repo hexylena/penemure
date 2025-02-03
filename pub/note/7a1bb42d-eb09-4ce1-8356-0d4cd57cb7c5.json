@@ -2,7 +2,7 @@
   "title": "Templates",
   "parents": [
     {
-      "app": "project",
+      "app": "note",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
@@ -21,11 +21,16 @@
       "updated_unix": 1737970169.0
     }
   ],
-  "tags": [],
+  "tags": [
+    {
+      "key": "status",
+      "val": "done"
+    }
+  ],
   "version": 2,
   "created_unix": 1737970169.0,
   "updated_unix": 1737970169.0,
   "namespace": null,
-  "type": "project",
+  "type": "task",
   "attachments": []
 }

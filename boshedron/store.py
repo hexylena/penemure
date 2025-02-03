@@ -81,7 +81,7 @@ class StoredThing(StoredBlob):
     @computed_field
     @property
     def relative_path(self) -> str:
-        return self.identifier.path
+        return self.identifier.path + '.json'
 
     def ref(self) -> UniformReference:
         return self.urn
@@ -297,6 +297,7 @@ class WrappedStoredThing(BaseModel):
 
         # TODO: shadowing?
         for tag in self.thing.data.tags:
+            print(tag, template.title if template else None)
             d[tag.key] = tag.value(template)
 
         # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
