@@ -125,10 +125,16 @@ def reload():
 
 @app.get("/sync", tags=['system'])
 def sync():
+    prev = [len(b.data.keys()) for b in oe.backends]
+    bos.save()
     for b in oe.backends:
         b.sync()
     bos.load()
-    return [len(b.data.keys()) for b in oe.backends]
+    after = [len(b.data.keys()) for b in oe.backends]
+    return {
+        name.name: {'before': b, 'after': a}
+        for name, b, a in zip(oe.backends, prev, after)
+    }
 
 # @app.get("/list")
 # def list() -> list[StoredThing]:
