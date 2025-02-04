@@ -177,7 +177,6 @@ class GitJsonFilesBackend(BaseBackend):
         new_files =  subprocess_check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
         if len(has_changes) > 0 or len(new_files) > 0:
             print(f'{self.path} has changes, {len(has_changes)} || len({new_files})')
-            # subprocess_check_call(['git', 'add', '.'], cwd=self.path)
             subprocess_check_call(['git', 'commit', '-m', 'automatic'], cwd=self.path)
 
         subprocess_check_call(['git', 'pull', '--rebase'], cwd=self.path)
