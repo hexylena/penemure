@@ -106,7 +106,11 @@
 							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>
-								{{ tag.render_input(note.get_template(oe)) }}
+								{% if note.thing.data.type == 'template' %}
+									<input type="text" name="tag_val" placeholder="value" value="{{tag.val_safe | e}}"/>
+								{% else %}
+									{{ tag.render_input(note.get_template(oe)) }}
+								{% endif %}
 							</td>
 						</tr>
 						{% endfor %}

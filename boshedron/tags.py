@@ -37,7 +37,7 @@ class LifecycleEnum(Enum):
 class TemplateValue(BaseModel):
     type: (Literal['enum'] | Literal['status'] | Literal['float'] |
            Literal['urn'] | Literal['date'] | Literal['bool'] | Literal['sql']
-           | Literal['str'] | Literal['iso3166'] | Literal['int'] | Literal['future_date'] | Literal['unix_time'])
+           | Literal['str'] | Literal['iso3166'] | Literal['int'] | Literal['future_date'] | Literal['unix_time'] | Literal['rollup'])
     values: Optional[list[str]] = Field(default_factory=list)
     title: Optional[str] = None
     colors: Optional[list[str]] = None
@@ -110,7 +110,7 @@ class Tag(BaseModel):
         relevant_template_tag = [x for x in template.thing.data.tags if x.key == self.key]
         if len(relevant_template_tag) > 0:
             relevant_template_tag = relevant_template_tag[0]
-            return relevant_template_tag.render_input(self.val)
+            return relevant_template_tag.render_input_rev(self.val)
 
         return f"""<input type="text" name="tag_val" placeholder="value" value="{self.val}"/>"""
 
@@ -335,6 +335,7 @@ class TemplateTag(BaseModel):
     @property
     def val_safe(self):
         return json.dumps(self.val.model_dump())
+
     def instantiate(self) -> Tag:
         # Turn a TemplateTag into a TagTag
 
@@ -351,8 +352,10 @@ class TemplateTag(BaseModel):
     def value(self, template=None):
         return self.val
 
-
     def render_input(self, value):
+        return f"""<input type="text" name="tag_val" placeholder="value" value="{self.val_safe}"/>"""
+
+    def render_input_rev(self, value):
         if self.val.type in ('status', 'enum', 'iso3166') :
             out = """<select name="tag_val">"""
             for option in (self.val.values or []):
@@ -361,6 +364,4 @@ class TemplateTag(BaseModel):
                 else:
                     out += f'<option value="{option}">{option}</option>'
             return out + '</select>'
-
-
         return f"""<input type="text" name="tag_val" placeholder="value" value="{value}"/>"""
