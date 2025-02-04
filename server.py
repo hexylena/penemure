@@ -123,7 +123,7 @@ def reload():
     bos.load()
     return [len(b.data.keys()) for b in oe.backends]
 
-@app.get("/sync", tags=['system'])
+@app.post("/sync", tags=['system'])
 def sync():
     prev = [len(b.data.keys()) for b in oe.backends]
     bos.save()

@@ -252,3 +252,27 @@ input[type="date"] {
 		max-width: 95% !important;
 	}
 }
+
+
+#sync {
+	padding: 0;
+	margin: 0;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	height: 1.45em;
+}
+.spin {
+	animation-name: spin;
+	animation-duration: 4000ms;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+
+@keyframes spin { 
+	from {
+	    transform: rotate(0deg); 
+	} to {
+	    transform: rotate(360deg); 
+	}
+}

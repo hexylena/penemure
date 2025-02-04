@@ -47,6 +47,7 @@
 				<a href="{{ Config.ExportPrefix }}/edit/{{ note.thing.urn.urn }}" title="Edit">📝</a> &nbsp;
 				<a href="{{ Config.ExportPrefix }}/new/{{ note.thing.urn.urn }}" title="Duplicate">➿</a> &nbsp;
 				<a href="{{ Config.ExportPrefix }}/delete_question/{{ note.thing.urn.urn }}" title="Delete">❌</a> &nbsp;
+				<button type="button" title="Sync" id="sync" onclick="sync()">💫</button> &nbsp;
 				{% endif %}
 				<a href="{{ Config.ExportPrefix }}/time{% if note %}?parent={{ note.thing.urn.urn}}&backend={{ note.backend.name }}{% endif %}"
 				   title="Log Time">
@@ -82,9 +83,20 @@ mermaid.initialize({ startOnLoad: true });
 await mermaid.run({
 	querySelector: 'pre.mermaid,pre code.language-mermaid',
 });
+
 </script>
 
 <script>
+async function sync(){
+	document.getElementById('sync').classList.add('spin');
+
+	const response = await fetch("/sync", {
+		method: "POST",
+	});
+	const result = await response.json();
+	alert(JSON.stringify(result));
+	document.getElementById('sync').classList.remove('spin');
+}
 	/*
 navigator.registerProtocolHandler(
   "web+boshedron",
