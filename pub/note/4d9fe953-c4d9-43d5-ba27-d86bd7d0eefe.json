@@ -3,7 +3,7 @@
   "parents": [],
   "contents": [
     {
-      "contents": "# About\r\n\r\n## Explicit Target Audience\r\n\r\nAcademic weapons 🔪✨\r\n\r\n## User Stories\r\n\r\n- I want to quickly add a task to be categorised later, I should just be able to write the title and be done, no other information required.\r\n- I want to create a project\r\n- I want to track a project, split it into subprojects (maybe work packages)\r\n- I want to start a timer when I start working, it should record what I'm working on that I manually enter\r\n- I want to share a grocery list with my partner\r\n\r\n\r\n# Important Links\r\n\r\n- urn:boshedron:note:a238ec94-5136-48c5-8567-7d2644fda113#link\r\n- @c089129b-5bf2-4d3f-b390-da5832d35c35\r\n- @842736ea-a7a8-40ee-92c5-c4c598cb9078\r\n\r\n\r\n",
+      "contents": "# About\r\n\r\n## Explicit Target Audience\r\n\r\nAcademic weapons 🔪✨\r\n\r\n## User Stories\r\n\r\n- I want to quickly add a task to be categorised later, I should just be able to write the title and be done, no other information required.\r\n- I want to create a project\r\n- I want to track a project, split it into subprojects (maybe work packages)\r\n- I want to start a timer when I start working, it should record what I'm working on that I manually enter\r\n- I want to share a grocery list with my partner\r\n\r\n\r\n# Important Links\r\n\r\n- urn:boshedron:note:a238ec94-5136-48c5-8567-7d2644fda113#link\r\n- urn:boshedron:note:71596cb9-e3f4-44b4-9b21-974fff7b5201#link \r\n\r\n\r\n",
       "author": {
         "app": "account",
         "namespace": null,
@@ -11,8 +11,8 @@
       },
       "type": "markdown",
       "id": "346b8887-b58a-4218-a3d4-020cbf585f09",
-      "created_unix": 1738575709.550401,
-      "updated_unix": 1738575709.5504026
+      "created_unix": 1738578994.4348705,
+      "updated_unix": 1738578994.4348714
     },
     {
       "contents": "## Sub-projects",
@@ -23,8 +23,8 @@
       },
       "type": "markdown",
       "id": "506dd886-c58c-4786-8af5-6a71ae10be23",
-      "created_unix": 1738575709.5504143,
-      "updated_unix": 1738575709.5504148
+      "created_unix": 1738578994.434881,
+      "updated_unix": 1738578994.4348812
     },
     {
       "contents": "GROUP SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb,\n  milestone\nFROM __all__\nWHERE\n  parents LIKE '%SELF%' AND type = 'project'\nORDER BY\n  type DESC,\n  title_plain ASC",
@@ -35,8 +35,8 @@
       },
       "type": "query-cards",
       "id": "a5915c1d-b650-4ed1-88f2-80ae0fc8a1cb",
-      "created_unix": 1738575709.5517206,
-      "updated_unix": 1738575709.5517218
+      "created_unix": 1738578994.4359279,
+      "updated_unix": 1738578994.4359283
     },
     {
       "contents": "## Milestones",
@@ -47,8 +47,8 @@
       },
       "type": "markdown",
       "id": "e9d43e61-9ed4-41bf-bec6-113c52c1d90e",
-      "created_unix": 1738575709.551741,
-      "updated_unix": 1738575709.5517414
+      "created_unix": 1738578994.4359412,
+      "updated_unix": 1738578994.4359415
     },
     {
       "contents": "SQL SELECT\n  title,\n  DATE(created) AS created\nFROM milestone\nWHERE\n  type = 'milestone' AND parents LIKE '%SELF%'",
@@ -59,8 +59,8 @@
       },
       "type": "query-table",
       "id": "638a12bf-0243-45b4-9158-deb2fe4b7d05",
-      "created_unix": 1738575709.552573,
-      "updated_unix": 1738575709.5525734
+      "created_unix": 1738578994.436555,
+      "updated_unix": 1738578994.4365556
     },
     {
       "contents": "## TODO List",
@@ -71,8 +71,8 @@
       },
       "type": "markdown",
       "id": "965239e6-2e30-4e69-9563-8c08fab28e1f",
-      "created_unix": 1738575709.552587,
-      "updated_unix": 1738575709.5525873
+      "created_unix": 1738578994.436567,
+      "updated_unix": 1738578994.4365673
     },
     {
       "contents": "GROUP SELECT\n  title,\n  status\nFROM task\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  status\nORDER BY\n  title_plain ASC",
@@ -83,8 +83,8 @@
       },
       "type": "query-kanban",
       "id": "727c0758-3b97-464e-a619-b47fe659aa7c",
-      "created_unix": 1738575709.5537505,
-      "updated_unix": 1738575709.5537512
+      "created_unix": 1738578994.4370992,
+      "updated_unix": 1738578994.4370997
     },
     {
       "contents": "GROUP SELECT\n  title,\n  type,\n  backend\nFROM __all__\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  title_plain ASC",
@@ -95,8 +95,8 @@
       },
       "type": "query-table",
       "id": "c26e545b-006f-42d9-8b6b-86667079d5fc",
-      "created_unix": 1738575709.5560048,
-      "updated_unix": 1738575709.5560057
+      "created_unix": 1738578994.4376638,
+      "updated_unix": 1738578994.437664
     },
     {
       "contents": "## Work Log",
@@ -107,8 +107,8 @@
       },
       "type": "markdown",
       "id": "ae5adaab-878d-4235-b06b-793f35ec0710",
-      "created_unix": 1738575709.5560207,
-      "updated_unix": 1738575709.556021
+      "created_unix": 1738578994.437674,
+      "updated_unix": 1738578994.4376743
     },
     {
       "contents": "GROUP SELECT\n  title_plain AS title,\n  url,\n  start_date AS time_start,\n  end_date AS time_end,\n  parent_first_title\nFROM log\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  parent_first_title",
@@ -119,8 +119,8 @@
       },
       "type": "chart-gantt",
       "id": "7fade5ab-25cc-433d-9513-185589c48f13",
-      "created_unix": 1738575709.5567648,
-      "updated_unix": 1738575709.5567656
+      "created_unix": 1738578994.4382894,
+      "updated_unix": 1738578994.4382899
     }
   ],
   "tags": [
