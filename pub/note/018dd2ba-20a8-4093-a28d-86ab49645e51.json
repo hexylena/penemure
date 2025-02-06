@@ -1,0 +1,31 @@
+{
+  "title": "Gift Ideas ",
+  "parents": [
+    {
+      "app": "note",
+      "namespace": null,
+      "ident": "0d81879a-ac5f-47cd-89b7-ab14393c2baa"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## small\r\n\r\nhttps://gladdendesign.com/products/paper-apps-galaxy",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "0843714a-7217-4aee-8600-8d6ce814b98d",
+      "created_unix": 1738867492.1338904,
+      "updated_unix": 1738867492.1338916
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1738867492.1339457,
+  "updated_unix": 1738867492.1339471,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
