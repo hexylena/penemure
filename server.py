@@ -201,7 +201,7 @@ def get_new(template: Optional[str] = None):
     if template.startswith('urn:boshedron:'):
         # Then they're providing a note ref.
         u = UniformReference.from_string(template)
-        orig = narrow_thing(oe.find(u))
+        orig = oe.find(u)
         return render_fixed('new.html', note_template=orig.thing.data)
 
     tpl = oe.search(type='template', title=template)
@@ -264,7 +264,7 @@ def save_new_multi(data: NewMultiData):
 @app.post("/edit/{urn}", tags=['mutate'])
 def save_edit(urn: str, data: Annotated[FormData, Form()]):
     u = UniformReference.from_string(urn)
-    orig = narrow_thing(oe.find(u))
+    orig = oe.find(u)
     orig.thing.data.title = data.title
     orig.thing.data.type = data.type
     orig.thing.data.set_contents(extract_contents(data))
@@ -312,7 +312,7 @@ def delete(urn: str):
     except KeyError:
         return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
-    orig = narrow_thing(thing)
+    orig = thing
     orig.backend.remove_item(orig.thing)
     return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
@@ -339,7 +339,7 @@ class PatchTimeFormData(BaseModel):
 @app.patch("/time", tags=['mutate'])
 def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     u = UniformReference.from_string(data.urn)
-    log = narrow_thing(oe.find(u))
+    log = oe.find(u)
     log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
     log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
     oe.save_thing(log, fsync=False)
@@ -348,7 +348,7 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
 @app.post("/time/continue", tags=['mutate'])
 def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     u = UniformReference.from_string(data.urn)
-    log = narrow_thing(oe.find(u))
+    log = oe.find(u)
 
     # Copy title, parents only
     new_log = Note(title=log.thing.data.title, type='log')
@@ -363,7 +363,7 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
 def save_time(data: Annotated[TimeFormData, Form()]):
     if data.urn:
         u = UniformReference.from_string(data.urn)
-        log = narrow_thing(oe.find(u))
+        log = oe.find(u)
     else:
         log = Note(title=data.title, type='log')
         be = bos.overlayengine.get_backend(data.backend)

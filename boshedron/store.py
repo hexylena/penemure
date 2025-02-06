@@ -217,7 +217,7 @@ class GitJsonFilesBackend(BaseBackend):
             if isinstance(v, StoredThing):
                 self.save_item(v, fsync=fsync)
 
-    def find(self, identifier: UniformReference) -> Union[StoredThing, StoredBlob]:
+    def find(self, identifier: UniformReference) -> StoredThing:
         if identifier in self.data:
             return self.data[identifier]
 
@@ -226,7 +226,7 @@ class GitJsonFilesBackend(BaseBackend):
                 return ref
         raise KeyError(f"Could not find {identifier.ident}")
 
-    def find_s(self, identifier: str) -> StoredThing | StoredBlob:
+    def find_s(self, identifier: str) -> StoredThing:
         ufr = UniformReference.from_string(identifier)
         return self.find(ufr)
 
@@ -237,7 +237,7 @@ class GitJsonFilesBackend(BaseBackend):
     def has(self, identifier: UniformReference):
         return identifier in self.data
 
-    def resolve(self, ref: UniformReference) -> Union[StoredThing, StoredBlob]:
+    def resolve(self, ref: UniformReference) -> StoredThing:
         return self.find(ref)
 
     def load(self):
@@ -256,14 +256,6 @@ class GitJsonFilesBackend(BaseBackend):
             st = StoredThing.realise_from_path(self.path, path)
 
             self.data[st.identifier] = st
-
-
-class WrappedStored(BaseModel):
-    thing: StoredThing | StoredBlob
-    backend: Optional[GitJsonFilesBackend] = None
-
-    def not_blob(self):
-        return isinstance(self.thing, StoredThing)
 
 
 class WrappedStoredThing(BaseModel):
@@ -321,12 +313,6 @@ class WrappedStoredThing(BaseModel):
         d['ancestors'] = ' '.join(set(ancestors))
         return d
 
-def narrow_thing(s: WrappedStored) -> WrappedStoredThing:
-    if isinstance(s.thing, StoredThing):
-        return WrappedStoredThing(thing=s.thing, backend=s.backend)
-    raise OnlyNonBlobs("This is a blob")
-
-
 
 class OverlayEngine(BaseModel):
     backends: list[GitJsonFilesBackend]
@@ -335,19 +321,19 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             backend.load()
 
-    def find(self, identifier: (UniformReference | str)) -> WrappedStored:
+    def find(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
         # Find the first version of this from all of our backends, to enable shadowing.
         for backend in self.backends:
             try:
                 if isinstance(identifier, str):
-                    return WrappedStored(thing=backend.find_s(identifier), backend=backend)
-                return WrappedStored(thing=backend.find(identifier), backend=backend)
+                    return WrappedStoredThing(thing=backend.find_s(identifier), backend=backend)
+                return WrappedStoredThing(thing=backend.find(identifier), backend=backend)
             except KeyError:
                 pass
         raise KeyError(f"Cannot find {identifier}")
 
     def migrate_backend(self, identifier: (UniformReference | str), backend: GitJsonFilesBackend) -> None:
-        ws = narrow_thing(self.find(identifier))
+        ws = self.find(identifier)
         return self.migrate_backend_thing(ws=ws, backend=backend)
 
     def migrate_backend_thing(self, ws: WrappedStoredThing, backend: GitJsonFilesBackend) -> None:
@@ -365,10 +351,10 @@ class OverlayEngine(BaseModel):
         ws.backend.remove_item(ws.thing, fsync=False)
 
     def find_thing(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
-        return narrow_thing(self.find(identifier=identifier))
+        return self.find(identifier=identifier)
 
-    def get_path(self, st: Union[StoredThing, StoredBlob, WrappedStored, WrappedStoredThing]) -> str:
-        if isinstance(st, WrappedStored) or isinstance(st, WrappedStoredThing):
+    def get_path(self, st: Union[StoredThing, WrappedStoredThing]) -> str:
+        if isinstance(st, WrappedStoredThing):
             ident = st.thing.identifier
         else:
             ident = st.identifier
@@ -380,12 +366,12 @@ class OverlayEngine(BaseModel):
                 pass
         raise KeyError(f"Cannot find {ident}")
 
-    def all(self) -> list[WrappedStored]:
+    def all(self) -> list[WrappedStoredThing]:
         t = [self.find(k) for k in self.keys()]
         return t
 
     def all_things(self) -> list[WrappedStoredThing]:
-        return [narrow_thing(x) for x in self.all() if x.not_blob()]
+        return [x for x in self.all()]
 
     def keys(self) -> set[UniformReference]:
         all_keys = set()
@@ -709,7 +695,7 @@ class OverlayEngine(BaseModel):
         else:
             for p_urn in parents:
                 try:
-                    p = narrow_thing(self.find(p_urn))
+                    p = self.find(p_urn)
                     if lineage is not None:
                         yield from self.get_lineage(p, lineage=lineage + [p.thing.urn])
                     else:
