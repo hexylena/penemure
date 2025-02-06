@@ -288,7 +288,11 @@ class WrappedStoredThing(BaseModel):
 
         # TODO: shadowing?
         for tag in self.thing.data.tags:
-            d[tag.key] = tag.value(template)
+            vv = tag.value(template)
+            if isinstance(vv, datetime.datetime):
+                d[tag.key] = vv.strftime('%Y-%m-%dT%H:%M:%S')
+            else:
+                d[tag.key] = vv
 
         # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'

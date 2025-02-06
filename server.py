@@ -6,7 +6,6 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from boshedron.store import *
 from boshedron.note import Note, MarkdownBlock
-from boshedron.tags import LifecycleEnum
 from boshedron.refs import UniformReference, UnresolvedReference
 from boshedron.apps import *
 from boshedron.errr import *

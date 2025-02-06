@@ -40,7 +40,15 @@
 		<td><a class="urn" href="{{ note.thing.urn.urn }}#url">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
 		<td>{{ note.thing.data.type }}</td>
 		<td>{% if note.thing.data.has_tag('status') %}{{ note.thing.data.get_tag('status').render(note.get_template(oe)) }}{% endif %}</td>
-		<td>{% for tag in note.thing.data.tags %}{{ tag.render(note.get_template(oe), standalone=True) }}{% endfor %}</td>
+		<td>
+			<div class="pills">
+			{% for tag in note.thing.data.tags %}
+				{% if tag.key != 'status' %}
+				{{ tag.render(note.get_template(oe), standalone=True) }}
+				{% endif %}
+			{% endfor %}
+			</div>
+		</td>
 		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.urn }}#url">{{ c.urn }}#title</a>{% endfor %}</td>
 		<td>{{ note.backend.name }}</td>
 	</tr>
@@ -130,4 +138,15 @@ if (paramSearch) {
 	search()
 }
 </script>
+
+<style>
+.pills {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: 20em;
+}
+.tag {
+	white-space: nowrap;
+}
+</style>
 {% endblock %}

@@ -242,9 +242,7 @@ class Note(ChangeDetectionMixin, BaseModel):
         if self.type == "project":
             return "📁"
         elif self.type == "task":
-            tag = self.get_tag(key='status')
-            if tag is not None:
-                return tag.icon
+            return "📝" # TODO: refactor for accessing via icon render functions.
         elif self.type == "account":
             return "👩‍🦰"
         elif self.type in ('note', 'page'):

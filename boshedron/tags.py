@@ -13,29 +13,6 @@ from .util import *
 FIELD_SEP = chr(0x001E)
 
 
-class LifecycleEnum(Enum):
-    backlog = 'backlog'
-    planning = 'planning'
-    inprogress = 'in-progress'
-    blocked = 'blocked'
-    paused = 'paused'
-    done = 'done'
-    canceled = 'canceled'
-
-    @property
-    def html_icon(self):
-        if self == LifecycleEnum.done:
-            return "✅"
-        elif self == LifecycleEnum.inprogress or self == LifecycleEnum.planning:
-            return "🚧"
-        elif self == LifecycleEnum.blocked:
-            return "🚫"
-        elif self == LifecycleEnum.canceled:
-            return "❌"
-        else:
-            return "📝"
-
-
 class TemplateValue(BaseModel):
     type: (Literal['enum'] | Literal['status'] | Literal['float'] |
            Literal['urn'] | Literal['date'] | Literal['bool'] | Literal['sql']
@@ -99,6 +76,14 @@ class Tag(BaseModel):
             return template.get_tag_value(self.key, self.val)
         return self.val
 
+    def render_key(self, template=None):
+        if template:
+            relevant_template_tag = [x for x in template.thing.data.tags if x.key == self.key]
+            if len(relevant_template_tag) > 0:
+                relevant_template_tag = relevant_template_tag[0]
+                return relevant_template_tag.val.title or relevant_template_tag.key
+        return self.key
+
     def render(self, template, standalone=False):
         if template:
             # TODO: this needs knowledge of the template for e.g. colors
@@ -110,7 +95,7 @@ class Tag(BaseModel):
         if hasattr(self.val, 'html_icon'):
             icon = getattr(self.val, 'html_icon', '!!')
         else:
-            icon = self.icon
+            icon = ''
 
         if standalone:
             return f'<span class="tag">{icon} {self.key}={ellips(self.val)}</span>'
@@ -127,22 +112,6 @@ class Tag(BaseModel):
             return relevant_template_tag.render_input_rev(self.val)
 
         return f"""<input type="text" name="tag_val" placeholder="value" value="{self.val}"/>"""
-
-    @property
-    def icon(self) -> str:
-        if self.key == 'status':
-            if self.val == 'done':
-                return "✅"
-            elif self.val in ('inprogress', 'planning', 'backlog'):
-                return "🚧"
-            elif self.val == 'blocked':
-                return "🚫"
-            elif self.val in ('canceled', 'cancelled'):
-                return "❌"
-            else:
-                return "📝"
-
-        return '‽'
 
 
 # Here's notions: https://www.notion.com/help/database-properties
@@ -194,6 +163,9 @@ class TemplateTag(BaseModel):
     def value(self, template=None):
         return self.val
 
+    def render_key(self, template=None):
+        return self.key
+
     def render_input(self, value):
         return f"""<input type="text" name="tag_val" placeholder="value" value="{self.val_safe}"/>"""
 
@@ -227,8 +199,23 @@ class TemplateTag(BaseModel):
             return f'<span class="tag">{y}{get_time(value).strftime("%Y %b %d")}</span>'
         elif self.val.type == 'unix_time':
             return f'<span class="tag">{y}{get_time(value).strftime("%Y %b %d %H:%M")}</span>'
+        elif self.val.type == 'status':
+            icon = {
+                'done': "✅",
+                'inprogress': "🚧",
+                'planning': "🚧",
+                'backlog': "🚧",
+                'blocked': "🚫",
+                'canceled': "❌",
+                'cancelled': "❌"
+            }
+            zicon = icon.get(value, "📝")
+            if standalone:
+                return f'<span class="tag">{y}{value}</span>'
+            else:
+                return f'<span class="tag">{zicon} {value}</span>'
 
-        return f'<span class="tag" style="background: {color}">{y}{ellips(value)}</span>'
+        return f'<span class="tag">‽ {value}</span>'
 
     def render_input_rev(self, value):
         if self.val.type in ('status', 'enum', 'iso3166') :

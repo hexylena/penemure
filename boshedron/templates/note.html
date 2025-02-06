@@ -61,7 +61,8 @@
 
 	{% for tag in note.thing.data.tags %}
 	<tr>
-		<td scope="row">{{ tag.html_icon }} {{ tag.key }}</td>
+		<td scope="row">{{ tag.html_icon }} {{ tag.render_key(note.get_template(oe)) }}</td>
+
 		{% if note.thing.data.type == 'template' %}
 		<td>{{ tag.render() }}</td>
 		{% else %}
@@ -79,6 +80,13 @@
 		<td scope="row">📅 Modified</td>
 		<td>{{ note.thing.data.updated }}</td>
 	</tr>
+
+	{% if note.get_template(oe) %}
+	<tr>
+		<td scope="row"> Template</td>
+		<td>{{ note.get_template(oe).thing.urn.urn }}#link</td>
+	</tr>
+	{% endif %}
 
 	</tbody>
 </table>
