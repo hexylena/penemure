@@ -91,10 +91,11 @@ class MarkdownBlock(BaseModel):
         return d
 
     def render(self, oe, path, parent):
+        import traceback
         try:
             return self._render(oe, path, parent)
         except Exception as e:
-            return f'Error: {e}'
+            return f'Error: {e} <details><summary>Traceback</summary><pre>{traceback.format_exc()}</pre></details>'
 
     def _render(self, oe, path, parent):
         # if isinstance(self.type, str):

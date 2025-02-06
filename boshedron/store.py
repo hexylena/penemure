@@ -154,7 +154,7 @@ class BaseBackend(BaseModel):
 
 
 class GitJsonFilesBackend(BaseBackend):
-    data: Dict[UniformReference, Union[StoredThing, StoredBlob]] = Field(default=dict())
+    data: Dict[UniformReference, StoredThing] = Field(default=dict())
     last_update: PastDatetime = None
     latest_commit: str = None
 
@@ -242,7 +242,7 @@ class GitJsonFilesBackend(BaseBackend):
 
     def load(self):
         self.data = {}
-        for path in glob.glob(self.path + '/**/*', recursive=True):
+        for path in glob.glob(self.path + '/**/*.json', recursive=True):
             if os.path.isdir(path):
                 continue
 
@@ -250,10 +250,10 @@ class GitJsonFilesBackend(BaseBackend):
             if path.replace(self.path.rstrip('/') + '/', '') == 'meta.json':
                 continue
 
-            if 'file/blob/' in path:
-                st = StoredBlob.realise_from_path(self.path, path)
-            else:
-                st = StoredThing.realise_from_path(self.path, path)
+            # if 'file/blob/' in path:
+            #     st = StoredBlob.realise_from_path(self.path, path)
+            # else:
+            st = StoredThing.realise_from_path(self.path, path)
 
             self.data[st.identifier] = st
 
@@ -492,11 +492,11 @@ class OverlayEngine(BaseModel):
         # Saves less time than I thought. hmm.
         # return self._make_a_db(ensure_present)
         if self._cache is None or any([x.thing.data.model_has_changed for x in self.all_things()]):
-            print("Loading SQL DB")
+            # print("Loading SQL DB")
             res = self._make_a_db(ensure_present)
             a = time.time()
             self._cache = res
-            print(f"Created HASH in {time.time() - a}")
+            # print(f"Created HASH in {time.time() - a}")
             if self._enable_sqlite:
                 a = time.time()
                 for table, rows in res.items():
@@ -519,11 +519,11 @@ class OverlayEngine(BaseModel):
                     stmt = f"INSERT INTO {table} VALUES({', '.join(qqkeys)})"
                     self._cache_sqlite.executemany(stmt, data)
                 self._cache_sqlite.commit()
-                print(f"Created SQLITE3 DB in {time.time() - a}")
+                # print(f"Created SQLITE3 DB in {time.time() - a}")
 
             return res
         else:
-            print("Using cached SQL DB")
+            # print("Using cached SQL DB")
             return self._cache
 
     def _make_a_db(self, ensure_present):
@@ -608,7 +608,7 @@ class OverlayEngine(BaseModel):
 
     def fmt_query(self, query):
         qtype, qselect = self.query_type(query)
-        print('fmt query', qtype, qselect)
+        # print('fmt query', qtype, qselect)
         return qtype + ' ' +transpile(qselect, pretty=True)[0]
 
     def query(self, query, via=None, sql=False) -> Optional[GroupedResultSet]:
@@ -627,14 +627,14 @@ class OverlayEngine(BaseModel):
             query = query.replace('SELF', via.ident)
 
         res = parse_one(query)
-        print(res.sql())
+        # print(res.sql())
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
         selects = [x.this.this for x in list(res.find_all(exp.Column))]
-        print('before', selects)
+        # print('before', selects)
         if len(selects) > 0:
             selects = [x.sql() for x in res]
-        print('after', selects)
+        # print('after', selects)
         tables = self.make_a_db(selects)
 
         # TODO: add any group by clauses to the select, otherwise we won't get
@@ -658,13 +658,23 @@ class OverlayEngine(BaseModel):
             # >>> res.args['expressions'].append(parse_one('id AS __internal__'))
             # I don't think this will handle CTEs well, so let's restrict it to GROUP sqlss
             groupless_query.args['expressions'].append(parse_one('id AS _internal_id_'))
+
+            # TODO: Let's also be sure that the grouping expression is included, in case the user does a 
+            # 'select title from __all__ group by type'
+            # where we do fake sql and thus the grouping fails.
+
+            # print(desired_groups, selects)
+
+            # groupless_query.args['expressions'].append(parse_one('id AS _internal_id_'))
+
+            # And turn it into sql properly
             groupless_query = groupless_query.sql()
 
-        print(f'=> {groupless_query}')
+        # print(f'=> {groupless_query}')
 
-        a = time.time()
+        # a = time.time()
         results = self._cache_sqlite.execute(groupless_query)
-        print(f'Executed query in {time.time() - a}')
+        # print(f'Executed query in {time.time() - a}')
         header = [x.split(' AS ')[1] if ' AS ' in x else x for x in selects]
         r = ResultSet.build(header, list(results), has_id=not(sql))
         # r = ResultSet(title=None, header=header, rows=list(results))

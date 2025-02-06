@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, NaiveDatetime
+import hashlib
 import json
 from typing import Literal
 from pydantic import ConfigDict
@@ -7,6 +8,7 @@ from enum import Enum
 import datetime
 from zoneinfo import ZoneInfo
 from .refs import *
+from .util import *
 
 FIELD_SEP = chr(0x001E)
 
@@ -37,10 +39,10 @@ class LifecycleEnum(Enum):
 class TemplateValue(BaseModel):
     type: (Literal['enum'] | Literal['status'] | Literal['float'] |
            Literal['urn'] | Literal['date'] | Literal['bool'] | Literal['sql']
-           | Literal['str'] | Literal['iso3166'] | Literal['int'] | Literal['future_date'] | Literal['unix_time'] | Literal['rollup'])
+           | Literal['str'] | Literal['iso3166'] | Literal['int'] | Literal['future_date'] | Literal['unix_time'] | Literal['rollup'] | Literal['tags'])
     values: Optional[list[str]] = Field(default_factory=list)
     title: Optional[str] = None
-    colors: Optional[list[str]] = None
+    colors: Optional[list[str] | str] = None
     default: Optional[Any] = None
     n_max: int = 1
     n_min: int = 1
@@ -97,11 +99,23 @@ class Tag(BaseModel):
             return template.get_tag_value(self.key, self.val)
         return self.val
 
-    def render(self):
+    def render(self, template, standalone=False):
+        if template:
+            # TODO: this needs knowledge of the template for e.g. colors
+            relevant_template_tag = [x for x in template.thing.data.tags if x.key == self.key]
+            if len(relevant_template_tag) > 0:
+                relevant_template_tag = relevant_template_tag[0]
+                return relevant_template_tag.render_rev(self.val, standalone=standalone)
+
         if hasattr(self.val, 'html_icon'):
-            return getattr(self.val, 'html_icon', '!!') + " " + str(self.val)
-        # TODO: this needs knowledge of the template for e.g. colors
-        return f'<span class="tag" title="{self.key}">{self.icon} {self.val}</span>'
+            icon = getattr(self.val, 'html_icon', '!!')
+        else:
+            icon = self.icon
+
+        if standalone:
+            return f'<span class="tag">{icon} {self.key}={ellips(self.val)}</span>'
+        else:
+            return f'<span class="tag" title="{self.key}">{icon} {ellips(self.val)}</span>'
 
     def render_input(self, template):
         if template is None:
@@ -130,178 +144,6 @@ class Tag(BaseModel):
 
         return '‽'
 
-
-#
-#     @property
-#     def html_icon(self) -> str:
-#         if self.title == "Status":
-#             return "🚦"
-#         elif self.title == "Assignee" or self.title == "assignee":
-#             return "👤"
-#         elif self.title == "Author":
-#             return "👤"
-#         elif self.title == "Tags":
-#             return "🏷"
-#         elif self.title == "Due":
-#             return "📅"
-#         elif self.title == "Estimate":
-#             return "⏱"
-#         elif self.type == "time":
-#             return "⏱"
-#         elif self.title == "Priority":
-#             return "🔥"
-#         elif self.title == "Effort":
-#             return "🏋️"
-#         elif self.title == "Progress":
-#             return "📈"
-#         elif self.title == "Start":
-#             return "🏁"
-#         elif self.title == "End":
-#             return "🏁"
-#         elif self.title == "Created":
-#             return "📅"
-#         elif self.title == "Modified":
-#             return "📅"
-#         elif self.title == "Completed":
-#             return "📅"
-#         elif self.title == "Blocked":
-#             return "🚫"
-#         elif self.title == "Blocking":
-#             return "🚫"
-#
-#         return ""
-#
-#     # https://github.com/pydantic/pydantic/discussions/3091
-#     # @staticmethod
-#     # def from_dict(obj: dict[str, Any]):
-#     #     m = {x.model_fields['type'].default: x for x in Tag.get_subclasses()}
-#     #     if 'type' not in obj:
-#     #         raise ValueError("Missing type attribute of object")
-#     #
-#     #     if obj['type'] not in m:
-#     #         raise ValueError("Unknown model")
-#     #
-#     #     return m[obj['type']].model_validate(obj)
-#     #
-#     # https://github.com/pydantic/pydantic/discussions/3091
-#     @classmethod
-#     def get_subclasses(cls):
-#         return tuple(cls.__subclasses__())
-#     #
-#     # # https://github.com/pydantic/pydantic/discussions/3091
-#     # @classmethod
-#     # def model_validate(cls, obj, *args, **kwargs):
-#     #     if cls.__name__ == "Tag":
-#     #       return Tag.from_dict(obj, *args, **kwargs)
-#     #     return super().model_validate(obj, *args, **kwargs)
-#
-#
-# # class LifecycleTag(Tag):
-# #     type: Literal['status'] = 'status'
-# #     title: str = 'Status'
-# #     value: LifecycleEnum
-# #
-# #     @property
-# #     def html_icon(self):
-# #         return "🚦"
-# #
-# #     def value_icon(self):
-# #         if self.value == 'done':
-# #             return "✅"
-# #         elif self.value == 'in-progress' or self == 'planning':
-# #             return "🏃‍♀️"
-# #         elif self.value == 'blocked':
-# #             return "🚧"
-# #         elif self.value == 'canceled':
-# #             return "🚫"
-# #         else:
-# #             return "📝"
-# #
-# #     def render(self):
-# #         if self.value_icon() is not None:
-# #             return f'<span class="tag">{self.value_icon()} {self.value}</span>'
-# #         return str(self.value)
-# #
-# # class DateTimeTag(Tag):
-# #     type: Literal['date'] = 'date'
-# #     title: str = 'Date'
-# #     timezone: str = 'Europe/Amsterdam'
-# #     value: NaiveDatetime = Field(default_factory=lambda: datetime.now())
-# #
-# #     @property
-# #     def datetime(self):
-# #         return self.value.astimezone(ZoneInfo(self.timezone))
-# #
-# #     def render(self):
-# #         return f'<span class="tag">{self.type}:{self.value} {self.timezone}</span>'
-# #
-# #     @property
-# #     def html_icon(self):
-# #         return "📅"
-# #
-# # class ReferenceTag(Tag):
-# #     type: Literal['reference'] = 'reference'
-# #     value: UniformReference
-# #     title: str = 'Reference'
-# #
-# #     @property
-# #     def html_icon(self):
-# #         return "👤"
-# #
-# #     def render(self):
-# #         return self.value.urn
-# #
-# # class IdTag(Tag):
-# #     type: Literal['id'] = 'id'
-# #     value: int
-# #     group: str
-# #     title: str = '№'
-# #
-# #     def render(self):
-# #         return f"{self.group}-{self.value}"
-# #
-# #
-# # class NumericTag(Tag):
-# #     type: Literal['numeric'] = 'numeric'
-# #     value: float
-# #     fmt: str = '{:0.2f}'
-# #     title: str = 'Number'
-# #
-# #     def render(self):
-# #         return self.fmt.format(self.value)
-# #
-# # class TextTag(Tag):
-# #     type: Literal['text'] = 'text'
-# #     value: str = ''
-# #     title: str = 'Text'
-# #
-# #     @property
-# #     def html_icon(self) -> str:
-# #         return "📝"
-# #
-# # class DescriptionTag(Tag):
-# #     type: Literal['description'] = 'description'
-# #     value: str = ''
-# #     title: str = 'Description'
-# #
-# #
-# # class IconTag(Tag):
-# #     type: Literal['icon'] = 'icon'
-# #     title: str = 'Icon'
-# #     value: str = ''
-# #
-# #     @property
-# #     def html_icon(self) -> str:
-# #         return str(self.value)
-# #
-# #     # def render(self):
-# #     #     return f'<span class="icon">{self.value_icon()}</span>'
-# #
-# #
-# # class TemplateTag(Tag):
-# #     type: Literal['template'] = 'template'
-# #     value: str = 'note.html'
-# #     title: str = 'Template'
 
 # Here's notions: https://www.notion.com/help/database-properties
 #
@@ -343,10 +185,10 @@ class TemplateTag(BaseModel):
         t = Tag(key=self.key, val=val)
         return t
 
-    def render(self):
-        if hasattr(self.val, 'html_icon'):
-            return getattr(self.val, 'html_icon', '!!') + " " + str(self.val)
-        return f'<span class="template tag">{self.val}</span>'
+    def render(self, _template=None, standalone=False):
+        if standalone:
+            return f'<span class="template tag">{self.key}:{ellips(self.val)}</span>'
+        return f'<span class="template tag">{ellips(self.val)}</span>'
 
     # purposely shadow .value on a real tag.
     def value(self, template=None):
@@ -354,6 +196,39 @@ class TemplateTag(BaseModel):
 
     def render_input(self, value):
         return f"""<input type="text" name="tag_val" placeholder="value" value="{self.val_safe}"/>"""
+
+    def tag_color(self, val):
+        if self.val.colors == 'hashed_value':
+            m = hashlib.sha256()
+            m.update(val.encode('utf-8'))
+            m.digest()
+            d = int.from_bytes(m.digest()[0:2]) % 360
+            x = int.from_bytes(m.digest()[3:5]) % 30
+            return f'hsl({d}deg 75% {65 + x}%)'
+        elif isinstance(self.val.colors, list):
+            return self.val.colors[self.val.values.index(val)]
+
+        return 'transparent'
+
+    def render_rev(self, value, standalone=False):
+        y = ''
+        if standalone:
+            y = self.key + '='
+
+        color = self.tag_color(value)
+
+        if self.val.type == 'tags':
+            res = ''
+            for x in value.split(' '):
+                c = self.tag_color(x)
+                res += f'<span class="tag" style="background: {c}">{x}</span>'
+            return res
+        elif self.val.type == 'future_date':
+            return f'<span class="tag">{y}{get_time(value).strftime("%Y %b %d")}</span>'
+        elif self.val.type == 'unix_time':
+            return f'<span class="tag">{y}{get_time(value).strftime("%Y %b %d %H:%M")}</span>'
+
+        return f'<span class="tag" style="background: {color}">{y}{ellips(value)}</span>'
 
     def render_input_rev(self, value):
         if self.val.type in ('status', 'enum', 'iso3166') :

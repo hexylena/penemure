@@ -2,6 +2,7 @@ import zoneinfo
 import subprocess
 import datetime
 import os
+import datetime
 
 try:
     LOCAL_ZONE = zoneinfo.ZoneInfo("localtime")
@@ -40,3 +41,25 @@ def sqlite3_type(val):
 
     # print(str(type(val)))
     return val
+
+def ellips(val, l=20):
+    if val:
+        if len(str(val)) > 20:
+            return str(val)[0:20] + '…'
+    return val
+
+
+TRY_FORMATS = ['%Y-%m-%d %H:%M:%S.%f%z', 
+               '%Y-%m-%d %H:%M:%S%z', '%Y-%m-%d %H:%M:%S',
+               '%Y-%m-%d']
+def get_time(t):
+    try:
+        return datetime.datetime.fromtimestamp(float(t))
+    except ValueError:
+        pass
+    for fmt in TRY_FORMATS:
+        try:
+            return datetime.datetime.strptime(t, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"Unparseable time: {t}")

@@ -62,7 +62,11 @@
 	{% for tag in note.thing.data.tags %}
 	<tr>
 		<td scope="row">{{ tag.html_icon }} {{ tag.key }}</td>
+		{% if note.thing.data.type == 'template' %}
 		<td>{{ tag.render() }}</td>
+		{% else %}
+		<td>{{ tag.render(note.get_template(oe)) }}</td>
+		{% endif %}
 	</tr>
 	{% endfor %}
 

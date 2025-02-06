@@ -1,5 +1,5 @@
 from .sqlish import GroupedResultSet
-import datetime
+from .util import *
 
 
 def render_table(results: GroupedResultSet) -> str:
@@ -86,15 +86,6 @@ def get_index(group, col):
         except ValueError:
             return None
 
-def get_time(t):
-    try:
-        return datetime.datetime.strptime(t, '%s')
-    except ValueError:
-        try:
-            return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S.%f%z')
-        except ValueError:
-            return datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S%z')
-
 def render_gantt(results: GroupedResultSet) -> str:
     page_content = f'<pre class="mermaid">gantt\n    dateFormat X\n     axisFormat %b %dm- %Hh%M\n    title Gantt\n'
     for group in results.groups:
@@ -106,8 +97,7 @@ def render_gantt(results: GroupedResultSet) -> str:
             k: get_index(group, k)
             for k in ('url', 'time_start', 'time_end', 'title')
         }
-        print(group)
-
+        # print(group)
         # TODO: active, done, crit, milestone are valid tags.
         for row_id, row in group.enum():
             time_start = get_time(row[indexes['time_start']])

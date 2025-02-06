@@ -3,7 +3,7 @@
   "parents": [],
   "contents": [
     {
-      "contents": "The current list of blog posts can be found below, they’re all “children” of this “project”.",
+      "contents": "The current list of blog posts can be found below, they’re all “children” of this “project” (urn:boshedron:note:4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe#link)",
       "author": {
         "app": "account",
         "namespace": null,
@@ -11,11 +11,11 @@
       },
       "type": "markdown",
       "id": "a1ff96f6-4803-4425-80f5-f99b67189f84",
-      "created_unix": 1737890792.998537,
-      "updated_unix": 1737890792.998538
+      "created_unix": 1738841088.088148,
+      "updated_unix": 1738841088.088149
     },
     {
-      "contents": "SELECT\n  title,\n  created,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nORDER BY\n  created ASC",
+      "contents": "SQL SELECT\n  title,\n  created,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nORDER BY\n  created ASC",
       "author": {
         "app": "account",
         "namespace": null,
@@ -23,14 +23,14 @@
       },
       "type": "chart-table",
       "id": "367f5e1e-8deb-4688-a702-cb751ec75a46",
-      "created_unix": 1737890792.998541,
-      "updated_unix": 1737890792.998541
+      "created_unix": 1738841088.0886993,
+      "updated_unix": 1738841088.0887
     }
   ],
   "tags": [],
   "version": 2,
   "created_unix": 1737549343.534218,
-  "updated_unix": 1737549343.534224,
+  "updated_unix": 1738841074.139317,
   "namespace": null,
   "type": "project",
   "attachments": []
