@@ -11,8 +11,8 @@
       },
       "type": "markdown",
       "id": "346b8887-b58a-4218-a3d4-020cbf585f09",
-      "created_unix": 1738863761.990444,
-      "updated_unix": 1738863761.9904459
+      "created_unix": 1738864026.0278625,
+      "updated_unix": 1738864026.0505435
     },
     {
       "contents": "## Sub-projects",
@@ -23,8 +23,8 @@
       },
       "type": "markdown",
       "id": "506dd886-c58c-4786-8af5-6a71ae10be23",
-      "created_unix": 1738863761.9904559,
-      "updated_unix": 1738863761.9904563
+      "created_unix": 1738864026.027884,
+      "updated_unix": 1738864026.050558
     },
     {
       "contents": "GROUP SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb,\n  milestone\nFROM __all__\nWHERE\n  parents LIKE '%SELF%' AND type = 'project'\nORDER BY\n  type DESC,\n  title_plain ASC",
@@ -35,8 +35,8 @@
       },
       "type": "query-cards",
       "id": "a5915c1d-b650-4ed1-88f2-80ae0fc8a1cb",
-      "created_unix": 1738863761.991296,
-      "updated_unix": 1738863761.9912963
+      "created_unix": 1738864026.0300312,
+      "updated_unix": 1738864026.0505672
     },
     {
       "contents": "## Milestones",
@@ -47,8 +47,8 @@
       },
       "type": "markdown",
       "id": "e9d43e61-9ed4-41bf-bec6-113c52c1d90e",
-      "created_unix": 1738863761.9913075,
-      "updated_unix": 1738863761.9913077
+      "created_unix": 1738864026.0300598,
+      "updated_unix": 1738864026.0505743
     },
     {
       "contents": "SQL SELECT\n  title,\n  DATE(created) AS created\nFROM milestone\nWHERE\n  type = 'milestone' AND parents LIKE '%SELF%'",
@@ -59,8 +59,8 @@
       },
       "type": "query-table",
       "id": "638a12bf-0243-45b4-9158-deb2fe4b7d05",
-      "created_unix": 1738863761.9917474,
-      "updated_unix": 1738863761.9917476
+      "created_unix": 1738864026.0314054,
+      "updated_unix": 1738864026.050582
     },
     {
       "contents": "## TODO List",
@@ -71,8 +71,8 @@
       },
       "type": "markdown",
       "id": "965239e6-2e30-4e69-9563-8c08fab28e1f",
-      "created_unix": 1738863761.9917564,
-      "updated_unix": 1738863761.9917564
+      "created_unix": 1738864026.031432,
+      "updated_unix": 1738864026.050589
     },
     {
       "contents": "GROUP SELECT\n  title,\n  status\nFROM task\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  status\nORDER BY\n  title_plain ASC",
@@ -83,8 +83,8 @@
       },
       "type": "query-kanban",
       "id": "727c0758-3b97-464e-a619-b47fe659aa7c",
-      "created_unix": 1738863761.9921682,
-      "updated_unix": 1738863761.9921684
+      "created_unix": 1738864026.0326002,
+      "updated_unix": 1738864026.0505967
     },
     {
       "contents": "GROUP SELECT\n  title,\n  type,\n  backend\nFROM __all__\nWHERE\n  ancestors LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  title_plain ASC",
@@ -95,8 +95,8 @@
       },
       "type": "query-table",
       "id": "c26e545b-006f-42d9-8b6b-86667079d5fc",
-      "created_unix": 1738863761.992594,
-      "updated_unix": 1738863761.9925942
+      "created_unix": 1738864026.033956,
+      "updated_unix": 1738864026.0506039
     },
     {
       "contents": "## Work Log",
@@ -107,8 +107,8 @@
       },
       "type": "markdown",
       "id": "ae5adaab-878d-4235-b06b-793f35ec0710",
-      "created_unix": 1738863761.992602,
-      "updated_unix": 1738863761.9926023
+      "created_unix": 1738864026.034529,
+      "updated_unix": 1738864026.0506108
     },
     {
       "contents": "GROUP SELECT\n  title_plain AS title,\n  url,\n  start_date AS time_start,\n  end_date AS time_end,\n  parent_first_title\nFROM log\nWHERE\n  ancestors LIKE '%SELF%' AND start_date <> '' AND end_date <> ''\nGROUP BY\n  parent_first_title",
@@ -119,11 +119,11 @@
       },
       "type": "chart-gantt",
       "id": "7fade5ab-25cc-433d-9513-185589c48f13",
-      "created_unix": 1738863761.9931433,
-      "updated_unix": 1738863761.9931436
+      "created_unix": 1738864026.0366273,
+      "updated_unix": 1738864026.0506177
     },
     {
-      "contents": "SQL SELECT\n  parent_first_title AS \"Project Title\",\n  ROUND((\n    JULIANDAY(end_date) - JULIANDAY(start_date)\n  ) * 24, 2) AS \"Duration (Hours)\"\nFROM log\nWHERE\n  start_date <> '' AND end_date <> ''\nGROUP BY\n  parent_first_title",
+      "contents": "SQL SELECT\n  SUBSTRING(parent_first_title, 1, 12) AS \"Project Title\",\n  ROUND((\n    JULIANDAY(end_date) - JULIANDAY(start_date)\n  ) * 24, 2) AS \"Duration (Hours)\"\nFROM log\nWHERE\n  start_date <> '' AND end_date <> ''\nGROUP BY\n  parent_first_title\nORDER BY\n  \"Duration (Hours)\" DESC",
       "author": {
         "app": "account",
         "namespace": null,
@@ -131,8 +131,8 @@
       },
       "type": "chart-bar",
       "id": "72bcbd6a-2f48-4582-802d-b09751f8904b",
-      "created_unix": 1738863761.9937954,
-      "updated_unix": 1738863761.9937956
+      "created_unix": 1738864026.0394616,
+      "updated_unix": 1738864026.0506248
     }
   ],
   "tags": [
@@ -143,7 +143,7 @@
   ],
   "version": 2,
   "created_unix": 1736507101.876954,
-  "updated_unix": 1738863211.3329718,
+  "updated_unix": 1738864026.0505025,
   "namespace": null,
   "type": "project",
   "attachments": []
