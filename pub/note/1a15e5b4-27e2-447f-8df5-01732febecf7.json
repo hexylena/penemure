@@ -17,14 +17,19 @@
       },
       "type": "markdown",
       "id": "967d9317-fc05-4f37-943f-8ce78a76c14a",
-      "created_unix": 1738578936.4162688,
-      "updated_unix": 1738578936.4162703
+      "created_unix": 1738864134.8331327,
+      "updated_unix": 1738864134.8352902
     }
   ],
-  "tags": [],
+  "tags": [
+    {
+      "key": "milestone",
+      "val": "2.0"
+    }
+  ],
   "version": 2,
   "created_unix": 1737715424.865713,
-  "updated_unix": 1738578915.8722076,
+  "updated_unix": 1738864134.835275,
   "namespace": null,
   "type": "project",
   "attachments": []
