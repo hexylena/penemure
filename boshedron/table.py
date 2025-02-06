@@ -80,6 +80,23 @@ def render_pie(results: GroupedResultSet) -> str:
         page_content += '</pre>'
     return page_content
 
+def render_bar(results: GroupedResultSet) -> str:
+    page_content = ""
+    for group in results.groups:
+        # chartscss instead of mermaid?
+        page_content += f'<pre class="mermaid">xychart-beta\n'
+        if group.title:
+            page_content += f'\ttitle "{group.title or ''}"\n'
+
+        page_content += f'\ty-axis {group.header[1]}\n'
+        xaxis = ', '.join([f'"{x[0]}"' for x in group.rows])
+        yaxis = ', '.join([f'{x[1]}' for x in group.rows])
+        page_content += f'\tx-axis {group.header[0]} [{xaxis}]\n'
+        page_content += f'\tbar [{yaxis}]\n'
+
+        page_content += '</pre>'
+    return page_content
+
 def get_index(group, col):
         try:
             return group.header.index(col)

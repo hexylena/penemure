@@ -2,7 +2,7 @@
   "title": "Issue with Status Field",
   "parents": [
     {
-      "app": "project",
+      "app": "note",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "d8b4400d-9f32-4129-9133-a115e39d951c",
-      "created_unix": 1737890793.000405,
-      "updated_unix": 1737890793.000407
+      "created_unix": 1738861599.424719,
+      "updated_unix": 1738861599.4247198
     }
   ],
   "tags": [
@@ -31,6 +31,6 @@
   "created_unix": 1736507101.875503,
   "updated_unix": 1737117000.060105,
   "namespace": null,
-  "type": "note",
+  "type": "task",
   "attachments": []
 }

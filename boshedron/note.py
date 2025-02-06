@@ -28,6 +28,7 @@ class BlockTypes(Enum):
     queryCards = 'query-cards'
     chartTable = 'chart-table'
     chartPie = 'chart-pie'
+    chartBar = 'chart-bar'
     chartGantt = 'chart-gantt'
 
     def pretty(self):
@@ -38,6 +39,7 @@ class BlockTypes(Enum):
             'queryKanban': 'SQL Query: 看板',
             'chartTable': 'SQL Query: Table',
             'chartPie': 'SQL Query: Pie Chart',
+            'chartBar': 'SQL Query: Bar Chart',
             'chartGantt': 'SQLish Query: Gantt Chart (expects columns url, id, time_start, time_end)',
             'queryCards': 'SQL Query: Cards (expects columns urn, title, blurb)',
         }.get(self.name, self.name)
@@ -56,6 +58,7 @@ class BlockTypes(Enum):
             'query-kanban': cls.queryKanban,
             'chart-table': cls.chartTable,
             'chart-pie': cls.chartPie,
+            'chart-bar': cls.chartBar,
             'chart-gantt': cls.chartGantt,
             'query-cards': cls.queryCards,
             'query-table-edit': cls.queryTableEditable,
@@ -137,6 +140,9 @@ class MarkdownBlock(BaseModel):
             elif self.type == BlockTypes.chartPie.value:
                 res = oe.query(self.contents, sql=True, via=parent.urn)
                 page_content = render_pie(res)
+            elif self.type == BlockTypes.chartBar.value:
+                res = oe.query(self.contents, sql=True, via=parent.urn)
+                page_content = render_bar(res)
             elif self.type == BlockTypes.chartGantt.value:
                 res = oe.query(self.contents, via=parent.urn, sql=False) # non proper sql
                 page_content = render_gantt(res)
