@@ -43,6 +43,7 @@ class Boshedron(BaseModel):
 
         def blobify(b: BlobReference, width='40'):
             return f'<img width="{width}" src="/{path}/{b.id.url}{b.ext}">'
+
         if self.overlayengine is None:
             raise Exception("Should not be reached.")
 
@@ -88,17 +89,17 @@ class Boshedron(BaseModel):
                 with open(p, 'w') as handle:
                     handle.write(page_content)
 
-            for att in st.thing.data.attachments:
-                if isinstance(att, ExternalReference) or isinstance(att, UnresolvedReference):
-                    # TODO
-                    continue
-
-                blob = self.overlayengine.find(att.id)
-                out = os.path.join(path, blob.thing.relative_path + att.ext)
-
-                if not os.path.exists(os.path.dirname(out)):
-                    os.makedirs(os.path.dirname(out), exist_ok=True)
-                shutil.copy(self.overlayengine.get_path(blob), out)
+            # for att in st.thing.data.attachments:
+            #     if isinstance(att, ExternalReference) or isinstance(att, UnresolvedReference):
+            #         # TODO
+            #         continue
+            #
+            #     blob = self.overlayengine.find(att.id)
+            #     out = os.path.join(path, blob.thing.relative_path + att.ext)
+            #
+            #     if not os.path.exists(os.path.dirname(out)):
+            #         os.makedirs(os.path.dirname(out), exist_ok=True)
+            #     shutil.copy(self.overlayengine.get_path(blob), out)
 
         os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
         for file in glob.glob("assets/*"):
