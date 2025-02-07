@@ -81,7 +81,12 @@ class UniformReference(BaseModel, frozen=True):
                     return urn_ref.urn
                 # print(ref, urn_ref.urn)
             elif u.group(3) == "url":
-                return prefix + '/view/' + urn_ref.url + '.html'
+                # return prefix + '/view/' + urn_ref.url + '.html'
+                try:
+                    ref = oe.find_thing(urn_ref)
+                    return prefix + '/' + ref.thing.url
+                except KeyError:
+                    return urn_ref.urn
             elif u.group(3) == "link":
                 try:
                     ref = oe.find(urn_ref)

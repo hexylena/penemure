@@ -66,7 +66,7 @@ class Boshedron(BaseModel):
                 handle.write(page_content)
 
         for st in things:
-            p = os.path.join(path, st.thing.relative_path + '.html')
+            p = os.path.join(path, st.thing.url)
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
 

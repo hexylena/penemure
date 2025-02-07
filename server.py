@@ -410,8 +410,8 @@ def edit_get(backend: str, urn: str):
 @app.post("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
 def redir(urn: str):
     u = UniformReference.from_string(urn)
-    # note = oe.find_thing(u)
-    return RedirectResponse('/view/' + u.url, status_code=status.HTTP_302_FOUND)
+    note = oe.find_thing(u)
+    return RedirectResponse(note.url, status_code=status.HTTP_302_FOUND)
 
 
 @app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
@@ -436,15 +436,16 @@ def get_form(urn: str):
 
 
 # Eww.
-@app.get("/view/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/view/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/view/{b}/{c}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/view/{b}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/view/{b}/{c}/{d}/{e}", response_class=HTMLResponse, tags=['view'])
-@app.get("/view/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
-@app.get("/view/{b}/{c}", response_class=HTMLResponse, tags=['view'])
-@app.get("/view/{b}", response_class=HTMLResponse, tags=['view'])
-def read_items(b=None, c=None, d=None, e=None):
+@app.get("/{_app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{_app}/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{_app}/{b}/{c}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{_app}/{b}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{_app}/{b}/{c}/{d}/{e}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{_app}/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{_app}/{b}/{c}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{_app}/{b}", response_class=HTMLResponse, tags=['view'])
+def read_items(_app, b, c=None, d=None, e=None):
+    # _app is intentionally ignored.
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
     p = ['urn', 'boshedron', 'note', b, p2]
     p = [x for x in p if x is not None and x != '']

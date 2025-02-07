@@ -85,10 +85,19 @@ def md(c):
     return markdown.markdown(
         c,
         extension_configs=extension_configs,
-        extensions=['tables', 'footnotes', 'pymdownx.superfences',
-                    'pymdownx.highlight', 'markdown_checklist.extension',
-                    'sane_lists', 'smarty', 'codehilite',
-                    'pymdownx.blocks.details', 'pymdownx.magiclink',
-                    'attr_list']
+        extensions=[
+            'attr_list',
+            'codehilite',
+            'footnotes', 
+            'markdown_checklist.extension',
+            'pymdownx.blocks.details',
+            'pymdownx.highlight',
+            'pymdownx.magiclink',
+            'pymdownx.superfences',
+            'pymdownx.tilde',
+            'sane_lists',
+            'smarty',
+            'tables',
+        ]
     )
 
