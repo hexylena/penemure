@@ -11,21 +11,20 @@ updated: {{ note.thing.data.updated }}
 template: {{ note.get_template(oe).thing.urn.urn }}#link{% endif %}
 tags:
 {%- for tag in note.thing.data.tags %}
-    {{ tag.render_key(note.get_template(oe)) }}: {% if note.thing.data.type == 'template' %}{{ tag.render() }}{% else %}{{ tag.render(note.get_template(oe)) }}{% endif %}
-{% endfor %}
+    {{ tag.render_key(note.get_template(oe)) }}: "{{ tag.val }}"
+{%- endfor %}
 ---
 
 # {{ note.thing.data.icon }} {{ note.thing.data.title }}
 
 {% if note.thing.data.contents %}
 {% for b in note.thing.data.contents %}
-{{ b.render(oe, Config.ExportPrefix, note.thing, format="markdown") }}
-<!-- {{ b.author.urn }} | {{ b.id }} -->
+{{ b.render(oe, Config.ExportPrefix, note.thing, format="md") }}
 {% endfor %}
 {% endif %}
 
 {% if note.thing.data.attachments %}
-<h3>Attachments</h3>
+### Attachments
 {% for att in note.thing.data.attachments %}
 {{ att }}
 {% endfor %}
