@@ -406,12 +406,15 @@ def edit_get(backend: str, urn: str):
     return render_fixed('edit.html', note, rewrite=False)
 
 
+@app.get("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
+@app.post("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
 @app.get("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
 @app.post("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
 def redir(urn: str):
+    urn = urn.replace('.html', '')
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
-    return RedirectResponse(note.url, status_code=status.HTTP_302_FOUND)
+    return RedirectResponse('/' + note.thing.url, status_code=status.HTTP_302_FOUND)
 
 
 @app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
@@ -452,6 +455,8 @@ def read_items(_app, b, c=None, d=None, e=None):
     u = ':'.join(p)
     if u.endswith('.html'):
         u = u[0:-5]
+
+    print(u)
 
     try:
         note = oe.find_thing(u)

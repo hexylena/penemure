@@ -102,5 +102,6 @@ class Boshedron(BaseModel):
             #     shutil.copy(self.overlayengine.get_path(blob), out)
 
         os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
+        # TODO: use env resolver to find the file?
         for file in glob.glob("assets/*"):
             shutil.copy(file, os.path.join(path, 'assets'))
