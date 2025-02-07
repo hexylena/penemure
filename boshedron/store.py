@@ -81,7 +81,7 @@ class StoredThing(StoredBlob):
     @computed_field
     @property
     def relative_path(self) -> str:
-        return self.identifier.path + '.json'
+        return os.path.join(self.data.type, self.identifier.path + '.json')
 
     def ref(self) -> UniformReference:
         return self.urn
@@ -130,6 +130,18 @@ class BaseBackend(BaseModel):
     @property
     def html_title(self):
         return f'{self.description} ({self.name})'
+
+    @classmethod
+    def new_meta(cls, path, name, description=''):
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        meta = os.path.join(path, 'meta.json')
+        data = {'name': name, 'description': description}
+        with open(meta, 'w') as handle:
+            json.dump(data, handle, indent=2)
+
+        return cls.discover_meta(path)
 
     @classmethod
     def discover_meta(cls, path):

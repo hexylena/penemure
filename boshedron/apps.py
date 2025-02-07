@@ -4,6 +4,7 @@ from .note import *
 from .tags import *
 from .mixins import AttachmentMixin
 import requests
+import re
 
 
 class Template(Note):
@@ -29,6 +30,47 @@ class Template(Note):
 class DataForm(Note):
     type: str = 'form'
 
+    def render_form(self, oe):
+        results = ""
+
+        for i, block in enumerate(self.get_contents()):
+            title = block.contents.split('\n', 1)[0]
+            required = title.endswith('*')
+            ra = " required " if required else ""
+            results += "<div class=\"question\">"
+            results += f'<label for="block-{i}">{title}</label>'
+
+            if block.type == 'form-numeric':
+                results += f'<input name="block-{i}" type="number" {ra} step="any"/>'
+            elif block.type == 'form-text':
+                results += f'<input name="block-{i}" type="text" {ra} />'
+
+            elif block.type == 'form-multiple-choice':
+                options = block.contents.split('\n')[1:]
+                options = [re.sub('^- ', '', x.strip()) for x in options]
+                print(options)
+                for j, option in enumerate(options):
+                    if j < len(options) - 1:
+                        results += '<div>'
+                        results += f'<input  name="block-{i}" type="checkbox" value="{option}" id="block-{i}-{j}" />'
+                        results += f'<label for="block-{i}-{j}" style="display: inline">{option}</label>'
+                        results += '</div>'
+                    else:
+                        results += '<div>'
+                        results += f'<label for="block-{i}-NA" >Other</label>'
+                        results += f'<input name="block-{i}-NA" type="text" {ra} />'
+                        results += '</div>'
+            else:
+                raise NotImplementedError(f"No support yet for {block.type}")
+            results += "</div>"
+        return results
+
+    def persist_results(self, oe, data):
+        # create attachment if it doesn't exist
+        # get a path to it
+        # append a line
+        # close.
+        pass
 
 class File(Note):
     type: str = 'file'
@@ -83,5 +125,7 @@ def ModelFromAttr(data):
             return Note
     elif data['type'] == 'template':
         return Template
+    elif data['type'] == 'form':
+        return DataForm
     else:
         return Note

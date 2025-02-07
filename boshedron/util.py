@@ -1,4 +1,5 @@
 import zoneinfo
+import markdown
 import subprocess
 import datetime
 import os
@@ -69,3 +70,25 @@ def get_time(t):
         except ValueError:
             continue
     raise ValueError(f"Unparseable time: {t}")
+
+def md(c):
+    extension_configs = {
+        # "custom_fences": [
+        #     {
+        #         'name': 'mermaid',
+        #         'class': 'mermaid',
+        #         'format': pymdownx.superfences.fence_div_format
+        #     }
+        # ]
+    }
+
+    return markdown.markdown(
+        c,
+        extension_configs=extension_configs,
+        extensions=['tables', 'footnotes', 'pymdownx.superfences',
+                    'pymdownx.highlight', 'markdown_checklist.extension',
+                    'sane_lists', 'smarty', 'codehilite',
+                    'pymdownx.blocks.details', 'pymdownx.magiclink',
+                    'attr_list']
+    )
+

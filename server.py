@@ -411,21 +411,42 @@ def edit_get(backend: str, urn: str):
 def redir(urn: str):
     u = UniformReference.from_string(urn)
     # note = oe.find_thing(u)
-    return RedirectResponse(u.url, status_code=status.HTTP_302_FOUND)
+    return RedirectResponse('/view/' + u.url, status_code=status.HTTP_302_FOUND)
+
+
+@app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
+def get_form(urn: str):
+    u = UniformReference.from_string(urn)
+    try:
+        note = oe.find_thing(u)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    requested_template: str = "form.html"
+    if tag := note.thing.data.get_tag(key='template'):
+        requested_template = tag.val or requested_template
+    template = env.get_template(requested_template)
+
+    gn = {'VcsRev': 'deadbeefcafe'}
+    page_content = template.render(note=note, bos=bos, oe=bos.overlayengine,
+                                   Config=config, Gn=gn, blob=blobify)
+    page_content = UniformReference.rewrite_urns(page_content, path,
+                                                 bos.overlayengine)
+    return HTMLResponse(page_content)
 
 
 # Eww.
-@app.get("/{a}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{a}/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{a}/{b}/{c}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{a}/{b}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{a}/{b}/{c}/{d}/{e}", response_class=HTMLResponse, tags=['view'])
-@app.get("/{a}/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
-@app.get("/{a}/{b}/{c}", response_class=HTMLResponse, tags=['view'])
-@app.get("/{a}/{b}", response_class=HTMLResponse, tags=['view'])
-def read_items(a=None, b=None, c=None, d=None, e=None):
+@app.get("/view/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/view/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/view/{b}/{c}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/view/{b}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/view/{b}/{c}/{d}/{e}", response_class=HTMLResponse, tags=['view'])
+@app.get("/view/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
+@app.get("/view/{b}/{c}", response_class=HTMLResponse, tags=['view'])
+@app.get("/view/{b}", response_class=HTMLResponse, tags=['view'])
+def read_items(b=None, c=None, d=None, e=None):
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
-    p = ['urn', 'boshedron', a, b, p2]
+    p = ['urn', 'boshedron', 'note', b, p2]
     p = [x for x in p if x is not None and x != '']
     u = ':'.join(p)
     if u.endswith('.html'):

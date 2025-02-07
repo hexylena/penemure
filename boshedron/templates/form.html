@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.thing.data.title | e }} | {{ Config.Title | e }}{% endblock %}
+
+{% block main %}
+{% if note.thing.data.cover_image() %}
+<div>
+	<img src="{{ note.thing.data.cover_image() }}" class="cover">
+</div>
+{% endif %}
+<hgroup>
+	<h1>
+		{{ note.thing.data.icon }}
+		{{ note.thing.data.title }}
+	</h1>
+</hgroup>
+
+<form method="POST">
+
+{% if note.thing.data.contents %}
+{{ note.thing.data.render_form(oe) }}
+{% endif %}
+
+	<button>Submit</button>
+</form>
+
+<style>
+.question {
+	margin-bottom: 2em;
+}
+</style>
+
+{% endblock %}

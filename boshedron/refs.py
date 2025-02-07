@@ -14,7 +14,7 @@ class UniformReference(BaseModel, frozen=True):
         return self.urn
 
     def _assemble(self) -> list[str]:
-        parts = [self.app]
+        parts = []
         if self.namespace:
             parts.append(self.namespace)
         parts.append(self.ident)
@@ -53,10 +53,10 @@ class UniformReference(BaseModel, frozen=True):
         # Not sure about this
         urn = [x for x in urn if x != '']
 
-        if len(urn) == 3:
-            return cls(app=urn[0], namespace=urn[1], ident=urn[2])
-        elif len(urn) == 2:
-            return cls(app=urn[0], namespace=None, ident=urn[1])
+        if len(urn) == 2:
+            return cls(app='x', namespace=urn[0], ident=urn[1])
+        elif len(urn) == 1:
+            return cls(app='x', namespace=None, ident=urn[0])
         else:
             raise Exception(f"Cannot parse URN: {raw_urn}")
 
@@ -81,7 +81,7 @@ class UniformReference(BaseModel, frozen=True):
                     return urn_ref.urn
                 # print(ref, urn_ref.urn)
             elif u.group(3) == "url":
-                return prefix + '/' + urn_ref.url + '.html'
+                return prefix + '/view/' + urn_ref.url + '.html'
             elif u.group(3) == "link":
                 try:
                     ref = oe.find(urn_ref)

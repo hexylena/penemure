@@ -1,5 +1,4 @@
 import hashlib
-import markdown
 import magic
 import requests
 import time
@@ -30,6 +29,10 @@ class BlockTypes(Enum):
     chartPie = 'chart-pie'
     chartBar = 'chart-bar'
     chartGantt = 'chart-gantt'
+    # only appropriate for form pages. TODO: restrict?
+    formNumeric = 'form-numeric'
+    formMultipleChoice = 'form-multiple-choice'
+    formText = 'form-text'
 
     def pretty(self):
         return {
@@ -42,6 +45,9 @@ class BlockTypes(Enum):
             'chartBar': 'SQL Query: Bar Chart',
             'chartGantt': 'SQLish Query: Gantt Chart (expects columns url, id, time_start, time_end)',
             'queryCards': 'SQL Query: Cards (expects columns urn, title, blurb)',
+            'formNumeric': "(Form) Numeric Input",
+            'formMultipleChoice': "(Form) Multiple choice, one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
+            'formText': "(Form) Free Text (Short)",
         }.get(self.name, self.name)
 
     def chart_type(self):
@@ -52,17 +58,10 @@ class BlockTypes(Enum):
 
     @classmethod
     def from_str(cls, s):
-        return {
-            'markdown': cls.markdown,
-            'query-table': cls.queryTable,
-            'query-kanban': cls.queryKanban,
-            'chart-table': cls.chartTable,
-            'chart-pie': cls.chartPie,
-            'chart-bar': cls.chartBar,
-            'chart-gantt': cls.chartGantt,
-            'query-cards': cls.queryCards,
-            'query-table-edit': cls.queryTableEditable,
-        }[s]
+        if s in cls.__members__:
+            return cls.__members__[s]
+        else:
+            return {v.value: v for (_, v) in cls.__members__.items()}[s]
 
 class MarkdownBlock(BaseModel):
     contents: str
@@ -106,17 +105,7 @@ class MarkdownBlock(BaseModel):
 
         a = time.time()
         if self.type == BlockTypes.markdown.value:
-            extension_configs = {
-                # "custom_fences": [
-                #     {
-                #         'name': 'mermaid',
-                #         'class': 'mermaid',
-                #         'format': pymdownx.superfences.fence_div_format
-                #     }
-                # ]
-            }
-            page_content = markdown.markdown(self.contents, extension_configs=extension_configs, 
-                    extensions=['tables', 'footnotes', 'pymdownx.superfences', 'pymdownx.highlight', 'markdown_checklist.extension', 'sane_lists', 'smarty', 'codehilite', 'pymdownx.blocks.details', 'pymdownx.magiclink', 'attr_list'])
+            page_content = md(self.contents)
         elif self.type.startswith('query'):
             try:
                 res = oe.query(self.contents, via=parent.urn)
@@ -251,6 +240,8 @@ class Note(ChangeDetectionMixin, BaseModel):
             return "⏰"
         elif self.type == 'file':
             return "📎"
+        elif self.type == 'form':
+            return "🗳" # force B&W +'\uFE0E'
         else:
             return "?"
 
