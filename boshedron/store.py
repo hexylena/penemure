@@ -81,7 +81,8 @@ class StoredThing(StoredBlob):
     @computed_field
     @property
     def relative_path(self) -> str:
-        return os.path.join(self.data.type, self.identifier.path + '.json')
+        return os.path.join(self.data.__class__.__name__.lower(),
+                            self.identifier.path + '.json')
 
     def ref(self) -> UniformReference:
         return self.urn
@@ -202,6 +203,8 @@ class GitJsonFilesBackend(BaseBackend):
         self.data[stored_thing.identifier] = stored_thing
 
         full_path = os.path.join(self.path, stored_thing.relative_path)
+        print(f'Saving to {full_path}')
+        1 / 0
         if not os.path.exists(os.path.dirname(full_path)):
             os.makedirs(os.path.dirname(full_path))
 

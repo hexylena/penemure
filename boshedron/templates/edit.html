@@ -225,6 +225,10 @@ var tribute = new Tribute({
 });
 tribute.attach(document.querySelectorAll("textarea"));
 
+document.querySelector('input#title').addEventListener('change', e => {
+	document.querySelector('head title').innerText = `Editing ${e.target.value}`
+})
+
 //[...document.querySelectorAll('textarea')]
 
 function select(event){
