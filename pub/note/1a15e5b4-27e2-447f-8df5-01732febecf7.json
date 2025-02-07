@@ -2,23 +2,23 @@
   "title": "UX",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
   ],
   "contents": [
     {
-      "contents": "- [x] auto create issue with parent + backend set to those of current page (easy to change later but, saves time.)\r\n- urn:boshedron:task:3e1c8460-570c-40c7-9a50-514316c06e3e#link\r\n- [x] @ things. I need to be able to @ things anywhere and pop a search dialog. https://github.com/zurb/tribute worked a charm\r\n- [ ] tags that accept refs should prompt for them.\r\n- [ ] TAG UI.\r\n- [ ] auto-save/stash new notes so they aren't lost. (maybe this involves /new/ redirecting to `/new/<uuid>` so we can be sure it'll be saved.)\r\n- [x] encoding of lt/gt\r\n- [ ] indent/de-dent? do we need a better textarea?- urn:boshedron:task:7699936c-678f-40e6-b482-e3f527a4c3ab#link- urn:boshedron:task:8c51eadd-51a6-430a-8ff8-4f7410fcba46#link",
+      "contents": "- [x] auto create issue with parent + backend set to those of current page (easy to change later but, saves time.)\r\n- urn:boshedron:task:3e1c8460-570c-40c7-9a50-514316c06e3e#link\r\n- [x] @ things. I need to be able to @ things anywhere and pop a search dialog. https://github.com/zurb/tribute worked a charm\r\n- [x] encoding of lt/gt\r\n- [x] do we need a better textarea?\r\n- urn:boshedron:task:8c51eadd-51a6-430a-8ff8-4f7410fcba46#link\r\n- [ ] tags that accept refs should prompt for them.\r\n- [ ] TAG UI.\r\n- [ ] auto-save/stash new notes so they aren't lost. (maybe this involves /new/ redirecting to `/new/<uuid>` so we can be sure it'll be saved.)\r\n- [ ] indent/de-dent buttons in text area? (Alternatively should selection + tab work sanely.)\r\n- [ ] \"ENRICH\" functionality, to go through pages and identify strings that look like titles of other pages? E.g. if you have a page for an note, and I have a page for a specific person mentioned in that note, it would be nice to turn that into a link/reference.\r\n- [ ] Button to extract not tasks but pages, and tag them 'unprocessed' or something, so they can be queried and sorted later.\r\n- [ ] Find dangling references? ",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "967d9317-fc05-4f37-943f-8ce78a76c14a",
-      "created_unix": 1738864134.8331327,
-      "updated_unix": 1738864134.8352902
+      "created_unix": 1738945499.1897085,
+      "updated_unix": 1738945499.200509
     }
   ],
   "tags": [
@@ -29,7 +29,7 @@
   ],
   "version": 2,
   "created_unix": 1737715424.865713,
-  "updated_unix": 1738864134.835275,
+  "updated_unix": 1738945499.2004824,
   "namespace": null,
   "type": "project",
   "attachments": []

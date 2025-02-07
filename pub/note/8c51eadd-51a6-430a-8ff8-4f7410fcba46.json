@@ -2,7 +2,7 @@
   "title": "Mentions",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
       "ident": "1a15e5b4-27e2-447f-8df5-01732febecf7"
     }
@@ -11,25 +11,25 @@
     {
       "contents": "",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "a5df64cd-f9f3-45db-afa6-2b24c2251e92",
-      "created_unix": 1738864212.0510564,
-      "updated_unix": 1738864212.0646095
+      "created_unix": 1738945452.9495766,
+      "updated_unix": 1738945452.9603004
     }
   ],
   "tags": [
     {
       "key": "status",
-      "val": "backlog"
+      "val": "done"
     }
   ],
   "version": 2,
   "created_unix": 1738578933.2445161,
-  "updated_unix": 1738864212.0645618,
+  "updated_unix": 1738945452.9602513,
   "namespace": null,
   "type": "task",
   "attachments": []

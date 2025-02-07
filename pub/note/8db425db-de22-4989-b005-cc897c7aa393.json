@@ -1,0 +1,34 @@
+{
+  "title": "System Statistics",
+  "parents": [],
+  "contents": [
+    {
+      "contents": "# System Statistics",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "c2f0a61f-fedb-4739-8e9f-35e16f2e982b",
+      "created_unix": 1738945556.095746,
+      "updated_unix": 1738945556.1068053
+    }
+  ],
+  "tags": [
+    {
+      "key": "page_path",
+      "val": "stats"
+    },
+    {
+      "key": "template",
+      "val": "plain.html"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738945535.8183742,
+  "updated_unix": 1738945556.1067593,
+  "namespace": null,
+  "type": "page",
+  "attachments": []
+}
