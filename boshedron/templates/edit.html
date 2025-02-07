@@ -96,10 +96,22 @@
 						</select>
 						<input type="hidden" name="content_uuid" value="REPLACEME">
 						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
-						<textarea name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
-						<div class="controls">
-							<button type="button" disabled>Extract Issues</button>
-						</div>
+
+						<markdown-toolbar for="block-REPLACEME">
+							<md-bold><b>B</b></md-bold>
+							<md-header>H1</md-header>
+							<md-italic><i>I</i></md-italic>
+							<md-quote>”</md-quote>
+							<md-code>&lt;/&gt;</md-code>
+							<md-link>🔗</md-link>
+							<md-image>🖼</md-image>
+							<md-unordered-list>-</md-unordered-list>
+							<md-ordered-list>1.</md-ordered-list>
+							<md-task-list>✔️</md-task-list>
+							<!-- <md-mention>@</md-mention> -->
+							<button type="button" data-md-button class="extract-issues" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', 'REPLACEME')">📤</button>
+						</markdown-toolbar>
+						<textarea id="block-REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
 					</div>
 				</div>
 			</div>
