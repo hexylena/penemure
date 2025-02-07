@@ -1,0 +1,31 @@
+{
+  "title": "Database",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "do we need to migrate to a db?\r\n\r\nhttps://lobste.rs/s/2etd7f/sqlite_postgresql_it_s_complicated",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "e1f07cd7-32fa-4ec7-b7e7-a3584d512240",
+      "created_unix": 1738942478.7552779,
+      "updated_unix": 1738942478.7552788
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1738942478.755325,
+  "updated_unix": 1738942478.7553263,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
