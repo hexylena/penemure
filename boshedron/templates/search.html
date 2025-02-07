@@ -27,6 +27,7 @@
 </form>
 
 <table id="results">
+	<thead>
 	<tr>
 		<th>Title</th>
 		<th>Type</th>
@@ -34,7 +35,10 @@
 		<th>Tags</th>
 		<th>Contributor(s)</th>
 		<th>Backend</th>
+		<th>Ancestors</th>
 	</tr>
+	</thead>
+	<tbody>
 	{% for note in oe.all_things() %}
 	<tr>
 		<td><a class="urn" href="{{ note.thing.urn.urn }}#url">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
@@ -51,8 +55,16 @@
 		</td>
 		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.urn }}#url">{{ c.urn }}#title</a>{% endfor %}</td>
 		<td>{{ note.backend.name }}</td>
+		<td>
+		{% for chain in oe.get_lineage(note) %}
+				{% for p in chain %}
+					{% if loop.index > 1 %}→{% endif %} {{ p.urn }}#title
+				{% endfor %}
+		{% endfor %}
+		</td>
 	</tr>
 	{% endfor %}
+	</tbody>
 </table>
 
 <script>
@@ -88,7 +100,7 @@ function search(){
 	// Which should be hidden
 
 	var to_hide = rows.filter(row => {
-		let searchable = [0,3,4,5].map(i => row.children[i].innerText.toLowerCase()).join(' ');
+		let searchable = [0,1,2,3,4,5,6].map(i => row.children[i].innerText.toLowerCase()).join(' ');
 		if (typeFilter != "Any" && row.children[1].innerText != typeFilter) {
 			return true;
 		}
@@ -101,7 +113,7 @@ function search(){
 	});
 
 	// Display all
-	document.querySelectorAll("#results tr").forEach(r => r.style.display = "");
+	document.querySelectorAll("#results tbody tr").forEach(r => r.style.display = "");
 	// Hide the rest
 	to_hide.map(r => r.style.display = "none");
 
