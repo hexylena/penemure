@@ -388,15 +388,25 @@ def custom_404_handler(request, res):
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
 
-@app.get("/index.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{page}", response_class=HTMLResponse, tags=['view'])
 @app.get("/", response_class=HTMLResponse, tags=['view'])
-def index():
-    # try and find an index page
-    index = [x for x in oe.all_things() if x.thing.data.type == 'page']
-    if len(index) == 0:
-        raise Exception()
+def index(page=None):
+    if page is None:
+        page = 'index'
 
-    return render_dynamic(index[0])
+    # We can re-order {page}.html to come after, and then it seems like 'last
+    # matching wins', but that's terrible.
+    page = page.replace('.html', '')
+
+    # try and find an index page
+    for x in oe.all_things():
+        if x.thing.data.type == 'page':
+            if x.thing.data.has_tag('page_path') and \
+               x.thing.data.get_tag('page_path').val == page:
+                return render_dynamic(x)
+    raise HTTPException(status_code=404, detail="Item not found")
+
 
 @app.get("/edit/{backend}/{urn}", response_class=HTMLResponse, tags=['mutate'])
 def edit_get(backend: str, urn: str):

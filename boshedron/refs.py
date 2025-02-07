@@ -90,7 +90,7 @@ class UniformReference(BaseModel, frozen=True):
             elif u.group(3) == "link":
                 try:
                     ref = oe.find(urn_ref)
-                    url = prefix + '/' + urn_ref.url + '.html'
+                    url = prefix + '/view/' + urn_ref.url + '.html'
                     return f'<a href="{url}">{ref.thing.html_title}</a>' 
                 except KeyError:
                     return f'<a href="#">{urn_ref.urn}</a>' 

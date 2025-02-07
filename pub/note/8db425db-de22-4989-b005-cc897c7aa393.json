@@ -11,8 +11,44 @@
       },
       "type": "markdown",
       "id": "c2f0a61f-fedb-4739-8e9f-35e16f2e982b",
-      "created_unix": 1738945556.095746,
-      "updated_unix": 1738945556.1068053
+      "created_unix": 1738946909.3978813,
+      "updated_unix": 1738946909.3978827
+    },
+    {
+      "contents": "SQL SELECT\n  backend,\n  COUNT(*)\nFROM __all__\nGROUP BY\n  backend",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "chart-pie",
+      "id": "85b8293a-0dac-4063-a3ec-1d9fc8f81faf",
+      "created_unix": 1738946909.399348,
+      "updated_unix": 1738946909.399349
+    },
+    {
+      "contents": "## Notes of Time",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d24ed3a8-f07c-4e29-9fc1-f6df6b0e0a0a",
+      "created_unix": 1738946909.3993776,
+      "updated_unix": 1738946909.3993778
+    },
+    {
+      "contents": "SQL SELECT\n  t.date AS date,\n  COUNT(*) AS count\nFROM (\n  SELECT DISTINCT\n    DATE(created) AS date\n  FROM __all__\n) AS t\nLEFT JOIN __all__ AS r\n  ON (\n    DATE(r.created) < t.date\n  )\nGROUP BY\n  t.date",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "chart-bar",
+      "id": "9eea9cda-a533-4a0b-bd53-38a493d4e09a",
+      "created_unix": 1738946909.4019742,
+      "updated_unix": 1738946909.4019756
     }
   ],
   "tags": [
@@ -27,7 +63,7 @@
   ],
   "version": 2,
   "created_unix": 1738945535.8183742,
-  "updated_unix": 1738945556.1067593,
+  "updated_unix": 1738946889.513855,
   "namespace": null,
   "type": "page",
   "attachments": []
