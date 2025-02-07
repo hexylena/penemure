@@ -149,6 +149,9 @@ class BaseBackend(BaseModel):
         data = cls.discover_meta(path)
         return cls.model_validate(data)
 
+    def __str__(self):
+        return self.__repr__()
+
     def __repr__(self):
         return f'GitJsonFilesBackend(name={self.name}, description={self.description}, path={self.path})'
 
@@ -356,6 +359,9 @@ class OverlayEngine(BaseModel):
 
     def find_thing(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
         return self.find(identifier=identifier)
+
+    def find_thing_from_backend(self, identifier: UniformReference, backend: GitJsonFilesBackend) -> WrappedStoredThing:
+        return WrappedStoredThing(thing=backend.find(identifier), backend=backend)
 
     def get_path(self, st: Union[StoredThing, WrappedStoredThing]) -> str:
         if isinstance(st, WrappedStoredThing):

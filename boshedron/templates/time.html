@@ -190,7 +190,6 @@
 			{% for log in logs %}
 			{% set u = log.thing.urn.urn %}
 			<tr>
-			<form method="post" action="/time/continue" data-urn="{{ u }}">
 				<td><a href="{{ u }}#url">{{ log.thing.urn.urn }}#title</a></td>
 				<td>
 					{% if log.thing.data.parents %}
@@ -219,14 +218,15 @@
 					</script>
 				</td>
 				<td>
+					<form method="post" action="/time/continue" data-urn="{{ u }}">
 						<input name="start_unix" type="hidden" value="{{ log.thing.data.start('unix') }}">
 						<input name="end_unix" type="hidden" value="{{ log.thing.data.end('unix') }}">
 						<input type="hidden" name="urn" value="{{ log.thing.urn.urn }}">
 						<input type="hidden" name="action" value="start">
 						<button name="submit" type="submit">Continue</button>
 						<button name="delete" type="button">Delete</button>
+					</form>
 				</td>
-			</form>
 			</tr>
 			{% endfor %}
 			{% endfor %}

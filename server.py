@@ -398,10 +398,11 @@ def index():
 
     return render_dynamic(index[0])
 
-@app.get("/edit/{urn}", response_class=HTMLResponse, tags=['mutate'])
-def edit_get(urn: str):
+@app.get("/edit/{backend}/{urn}", response_class=HTMLResponse, tags=['mutate'])
+def edit_get(backend: str, urn: str):
     u = UniformReference.from_string(urn)
-    note = oe.find_thing(u)
+    be = oe.get_backend(backend)
+    note = oe.find_thing_from_backend(u, be)
     return render_fixed('edit.html', note, rewrite=False)
 
 

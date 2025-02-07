@@ -26,6 +26,10 @@ class Template(Note):
         return value
 
 
+class DataForm(Note):
+    type: str = 'form'
+
+
 class File(Note):
     type: str = 'file'
     namespace: Optional[str] = 'meta'
