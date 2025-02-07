@@ -66,6 +66,8 @@ class Boshedron(BaseModel):
                     page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
                     handle.write(page_content)
 
+        # print(env.list_templates())
+        # print(env.join_path('assets/main'))
         for st in things:
             p = os.path.join(path, st.thing.url.replace('.html', '.' + format))
             if not os.path.exists(os.path.dirname(p)):
@@ -104,6 +106,6 @@ class Boshedron(BaseModel):
             #     shutil.copy(self.overlayengine.get_path(blob), out)
 
         os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
-        # TODO: use env resolver to find the file?
+        # TODO: use env resolver to find the files?
         for file in glob.glob("assets/*"):
             shutil.copy(file, os.path.join(path, 'assets'))
