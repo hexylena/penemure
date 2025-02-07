@@ -37,7 +37,7 @@ class Boshedron(BaseModel):
         """List registered 'apps'"""
         return self.overlayengine.apps()
 
-    def export(self, path):
+    def export(self, path, format='html'):
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
 
@@ -56,23 +56,24 @@ class Boshedron(BaseModel):
         # export every note into the output according to templates.
         things = self.overlayengine.all_things()
 
-        for fixed in('search.html', 'redir.html'):
-            with open(os.path.join(path, fixed), 'w') as handle:
-                template = env.get_template(fixed)
-                config.update({'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about})
-                gn = {'VcsRev': 'deadbeefcafe'}
-                page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
-                page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
-                handle.write(page_content)
+        if format == 'html':
+            for fixed in('search.html', 'redir.html'):
+                with open(os.path.join(path, fixed), 'w') as handle:
+                    template = env.get_template(fixed)
+                    config.update({'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about})
+                    gn = {'VcsRev': 'deadbeefcafe'}
+                    page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
+                    page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
+                    handle.write(page_content)
 
         for st in things:
             p = os.path.join(path, st.thing.url)
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
 
-            requested_template = "note.html"
+            requested_template = f"note.{format}"
             if tag := st.thing.data.get_tag(key='template'):
-                requested_template = tag.val
+                requested_template = tag.val.replace('.html', '.' + format)
 
             template = env.get_template(requested_template)
             config.update({'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about})
@@ -85,9 +86,10 @@ class Boshedron(BaseModel):
 
             if st.thing.data.has_tag('page_path'):
                 t = st.thing.data.get_tag('page_path')
-                p = os.path.join(path, t.val + '.html')
-                with open(p, 'w') as handle:
-                    handle.write(page_content)
+                if t:
+                    p = os.path.join(path, str(t.val) + '.' + format)
+                    with open(p, 'w') as handle:
+                        handle.write(page_content)
 
             # for att in st.thing.data.attachments:
             #     if isinstance(att, ExternalReference) or isinstance(att, UnresolvedReference):

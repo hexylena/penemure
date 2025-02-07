@@ -92,19 +92,34 @@ class MarkdownBlock(BaseModel):
         d['updated'] = self.updated
         return d
 
-    def render(self, oe, path, parent):
+    def render(self, oe, path, parent, format='html'):
         import traceback
         try:
-            return self._render(oe, path, parent)
+            return self._render(oe, path, parent, format=format)
         except Exception as e:
             return f'Error: {e} <details><summary>Traceback</summary><pre>{traceback.format_exc()}</pre></details>'
 
-    def _render(self, oe, path, parent):
+    def _render(self, oe, path, parent, format='html'):
         # if isinstance(self.type, str):
         #     self.type = BlockTypes.from_str(self.type)
 
         a = time.time()
-        if self.type == BlockTypes.markdown.value:
+        if format == 'md':
+            if self.type == BlockTypes.markdown.value:
+                page_content = self.contents + '\n'
+            else:
+                page_content = f'```{self.type}\n{self.contents}\n```\n'
+                res = oe.query(self.contents, via=parent.urn)
+                for group in res.groups:
+                    page_content += '\n'
+                    page_content += ' | '.join(group.header) + '\n'
+                    page_content += ' | '.join([re.sub('.', '-', header) for header in group.header]) + '\n'
+                    for row in group.rows:
+                        page_content += ' | '.join(map(str, row)) + '\n'
+                    page_content += '{' + f': Title="{group.title}"' + '}\n\n'
+                # page_content += res
+
+        elif self.type == BlockTypes.markdown.value:
             page_content = md(self.contents)
         elif self.type.startswith('query'):
             try:
@@ -140,6 +155,9 @@ class MarkdownBlock(BaseModel):
 
         page_content = UniformReference.rewrite_urns(page_content, path, oe)
         print('render', self.type, time.time() - a)
+        if format == 'md':
+            return page_content + f'\n<!-- {self.author.urn} | {self.id} -->\n'
+
         # TODO: something better with author.
         return f'''
             <article class="block">
