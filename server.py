@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form, Response
+from fastapi import FastAPI, HTTPException, Form, Response, Request
 from fastapi.responses import RedirectResponse
 import starlette.status as status
 from fastapi.staticfiles import StaticFiles
@@ -387,6 +387,19 @@ def custom_404_handler(request, res):
     page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, error=res.detail)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
+
+
+@app.get("/search.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/search", response_class=HTMLResponse, tags=['view'])
+@app.get("/new.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/new", response_class=HTMLResponse, tags=['view'])
+@app.get("/time.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/time", response_class=HTMLResponse, tags=['view'])
+@app.get("/redir.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/redir", response_class=HTMLResponse, tags=['view'])
+def fixed_page_list(request: Request):
+    page = request.url.path.lstrip('/').replace('.html', '')
+    return render_fixed(page + '.html')
 
 @app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/{page}", response_class=HTMLResponse, tags=['view'])
