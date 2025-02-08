@@ -1,0 +1,25 @@
+{
+  "title": "Todo: reparent to game mechs",
+  "parents": [],
+  "contents": [
+    {
+      "contents": "- the fundamental cheapness of life, the worthlessness of an individual even one that did something of value.\r\n- the meaninglessness, and simultaneously the importance\r\n- the \"the world stopped for me, but no one else\" of losing a friend",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "1d89e3eb-e92e-4cad-bf19-269bee1e9747",
+      "created_unix": 1739021523.7239888,
+      "updated_unix": 1739021523.7239892
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1739021523.7240033,
+  "updated_unix": 1739021523.7240036,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
