@@ -37,12 +37,12 @@ class Boshedron(BaseModel):
         """List registered 'apps'"""
         return self.overlayengine.apps()
 
-    def export(self, path, format='html'):
+    def export(self, path, format='html', prefix='project-management'):
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
 
         def blobify(b: BlobReference, width='40'):
-            return f'<img width="{width}" src="/{path}/{b.id.url}{b.ext}">'
+            return f'<img width="{width}" src="/{prefix}/{b.id.url}{b.ext}">'
 
         if self.overlayengine is None:
             raise Exception("Should not be reached.")
@@ -60,10 +60,10 @@ class Boshedron(BaseModel):
             for fixed in('search.html', 'redir.html'):
                 with open(os.path.join(path, fixed), 'w') as handle:
                     template = env.get_template(fixed)
-                    config.update({'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about})
+                    config.update({'ExportPrefix': '/' + prefix, 'IsServing': False, 'Title': self.title, 'About': self.about})
                     gn = {'VcsRev': 'deadbeefcafe'}
                     page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
-                    page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
+                    page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)
                     handle.write(page_content)
 
         # print(env.list_templates())
@@ -78,10 +78,10 @@ class Boshedron(BaseModel):
                 requested_template = tag.val.replace('.html', '.' + format)
 
             template = env.get_template(requested_template)
-            config.update({'ExportPrefix': '/' + path, 'IsServing': False, 'Title': self.title, 'About': self.about})
+            config.update({'ExportPrefix': '/' + prefix, 'IsServing': False, 'Title': self.title, 'About': self.about})
             gn = {'VcsRev': 'deadbeefcafe'}
             page_content = template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify)
-            page_content = UniformReference.rewrite_urns(page_content, '/' + path, self.overlayengine)
+            page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)
 
             with open(p, 'w') as handle:
                 handle.write(page_content)
