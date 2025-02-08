@@ -5,122 +5,122 @@
     {
       "contents": "# Project Management\r\n\r\nRebuilt from the ground up in python this time.",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created_unix": 1738863955.7989783,
-      "updated_unix": 1738863955.8156028
+      "created_unix": 1739033977.1900928,
+      "updated_unix": 1739033977.190094
     },
     {
-      "contents": "GROUP SELECT\n  title,\n  backend,\n  type\nFROM __all__\nWHERE\n  parents IS NULL AND system IS FALSE\nGROUP BY\n  type\nORDER BY\n  type DESC",
+      "contents": "GROUP SELECT\n  title,\n  description,\n  backend,\n  type\nFROM __all__\nWHERE\n  (\n    parents IS NULL OR parents LIKE '%SELF%'\n  )\n  AND system IS FALSE\n  AND type <> 'account'\nGROUP BY\n  type\nORDER BY\n  type DESC",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "query-table",
       "id": "61f8fbdb-50e0-4bb0-a2d4-1d94bb3b21d0",
-      "created_unix": 1738863955.8009844,
-      "updated_unix": 1738863955.8156154
+      "created_unix": 1739033977.1910238,
+      "updated_unix": 1739033977.1910245
     },
     {
       "contents": "## Current issue progress",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created_unix": 1738863955.801022,
-      "updated_unix": 1738863955.8156226
+      "created_unix": 1739033977.1910365,
+      "updated_unix": 1739033977.1910367
     },
     {
       "contents": "GROUP SELECT\n  title,\n  status,\n  CAST(created AS DATE),\n  updated - created,\n  backend AS duration\nFROM task\nGROUP BY\n  status",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "query-kanban",
       "id": "3dc98087-0754-41f1-b6be-1a84449a297c",
-      "created_unix": 1738863955.8030417,
-      "updated_unix": 1738863955.8156285
+      "created_unix": 1739033977.191793,
+      "updated_unix": 1739033977.1917937
     },
     {
-      "contents": "## Note Storage Location",
+      "contents": "## Note Storage Location\r\n\r\nThis section looks pretty boring on the public online version, but since this supports overlaying multiple git repositories as backends, the internal one is a bit more interesting, with issues being stored in their individual project repositories, a subset customisable to each viewer, according to their own access.",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "8d3b7cea-28d1-4a94-b48f-a2dac946fb65",
-      "created_unix": 1738863955.8030837,
-      "updated_unix": 1738863955.8156343
+      "created_unix": 1739033977.1918054,
+      "updated_unix": 1739033977.1918056
     },
     {
       "contents": "SQL SELECT\n  __all__.backend AS Name,\n  MIN(__backend__.description) AS Description,\n  MIN(SUBSTRING(__backend__.last_commit, 1, 8)) AS LastCommit,\n  MIN(__backend__.last_update) AS LastUpdate,\n  COUNT(*) AS Count\nFROM __all__\nLEFT JOIN __backend__\n  ON __all__.backend = __backend__.id\nGROUP BY\n  __all__.backend",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "chart-table",
       "id": "0e28c29f-7744-4ad8-ae7f-0e97314edb06",
-      "created_unix": 1738863955.806774,
-      "updated_unix": 1738863955.8156402
+      "created_unix": 1739033977.193113,
+      "updated_unix": 1739033977.193114
     },
     {
       "contents": "SQL SELECT\n  backend,\n  COUNT(*)\nFROM __all__\nGROUP BY\n  backend",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "chart-pie",
       "id": "8fbc6705-69c9-4d7e-856f-c822e9b09312",
-      "created_unix": 1738863955.8076253,
-      "updated_unix": 1738863955.8156464
+      "created_unix": 1739033977.1935155,
+      "updated_unix": 1739033977.1935158
     },
     {
       "contents": "GROUP SELECT\n  title_plain AS title,\n  created AS time_start,\n  updated AS time_end,\n  type,\n  id,\n  url\nFROM __all__\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  created ASC",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "chart-gantt",
       "id": "19ada4d5-b85f-4a61-aae2-30158ac3f356",
-      "created_unix": 1738863955.80904,
-      "updated_unix": 1738863955.8156526
+      "created_unix": 1739033977.1940813,
+      "updated_unix": 1739033977.1940815
     },
     {
       "contents": "'system' files are below:",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "5828332b-ed00-4459-975b-df52106f1050",
-      "created_unix": 1738863955.8090649,
-      "updated_unix": 1738863955.815658
+      "created_unix": 1739033977.1940908,
+      "updated_unix": 1739033977.194091
     },
     {
       "contents": "GROUP SELECT\n  title,\n  parents,\n  type,\n  backend\nFROM __all__\nWHERE\n  parents IS NULL AND system IS TRUE\nGROUP BY\n  type\nORDER BY\n  type DESC",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "query-table",
       "id": "08c9d28a-feb7-4f8c-800c-d1e8d4a5d3a4",
-      "created_unix": 1738863955.8103902,
-      "updated_unix": 1738863955.8156633
+      "created_unix": 1739033977.1947408,
+      "updated_unix": 1739033977.1947412
     }
   ],
   "tags": [
@@ -131,11 +131,15 @@
     {
       "key": "page_path",
       "val": "index"
+    },
+    {
+      "key": "description",
+      "val": "you are here"
     }
   ],
   "version": 2,
   "created_unix": 1736518448.068824,
-  "updated_unix": 1738863955.8155665,
+  "updated_unix": 1739033965.2532475,
   "namespace": null,
   "type": "page",
   "attachments": []
