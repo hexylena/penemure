@@ -325,9 +325,13 @@ class WrappedStoredThing(BaseModel):
                 d['parent_first_title'] = oe.find_thing(self.thing.data.parents[0].urn).thing.data.title
             except KeyError:
                 d['parent_first_title'] = None
+
         else:
             d['parents'] = None
             d['parent_first_title'] = None
+            # d['final_ancestor_first_title'] = None
+            # if 'final_ancestor_first_title' not in d:
+            #     d['final_ancestor_first_title'] = oe.find_thing(ancestor_chain[-1]).thing.data.title
 
         ancestors = []
         for ancestor_chain in oe.get_lineage(self):

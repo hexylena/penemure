@@ -285,6 +285,13 @@ async function extractIssues(urn, be, bid){
 	txt.value = textPre + json.map(urn => `- ${urn}#link`).join('\n') + textPost
 }
 
+// automatically resize textareas
+[...document.querySelectorAll("textarea")].forEach(t => t.addEventListener('input', autoResize, false));
+function autoResize() {
+	this.style.height = 'auto';
+	this.style.height = this.scrollHeight + 'px';
+}
+
 /*
     // Obtain the object reference for the <textarea>
     var txtarea = document.getElementById("mytextarea");
