@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "- [x] auto create issue with parent + backend set to those of current page (easy to change later but, saves time.)\r\n- urn:boshedron:task:3e1c8460-570c-40c7-9a50-514316c06e3e#link\r\n- [x] @ things. I need to be able to @ things anywhere and pop a search dialog. https://github.com/zurb/tribute worked a charm\r\n- [x] encoding of lt/gt\r\n- [x] do we need a better textarea?\r\n- urn:boshedron:task:8c51eadd-51a6-430a-8ff8-4f7410fcba46#link\r\n- [ ] tags that accept refs should prompt for them.\r\n- [ ] TAG UI.\r\n- [ ] auto-save/stash new notes so they aren't lost. (maybe this involves /new/ redirecting to `/new/<uuid>` so we can be sure it'll be saved.)\r\n- [ ] indent/de-dent buttons in text area? (Alternatively should selection + tab work sanely.)\r\n- [ ] \"ENRICH\" functionality, to go through pages and identify strings that look like titles of other pages? E.g. if you have a page for an note, and I have a page for a specific person mentioned in that note, it would be nice to turn that into a link/reference.\r\n- [ ] Button to extract not tasks but pages, and tag them 'unprocessed' or something, so they can be queried and sorted later.\r\n- [ ] Find dangling references? ",
+      "contents": "- [x] auto create issue with parent + backend set to those of current page (easy to change later but, saves time.)\r\n- urn:boshedron:task:3e1c8460-570c-40c7-9a50-514316c06e3e#link\r\n- [x] encoding of lt/gt\r\n- urn:boshedron:task:8c51eadd-51a6-430a-8ff8-4f7410fcba46#link\r\n- [ ] tags that accept refs should prompt for them.\r\n- [ ] TAG UI.\r\n- [ ] auto-save/stash new notes so they aren't lost. (maybe this involves /new/ redirecting to `/new/<uuid>` so we can be sure it'll be saved.)\r\n- [ ] \"ENRICH\" functionality, to go through pages and identify strings that look like titles of other pages? E.g. if you have a page for an note, and I have a page for a specific person mentioned in that note, it would be nice to turn that into a link/reference.\r\n- [ ] Find dangling references? ",
       "author": {
         "app": "x",
         "namespace": null,
@@ -17,8 +17,20 @@
       },
       "type": "markdown",
       "id": "967d9317-fc05-4f37-943f-8ce78a76c14a",
-      "created_unix": 1738945499.1897085,
-      "updated_unix": 1738945499.200509
+      "created_unix": 1739036625.4368565,
+      "updated_unix": 1739036625.4368577
+    },
+    {
+      "contents": "## Editing\r\n\r\n- [x] do we need a better textarea?\r\n- [x] @ things. I need to be able to @ things anywhere and pop a search dialog. https://github.com/zurb/tribute worked a charm\r\n- [ ] indent/de-dent buttons in text area? (Alternatively should selection + tab work sanely.)\r\n- [ ] Button to extract not tasks but pages, and tag them 'unprocessed' or something, so they can be queried and sorted later.\r\n- [ ] paste HTML via https://euangoddard.github.io/clipboard2markdown/ \r\n- [ ] autoindent to retain current indentation level\r\n- [ ] working fucking tab key",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "58b00acb-ee3f-4ccb-a6ce-a55fcda0beb8",
+      "created_unix": 1739036625.4368675,
+      "updated_unix": 1739036625.436868
     }
   ],
   "tags": [
