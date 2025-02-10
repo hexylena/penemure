@@ -33,7 +33,9 @@
 	<meta property="og:site_name" content="{{ Config.Title }}">
 	<meta property="og:title" content="{{ Config.Title }}">
 
-{% block extras %}{% endblock %}
+{% block extras %}
+<script src="{{ Config.ExportPrefix }}/assets/luxon.min.js"></script>
+{% endblock %}
 	</head>
 	<body>
 		<header class="container-xl">
