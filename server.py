@@ -253,7 +253,22 @@ def save_new(data: Annotated[BaseFormData, Form()]):
     # raise Exception()
 
     obj = ModelFromAttr(dj).model_validate(dj)
-    be = bos.overlayengine.get_backend(data.backend)
+    be = oe.get_backend(data.backend)
+    for att in only_valid_attachments(data.attachments):
+        ext = None
+        try:
+            ext = mimetypes.guess_extension(att.headers['content-type']) or 'bin'
+        except KeyError:
+            ext = 'bin'
+        finally:
+            if ext is None:
+                ext = 'bin'
+        att_urn = UniformReference.new_file_urn(ext=ext.lstrip('.'))
+        att_blob = StoredBlob(urn=att_urn)
+        # suboptimal for large files probably.
+        be.save_blob(att_blob, fsync=False, data=att.file.read())
+        obj.attachments.append((att.filename, att_urn))
+
     res = bos.overlayengine.add(obj, backend=be)
     return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
 
@@ -314,18 +329,22 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
         # >>> mimetypes.guess_type('test.webp')
         # ('image/webp', None)
         # TODO: safety!
+        ext = None
         try:
             ext = mimetypes.guess_extension(att.headers['content-type']) or 'bin'
-        except:
+        except KeyError:
             ext = 'bin'
+        finally:
+            if ext is None:
+                ext = 'bin'
         att_urn = UniformReference.new_file_urn(ext=ext.lstrip('.'))
         att_blob = StoredBlob(urn=att_urn)
-        # print(att_urn)
-        # print(att)
-        # UploadFile(filename='23-06_Bristol_Stool_Chart.webp', size=90964, headers=Headers({'content-disposition': 'form-data; name="attachments"; filename="23-06_Bristol_Stool_Chart.webp"', 'content-type': 'image/webp'}))
         # suboptimal for large files probably.
         be.save_blob(att_blob, fsync=False, data=att.file.read())
         orig.thing.data.attachments.append((att.filename, att_urn))
+        # print(att_urn)
+        # print(att)
+        # UploadFile(filename='23-06_Bristol_Stool_Chart.webp', size=90964, headers=Headers({'content-disposition': 'form-data; name="attachments"; filename="23-06_Bristol_Stool_Chart.webp"', 'content-type': 'image/webp'}))
         # urn = UniformReference.new_file_urn(ext='csv')
         # att = StoredBlob(urn=urn)
         # data = '\t'.join(headers) + '\n' + '\t'.join(columns) + '\n'

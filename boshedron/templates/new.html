@@ -152,6 +152,9 @@
 				<button type="button" onclick="appendtag()">+</button>
 			</div>
 
+			<label for="attachments">Attachments</label>
+			<input type="file" id="attachments" name="attachments" multiple />
+
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
