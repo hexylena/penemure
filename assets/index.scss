@@ -242,3 +242,8 @@ img.cover {
 	opacity: 1;
 	object-position: center 80%;
 }
+
+blockquote {
+	border-inline-start: var(--bs-border-width) solid var(--bs-border-color);
+	padding-inline-start: 0.5em;
+}
