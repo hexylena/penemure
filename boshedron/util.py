@@ -90,6 +90,7 @@ def md(c):
             'codehilite',
             'footnotes', 
             'markdown_checklist.extension',
+            'md_in_html',
             'pymdownx.blocks.details',
             'pymdownx.highlight',
             'pymdownx.magiclink',
