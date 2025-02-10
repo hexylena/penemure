@@ -1,0 +1,40 @@
+{
+  "title": "Bootstrap",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "c994628f-b5a3-4b51-99d0-7337a3b8da4c"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "b08d9a5c-c90e-44f6-bd66-4f374eed8a4b",
+      "created_unix": 1739210658.7927337,
+      "updated_unix": 1739210658.7927346
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1739201387.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1739210632.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739201387.6440885,
+  "updated_unix": 1739210633.3696654,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}

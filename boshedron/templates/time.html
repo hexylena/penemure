@@ -190,7 +190,10 @@
 			{% for log in logs %}
 			{% set u = log.thing.urn.urn %}
 			<tr>
-				<td><a href="{{ u }}#url">{{ log.thing.urn.urn }}#title</a></td>
+				<td>
+					<div><a href="{{ u }}#url">{{ log.thing.urn.urn }}#title</a></div>
+					<div>{{ log.backend.name }}</div>
+				</td>
 				<td>
 					{% if log.thing.data.parents %}
 						{% for parent in log.thing.data.parents %}

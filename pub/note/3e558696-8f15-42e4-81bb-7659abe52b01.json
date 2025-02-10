@@ -1,0 +1,40 @@
+{
+  "title": "Forms",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "5ed982ec-804b-48d5-b3c6-d243db39739d"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "- fixed attachments, i think. \r\n- and blobs.\r\n- yeah forms and blobs are working. sick.\r\n\r\nurn:boshedron:file:blob:714b32a8-588e-4e52-b89a-480ba412a9ad.csv#link \r\n\r\n![testing an image](urn:boshedron:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#url)",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "25cb69e0-5ef5-4bfc-963e-b2799da86842",
+      "created_unix": 1739210716.1064482,
+      "updated_unix": 1739210716.1064491
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1739174400.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1739191305.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739181939.9156768,
+  "updated_unix": 1739191498.1758244,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}

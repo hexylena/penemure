@@ -1,0 +1,40 @@
+{
+  "title": "Misc other attachment stuff",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "0a3fc124-03a3-4315-8143-3f92c3932828"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "e121091e-0b29-47f6-a88b-7c98a39a6f60",
+      "created_unix": 1739210703.6101923,
+      "updated_unix": 1739210703.610194
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1739198400.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1739201297.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739201289.7036436,
+  "updated_unix": 1739201298.7753398,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}
