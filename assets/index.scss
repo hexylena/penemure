@@ -1,0 +1,205 @@
+//custom.scss
+
+// Variable overrides first
+$primary: #CE3518;
+$body-bg-dark: black;
+$enable-shadows: true;
+$border-width: 2px;
+$border-color: black;
+$border-radius: 0px;
+
+
+@import "../node_modules/bootstrap/scss/functions";
+@import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/variables-dark";
+@import "../node_modules/bootstrap/scss/maps";
+@import "../node_modules/bootstrap/scss/mixins";
+@import "../node_modules/bootstrap/scss/utilities";
+
+// Layout & components
+@import "../node_modules/bootstrap/scss/root";
+@import "../node_modules/bootstrap/scss/reboot";
+@import "../node_modules/bootstrap/scss/type";
+@import "../node_modules/bootstrap/scss/images";
+@import "../node_modules/bootstrap/scss/containers";
+@import "../node_modules/bootstrap/scss/grid";
+@import "../node_modules/bootstrap/scss/tables";
+@import "../node_modules/bootstrap/scss/forms";
+@import "../node_modules/bootstrap/scss/buttons";
+@import "../node_modules/bootstrap/scss/dropdown";
+@import "../node_modules/bootstrap/scss/nav";
+@import "../node_modules/bootstrap/scss/navbar";
+@import "../node_modules/bootstrap/scss/card";
+@import "../node_modules/bootstrap/scss/breadcrumb";
+@import "../node_modules/bootstrap/scss/badge";
+@import "../node_modules/bootstrap/scss/alert";
+@import "../node_modules/bootstrap/scss/list-group";
+@import "../node_modules/bootstrap/scss/close";
+@import "../node_modules/bootstrap/scss/toasts";
+@import "../node_modules/bootstrap/scss/popover";
+
+/* @import "../node_modules/bootstrap/scss/transitions"; */
+/* @import "../node_modules/bootstrap/scss/button-group"; */
+/* @import "../node_modules/bootstrap/scss/accordion"; */
+/* @import "../node_modules/bootstrap/scss/pagination"; */
+/* @import "../node_modules/bootstrap/scss/progress"; */
+/* @import "../node_modules/bootstrap/scss/modal"; */
+/* @import "../node_modules/bootstrap/scss/tooltip"; */
+/* @import "../node_modules/bootstrap/scss/carousel"; */
+/* @import "../node_modules/bootstrap/scss/spinners"; */
+/* @import "../node_modules/bootstrap/scss/offcanvas"; */
+/* @import "../node_modules/bootstrap/scss/placeholders"; */
+// Helpers
+@import "../node_modules/bootstrap/scss/helpers";
+// Utilities
+@import "../node_modules/bootstrap/scss/utilities/api";
+
+.h-1 { font-size: $h1-font-size; }
+.h-2 { font-size: $h2-font-size; }
+.h-3 { font-size: $h3-font-size; }
+.h-4 { font-size: $h4-font-size; }
+.h-5 { font-size: $h5-font-size; }
+.h-6 { font-size: $h6-font-size; }
+
+table {
+	caption-side: top;
+	caption {font-weight: 800;}
+	
+	.header {
+		text-align: center;
+		background-color: var(--background-o);
+	}
+}
+
+table#metadata {
+	width: auto;
+}
+
+markdown-toolbar {
+	margin-bottom: 0.8em;
+	padding-left: 0; // overrides something in BS
+}
+markdown-toolbar > * {
+	vertical-align: middle;
+	padding: .4em 1em;
+	font-weight: normal;
+	margin-bottom: 0 !important;
+	cursor: pointer;
+}
+
+// fuck classy nonsense. Defaults should just be decent.
+form {
+	label {
+		@extend .form-label;
+	}
+
+	input[type="file"], select, input[type="text"], textarea {
+		@extend .form-control;
+	}
+	button {
+		@extend .btn;
+		@extend .btn-outline-secondary;
+	}
+
+	/* select, textarea, input[type="text"], input[type="number"], input[type="date"] { */
+	/* 	@extend .form-control; */
+	/* 	@extend .form-check-input; */
+	/* } */
+}
+
+table {
+	@extend .table;
+	@extend .table-striped;
+}
+span.tag {
+	@extend .badge;
+	@extend .text-bg-light;
+	margin-bottom: 0.3em;
+}
+
+
+.form-option {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.8rem;
+
+	input {
+		min-width: 1em;
+		margin: 0 0.5rem;
+	}
+	label {
+		width: 100%;
+		margin: 0 0.5rem;
+	}
+}
+
+@media(max-width: 640px){
+	table, table td, table tr, table th { display: block; text-align: left !important; padding-left: 0; }
+	table tbody { display: block }
+
+	table thead { display: none; }
+	table td { border-bottom: none; }
+	table tr { border: var(--bs-border-width) solid var(--bs-border-color); border-top: none;}
+}
+
+div.kanban {
+	display: flex;
+	overflow: scroll;
+	max-height: 24em;
+	background: var(--background-o);
+	border: 1px solid black;
+	padding: 1em;
+
+	.kanban-column {
+		min-width: 20ch;
+		max-width: 30ch;
+		margin-right: 1em;
+
+		.title {
+			font-weight: bold;
+		}
+	}
+}
+.card {
+	background: var(--background);
+	/* padding: 0.5rem; */
+	margin-bottom: 0.5rem;
+	border: 1px solid #ccc;
+
+	.card-title { @extend .h-5; }
+
+	img {
+		width: auto;
+		object-fit: contain;
+		height: 8em;
+	}
+}
+
+fieldset {
+	border: .2rem solid var(--bs-border-color);
+	margin-bottom: 1em;
+	padding: 1em;
+
+	> legend {
+		float: unset;
+		width: unset;
+		padding: unset;
+		padding: 0 0.5em;
+	}
+
+}
+
+.ts-control, .ts-dropdown-content {
+	background: light-dark(#eee, #111) !important;
+	color: var(--bs-body-color);
+}
+.ts-dropdown .option {
+	border: 1px solid transparent;
+}
+.ts-dropdown .option.active {
+	border: 1px solid $primary;
+}
+hgroup, h1 {
+	@extend .mb-3;
+	@extend .mt-4;
+}

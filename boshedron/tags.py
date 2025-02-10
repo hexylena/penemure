@@ -176,9 +176,9 @@ class TemplateTag(BaseModel):
             m.digest()
             d = int.from_bytes(m.digest()[0:2]) % 360
             x = int.from_bytes(m.digest()[3:5]) % 30
-            return f'hsl({d}deg 75% {65 + x}%)'
+            return f'hsl({d}deg 75% {65 + x}%) !important'
         elif isinstance(self.val.colors, list):
-            return self.val.colors[self.val.values.index(val)]
+            return self.val.colors[self.val.values.index(val)] + ' !important'
 
         return 'transparent'
 

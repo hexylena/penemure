@@ -3,13 +3,16 @@ from .util import *
 
 
 def render_table(results: GroupedResultSet) -> str:
+    if results is None:
+        return '<table class="table table-striped"></table>'
+
     return results.render_html_table()
 
 def render_table_editable(results: GroupedResultSet) -> str:
     if results is None:
-        return '<table></table>'
+        return '<table class="table table-striped"></table>'
 
-    page_content = "<table>"
+    page_content = '<table class="table table-striped">'
 
     # Header is the same for each group so just take the first.
     page_content += "<thead><tr>"
@@ -44,8 +47,13 @@ def render_kanban(results: GroupedResultSet) -> str:
 
         for row_id, row in group.enum():
             page_content += f'<div class="card" id="{row_id}">'
-            for x in row:
+
+            page_content += f'<div class="card-body">'
+            page_content += f'<div class="card-title h-5">{row[0]}</div>'
+            for x in row[1:]:
                 page_content += f'<div>{x}</div>'
+            page_content += f'</div>'
+
             page_content += "</div>"
         page_content += '</div>'
     page_content += "</div>"
@@ -130,17 +138,17 @@ def render_cards(results: GroupedResultSet) -> str:
             for k in ('urn', 'title', 'blurb')
         }
 
-        page_content += '<div class="cards">' # Cards
+        page_content += '<div class="cards d-flex flex-wrap">' # Cards
+
         for row_id, row in group.enum():
-            page_content += f'<div class="card linked" id="{row_id}"><a href="{row[indexes["urn"]]}#url">'
-            page_content += f'<div><b>{row[indexes["title"]]}</b></div>'
-            page_content += f'<div>{row[indexes["blurb"]]}</div>'
-            page_content += '<div>'
+            page_content += f'<div class="card linked m-1" style="width: 18rem;" id="{row_id}"><a href="{row[indexes["urn"]]}#url">'
+            page_content += f'<div class="card-body">' # Body
+            page_content += f'<div class="card-title h-5">{row[indexes["title"]]}</div>'
+            page_content += f'<div class="card-text">{row[indexes["blurb"]]}</div>'
             for other in row[3:]:
                 if other is not None and len(other) > 0:
                     page_content += f'<span class="tag">{other}</span>'
-            page_content += '</div>'
-
+            page_content += '</div>' # end body
             page_content += "</a></div>"
         page_content += '</div>' # Cards
 

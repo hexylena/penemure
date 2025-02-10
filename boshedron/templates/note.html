@@ -50,12 +50,13 @@
 	<tr>
 		<td scope="row">Ancestors</td>
 		<td>{% for chain in oe.get_lineage(note) %}
-			<div>
-				{% for p in chain %}
-				{% if loop.index > 1 %}→{% endif %}
-				<a href="{{ p.urn }}#url">{{ p.urn }}#title</a>
-				{% endfor %}
-			</div>
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb">
+					{% for p in chain %}
+					<li class="breadcrumb-item"><a href="{{ p.urn }}#url">{{ p.urn }}#title</a></li>
+					{% endfor %}
+				</ol>
+			</nav>
 		{% endfor %}</td>
 	</tr>
 

@@ -517,6 +517,13 @@ class OverlayEngine(BaseModel):
 
         return results
 
+    def templates(self):
+        """List registered 'templates'"""
+        tpls = [x.thing.data.title for x in self.all_things() if x.thing.data.type == 'template']
+        # TODO: add templates to mix.
+        res = list(set(tpls + [Note.model_fields['type'].default]))
+        return sorted(res)
+
     def apps(self):
         """List registered 'apps'"""
         builtins = [p.model_fields['type'].default for p in Note.__subclasses__()]
@@ -787,6 +794,12 @@ class OverlayEngine(BaseModel):
         raise KeyError(f"Could not find {name}")
 
     def get_lineage(self, note: WrappedStoredThing, lineage=None): # -> Generator[list[WrappedStoredThing]]:
+        res = list(self._get_lineage(note, lineage=lineage))
+        if res == [[]]:
+            return []
+        return res
+
+    def _get_lineage(self, note: WrappedStoredThing, lineage=None): # -> Generator[list[WrappedStoredThing]]:
         parents = note.thing.data.get_parents()
         if len(parents) == 0:
             if lineage is not None:

@@ -56,11 +56,18 @@
 		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.urn }}#url">{{ c.urn }}#title</a>{% endfor %}</td>
 		<td>{{ note.backend.name }}</td>
 		<td>
-		{% for chain in oe.get_lineage(note) %}
-				{% for p in chain %}
-					{% if loop.index > 1 %}→{% endif %} {{ p.urn }}#title
+			{% set lin = oe.get_lineage(note) %}
+			{% if lin %}
+			<ul class="list-group">
+				{% for chain in lin %}
+				<li class="list-group-item">
+					{% for p in chain %}
+						{% if loop.index > 1 %}→{% endif %} {{ p.urn }}#title
+					{% endfor %}
+				</li>
 				{% endfor %}
-		{% endfor %}
+			</ul>
+			{% endif %}
 		</td>
 	</tr>
 	{% endfor %}

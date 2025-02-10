@@ -218,7 +218,7 @@ def get_new(template: Optional[str] = None):
     if template.startswith('urn:boshedron:'):
         # Then they're providing a note ref.
         u = UniformReference.from_string(template)
-        orig = oe.find(u)
+        print(orig)
         return render_fixed('new.html', note_template=orig.thing.data)
 
     tpl = oe.search(type='template', title=template)
@@ -227,6 +227,8 @@ def get_new(template: Optional[str] = None):
         tpl = tpl[0]
         assert isinstance(tpl.thing.data, Template)
         return render_fixed('new.html', note_template=tpl.thing.data.instantiate())
+    else:
+        return render_fixed('new.html')
 
 @app.post("/new.html", tags=['mutate'])
 @app.post("/new", tags=['mutate'])

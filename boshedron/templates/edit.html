@@ -12,12 +12,12 @@
 		<fieldset>
 			<legend>Editing Note {{ note.thing.urn.urn | e }}</legend>
 
-			<label for="title">Title</label>
-			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title | e }}">
+			<label  for="title">Title</label>
+			<input  id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title | e }}">
 			<input type="hidden" name="urn" value="{{ note.thing.urn.urn }}">
 
-			<label for="project">Parent(s)</label>
-			<select id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
+			<label  for="project">Parent(s)</label>
+			<select  id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
 				{% for group in oe.query('group select urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
@@ -35,8 +35,8 @@
 				});
 			</script>
 
-			<label for="type">Type</label>
-			<select id="type" name="type">
+			<label  for="type">Type</label>
+			<select  id="type" name="type">
 				{% for app in bos.apps() %}
 				<option value="{{ app }}"
 					{% if app == note.thing.data.type %}selected{% endif %}
@@ -44,18 +44,19 @@
 				{% endfor %}
 			</select>
 
-			<label for="notes">Contents</label>
-
+			<label  for="notes">Contents</label>
 			<div id="notes" name='contents'>
 				{% for block in note.thing.data.get_contents() %}
-				<div data-urn="{{ block.id }}" class="block existing" style="display: flex">
-					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
-						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
-						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
-						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+				<div data-urn="{{ block.id }}" class="block existing mb-4" style="margin-bottom: 1em">
+					<div class="row">
+					<div class="col-1 d-flex flex-column">
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
 					</div>
-					<div style="display: flex; flex-direction: column; flex-grow: 7">
-						<select id="type" name="content_type">
+					<div class="col-10">
+						<div class="row">
+						<select class="form-select" id="type" name="content_type">
 							{% for bt in blocktypes %}
 							<option value="{{ bt.value }}" {% if bt.value == block.type %}selected{% endif %}>{{ bt.pretty() }}</option>
 							{% endfor %}
@@ -63,30 +64,32 @@
 						<input type="hidden" name="content_uuid" value="{{ block.id }}">
 
 						<markdown-toolbar for="block-{{ block.id }}">
-							<md-bold><b>B</b></md-bold>
-							<md-header>H1</md-header>
-							<md-italic><i>I</i></md-italic>
-							<md-quote>”</md-quote>
-							<md-code>&lt;/&gt;</md-code>
-							<md-link>🔗</md-link>
-							<md-image>🖼</md-image>
-							<md-unordered-list>-</md-unordered-list>
-							<md-ordered-list>1.</md-ordered-list>
-							<md-task-list>✔️</md-task-list>
+							<md-bold class="btn btn-outline-secondary"><b>B</b></md-bold>
+							<md-header class="btn btn-outline-secondary">H1</md-header>
+							<md-italic class="btn btn-outline-secondary"><i>I</i></md-italic>
+							<md-quote class="btn btn-outline-secondary">”</md-quote>
+							<md-code class="btn btn-outline-secondary">&lt;/&gt;</md-code>
+							<md-link class="btn btn-outline-secondary">🔗</md-link>
+							<md-image class="btn btn-outline-secondary">🖼</md-image>
+							<md-unordered-list class="btn btn-outline-secondary">-</md-unordered-list>
+							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
+							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
-							<button type="button" data-md-button class="extract-issues" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', '{{ block.id }}')">📤</button>
+							<button type="button" data-md-button class="btn btn-outline-secondary" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', '{{ block.id }}')">📤</button>
 						</markdown-toolbar>
 						<textarea id="block-{{ block.id }}" name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
 						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
+						</div>
+					</div>
 					</div>
 				</div>
 				{% endfor %}
 
-				<div id='default-block' class="block" style="display: flex">
-					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
-						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
-						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
-						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+				<div id='default-block' class="block mb-4" style="display: flex">
+					<div class="d-flex" style="flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
 					</div>
 					<div style="display: flex; flex-direction: column; flex-grow: 7">
 						<select id="type" name="content_type">
@@ -98,25 +101,25 @@
 						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
 
 						<markdown-toolbar for="block-REPLACEME">
-							<md-bold><b>B</b></md-bold>
-							<md-header>H1</md-header>
-							<md-italic><i>I</i></md-italic>
-							<md-quote>”</md-quote>
-							<md-code>&lt;/&gt;</md-code>
-							<md-link>🔗</md-link>
-							<md-image>🖼</md-image>
-							<md-unordered-list>-</md-unordered-list>
-							<md-ordered-list>1.</md-ordered-list>
-							<md-task-list>✔️</md-task-list>
+							<md-bold class="btn btn-outline-secondary"><b>B</b></md-bold>
+							<md-header class="btn btn-outline-secondary">H1</md-header>
+							<md-italic class="btn btn-outline-secondary"><i>I</i></md-italic>
+							<md-quote class="btn btn-outline-secondary">”</md-quote>
+							<md-code class="btn btn-outline-secondary">&lt;/&gt;</md-code>
+							<md-link class="btn btn-outline-secondary">🔗</md-link>
+							<md-image class="btn btn-outline-secondary">🖼</md-image>
+							<md-unordered-list class="btn btn-outline-secondary">-</md-unordered-list>
+							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
+							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
-							<button type="button" data-md-button class="extract-issues" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', 'REPLACEME')">📤</button>
+							<button type="button" data-md-button class="btn btn-outline-secondary" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', 'REPLACEME')">📤</button>
 						</markdown-toolbar>
 						<textarea id="block-REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
 					</div>
 				</div>
 			</div>
 
-			<label for="tags">Tags</label>
+			<label  for="tags">Tags</label>
 			<div id="tags" name="tags">
 				<table>
 					<thead>
@@ -127,7 +130,7 @@
 					<tbody>
 						{% for tag in note.thing.data.tags %}
 						<tr class='tag existing'>
-							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>
 								{% if note.thing.data.type == 'template' %}
@@ -139,26 +142,26 @@
 						</tr>
 						{% endfor %}
 						<tr id="default-tag" class="tag">
-							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key"/></td>
 							<td><input type="text" name="tag_val" placeholder="value"/></td>
 						</tr>
 					</tbody>
 				</table>
-				<button type="button" onclick="appendtag()">+</button>
+				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
 			</div>
 
-			<label for="attachments">Attachments</label>
-			<input type="file" id="attachments" name="attachments" multiple />
+			<label    for="attachments">Attachments</label>
+			<input  type="file" id="attachments" name="attachments" multiple />
 
-			<label for="backend">Backend</label>
-			<select id="backend" name="backend">
+			<label  for="backend">Backend</label>
+			<select  id="backend" name="backend">
 				{% for backend in oe.backends %}
 				<option value="{{ backend.name }}" {% if note.backend.name == backend.name %}selected{%endif%}>{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}
 			</select>
 
-			<button type="submit">Save Notes</button>
+			<button class="btn btn-primary" type="submit">Save Notes</button>
 		</fieldset>
 	</form>
 

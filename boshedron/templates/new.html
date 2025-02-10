@@ -4,7 +4,7 @@
 
 {% block main %}
 	<hgroup>
-	<h1>Add a Note</h1>
+		<h1>Add a {% if template %}{{ template.title.title() }}{% else %}Note{% endif %}</h1>
 	</hgroup>
 
 	<form method="post" action="/new">
