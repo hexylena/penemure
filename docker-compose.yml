@@ -3,7 +3,7 @@ services:
     restart: always
     build: .
     environment:
-      REPOS: "/repos/project-management/pub:/repos/issues"
+      REPOS: "/repos/project-management/pub:/repos/issues:/repos/dlc-ptsd/.pm/"
       TZ: "Europe/Amsterdam"
       SENTRY_SDK: "http://f709b153c1dd4e309664cdef67cf4c12@192.168.2.12:8000/1"
       SQLITE: 'true'
@@ -18,15 +18,7 @@ services:
     restart: always
     build: .
     command: |
-      bash -c "while true; do python scripts/sync.py && curl http://web:8000/reload; sleep 600; done;"
-    environment:
-      REPOS: "/repos/project-management/pub:/repos/issues"
-      TZ: "Europe/Amsterdam"
-    volumes:
-      - "${PWD}:/code/"
-      - "${PWD}/repos:/repos"
-      - "/root/.ssh/:/root/.ssh/"
-      - "/root/.gitconfig:/root/.gitconfig"
+      bash -c "while true; do curl http://web:8000/sync; sleep 600; done;"
     links:
       - web:web
 
