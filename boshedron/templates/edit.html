@@ -12,8 +12,8 @@
 		<fieldset>
 			<legend>Editing Note {{ note.thing.urn.urn | e }}</legend>
 
-			<label  for="title">Title</label>
-			<input  id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title | e }}">
+			<label for="title">Title</label>
+			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title | e }}">
 			<input type="hidden" name="urn" value="{{ note.thing.urn.urn }}">
 
 			<label  for="project">Parent(s)</label>
@@ -35,8 +35,8 @@
 				});
 			</script>
 
-			<label  for="type">Type</label>
-			<select  id="type" name="type">
+			<label for="type">Type</label>
+			<select id="type" name="type">
 				{% for app in bos.apps() %}
 				<option value="{{ app }}"
 					{% if app == note.thing.data.type %}selected{% endif %}
@@ -44,7 +44,7 @@
 				{% endfor %}
 			</select>
 
-			<label  for="notes">Contents</label>
+			<label for="notes">Contents</label>
 			<div id="notes" name='contents'>
 				{% for block in note.thing.data.get_contents() %}
 				<div data-urn="{{ block.id }}" class="block existing mb-4" style="margin-bottom: 1em">
@@ -119,7 +119,7 @@
 				</div>
 			</div>
 
-			<label  for="tags">Tags</label>
+			<label for="tags">Tags</label>
 			<div id="tags" name="tags">
 				<table>
 					<thead>
@@ -151,11 +151,11 @@
 				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
 			</div>
 
-			<label    for="attachments">Attachments</label>
-			<input  type="file" id="attachments" name="attachments" multiple />
+			<label for="attachments">Attachments</label>
+			<input type="file" id="attachments" name="attachments" multiple />
 
-			<label  for="backend">Backend</label>
-			<select  id="backend" name="backend">
+			<label for="backend">Backend</label>
+			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
 				<option value="{{ backend.name }}" {% if note.backend.name == backend.name %}selected{%endif%}>{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}

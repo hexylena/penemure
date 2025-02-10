@@ -7,7 +7,7 @@
 		<h1>Add a {% if template %}{{ template.title.title() }}{% else %}Note{% endif %}</h1>
 	</hgroup>
 
-	<form method="post" action="/new">
+	<form method="post" action="/new" enctype="multipart/form-data">
 		<fieldset>
 			<legend>New Note</legend>
 
@@ -51,7 +51,6 @@
 			</select>
 
 			<label for="notes">Contents</label>
-
 			<div id="notes" name='contents'>
 				{% if template %}
 				{% for block in template.contents %}
@@ -70,16 +69,16 @@
 						<input type="hidden" name="content_uuid" value="{{ block.id }}">
 
 						<markdown-toolbar for="block-{{ block.id }}">
-							<md-bold><b>B</b></md-bold>
-							<md-header>H1</md-header>
-							<md-italic><i>I</i></md-italic>
-							<md-quote>”</md-quote>
-							<md-code>&lt;/&gt;</md-code>
-							<md-link>🔗</md-link>
-							<md-image>🖼</md-image>
-							<md-unordered-list>-</md-unordered-list>
-							<md-ordered-list>1.</md-ordered-list>
-							<md-task-list>✔️</md-task-list>
+							<md-bold class="btn btn-outline-secondary"><b>B</b></md-bold>
+							<md-header class="btn btn-outline-secondary">H1</md-header>
+							<md-italic class="btn btn-outline-secondary"><i>I</i></md-italic>
+							<md-quote class="btn btn-outline-secondary">”</md-quote>
+							<md-code class="btn btn-outline-secondary">&lt;/&gt;</md-code>
+							<md-link class="btn btn-outline-secondary">🔗</md-link>
+							<md-image class="btn btn-outline-secondary">🖼</md-image>
+							<md-unordered-list class="btn btn-outline-secondary">-</md-unordered-list>
+							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
+							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
 						</markdown-toolbar>
 						<textarea id="REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
@@ -89,10 +88,10 @@
 				{% endfor %}
 				{% endif %}
 				<div id='default-block' class="block" style="display: flex">
-					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
-						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
-						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
-						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+					<div class="d-flex" style="flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
+						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
 					</div>
 					<div style="display: flex; flex-direction: column; flex-grow: 7">
 						<select id="type" name="content_type">
@@ -104,16 +103,16 @@
 						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
 
 						<markdown-toolbar for="block-REPLACEME">
-							<md-bold><b>B</b></md-bold>
-							<md-header>H1</md-header>
-							<md-italic><i>I</i></md-italic>
-							<md-quote>”</md-quote>
-							<md-code>&lt;/&gt;</md-code>
-							<md-link>🔗</md-link>
-							<md-image>🖼</md-image>
-							<md-unordered-list>-</md-unordered-list>
-							<md-ordered-list>1.</md-ordered-list>
-							<md-task-list>✔️</md-task-list>
+							<md-bold class="btn btn-outline-secondary"><b>B</b></md-bold>
+							<md-header class="btn btn-outline-secondary">H1</md-header>
+							<md-italic class="btn btn-outline-secondary"><i>I</i></md-italic>
+							<md-quote class="btn btn-outline-secondary">”</md-quote>
+							<md-code class="btn btn-outline-secondary">&lt;/&gt;</md-code>
+							<md-link class="btn btn-outline-secondary">🔗</md-link>
+							<md-image class="btn btn-outline-secondary">🖼</md-image>
+							<md-unordered-list class="btn btn-outline-secondary">-</md-unordered-list>
+							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
+							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
 						</markdown-toolbar>
 						<textarea id="block-REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
@@ -149,7 +148,7 @@
 						</tr>
 					</tbody>
 				</table>
-				<button type="button" onclick="appendtag()">+</button>
+				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
 			</div>
 
 			<label for="attachments">Attachments</label>
@@ -168,7 +167,7 @@
 				}
 			</script>
 
-			<button type="submit">Save Notes</button>
+			<button class="btn btn-primary" type="submit">Save Notes</button>
 		</fieldset>
 	</form>
 
