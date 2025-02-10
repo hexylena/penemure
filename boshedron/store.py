@@ -622,6 +622,7 @@ class OverlayEngine(BaseModel):
                     'urn': urn.urn,
                     'parent': note.thing.urn.urn,
                     'parent_title': note.thing.data.title,
+                    'size': self.find_blob(urn).thing.size
                 })
 
         for app in self.apps():
