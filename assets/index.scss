@@ -7,6 +7,19 @@ $enable-shadows: true;
 $border-width: 2px;
 $border-color: black;
 $border-radius: 0px;
+$font-family-sans-serif: 'Recursive';
+$font-family-monospace: 'Recursive';
+
+body {
+	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 0;
+	font-weight: 350;
+}
+h1, h2 {
+	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 1;
+}
+pre, kbd, samp, code {
+	font-variation-settings: "CASL" 0.5, "CRSV" 0, "MONO" 1;
+}
 
 
 @import "../node_modules/bootstrap/scss/functions";
