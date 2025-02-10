@@ -1,0 +1,43 @@
+{
+  "title": "design docs",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "Here we'll keep track of some of the design documentation/planning\r\n\r\none of my insane ideas was that “i’d like my json files in a directory to be sort of a database queryable via SQL!” and so I implemented the world’s worst sql parser (subsequently replaced with a slightly better one in urn:boshedron:note:9da05f42-b883-4584-bb36-302eb983cb5b#link ) that would let the user filter flattened json blobs from their “”“”“database”“”“”.\r\n\r\n(This is roughly similar to notion’s ability to do the same, except probably worse and less friendly since their’s has nice dropdowns.)\r\n",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "eb8850d7-611e-4a7f-b997-1b6e06b1bd0c",
+      "created_unix": 1739191972.6928296,
+      "updated_unix": 1739191972.692831
+    },
+    {
+      "contents": "SQL SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  title_plain ASC",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "query-cards",
+      "id": "abaabde9-211a-4918-a3b3-f6b8827d5be4",
+      "created_unix": 1739191972.6936688,
+      "updated_unix": 1739191972.6936698
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1737490895.662313,
+  "updated_unix": 1738579073.428605,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

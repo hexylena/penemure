@@ -1,0 +1,40 @@
+{
+  "title": "Updating the time logging implementation",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "db21e50e-773a-4e1a-a973-3796b66d97ab",
+      "created_unix": 1739191987.8064635,
+      "updated_unix": 1739191987.8064647
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1738139040.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1738140900.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738139040.5450327,
+  "updated_unix": 1738231186.2040136,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}

@@ -1,0 +1,55 @@
+{
+  "title": "markdown testing",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "# h1\r\n\r\n**bold** text and _italic_ text and https://example.com\r\n\r\n## h2\r\n\r\n![alt text](http://placekitten.com/200/300)\r\n\r\n### h3\r\n\r\n[link](#test)\r\n\r\n#### h4\r\n\r\n[link](https://example.com)\r\n\r\n# Confused letters\r\n\r\nB8 1Iil O0\r\n\r\nQGEFpqirO0 ER79jr Csa36åÅö8ij%?¡,:\r\n\r\n# Mermaid\r\n\r\n## Flowchart\r\n\r\n```mermaid\r\ngraph LR\r\n    A[Square Rect] -- Link text --> B((Circle))\r\n    A --> C(Round Rect)\r\n    B --> D{Rhombus}\r\n    C --> D\r\n```\r\n\r\n## Sequence\r\n\r\n```mermaid\r\nsequenceDiagram\r\n    participant Alice\r\n    participant Bob\r\n    Alice->>John: Hello John, how are you?\r\n    loop HealthCheck\r\n        John->>John: Fight against hypochondria\r\n    end\r\n    Note right of John: Rational thoughts<br/>prevail...\r\n    John-->>Alice: Great!\r\n    John->>Bob: How about you?\r\n    Bob-->>John: Jolly good!\r\n```\r\n\r\n## Gantt Charts\r\n\r\n```mermaid\r\ngantt\r\n    title A Gantt Diagram\r\n    dateFormat  YYYY-MM-DD\r\n    section Section\r\n    A task             : a1, 2014-01-01, 30d\r\n    Another task       : after a1  , 20d\r\n    section Another\r\n    Task in sec        : 2014-01-12  , 12d\r\n    another task       : 24d\r\n```\r\n\r\n```mermaid\r\ngantt\r\n    title Example Starfish Trace\r\n    dateFormat x\r\n    axisFormat %S.%L\r\n\r\n    section Frontend\r\n    /checkout                                        :crit, 0, 1500ms\r\n    GET /api/session                                 :150, 170ms\r\n    POST /api/analytics                              :190, 70ms\r\n    GET /api/checkout/state                          :200, 500ms\r\n    GET /api/checkout/cart                           :1100, 140ms\r\n    App                                              :1300, 180ms\r\n    POST /api/analytics                              :done, 1450, 70ms\r\n    GET /assistant/poll                              :done, 1450, 120ms\r\n    POST /api/analytics                              :done, 1580, 70ms\r\n\r\n    section API Service\r\n    /api/checkout/state                              :crit, 240, 440ms\r\n    cache.get session#58;[redacted]                  :360, 10ms\r\n    db.query select from session                     :370, 20ms\r\n    db.query select from user                        :390, 20ms\r\n    db.query select from checkout                    :410, 20ms\r\n    http.request GET http#58;//payments/poll  :450, 210ms\r\n    thread.spawn refresh-checkout-cache              :done, 670, 220ms\r\n\r\n    section Payment Service\r\n    /poll                                            :crit, 470, 180ms\r\n    db.query select from payment                     :490, 30ms\r\n    db.query update payment                          :530, 60ms\r\n```\r\n\r\n[https://brycemecum.com/2023/03/31/til-mermaid-tracing/](https://brycemecum.com/2023/03/31/til-mermaid-tracing/)\r\n\r\n",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "fb6b3c4a-54e9-4339-8969-e6f686dbcaa9",
+      "created_unix": 1739191993.414225,
+      "updated_unix": 1739191993.4142265
+    },
+    {
+      "contents": "## pymdownx\r\n\r\n/// details | summary\r\n\r\nSome content\r\n\r\n///\r\n\r\n<details><summary>sum</summary>\r\nasdf\r\n</details>\r\n\r\n\"some quote's [sic] here\"\r\n",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "717d53ee-f627-40bf-b2e0-2807dafa64fa",
+      "created_unix": 1739191993.414235,
+      "updated_unix": 1739191993.4142356
+    },
+    {
+      "contents": "```python {linenums=\"1\"}\r\nimport foo.bar\r\n```",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "bbfc6740-2359-4e18-ab2c-037e3cd8201a",
+      "created_unix": 1739191993.414242,
+      "updated_unix": 1739191993.4142425
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1737490945.899794,
+  "updated_unix": 1738266629.7975664,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

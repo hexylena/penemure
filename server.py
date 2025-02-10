@@ -152,7 +152,7 @@ class BaseFormData(BaseModel):
     tag_val: List[str] = Field(default_factory=list)
     backend: str
     # attachments: Annotated[UploadFile, File()]
-    attachments: Optional[List[UploadFile]]
+    attachments: Optional[List[UploadFile]] = Field(default_factory=list)
 
 class TimeFormData(BaseModel):
     urn: Optional[str] = None

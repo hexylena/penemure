@@ -1,0 +1,31 @@
+{
+  "title": "motivation",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "why did i want this\r\n\r\ntime tracking:\r\n\r\n- i do not enjoy clockify\r\n- it forgets about entries older than like, a week idk.\r\n- i want to have notes, it would be so nice to have notes on clockify and then be able to see my 'work log' for a project with all of my notes in one place on a project.\r\n\r\n\r\nlightweight issues:\r\n\r\n- thesis type issues were annoying to make a proper 'issue' for.\r\n\r\n\r\ngrant writing:\r\n\r\n- tracking things like the overview (important links, etc) in one place is needed\r\n- tracking our deliverables with all of the metadata/private links for those\r\n- linking that somehow to our external issues for reporting time is a must.\r\n\r\n\r\ngallantries?\r\n\r\n- cannot think of any valid reasons there.\r\n\r\n\r\n",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "9e774183-07e5-4fcc-a38a-99ca14ec9826",
+      "created_unix": 1739192255.1163409,
+      "updated_unix": 1739192255.1163425
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1737491264.170172,
+  "updated_unix": 1737491264.170186,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

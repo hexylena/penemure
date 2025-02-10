@@ -1,0 +1,40 @@
+{
+  "title": "fixing ancestors",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "ba2d5e92-7166-4a83-bdcc-65c883d1cb6e",
+      "created_unix": 1739191931.959218,
+      "updated_unix": 1739191931.959219
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1738317600.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1738327429.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738327265.7558665,
+  "updated_unix": 1738327430.0023353,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}

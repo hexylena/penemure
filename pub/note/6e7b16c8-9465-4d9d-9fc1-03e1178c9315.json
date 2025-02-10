@@ -1,0 +1,36 @@
+{
+  "title": "edit total time (updates end time.) rather than start/end",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "c5a1ca49-89ae-479a-80a5-2752ae7c5552"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "0a8904ac-630a-40d3-a352-66f2e8d6284a",
+      "created_unix": 1739191984.3949351,
+      "updated_unix": 1739191984.3949366
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738578762.376239,
+  "updated_unix": 1738578762.376242,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

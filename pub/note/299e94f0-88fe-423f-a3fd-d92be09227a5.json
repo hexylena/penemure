@@ -1,0 +1,36 @@
+{
+  "title": "tags needs to be completely redone (again)",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "d48d4f3b-5e5b-45f9-aab8-a9bb2934cc36"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "6644fbe7-4ca5-406f-843f-94632af18408",
+      "created_unix": 1739192008.0534391,
+      "updated_unix": 1739192008.053441
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738919138.5859585,
+  "updated_unix": 1738919138.5859597,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Get it Working",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "f7b14ca2-3fff-41d9-9bb1-0370e5082cf1",
+      "created_unix": 1739192054.3394604,
+      "updated_unix": 1739192054.339462
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "in-progress"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1736518448.069053,
+  "updated_unix": 1737117000.059873,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

@@ -1,0 +1,31 @@
+{
+  "title": "SQLish: again",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "In the beginning we had [`sqlish.go`](https://github.com/hexylena/project-management/blob/2d1d57074513ce4f81d0cc714c209baf6069db52/sqlish/sql.go) which was truly a horror and failed to implement anything useful of the sql standard.\r\n\r\nNext we had [`sqlglot`](https://github.com/tobymao/sqlglot) which was fantastic but, dear goodness it was slow.\r\n\r\n```\r\n$ SQLITE=false python scripts/sql.py \"GROUP select type from __all__ group by type limit 1\"\r\nCreated HASH in 1.811981201171875e-05  \r\nExecuted query in 0.1616196632385254  \r\n```\r\n\r\nwow! that's... terrible!\r\n\r\nLet's replace it with sqlite in-memory:\r\n\r\n```\r\n$ SQLITE=true python scripts/sql.py \"GROUP select type from __all__ group by type limit 1\" \r\nCreated SQLITE3 DB in 0.006751537322998047\r\n Executed query in 2.7418136596679688e-05 \r\n```\r\n\r\noh. yeah. that's more like it. It takes far longer to create the database, but, it's far, far, *far* faster to query which is worth a lot.",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "38ff8c91-b757-4cdc-b950-cee5fa4beb43",
+      "created_unix": 1739191975.7882514,
+      "updated_unix": 1739191975.7882526
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1738337622.5951755,
+  "updated_unix": 1738337622.5951757,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

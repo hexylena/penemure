@@ -2,35 +2,35 @@
   "title": "Mention",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
       "ident": "53854679-f096-417f-8350-a2f43d80a3b3"
     }
   ],
   "contents": [
     {
-      "contents": "currently don't have a good solution for handling mentions, they exist but, there's no \"list of mentions\" or \"when was this mention created\" which we could use to generate notifications\r\n\r\n",
+      "contents": "currently don't have a good solution for handling mentions, they exist but, there's no \"list of mentions\" or \"when was this mention created\" which we could use to generate notifications\r\n\r\n\r\nresolved in urn:boshedron:8c51eadd-51a6-430a-8ff8-4f7410fcba46#link ",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "811bd695-9e4b-4f9b-8414-df286b5c56d5",
-      "created_unix": 1738341906.811702,
-      "updated_unix": 1738341906.8117027
+      "created_unix": 1739192204.656952,
+      "updated_unix": 1739192204.6569529
     },
     {
       "contents": "",
       "author": {
-        "app": "account",
+        "app": "x",
         "namespace": null,
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "32f45a56-2f51-40f7-b82f-f657e43524d9",
-      "created_unix": 1738341906.811731,
-      "updated_unix": 1738341906.8117313
+      "created_unix": 1739192204.6569629,
+      "updated_unix": 1739192204.6569636
     }
   ],
   "tags": [

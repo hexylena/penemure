@@ -1,0 +1,36 @@
+{
+  "title": "hashtags?",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "c5a1ca49-89ae-479a-80a5-2752ae7c5552"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "8469b79d-a667-477b-bcb4-bd7491a092cd",
+      "created_unix": 1739192047.104647,
+      "updated_unix": 1739192047.104648
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738578762.3827887,
+  "updated_unix": 1738578762.3827906,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

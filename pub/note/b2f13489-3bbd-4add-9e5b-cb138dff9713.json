@@ -1,0 +1,31 @@
+{
+  "title": "pm links",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "[https://www.notion.so/blog/data-model-behind-notion](https://www.notion.so/blog/data-model-behind-notion)\r\n\r\n[https://www.notion.so/notion/Intro-to-databases-fd8cd2d212f74c50954c11086d85997e#6b755095caf3419fb544f2cc996fe926](https://www.notion.so/notion/Intro-to-databases-fd8cd2d212f74c50954c11086d85997e#6b755095caf3419fb544f2cc996fe926)\r\n\r\n",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "bda39453-4c0a-4668-9a21-c69583e23d5c",
+      "created_unix": 1739192051.5503242,
+      "updated_unix": 1739192051.5503259
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1737491272.749447,
+  "updated_unix": 1737491272.749451,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

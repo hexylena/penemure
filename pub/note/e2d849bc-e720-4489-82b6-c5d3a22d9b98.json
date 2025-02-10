@@ -1,0 +1,40 @@
+{
+  "title": "Working on the project manager",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "did some things. start/end date tags are slightly less shit.",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d76a31e1-34cf-4ec6-955d-c06908466951",
+      "created_unix": 1739192042.8075228,
+      "updated_unix": 1739192042.8075244
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1736940600.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1736951400.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1736944431.603091,
+  "updated_unix": 1738146654.485506,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}

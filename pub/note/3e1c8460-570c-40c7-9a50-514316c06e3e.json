@@ -1,0 +1,36 @@
+{
+  "title": "select text + auto-create issues from it",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "1a15e5b4-27e2-447f-8df5-01732febecf7"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "notes on ui:\r\n\r\n- needs a reasonable UI, probably all client side too\r\n- present as a table of the properties that will be set/created?\r\n- rewrite as URNs here.",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "3abf4664-6bc5-4de0-a70f-a0abbfcf7817",
+      "created_unix": 1739191999.5190628,
+      "updated_unix": 1739191999.519064
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "done"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738578913.677793,
+  "updated_unix": 1738578913.6777956,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
