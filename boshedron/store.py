@@ -203,6 +203,7 @@ class GitJsonFilesBackend(BaseBackend):
             with open(full_path, 'wb') as f:
                 f.write(data)
 
+        stored_blob.refresh_meta(full_path)
         subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
 
         if fsync:
@@ -220,6 +221,8 @@ class GitJsonFilesBackend(BaseBackend):
         for v in self.data.values():
             if isinstance(v, StoredThing):
                 self.save_item(v, fsync=fsync)
+            elif isinstance(v, StoredBlob):
+                self.save_blob(v, fsync=fsync)
 
     def find(self, identifier: UniformReference) -> StoredThing:
         if identifier in self.data:
@@ -413,6 +416,12 @@ class OverlayEngine(BaseModel):
     def find_thing(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
         return self.find(identifier=identifier)
 
+    def find_thing_or_blob(self, identifier: (UniformReference | str)) -> WrappedStoredThing | WrappedStoredBlob:
+        try:
+            return self.find(identifier=identifier)
+        except KeyError:
+            return self.find_blob(identifier=identifier)
+
     def find_thing_from_backend(self, identifier: UniformReference, backend: GitJsonFilesBackend) -> WrappedStoredThing:
         return WrappedStoredThing(thing=backend.find(identifier), backend=backend)
 
@@ -586,8 +595,10 @@ class OverlayEngine(BaseModel):
             for x in self.all_things()
             if x.thing.data.type == 'template'}
 
+
         notes = [x.clean_dict(self, template=templates.get(x.thing.data.type, None))
                  for x in self.all_things()]
+
 
         # We have an 'all' table if you just want to search all types.
         # or individual tables can be searched by type.
@@ -599,11 +610,19 @@ class OverlayEngine(BaseModel):
             tables[note['type']].append(note)
             tables['__all__'].append(note)
 
+        tables['__attachments__'] = []
         for note in self.all_things():
             n = note.thing
             for block in n.data.get_contents():
                 tables['__block__'].append(block.clean_dict(n.urn.urn))
 
+            for (id, urn) in n.data.attachments:
+                tables['__attachments__'].append({
+                    'id': id,
+                    'urn': urn.urn,
+                    'parent': note.thing.urn.urn,
+                    'parent_title': note.thing.data.title,
+                })
 
         for app in self.apps():
             if app not in tables:

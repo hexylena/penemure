@@ -68,7 +68,21 @@
 							{% endfor %}
 						</select>
 						<input type="hidden" name="content_uuid" value="{{ block.id }}">
-						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+
+						<markdown-toolbar for="block-{{ block.id }}">
+							<md-bold><b>B</b></md-bold>
+							<md-header>H1</md-header>
+							<md-italic><i>I</i></md-italic>
+							<md-quote>”</md-quote>
+							<md-code>&lt;/&gt;</md-code>
+							<md-link>🔗</md-link>
+							<md-image>🖼</md-image>
+							<md-unordered-list>-</md-unordered-list>
+							<md-ordered-list>1.</md-ordered-list>
+							<md-task-list>✔️</md-task-list>
+							<!-- <md-mention>@</md-mention> -->
+						</markdown-toolbar>
+						<textarea id="REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
 						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
 					</div>
 				</div>
@@ -88,7 +102,21 @@
 						</select>
 						<input type="hidden" name="content_uuid" value="REPLACEME">
 						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
-						<textarea name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
+
+						<markdown-toolbar for="block-REPLACEME">
+							<md-bold><b>B</b></md-bold>
+							<md-header>H1</md-header>
+							<md-italic><i>I</i></md-italic>
+							<md-quote>”</md-quote>
+							<md-code>&lt;/&gt;</md-code>
+							<md-link>🔗</md-link>
+							<md-image>🖼</md-image>
+							<md-unordered-list>-</md-unordered-list>
+							<md-ordered-list>1.</md-ordered-list>
+							<md-task-list>✔️</md-task-list>
+							<!-- <md-mention>@</md-mention> -->
+						</markdown-toolbar>
+						<textarea id="block-REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
 					</div>
 				</div>
 			</div>
@@ -147,17 +175,7 @@ document.querySelector('input#title').addEventListener('change', e => {
 })
 
 // automatically resize textareas
-[...document.querySelectorAll("textarea")].forEach(t => t.addEventListener('input', autoResize, false));
-function autoResize() {
-	this.style.height = 'auto';
-	this.style.height = this.scrollHeight + 'px';
-}
-
-// https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
-function uuid() {
-	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
-}
-
+document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', autoResize, false));
 	const template = document.querySelector('#default-block').outerHTML;
 	if (document.querySelectorAll('#notes .block.existing').length > 0 ){
 		document.querySelector('#default-block').remove();
@@ -201,6 +219,5 @@ function uuid() {
 	}
 
 
-	</script>
-
+</script>
 {% endblock %}

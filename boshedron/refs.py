@@ -56,8 +56,12 @@ class UniformReference(BaseModel, frozen=True):
         urn = urn[2:]
         # Not sure about this
         urn = [x for x in urn if x != '']
+        if len(urn) == 0:
+            raise Exception(f"Cannot parse empty URN")
 
-        if len(urn) == 2:
+        if len(urn) > 2 and urn[0] == 'file' and urn[1] == 'blob':
+            return cls(app='file', namespace='blob', ident=urn[2])
+        elif len(urn) == 2:
             return cls(app='x', namespace=urn[0], ident=urn[1])
         elif len(urn) == 1:
             return cls(app='x', namespace=None, ident=urn[0])
@@ -87,7 +91,7 @@ class UniformReference(BaseModel, frozen=True):
             elif u.group(3) == "url":
                 # return prefix + '/view/' + urn_ref.url + '.html'
                 try:
-                    ref = oe.find_thing(urn_ref)
+                    ref = oe.find_thing_or_blob(urn_ref)
                     return prefix + '/' + ref.thing.url
                 except KeyError:
                     return urn_ref.urn
@@ -97,7 +101,13 @@ class UniformReference(BaseModel, frozen=True):
                     url = prefix + '/view/' + urn_ref.url + '.html'
                     return f'<a href="{url}">{ref.thing.html_title}</a>' 
                 except KeyError:
-                    return f'<a href="#">{urn_ref.urn}</a>' 
+                    try:
+                        ref = oe.find_blob(urn_ref)
+                        url = prefix + '/' +  urn_ref.url
+                        return f'<a href="{url}">{urn_ref.url}</a>' 
+
+                    except KeyError:
+                        return f'<a href="#">{urn_ref.urn}</a>' 
             else:
                 return urn_ref.urn
             # print(u, u.group(3), ref)
@@ -157,6 +167,11 @@ class StoredBlob(BaseModel):
     def identifier(self) -> UniformReference:
         return self.urn
 
+    def refresh_meta(self, full_path):
+        self.created = os.path.getctime(full_path)
+        self.updated = os.path.getmtime(full_path)
+        self.size = os.path.getsize(full_path)
+
     @classmethod
     def realise_from_path(cls, base, full_path):
         end = rebase_path(full_path, base)
@@ -171,3 +186,15 @@ class StoredBlob(BaseModel):
 
     def clean_dict(self):
         raise NotImplementedError()
+
+    def human_size(self, suffix="B"):
+        num = float(self.size or 0)
+        for unit in ("", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"):
+            if abs(num) < 1024.0:
+                return f"{num:3.1f}{unit}{suffix}"
+            num /= 1024.0
+        return f"{num:.1f}Yi{suffix}"
+
+    @property
+    def url(self) -> str:
+        return self.identifier.path

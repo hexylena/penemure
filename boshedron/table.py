@@ -3,29 +3,7 @@ from .util import *
 
 
 def render_table(results: GroupedResultSet) -> str:
-    if results is None:
-        return '<table></table>'
-
-    page_content = "<table>"
-
-    # Header is the same for each group so just take the first.
-    page_content += "<thead><tr>"
-    page_content += "".join([f"<th>{x.title()}</th>" for x in results.groups[0].header])
-    page_content += "</tr></thead><tbody>"
-    colspan = len(results.groups[0].header)
-
-    for group in results.groups:
-        if len(results.groups) > 1:
-            page_content += f'<tr><td colspan="{colspan}" class="header">{group.title}</td></tr>'
-        for row_id, row in group.enum():
-            page_content += f'<tr id="{row_id}">'
-            page_content += "".join([
-                f"<td scope=\"row\">{x}</td>" if i == 0 else f"<td>{x}</td>"
-                for i, x in enumerate(row)
-                ])
-            page_content += "</tr>"
-    page_content += "</tbody></table>"
-    return page_content
+    return results.render_html_table()
 
 def render_table_editable(results: GroupedResultSet) -> str:
     if results is None:

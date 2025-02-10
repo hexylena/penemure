@@ -1,7 +1,9 @@
 from typing import Optional
 from pydantic import Field
+import csv
 from .note import *
 from .tags import *
+from .sqlish import ResultSet
 from .mixins import AttachmentMixin
 import requests
 import re
@@ -30,12 +32,12 @@ class Template(Note):
 class DataForm(Note):
     type: str = 'form'
 
-    def form_submission(self, d, oe, be) -> UniformReference:
-        columns = [None] * len(self.get_contents())
+    def form_submission(self, d, oe, be, account) -> UniformReference:
+        columns = [None] * len(self.get_form_fields())
         headers = []
 
-        for i, block in enumerate(self.get_contents()):
-            key = f'block-{i}'
+        for i, block in enumerate(self.get_form_fields()):
+            key = f'block-{block.id}'
 
             matching_values = [v for (k, v) in d if k == key]
             title = block.contents.split('\n', 1)[0].strip()
@@ -50,14 +52,15 @@ class DataForm(Note):
             elif block.type == 'form-text':
                 columns[i] = matching_values[0]
             elif block.type == 'form-multiple-choice':
-                columns[i] = ', '.join(matching_values)
+                columns[i] = ', '.join([x for x in matching_values if len(x) > 0])
+            elif block.type == 'form-single-choice':
+                columns[i] = matching_values[0]
             else:
                 raise NotImplementedError(f"No support yet for {block.type}")
 
         # Must be strings.
-        headers = map(str, headers)
-        columns = map(str, columns)
-        # print(headers)
+        headers = map(str, ['date', 'account'] + headers)
+        columns = map(str, [time.time(), account] + columns)
 
         # Need to persist this somewhere. Blob store?
         if t := self.has_attachment('data'):
@@ -74,38 +77,23 @@ class DataForm(Note):
             self.attachments.append(('data', urn))
             return urn
 
-    def render_form(self, oe):
+    def form_responses(self, oe) -> GroupedResultSet:
+        if t := self.has_attachment('data'):
+            att = oe.find_blob(t)
+            with open(att.full_path) as csvfile:
+                reader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+                header = next(reader)
+                rows = [row for row in reader]
+                rs = ResultSet.build(header, rows, title='Form Data')
+        else:
+            rs = ResultSet.build([], [], title='Form Data')
+        return GroupedResultSet(groups=[rs])
+
+    def render_form(self, oe, path, parent):
         results = ""
 
         for i, block in enumerate(self.get_contents()):
-            title = block.contents.split('\n', 1)[0].strip()
-            required = title.endswith('*')
-            ra = " required " if required else ""
-            results += "<div class=\"question\">"
-            results += f'<label for="block-{i}">{title}</label>'
-
-            if block.type == 'form-numeric':
-                results += f'<input name="block-{i}" type="number" {ra} step="any"/>'
-            elif block.type == 'form-text':
-                results += f'<input name="block-{i}" type="text" {ra} />'
-            elif block.type == 'form-multiple-choice':
-                options = block.contents.split('\n')[1:]
-                options = [re.sub('^- ', '', x.strip()) for x in options]
-                print(options)
-                for j, option in enumerate(options):
-                    if j < len(options) - 1:
-                        results += '<div>'
-                        results += f'<input  name="block-{i}" type="checkbox" value="{option}" id="block-{i}-{j}" />'
-                        results += f'<label for="block-{i}-{j}" style="display: inline">{option}</label>'
-                        results += '</div>'
-                    else:
-                        results += '<div>'
-                        results += f'<label for="block-{i}">Other</label>'
-                        results += f'<input name="block-{i}" type="text"/>'
-                        results += '</div>'
-            else:
-                raise NotImplementedError(f"No support yet for {block.type}")
-            results += "</div>"
+            results += block.render(oe, path, parent)
         return results
 
     def persist_results(self, oe, data):

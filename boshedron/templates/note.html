@@ -93,6 +93,7 @@
 		<td scope="row">Important Links</td>
 		<td>
 			<a href="/form/{{ note.thing.urn.urn }}">Form</a>
+			<a href="/download/{{ note.thing.data.has_attachment('data').urn }}">Download</a>
 		</td>
 	</tr>
 	{% endif %}
@@ -106,11 +107,40 @@
 {% endfor %}
 {% endif %}
 
+{% if note.thing.data.type == 'form' %}
+<h3>Form Responses</h3>
+{{ note.thing.data.form_responses(oe).render_html_table() }}
+{% endif %}
+
+
+
+
 {% if note.thing.data.attachments %}
 <h3>Attachments</h3>
-{% for att in note.thing.data.attachments %}
-{{ att }}
-{% endfor %}
+<table>
+	<!-- <caption>Attachments</caption> -->
+	<thead>
+		<tr>
+			<th scope="col">Attachment</th>
+			<th scope="col">Download</th>
+			<!-- <th scope="col">Created</th> -->
+			<!-- <th scope="col">Updated</th> -->
+			<th scope="col">Size</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for identifier, att in note.thing.data.attachments %}
+	<tr>
+		<td>{{ identifier }}</td>
+		{% set blob = oe.find_blob(att) %}
+		<td><a href="/download/{{ blob.thing.urn.urn }}">Download</a></td>
+		<!-- <td>{{ blob.thing.created }}</td> -->
+		<!-- <td>{{ blob.thing.updated }}</td> -->
+		<td>{{ blob.thing.human_size() }}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
 {% endif %}
 
 

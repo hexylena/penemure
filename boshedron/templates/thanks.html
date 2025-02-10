@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Thanks! | {{ Config.Title | e }}{% endblock %}
+
+{% block main %}
+{% if note.thing.data.cover_image() %}
+<div>
+	<img src="{{ note.thing.data.cover_image() }}" class="cover">
+</div>
+{% endif %}
+<hgroup>
+	<h1>
+		Thanks
+	</h1>
+</hgroup>
+
+TODO: only show if authenticated
+<a href="{{ note.thing.urn.urn }}#url">Return to form</a>
+
+
+{% endblock %}

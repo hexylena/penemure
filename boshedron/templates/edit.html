@@ -8,7 +8,7 @@
 	<h1>Editing {{ note.thing.data.title | e }}</h1>
 	</hgroup>
 
-	<form method="post" action="/edit/{{ note.thing.urn.urn }}">
+	<form method="post" action="/edit/{{ note.thing.urn.urn }}" enctype="multipart/form-data">
 		<fieldset>
 			<legend>Editing Note {{ note.thing.urn.urn | e }}</legend>
 
@@ -148,6 +148,9 @@
 				<button type="button" onclick="appendtag()">+</button>
 			</div>
 
+			<label for="attachments">Attachments</label>
+			<input type="file" id="attachments" name="attachments" multiple />
+
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
@@ -159,16 +162,10 @@
 		</fieldset>
 	</form>
 
-<script type="module">
-	import githubmarkdownToolbarElement from 'https://cdn.jsdelivr.net/npm/@github/markdown-toolbar-element@2.2.3/+esm'
-</script>
-
 	<script>
-// https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
-function uuid() {
-	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
-}
 
+// automatically resize textareas
+document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', autoResize, false));
 	const template = document.querySelector('#default-block').outerHTML;
 	if (document.querySelectorAll('#notes .block.existing').length > 0 ){
 		document.querySelector('#default-block').remove();
@@ -216,6 +213,12 @@ var tribute = new Tribute({
     {% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
     {% for (id, title) in group.rows %}
 	  { key: "{{ title | e}}", value: "{{ id }}#link" },
+    {% endfor %}
+    {% endfor %}
+
+    {% for group in oe.query('group select id, urn, parent_title from __attachments__ order by id asc').groups %}
+    {% for (id, urn, parent_title) in group.rows %}
+	  { key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}#url" },
     {% endfor %}
     {% endfor %}
   ],
@@ -285,43 +288,5 @@ async function extractIssues(urn, be, bid){
 	txt.value = textPre + json.map(urn => `- ${urn}#link`).join('\n') + textPost
 }
 
-// automatically resize textareas
-[...document.querySelectorAll("textarea")].forEach(t => t.addEventListener('input', autoResize, false));
-function autoResize() {
-	this.style.height = 'auto';
-	this.style.height = this.scrollHeight + 'px';
-}
-
-/*
-    // Obtain the object reference for the <textarea>
-    var txtarea = document.getElementById("mytextarea");
-
-    // Obtain the index of the first selected character
-    var start = txtarea.selectionStart;
-
-    // Obtain the index of the last selected character
-    var finish = txtarea.selectionEnd;
-
-    // Obtain the selected text
-    var sel = txtarea.value.substring(start, finish);
-
-*/
 </script>
-
-<style>
-markdown-toolbar { margin-bottom: 0.8em; }
-markdown-toolbar > * {
-	vertical-align: middle;
-	padding: .4rem 1rem;
-	font-size: 2rem;
-	font-weight: normal;
-	margin-bottom: 0 !important;
-	background: light-dark(Canvas, CanvasText);
-	color: light-dark(CanvasText, Canvas);
-	border: .2rem solid light-dark(CanvasText, Canvas);
-	border-radius: 0;
-	cursor: pointer;
-}
-</style>
-
 {% endblock %}

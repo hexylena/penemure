@@ -26,6 +26,9 @@ class ResultSet(BaseModel):
         )
         return rs
 
+    def is_empty(self):
+        return len(self.header) == 0 or len(self.rows) == 0
+
     def safe_row_ids(self):
         if self.row_ids is None or len(self.row_ids) == 0:
             return [None] * len(self.rows)
@@ -37,6 +40,30 @@ class ResultSet(BaseModel):
 
 class GroupedResultSet(BaseModel):
     groups: list[ResultSet]
+
+    def render_html_table(self):
+        if len(self.groups) == 0:
+            return "<table></table>"
+
+        page_content = "<table>"
+        # Header is the same for each group so just take the first.
+        page_content += "<thead><tr>"
+        page_content += "".join([f"<th>{x.title()}</th>" for x in self.groups[0].header])
+        page_content += "</tr></thead><tbody>"
+        colspan = len(self.groups[0].header)
+
+        for group in self.groups:
+            if len(self.groups) > 1:
+                page_content += f'<tr><td colspan="{colspan}" class="header">{group.title}</td></tr>'
+            for row_id, row in group.enum():
+                page_content += f'<tr id="{row_id}">'
+                page_content += "".join([
+                    f"<td scope=\"row\">{x}</td>" if i == 0 else f"<td>{x}</td>"
+                    for i, x in enumerate(row)
+                    ])
+                page_content += "</tr>"
+        page_content += "</tbody></table>"
+        return page_content
 
 
 def select_group_key(row: list[str], columns: list[str], wanted_cols: list[str]) -> str:

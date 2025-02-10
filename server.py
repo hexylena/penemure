@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Form, Response, Request
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, HTTPException, Form, Response, Request, UploadFile, Depends
+from fastapi.responses import RedirectResponse, FileResponse
 import starlette.status as status
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
@@ -16,6 +16,7 @@ from typing import List, Tuple, Dict
 import os
 import sentry_sdk
 import copy
+import mimetypes
 
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
@@ -102,9 +103,8 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None):
         page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content)
 
-def render_dynamic(st: WrappedStoredThing):
+def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html'):
     a = time.time()
-    requested_template: str = "note.html"
     if tag := st.thing.data.get_tag(key='template'):
         requested_template = tag.val or requested_template
 
@@ -151,6 +151,8 @@ class BaseFormData(BaseModel):
     tag_key: List[str] = Field(default_factory=list)
     tag_val: List[str] = Field(default_factory=list)
     backend: str
+    # attachments: Annotated[UploadFile, File()]
+    attachments: Optional[List[UploadFile]]
 
 class TimeFormData(BaseModel):
     urn: Optional[str] = None
@@ -190,6 +192,22 @@ def extract_contents(data: BaseFormData | TimeFormData, default_author=None):
             'id': u
         }))
     return res
+
+
+def download_blob(urn: UniformReference):
+    blob = oe.find_blob(urn)
+    return FileResponse(blob.full_path)
+
+@app.get("/file/blob/{ident}", response_class=HTMLResponse, tags=['download'])
+def download_ident(ident: str):
+    u = UniformReference(app='file', namespace='blob', ident=ident)
+    return download_blob(u)
+
+@app.get("/download/{urn}", response_class=HTMLResponse, tags=['download'])
+def download(urn: str):
+    u = UniformReference.from_string(urn)
+    return download_blob(u)
+
 
 @app.get("/new/{template}", response_class=HTMLResponse, tags=['mutate'])
 @app.get("/new", response_class=HTMLResponse, tags=['mutate'])
@@ -240,6 +258,15 @@ def save_new(data: Annotated[BaseFormData, Form()]):
     return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
 
 
+def only_valid_attachments(atts: list[UploadFile] | None) -> list[UploadFile]:
+    if atts is None:
+        return []
+    # Should we be stricter about the size?
+    return [
+        a for a in atts
+        if (a.size and a.size > 0) or a.filename != ''
+    ]
+
 class NewMultiData(BaseModel):
     project: str
     titles: List[str]
@@ -261,7 +288,7 @@ def save_new_multi(data: NewMultiData):
     return res
 
 @app.post("/edit/{urn}", tags=['mutate'])
-def save_edit(urn: str, data: Annotated[BaseFormData, Form()]):
+def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart/form-data")]):
     u = UniformReference.from_string(urn)
     orig = oe.find(u)
     orig.thing.data.title = data.title
@@ -280,8 +307,31 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form()]):
     else:
         orig.thing.data.tags = [Tag(key=k, val=v) for (k, v) in zip(data.tag_key, data.tag_val)]
 
-    oe.save_thing(orig, fsync=False)
     be = oe.get_backend(data.backend)
+    for att in only_valid_attachments(data.attachments):
+        # >>> mimetypes.guess_extension('image/webp')
+        # '.webp'
+        # >>> mimetypes.guess_type('test.webp')
+        # ('image/webp', None)
+        # TODO: safety!
+        try:
+            ext = mimetypes.guess_extension(att.headers['content-type']) or 'bin'
+        except:
+            ext = 'bin'
+        att_urn = UniformReference.new_file_urn(ext=ext.lstrip('.'))
+        att_blob = StoredBlob(urn=att_urn)
+        # print(att_urn)
+        # print(att)
+        # UploadFile(filename='23-06_Bristol_Stool_Chart.webp', size=90964, headers=Headers({'content-disposition': 'form-data; name="attachments"; filename="23-06_Bristol_Stool_Chart.webp"', 'content-type': 'image/webp'}))
+        # suboptimal for large files probably.
+        be.save_blob(att_blob, fsync=False, data=att.file.read())
+        orig.thing.data.attachments.append((att.filename, att_urn))
+        # urn = UniformReference.new_file_urn(ext='csv')
+        # att = StoredBlob(urn=urn)
+        # data = '\t'.join(headers) + '\n' + '\t'.join(columns) + '\n'
+        # be.save_blob(att, fsync=False, data=data.encode('utf-8'))
+
+    oe.save_thing(orig, fsync=False)
     if be != orig.backend.name:
         oe.migrate_backend_thing(orig, be)
 
@@ -428,6 +478,12 @@ def edit_get(backend: str, urn: str):
     note = oe.find_thing_from_backend(u, be)
     return render_fixed('edit.html', note, rewrite=False)
 
+@app.get("/edit/{urn}", response_class=HTMLResponse, tags=['mutate'])
+def edit_get(urn: str):
+    u = UniformReference.from_string(urn)
+    note = oe.find_thing(u)
+    return render_fixed('edit.html', note, rewrite=False)
+
 
 @app.get("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
 @app.post("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
@@ -442,6 +498,9 @@ def redir(urn: str):
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
 async def post_form(urn: str, request: Request):
+    # TODO: enable auth'd responses
+    account = 'urn:boshedron:account:system-form'
+
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
@@ -450,11 +509,13 @@ async def post_form(urn: str, request: Request):
 
     async with request.form() as form:
         assert isinstance(note.thing.data, DataForm)
-        blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend)
+        blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend, account)
         # Save changes to the note itself.
         blob = oe.find_blob(blob_id)
         blob.save(fsync=False)
         note.save(fsync=False)
+        return render_fixed('thanks.html', note=note)
+
 
 @app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
 def get_form(urn: str):
@@ -464,17 +525,7 @@ def get_form(urn: str):
     except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    requested_template: str = "form.html"
-    if tag := note.thing.data.get_tag(key='template'):
-        requested_template = tag.val or requested_template
-    template = env.get_template(requested_template)
-
-    gn = {'VcsRev': 'deadbeefcafe'}
-    page_content = template.render(note=note, bos=bos, oe=bos.overlayengine,
-                                   Config=config, Gn=gn, blob=blobify)
-    page_content = UniformReference.rewrite_urns(page_content, path,
-                                                 bos.overlayengine)
-    return HTMLResponse(page_content)
+    return render_dynamic(note, requested_template='form.html')
 
 
 # Eww.

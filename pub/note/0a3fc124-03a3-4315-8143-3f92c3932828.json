@@ -1,0 +1,36 @@
+{
+  "title": "need to redo attachments now",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "d48d4f3b-5e5b-45f9-aab8-a9bb2934cc36"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "9a7b56e1-4e82-462b-9ece-015ca347c286",
+      "created_unix": 1739191725.2529416,
+      "updated_unix": 1739191725.2529428
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "in-progress"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1738919138.583003,
+  "updated_unix": 1738919138.5830042,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

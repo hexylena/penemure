@@ -32,6 +32,7 @@ class BlockTypes(Enum):
     # only appropriate for form pages. TODO: restrict?
     formNumeric = 'form-numeric'
     formMultipleChoice = 'form-multiple-choice'
+    formSingleChoice = 'form-single-choice'
     formText = 'form-text'
 
     def pretty(self):
@@ -46,7 +47,8 @@ class BlockTypes(Enum):
             'chartGantt': 'SQLish Query: Gantt Chart (expects columns url, id, time_start, time_end)',
             'queryCards': 'SQL Query: Cards (expects columns urn, title, blurb)',
             'formNumeric': "(Form) Numeric Input",
-            'formMultipleChoice': "(Form) Multiple choice, one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
+            'formMultipleChoice': "(Form) Multiple choice (checkbox), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
+            'formSingleChoice': "(Form) Single choice (radio), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
             'formText': "(Form) Free Text (Short)",
         }.get(self.name, self.name)
 
@@ -150,11 +152,47 @@ class MarkdownBlock(BaseModel):
             elif self.type == BlockTypes.chartGantt.value:
                 res = oe.query(self.contents, via=parent.urn, sql=False) # non proper sql
                 page_content = render_gantt(res)
+        elif self.type.startswith('form-'):
+            title = self.contents.split('\n', 1)[0].strip()
+            required = title.endswith('*')
+            ra = " required " if required else ""
+            page_content = "<div class=\"question\">"
+            page_content += f'<label for="block-{self.id}">{title}</label>'
+
+            if self.type == BlockTypes.formNumeric.value:
+                page_content += f'<input name="block-{self.id}" type="number" {ra} step="any"/>'
+            elif self.type == BlockTypes.formText.value:
+                page_content += f'<input name="block-{self.id}" type="text" {ra} />'
+            elif self.type == BlockTypes.formMultipleChoice.value:
+                options = self.contents.split('\n')[1:]
+                options = [re.sub(r'^-\s*', '', x.strip()) for x in options]
+                for j, option in enumerate(options):
+                    if len(option) > 0:
+                        page_content += '<div class="form-option">'
+                        page_content += f'<input name="block-{self.id}" type="checkbox" value="{option}" id="block-{self.id}-{j}" />'
+                        page_content += f'<label for="block-{self.id}-{j}" style="display: inline">{option}</label>'
+                        page_content += '</div>'
+                    else:
+                        page_content += '<div class="form-option">'
+                        page_content += f'<label for="block-{self.id}">Other</label>'
+                        page_content += f'<input name="block-{self.id}" type="text"/>'
+                        page_content += '</div>'
+            elif self.type == BlockTypes.formSingleChoice.value:
+                options = self.contents.split('\n')[1:]
+                options = [re.sub('^- ', '', x.strip()) for x in options]
+                print(options)
+                for j, option in enumerate(options):
+                    page_content += '<div class="form-option">'
+                    page_content += f'<input name="block-{self.id}" type="radio" value="{option}" id="block-{self.id}-{j}" />'
+                    page_content += f'<label for="block-{self.id}-{j}" style="display: inline">{option}</label>'
+                    page_content += '</div>'
+            else:
+                raise NotImplementedError(f"No support yet for {self.type}")
         else:
             raise NotImplementedError(f"self.type={self.type}")
 
         page_content = UniformReference.rewrite_urns(page_content, path, oe)
-        print('render', self.type, time.time() - a)
+
         if format == 'md':
             return page_content + f'\n<!-- {self.author.urn} | {self.id} -->\n'
 
@@ -302,6 +340,9 @@ class Note(ChangeDetectionMixin, BaseModel):
 
     def get_contents(self) -> list[MarkdownBlock]:
         return self.contents or []
+
+    def get_form_fields(self) -> list[MarkdownBlock]:
+        return [x for x in self.get_contents() if x.type.startswith('form-')]
 
     def get_contributors(self, _oe):
         c = []
