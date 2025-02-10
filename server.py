@@ -139,7 +139,7 @@ def sync():
 # def list() -> list[StoredThing]:
 #     return oe.all_things()
 
-class FormData(BaseModel):
+class BaseFormData(BaseModel):
     urn: Optional[str] = None
     title: str
     project: Optional[str | List[str]] = Field(default_factory=list)
@@ -165,7 +165,7 @@ class TimeFormData(BaseModel):
     end_unix: int
 
 
-def extract_contents(data: FormData | TimeFormData, default_author=None):
+def extract_contents(data: BaseFormData | TimeFormData, default_author=None):
     a2 = None
     if default_author is None:
         a2 = UniformReference.model_validate({"app":"account","ident":"hexylena"}) # TODO
@@ -212,7 +212,7 @@ def get_new(template: Optional[str] = None):
 
 @app.post("/new.html", tags=['mutate'])
 @app.post("/new", tags=['mutate'])
-def save_new(data: Annotated[FormData, Form()]):
+def save_new(data: Annotated[BaseFormData, Form()]):
     dj = {
         'title': data.title,
         'type': data.type,
@@ -261,7 +261,7 @@ def save_new_multi(data: NewMultiData):
     return res
 
 @app.post("/edit/{urn}", tags=['mutate'])
-def save_edit(urn: str, data: Annotated[FormData, Form()]):
+def save_edit(urn: str, data: Annotated[BaseFormData, Form()]):
     u = UniformReference.from_string(urn)
     orig = oe.find(u)
     orig.thing.data.title = data.title
@@ -439,6 +439,22 @@ def redir(urn: str):
     note = oe.find_thing(u)
     return RedirectResponse('/' + note.thing.url, status_code=status.HTTP_302_FOUND)
 
+
+@app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
+async def post_form(urn: str, request: Request):
+    u = UniformReference.from_string(urn)
+    try:
+        note = oe.find_thing(u)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Form not found")
+
+    async with request.form() as form:
+        assert isinstance(note.thing.data, DataForm)
+        blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend)
+        # Save changes to the note itself.
+        blob = oe.find_blob(blob_id)
+        blob.save(fsync=False)
+        note.save(fsync=False)
 
 @app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
 def get_form(urn: str):

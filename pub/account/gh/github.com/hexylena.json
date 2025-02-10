@@ -18,14 +18,6 @@
   "namespace": "gh",
   "type": "account",
   "attachments": [
-    {
-      "id": {
-        "app": "file",
-        "namespace": "blob",
-        "ident": "e3387c6a6dfdec10e0705d08787692330f93573f244776e471b4e782838175f1"
-      },
-      "type": "image/png"
-    }
   ],
   "username": "hexylena"
 }

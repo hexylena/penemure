@@ -2,7 +2,9 @@ from pydantic import BaseModel, Field
 import re
 import os
 from typing import Optional
+from pydantic import computed_field
 import uuid
+from .util import *
 
 
 class UniformReference(BaseModel, frozen=True):
@@ -15,6 +17,8 @@ class UniformReference(BaseModel, frozen=True):
 
     def _assemble(self) -> list[str]:
         parts = []
+        if self.app == 'file' and self.namespace == 'blob':
+            parts.append('file')
         if self.namespace:
             parts.append(self.namespace)
         parts.append(self.ident)
@@ -103,6 +107,13 @@ class UniformReference(BaseModel, frozen=True):
 
         return contents
 
+    @classmethod
+    def new_file_urn(cls, ext=None):
+        ident = str(uuid.uuid4())
+        if ext:
+            ident += '.' + ext
+        return cls(app='file', namespace='blob', ident=ident)
+
 # TODO: probably should be more capable? URN style?
 class Reference(BaseModel):
     id: UniformReference
@@ -123,3 +134,40 @@ class UnresolvedReference(BaseModel):
     path: str
     remote: bool = False
 
+
+class StoredBlob(BaseModel):
+    urn: UniformReference
+    created: Optional[float] = None
+    updated: Optional[float] = None
+    size: Optional[int] = None
+
+    @computed_field
+    @property
+    def relative_path(self) -> str:
+        return self.urn.path
+
+    def ref(self) -> UniformReference:
+        return self.urn
+
+    def save(self, backend):
+        backend.save(self)
+
+    @computed_field
+    @property
+    def identifier(self) -> UniformReference:
+        return self.urn
+
+    @classmethod
+    def realise_from_path(cls, base, full_path):
+        end = rebase_path(full_path, base)
+        urn = UniformReference.from_path(end)
+
+        return cls(
+            urn=urn,
+            created=os.path.getctime(full_path),
+            updated=os.path.getmtime(full_path),
+            size=os.path.getsize(full_path)
+        )
+
+    def clean_dict(self):
+        raise NotImplementedError()

@@ -8,7 +8,7 @@ import os
 from pydantic_changedetect import ChangeDetectionMixin
 from pydantic import BaseModel, Field, PastDatetime
 from typing import Annotated
-from typing import Optional, Union, Any
+from typing import Optional, Union, Tuple
 import datetime
 from zoneinfo import ZoneInfo
 import uuid
@@ -181,7 +181,12 @@ class Note(ChangeDetectionMixin, BaseModel):
 
     namespace: Union[str, None] = None
     type: str = 'note'
-    attachments: list[Union[Reference, UnresolvedReference, ExternalReference, BlobReference]] = Field(default_factory=list)
+    attachments: list[Tuple[str, UniformReference]] = Field(default_factory=list)
+
+    def has_attachment(self, identifier) -> Optional[UniformReference]:
+        r = [x for (i, x) in self.attachments if i == identifier]
+        if len(r) > 0:
+            return r[0]
 
     def set_parents(self, parents: list[UniformReference]):
         if parents != self.parents:

@@ -20,44 +20,7 @@ from sqlglot import parse_one, exp, transpile
 from sqlglot.executor import execute
 from typing import Dict, Generator
 from typing import Optional, Union
-
-
-class StoredBlob(BaseModel):
-    urn: UniformReference
-    created: Optional[float] = None
-    updated: Optional[float] = None
-    size: Optional[int] = None
-
-    @computed_field
-    @property
-    def relative_path(self) -> str:
-        return self.urn.path
-
-    def ref(self) -> UniformReference:
-        return self.urn
-
-    def save(self, backend):
-        backend.save(self)
-
-    @computed_field
-    @property
-    def identifier(self) -> UniformReference:
-        return self.urn
-
-    @classmethod
-    def realise_from_path(cls, base, full_path):
-        end = rebase_path(full_path, base)
-        urn = UniformReference.from_path(end)
-
-        return cls(
-            urn=urn,
-            created=os.path.getctime(full_path),
-            updated=os.path.getmtime(full_path),
-            size=os.path.getsize(full_path)
-        )
-
-    def clean_dict(self):
-        raise NotImplementedError()
+from .refs import *
 
 
 class StoredThing(StoredBlob):
@@ -173,8 +136,9 @@ class BaseBackend(BaseModel):
 
 class GitJsonFilesBackend(BaseBackend):
     data: Dict[UniformReference, StoredThing] = Field(default=dict())
-    last_update: PastDatetime = None
-    latest_commit: str = None
+    blob: Dict[UniformReference, StoredBlob] = Field(default=dict())
+    last_update: Optional[PastDatetime] = None
+    latest_commit: Optional[str] = None
 
     @classmethod
     def discover(cls, path):
@@ -223,6 +187,27 @@ class GitJsonFilesBackend(BaseBackend):
         if fsync:
             self.sync()
 
+    def save_blob(self, stored_blob: StoredBlob, fsync=True, data: bytes=None):
+        """Save updates to an existing file."""
+        self.blob[stored_blob.identifier] = stored_blob
+
+        full_path = os.path.join(self.path, stored_blob.relative_path)
+        print(f'Saving blob to {full_path}')
+        if not os.path.exists(os.path.dirname(full_path)):
+            os.makedirs(os.path.dirname(full_path))
+
+        # stored_blob.data.persist_attachments(os.path.join(self.path, 'file',
+        # 'blob'))
+        # TODO: do we need to write to the blob at all??
+        if data:
+            with open(full_path, 'wb') as f:
+                f.write(data)
+
+        subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
+
+        if fsync:
+            self.sync()
+
     def remove_item(self, stored_thing: StoredThing, fsync=False):
         del self.data[stored_thing.identifier]
         full_path = os.path.join(self.path, stored_thing.relative_path)
@@ -249,6 +234,19 @@ class GitJsonFilesBackend(BaseBackend):
         ufr = UniformReference.from_string(identifier)
         return self.find(ufr)
 
+    def find_blob(self, identifier: UniformReference) -> StoredBlob:
+        if identifier in self.blob:
+            return self.blob[identifier]
+
+        for ident, ref in self.blob.items():
+            if ident.ident == identifier.ident:
+                return ref
+        raise KeyError(f"Could not find {identifier.ident}")
+
+    def find_blob_s(self, identifier: str) -> StoredBlob:
+        ufr = UniformReference.from_string(identifier)
+        return self.find(ufr)
+
     def get_path(self, identifier: UniformReference):
         st = self.find(identifier)
         return os.path.join(self.path, st.relative_path)
@@ -261,7 +259,7 @@ class GitJsonFilesBackend(BaseBackend):
 
     def load(self):
         self.data = {}
-        for path in glob.glob(self.path + '/**/*.json', recursive=True):
+        for path in glob.glob(self.path + '/**/*', recursive=True):
             if os.path.isdir(path):
                 continue
 
@@ -269,12 +267,34 @@ class GitJsonFilesBackend(BaseBackend):
             if path.replace(self.path.rstrip('/') + '/', '') == 'meta.json':
                 continue
 
-            # if 'file/blob/' in path:
-            #     st = StoredBlob.realise_from_path(self.path, path)
-            # else:
-            st = StoredThing.realise_from_path(self.path, path)
+            if 'file/blob/' in path:
+                st = StoredBlob.realise_from_path(self.path, path)
+                self.blob[st.identifier] = st
+            else:
+                st = StoredThing.realise_from_path(self.path, path)
+                self.data[st.identifier] = st
 
-            self.data[st.identifier] = st
+
+class WrappedStoredBlob(BaseModel):
+    thing: StoredBlob
+    backend: GitJsonFilesBackend
+
+    def save(self, fsync=False):
+        self.backend.save_blob(self.thing, fsync=fsync)
+
+    def not_blob(self):
+        return False
+
+    @computed_field
+    @property
+    def full_path(self) -> str:
+        return os.path.join(self.backend.path, self.thing.urn.path)
+
+    def clean_dict(self, oe=None, template=None):
+        d = {}
+        d['id'] = self.thing.urn.ident
+        d['urn'] = self.thing.urn.urn
+        return d
 
 
 class WrappedStoredThing(BaseModel):
@@ -283,6 +303,9 @@ class WrappedStoredThing(BaseModel):
 
     def not_blob(self):
         return True
+
+    def save(self, fsync=False):
+        self.backend.save_item(self.thing, fsync=fsync)
 
     def get_template(self, oe=None):
         res = oe.search(type='template', title=self.thing.data.type)
@@ -377,6 +400,16 @@ class OverlayEngine(BaseModel):
         # Remove from old backend
         ws.backend.remove_item(ws.thing, fsync=False)
 
+    def find_blob(self, identifier: (UniformReference | str)) -> WrappedStoredBlob:
+        for backend in self.backends:
+            try:
+                if isinstance(identifier, str):
+                    return WrappedStoredBlob(thing=backend.find_blob_s(identifier), backend=backend)
+                return WrappedStoredBlob(thing=backend.find_blob(identifier), backend=backend)
+            except KeyError:
+                pass
+        raise KeyError(f"Cannot find {identifier}")
+
     def find_thing(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
         return self.find(identifier=identifier)
 
@@ -402,6 +435,11 @@ class OverlayEngine(BaseModel):
 
     def all_things(self) -> list[WrappedStoredThing]:
         return [x for x in self.all()]
+
+    def all_blobs(self):
+        for backend in self.backends:
+            for blob in backend.blob.values():
+                yield WrappedStoredBlob(thing=blob, backend=backend)
 
     def keys(self) -> set[UniformReference]:
         all_keys = set()

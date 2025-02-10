@@ -1,6 +1,5 @@
 from boshedron.store import GitJsonFilesBackend, OverlayEngine, StoredThing
 from boshedron.note import Note, MarkdownBlock
-from boshedron.tags import LifecycleEnum
 from boshedron.refs import UniformReference, UnresolvedReference
 from boshedron.apps import *
 from boshedron.main import *
@@ -12,10 +11,15 @@ backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
 bos = Boshedron(backends=backends)
 bos.load()
 
-me = bos.overlayengine.search(type='account', namespace='gh')[0]
-me.thing.data.update()
-print(me)
-bos.save(fsync=False)
+# me = bos.overlayengine.search(type='account', namespace='gh')[0]
+# me.thing.data.update()
+# print(me)
+# bos.save(fsync=False)
+for blob in bos.overlayengine.all_blobs():
+    print(blob.thing.urn)
+    print(blob.full_path)
+# for x in bos.overlayengine.all_things():
+#     print(x.thing.urn.urn)
 
 # account = Account(username='hexylena', title='Helena')
 # account = oe.add(account)

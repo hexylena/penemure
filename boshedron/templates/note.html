@@ -88,6 +88,15 @@
 	</tr>
 	{% endif %}
 
+	{% if note.thing.data.type == 'form' %}
+	<tr>
+		<td scope="row">Important Links</td>
+		<td>
+			<a href="/form/{{ note.thing.urn.urn }}">Form</a>
+		</td>
+	</tr>
+	{% endif %}
+
 	</tbody>
 </table>
 

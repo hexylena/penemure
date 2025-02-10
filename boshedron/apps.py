@@ -30,11 +30,55 @@ class Template(Note):
 class DataForm(Note):
     type: str = 'form'
 
+    def form_submission(self, d, oe, be) -> UniformReference:
+        columns = [None] * len(self.get_contents())
+        headers = []
+
+        for i, block in enumerate(self.get_contents()):
+            key = f'block-{i}'
+
+            matching_values = [v for (k, v) in d if k == key]
+            title = block.contents.split('\n', 1)[0].strip()
+            headers.append(title)
+            required = title.endswith('*')
+
+            if required and (len(matching_values) == 0 or matching_values[0] is None or matching_values[0] == ''):
+                raise Exception(f"Missing required field {title}")
+
+            if block.type == 'form-numeric':
+                columns[i] = float(matching_values[0])
+            elif block.type == 'form-text':
+                columns[i] = matching_values[0]
+            elif block.type == 'form-multiple-choice':
+                columns[i] = ', '.join(matching_values)
+            else:
+                raise NotImplementedError(f"No support yet for {block.type}")
+
+        # Must be strings.
+        headers = map(str, headers)
+        columns = map(str, columns)
+        # print(headers)
+
+        # Need to persist this somewhere. Blob store?
+        if t := self.has_attachment('data'):
+            att = oe.find_blob(t)
+            with open(att.full_path, 'ab') as handle:
+                data = '\t'.join(columns) + '\n'
+                handle.write(data.encode('utf-8'))
+            return t
+        else:
+            urn = UniformReference.new_file_urn(ext='csv')
+            att = StoredBlob(urn=urn)
+            data = '\t'.join(headers) + '\n' + '\t'.join(columns) + '\n'
+            be.save_blob(att, fsync=False, data=data.encode('utf-8'))
+            self.attachments.append(('data', urn))
+            return urn
+
     def render_form(self, oe):
         results = ""
 
         for i, block in enumerate(self.get_contents()):
-            title = block.contents.split('\n', 1)[0]
+            title = block.contents.split('\n', 1)[0].strip()
             required = title.endswith('*')
             ra = " required " if required else ""
             results += "<div class=\"question\">"
@@ -44,7 +88,6 @@ class DataForm(Note):
                 results += f'<input name="block-{i}" type="number" {ra} step="any"/>'
             elif block.type == 'form-text':
                 results += f'<input name="block-{i}" type="text" {ra} />'
-
             elif block.type == 'form-multiple-choice':
                 options = block.contents.split('\n')[1:]
                 options = [re.sub('^- ', '', x.strip()) for x in options]
@@ -57,8 +100,8 @@ class DataForm(Note):
                         results += '</div>'
                     else:
                         results += '<div>'
-                        results += f'<label for="block-{i}-NA" >Other</label>'
-                        results += f'<input name="block-{i}-NA" type="text" {ra} />'
+                        results += f'<label for="block-{i}">Other</label>'
+                        results += f'<input name="block-{i}" type="text"/>'
                         results += '</div>'
             else:
                 raise NotImplementedError(f"No support yet for {block.type}")
