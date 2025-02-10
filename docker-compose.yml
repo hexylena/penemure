@@ -3,10 +3,6 @@ services:
     restart: always
     build: .
     environment:
-      REPOS: "/repos/project-management/pub:/repos/issues:/repos/dlc-ptsd/.pm/"
-      TZ: "Europe/Amsterdam"
-      SENTRY_SDK: "http://f709b153c1dd4e309664cdef67cf4c12@192.168.2.12:8000/1"
-      SQLITE: 'true'
     volumes:
       - "${PWD}:/code/"
       - "${PWD}/repos:/repos"
@@ -14,6 +10,7 @@ services:
       - "/root/.gitconfig:/root/.gitconfig"
     ports:
       - 8484:8000
+    env_file: "prod.env"
   cron:
     restart: always
     build: .
@@ -27,9 +24,7 @@ services:
     container_name: ts-hxpm
     hostname: hxpm
     environment:
-      - TS_EXTRA_ARGS=--advertise-tags=tag:container
-      - TS_STATE_DIR=/var/lib/tailscale
-      - TS_SERVE_CONFIG=/config/config.json
+    env_file: "prod.env"
     volumes:
       - ${PWD}/ts/state:/var/lib/tailscale
       - ${PWD}/ts/config/config.json:/config/config.json
