@@ -221,6 +221,10 @@ var tribute = new Tribute({
 	  { key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}#url" },
     {% endfor %}
     {% endfor %}
+
+    {% for (id, urn) in oe.query('select distinct id, urn from __blobs__ where urn not in (select urn from __attachments__) order by id asc').groups[0].rows %}
+	  { key: "📎 {{ id | e }} (unattached)", value: "{{ urn }}#embed" },
+    {% endfor %}
   ],
   selectTemplate: function (item) {
     return item.original.value;

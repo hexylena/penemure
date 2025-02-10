@@ -120,7 +120,7 @@ class UniformReference(BaseModel, frozen=True):
                         return f'<a href="{url}">{ref.thing.html_title}</a>' 
 
                     except KeyError:
-                        return f'<a href="#">{urn_ref.urn}</a>' 
+                        return f'<a href="#">Couldn\'t find {urn_ref.urn}</a>' 
             else:
                 return urn_ref.urn
             # print(u, u.group(3), ref)

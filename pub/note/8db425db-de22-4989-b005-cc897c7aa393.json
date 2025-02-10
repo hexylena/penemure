@@ -11,8 +11,8 @@
       },
       "type": "markdown",
       "id": "c2f0a61f-fedb-4739-8e9f-35e16f2e982b",
-      "created_unix": 1739033989.9152322,
-      "updated_unix": 1739033989.9152339
+      "created_unix": 1739199806.6583834,
+      "updated_unix": 1739199806.6583846
     },
     {
       "contents": "SQL SELECT\n  backend,\n  COUNT(*)\nFROM __all__\nGROUP BY\n  backend",
@@ -23,8 +23,8 @@
       },
       "type": "chart-pie",
       "id": "85b8293a-0dac-4063-a3ec-1d9fc8f81faf",
-      "created_unix": 1739033989.915921,
-      "updated_unix": 1739033989.9159217
+      "created_unix": 1739199806.6589854,
+      "updated_unix": 1739199806.6589866
     },
     {
       "contents": "## Notes over Time",
@@ -35,8 +35,8 @@
       },
       "type": "markdown",
       "id": "d24ed3a8-f07c-4e29-9fc1-f6df6b0e0a0a",
-      "created_unix": 1739033989.915935,
-      "updated_unix": 1739033989.9159353
+      "created_unix": 1739199806.6589987,
+      "updated_unix": 1739199806.658999
     },
     {
       "contents": "SQL SELECT\n  t.date AS date,\n  COUNT(*) AS count\nFROM (\n  SELECT DISTINCT\n    DATE(created) AS date\n  FROM __all__\n) AS t\nLEFT JOIN __all__ AS r\n  ON (\n    DATE(r.created) < t.date\n  )\nGROUP BY\n  t.date",
@@ -47,8 +47,32 @@
       },
       "type": "chart-bar",
       "id": "9eea9cda-a533-4a0b-bd53-38a493d4e09a",
-      "created_unix": 1739033989.917179,
-      "updated_unix": 1739033989.9171796
+      "created_unix": 1739199806.6603985,
+      "updated_unix": 1739199806.6603994
+    },
+    {
+      "contents": "## Blobs",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "379161c5-ea6b-4d53-92d9-7d8554f040c5",
+      "created_unix": 1739199806.6604173,
+      "updated_unix": 1739199806.6604176
+    },
+    {
+      "contents": "SQL SELECT\n  parent_title || ' ' || SUBSTRING(parent, 40, 4) AS parent,\n  SUM(size) AS size\nFROM __attachments__\nGROUP BY\n  parent",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "chart-bar",
+      "id": "9a2c06ee-d0c6-46ce-9657-af70956b8416",
+      "created_unix": 1739199806.6614823,
+      "updated_unix": 1739199806.661483
     }
   ],
   "tags": [
@@ -67,7 +91,7 @@
   ],
   "version": 2,
   "created_unix": 1738945535.8183742,
-  "updated_unix": 1738946889.513855,
+  "updated_unix": 1739199798.8327894,
   "namespace": null,
   "type": "page",
   "attachments": []

@@ -610,6 +610,17 @@ class OverlayEngine(BaseModel):
             tables[note['type']].append(note)
             tables['__all__'].append(note)
 
+        tables['__blobs__'] = []
+        for blob in self.all_blobs():
+            tables['__blobs__'].append({
+                'id': blob.thing.urn.ident,
+                'urn': blob.thing.urn.urn,
+                'size': blob.thing.size,
+                'backend': blob.backend.name,
+                # mime?
+            })
+
+
         tables['__attachments__'] = []
         for note in self.all_things():
             n = note.thing
@@ -617,12 +628,14 @@ class OverlayEngine(BaseModel):
                 tables['__block__'].append(block.clean_dict(n.urn.urn))
 
             for (id, urn) in n.data.attachments:
+                blob = self.find_blob(urn)
                 tables['__attachments__'].append({
                     'id': id,
                     'urn': urn.urn,
                     'parent': note.thing.urn.urn,
                     'parent_title': note.thing.data.title,
-                    'size': self.find_blob(urn).thing.size
+                    'size': blob.thing.size,
+                    'backend': blob.backend.name,
                 })
 
         for app in self.apps():
