@@ -18,7 +18,7 @@
       "type": "markdown",
       "id": "19c336c1-7c1d-423c-8c68-973b5c130b24",
       "created_unix": 1739191981.3627155,
-      "updated_unix": 1739191981.3627167
+      "updated_unix": 1739191981.3824565
     },
     {
       "contents": "## Work on this Issue\r\n\r\n(todo, make this a gantt in the template, and add 'self')",
@@ -30,7 +30,7 @@
       "type": "markdown",
       "id": "c17d038f-6aa1-44da-9332-1d1a3bfad6eb",
       "created_unix": 1739191981.3627274,
-      "updated_unix": 1739191981.3627279
+      "updated_unix": 1739191981.382469
     },
     {
       "contents": "SQL SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log",
@@ -42,7 +42,7 @@
       "type": "query-table",
       "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
       "created_unix": 1739191981.3634517,
-      "updated_unix": 1739191981.3634524
+      "updated_unix": 1739191981.3824735
     }
   ],
   "tags": [
@@ -57,7 +57,7 @@
   ],
   "version": 2,
   "created_unix": 1737990334.0114808,
-  "updated_unix": 1739191977.4894254,
+  "updated_unix": 1739191981.382413,
   "namespace": null,
   "type": "task",
   "attachments": []

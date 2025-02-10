@@ -18,7 +18,7 @@
       "type": "markdown",
       "id": "eb8850d7-611e-4a7f-b997-1b6e06b1bd0c",
       "created_unix": 1739191972.6928296,
-      "updated_unix": 1739191972.692831
+      "updated_unix": 1739191972.7071698
     },
     {
       "contents": "SQL SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  title_plain ASC",
@@ -30,13 +30,13 @@
       "type": "query-cards",
       "id": "abaabde9-211a-4918-a3b3-f6b8827d5be4",
       "created_unix": 1739191972.6936688,
-      "updated_unix": 1739191972.6936698
+      "updated_unix": 1739191972.7071908
     }
   ],
   "tags": [],
   "version": 2,
   "created_unix": 1737490895.662313,
-  "updated_unix": 1738579073.428605,
+  "updated_unix": 1739191972.7070737,
   "namespace": null,
   "type": "note",
   "attachments": []

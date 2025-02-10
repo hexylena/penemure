@@ -18,7 +18,7 @@
       "type": "markdown",
       "id": "fb6b3c4a-54e9-4339-8969-e6f686dbcaa9",
       "created_unix": 1739191993.414225,
-      "updated_unix": 1739191993.4142265
+      "updated_unix": 1739191993.428118
     },
     {
       "contents": "## pymdownx\r\n\r\n/// details | summary\r\n\r\nSome content\r\n\r\n///\r\n\r\n<details><summary>sum</summary>\r\nasdf\r\n</details>\r\n\r\n\"some quote's [sic] here\"\r\n",
@@ -30,7 +30,7 @@
       "type": "markdown",
       "id": "717d53ee-f627-40bf-b2e0-2807dafa64fa",
       "created_unix": 1739191993.414235,
-      "updated_unix": 1739191993.4142356
+      "updated_unix": 1739191993.4281397
     },
     {
       "contents": "```python {linenums=\"1\"}\r\nimport foo.bar\r\n```",
@@ -42,13 +42,13 @@
       "type": "markdown",
       "id": "bbfc6740-2359-4e18-ab2c-037e3cd8201a",
       "created_unix": 1739191993.414242,
-      "updated_unix": 1739191993.4142425
+      "updated_unix": 1739191993.428144
     }
   ],
   "tags": [],
   "version": 2,
   "created_unix": 1737490945.899794,
-  "updated_unix": 1738266629.7975664,
+  "updated_unix": 1739191993.4280415,
   "namespace": null,
   "type": "note",
   "attachments": []
