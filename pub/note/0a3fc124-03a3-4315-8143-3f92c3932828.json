@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "",
+      "contents": "- [ ] need to be able to delete\r\n- [ ] rename?\r\n- [ ] delete dangling attachments \r\n- [ ] move attachments between backends\r\n- [ ] duplicate attachment to any backend that's wanting to use it. (allow disabling?)\r\n- [ ] attachment support in cards ",
       "author": {
         "app": "x",
         "namespace": "account",
@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "9a7b56e1-4e82-462b-9ece-015ca347c286",
-      "created_unix": 1739191725.2529416,
-      "updated_unix": 1739191725.2529428
+      "created_unix": 1739196713.1405272,
+      "updated_unix": 1739196713.1511476
     }
   ],
   "tags": [
@@ -29,7 +29,7 @@
   ],
   "version": 2,
   "created_unix": 1738919138.583003,
-  "updated_unix": 1738919138.5830042,
+  "updated_unix": 1739196713.1510923,
   "namespace": null,
   "type": "task",
   "attachments": []

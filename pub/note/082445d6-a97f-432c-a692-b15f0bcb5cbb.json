@@ -1,0 +1,40 @@
+{
+  "title": "customised manifest for form pages ",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "5ed982ec-804b-48d5-b3c6-d243db39739d"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "i want to add the forms to my phone as \"apps\", i really only need the form data entry page, but, maybe it should also support the results page if logged in?",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "81eca147-ffad-48f9-8f7b-21cea41ae803",
+      "created_unix": 1739196063.6202056,
+      "updated_unix": 1739196063.6202068
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "high"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739196063.620274,
+  "updated_unix": 1739196063.620276,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

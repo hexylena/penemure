@@ -1,5 +1,5 @@
 {
-  "title": "add funciton/flag to determine if a grouped result set is empty",
+  "title": "add function/flag to determine if a grouped result set is empty",
   "parents": [
     {
       "app": "x",
@@ -17,38 +17,14 @@
       },
       "type": "markdown",
       "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
-      "created_unix": 1739034291.9709575,
-      "updated_unix": 1739034291.970959
-    },
-    {
-      "contents": "## Work on this Issue\r\n\r\n(todo, make this a gantt in the template, and add 'self')",
-      "author": {
-        "app": "x",
-        "namespace": null,
-        "ident": "hexylena"
-      },
-      "type": "markdown",
-      "id": "c17d038f-6aa1-44da-9332-1d1a3bfad6eb",
-      "created_unix": 1739034291.970967,
-      "updated_unix": 1739034291.9709675
-    },
-    {
-      "contents": "SQL SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
-      "author": {
-        "app": "x",
-        "namespace": null,
-        "ident": "hexylena"
-      },
-      "type": "query-table",
-      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
-      "created_unix": 1739034291.9717584,
-      "updated_unix": 1739034291.9717588
+      "created_unix": 1739195898.088246,
+      "updated_unix": 1739195898.0907784
     }
   ],
   "tags": [
     {
       "key": "status",
-      "val": "backlog"
+      "val": "done"
     },
     {
       "key": "priority",
@@ -57,7 +33,7 @@
   ],
   "version": 2,
   "created_unix": 1739034286.7575953,
-  "updated_unix": 1739034286.757596,
+  "updated_unix": 1739195898.0907285,
   "namespace": null,
   "type": "task",
   "attachments": []
