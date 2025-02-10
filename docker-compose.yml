@@ -2,7 +2,6 @@ services:
   web:
     restart: always
     build: .
-    environment:
     volumes:
       - "${PWD}:/code/"
       - "${PWD}/repos:/repos"
@@ -23,7 +22,6 @@ services:
     image: tailscale/tailscale:v1.76
     container_name: ts-hxpm
     hostname: hxpm
-    environment:
     env_file: "prod.env"
     volumes:
       - ${PWD}/ts/state:/var/lib/tailscale
