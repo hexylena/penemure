@@ -108,12 +108,25 @@ class UniformReference(BaseModel, frozen=True):
 
                     except KeyError:
                         return f'<a href="#">{urn_ref.urn}</a>' 
+            elif u.group(3) == "embed":
+                try:
+                    ref = oe.find_blob(urn_ref)
+                    url = prefix + '/' +  urn_ref.url
+                    return f'<img src="{url}" />'
+                except KeyError:
+                    try:
+                        ref = oe.find(urn_ref)
+                        url = prefix + '/view/' + urn_ref.url + '.html'
+                        return f'<a href="{url}">{ref.thing.html_title}</a>' 
+
+                    except KeyError:
+                        return f'<a href="#">{urn_ref.urn}</a>' 
             else:
                 return urn_ref.urn
             # print(u, u.group(3), ref)
             # return prefix + '/' + '/'.join(u.group(0).split(':')[2:]) + '.html'
 
-        contents = re.sub('(urn:boshedron:[a-z0-9:./-]+)(#(title|url|link))?', urn_to_url, contents)
+        contents = re.sub('(urn:boshedron:[a-z0-9:./-]+)(#(title|url|link|embed))?', urn_to_url, contents)
 
         return contents
 

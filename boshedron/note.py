@@ -136,6 +136,7 @@ class MarkdownBlock(BaseModel):
             elif self.type == BlockTypes.queryKanban.value:
                 page_content = render_kanban(res)
             elif self.type == BlockTypes.queryCards.value:
+                print(res)
                 page_content = render_cards(res)
             else:
                 raise NotImplementedError(f"self.type={self.type}")
