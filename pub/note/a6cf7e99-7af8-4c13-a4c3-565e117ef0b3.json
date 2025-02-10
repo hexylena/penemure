@@ -1,0 +1,31 @@
+{
+  "title": "testing @",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "1a15e5b4-27e2-447f-8df5-01732febecf7"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "urn:boshedron:note:4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe#link is written by urn:boshedron:account:hexylena#link  urn:boshedron:note:d6ce8729-d114-41c2-abfc-c62f1d580876#link and a urn:boshedron:note:1380da77-921d-4f6e-be32-30296273d55d#link \r\n\r\nurn:boshedron:note:79a484dc-fded-47ce-8cd8-acceaec112a4#link ",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "9a89ff6f-bf03-4669-b594-e488ece43fed",
+      "created_unix": 1739212270.6150281,
+      "updated_unix": 1739212270.6150296
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1738340645.3157442,
+  "updated_unix": 1738341485.6231463,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

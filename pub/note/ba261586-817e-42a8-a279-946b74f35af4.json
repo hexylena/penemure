@@ -1,0 +1,56 @@
+{
+  "title": "Note Logs",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "We need to track when changes happen to notes in a more user-visible way, like how github does with 'tag added, tag removed' entries.\r\n\r\nThis should be attached to each note as a Log.\r\n\r\nThe structure of that log message is TBD.\r\n\r\nI can see having entries like:\r\n\r\n- reference added <urn>\r\n- reference removed <urn> - but do we need these? github doesn't show them?\r\n\r\nthe main things we want to do with this data is:\r\n\r\n- show a 'changelog' of sorts (not the edits! just, meta changes)\r\n- identify which things a thing references, so we can show that on those pages.\r\n    - what links here / mentions this page\r\n    - build a pretty network image.",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "e57bbdf2-866a-4c85-ab31-4f93df3b91bc",
+      "created_unix": 1739212241.3645475,
+      "updated_unix": 1739212241.364549
+    },
+    {
+      "contents": "GROUP SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb,\n  type\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type DESC,\n  title_plain ASC",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "query-cards",
+      "id": "cf16ace8-f9c9-4b43-bc83-fcf9fb1276ba",
+      "created_unix": 1739212241.3684096,
+      "updated_unix": 1739212241.3684106
+    }
+  ],
+  "tags": [
+    {
+      "key": "milestone",
+      "val": "2.0"
+    },
+    {
+      "key": "progress",
+      "val": "IDFK"
+    },
+    {
+      "key": "tags",
+      "val": "#log"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739034135.291993,
+  "updated_unix": 1739034135.2919936,
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}

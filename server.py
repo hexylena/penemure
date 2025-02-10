@@ -462,12 +462,11 @@ def custom_404_handler(request, res):
 
 @app.get("/search.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/search", response_class=HTMLResponse, tags=['view'])
-@app.get("/new.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/new", response_class=HTMLResponse, tags=['view'])
-@app.get("/time.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/time", response_class=HTMLResponse, tags=['view'])
 @app.get("/redir.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/redir", response_class=HTMLResponse, tags=['view'])
+@app.get("/new", response_class=HTMLResponse, tags=['view'])
+@app.get("/time", response_class=HTMLResponse, tags=['view'])
+@app.get("/review", response_class=HTMLResponse, tags=['view'])
 def fixed_page_list(request: Request):
     page = request.url.path.lstrip('/').replace('.html', '')
     return render_fixed(page + '.html')
@@ -618,22 +617,3 @@ def search():
     """
     # <Url type="application/x-suggestions+json" template="[suggestionURL]"/>
     return Response(content=data, media_type="application/opensearchdescription+xml")
-
-
-@app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{page}", response_class=HTMLResponse, tags=['view'])
-def fixed_page(page: str):
-    page = page.replace('.html', '')
-    if page in ('search', 'new', 'time', 'redir'):
-        return render_fixed(page + '.html')
-
-    return f"""
-    <html>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>Look ma! HTML! {page}</h1>
-        </body>
-    </html>
-    """
