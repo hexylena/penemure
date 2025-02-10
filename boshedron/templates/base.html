@@ -68,9 +68,6 @@
 										{% endfor %}
 									</ul>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link" href="{{ Config.ExportPrefix }}/time{{ params }}" title="Log Time">⏰</a> &nbsp;
-								</li>
 								{% if note %}
 								<li class="nav-item">
 									<a class="nav-link" href="{{ Config.ExportPrefix }}/edit/{{ note.backend.name }}/{{ note.thing.urn.urn }}" title="Edit">📝</a>
@@ -84,6 +81,9 @@
 								{% endif %}
 								<li class="nav-item">
 									<button class="nav-link" type="button" title="Sync" id="sync" onclick="sync()">💫</button> &nbsp;
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="{{ Config.ExportPrefix }}/time{{ params }}" title="Log Time">⏰</a> &nbsp;
 								</li>
 							</ul>
 							{% endif %}
