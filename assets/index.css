@@ -112,7 +112,7 @@ table#metadata {
 	/* first column align right */
 	th:first-child, td:first-child {
 		text-align: right;
-		border-inline-end: 2px solid;
+		/* border-inline-end: 2px solid; */
 	}
 
 	th, td {
@@ -275,4 +275,15 @@ input[type="date"] {
 	} to {
 	    transform: rotate(360deg); 
 	}
+}
+
+table td[scope="row"] { font-weight: 400; }
+
+@media(max-width: 640px){
+  table, table td, table tr, table th { display: block; text-align: left !important; padding-left: 0; }
+  table tbody { display: block }
+
+  table thead { display: none; }
+  table td { border-bottom: none; }
+  table tr { border-bottom: .1rem solid var(--color); }
 }

@@ -19,7 +19,10 @@ def render_table(results: GroupedResultSet) -> str:
             page_content += f'<tr><td colspan="{colspan}" class="header">{group.title}</td></tr>'
         for row_id, row in group.enum():
             page_content += f'<tr id="{row_id}">'
-            page_content += "".join([f"<td>{x}</td>" for x in row])
+            page_content += "".join([
+                f"<td scope=\"row\">{x}</td>" if i == 0 else f"<td>{x}</td>"
+                for i, x in enumerate(row)
+                ])
             page_content += "</tr>"
     page_content += "</tbody></table>"
     return page_content
