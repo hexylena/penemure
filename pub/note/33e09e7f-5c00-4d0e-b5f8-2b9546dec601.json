@@ -1,0 +1,31 @@
+{
+  "title": "parent vs project",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "I’m not sure why i have both ‘parent’ and ‘project’ it feels like an unnecessary duplication.\r\n\r\nI start to suspect that ‘project’ should be a computed field (trace parents back to all possible ancestors that are ‘project’)\r\n\r\nI’m guessing I added Project ask tasks should be associated with multiple projects, or, we wanted to track that association but, it’s absolutely a bizarre duplication",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "47cce1a0-a5aa-4e6f-8588-4c4e21792a79",
+      "created_unix": 1739220266.697076,
+      "updated_unix": 1739220266.6970773
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1737491236.593954,
+  "updated_unix": 1737491236.593958,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
