@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 import glob
+import sqlite3
 from enum import Enum
 
 from .note import Note
@@ -101,9 +102,9 @@ class StoredThing(StoredBlob):
             # here we need to be smarter about which class we're using?
             try:
                 data = from_json(f.read())
+                res = ModelFromAttr(data).model_validate(data)
             except ValueError as ve:
-                print(f"Error reading {full_path}: {ve}")
-            res = ModelFromAttr(data).model_validate(data)
+                raise ValueError(f"Error reading {full_path}: {ve}")
 
         if res.namespace != urn.namespace:
             print(f"Odd, {urn.namespace} != {res.namespace} (end={end})")
@@ -163,6 +164,9 @@ class BaseBackend(BaseModel):
 
     def save_item(self, stored_thing: StoredThing, fsync=True):
         raise NotImplementedError(f"save_blob {stored_thing} {fsync}")
+
+    def remove_item(self, stored_thing: StoredThing, fsync=False):
+        raise NotImplementedError(f"remote_item {stored_thing} {fsync}")
 
     def __str__(self):
         return self.__repr__()
@@ -257,7 +261,7 @@ class WrappedStoredThing(BaseModel):
             d['parents'] = ' '.join([x.urn for x in self.thing.data.get_parents()])
             try:
                 d['parent_first_title'] = oe.find_thing(self.thing.data.parents[0].urn).thing.data.title
-            except KeyError:
+            except (KeyError, TypeError):
                 d['parent_first_title'] = None
 
         else:
@@ -407,7 +411,7 @@ class GitJsonFilesBackend(BaseBackend):
     def has(self, identifier: UniformReference):
         return identifier in self.data
 
-    def resolve(self, ref: UniformReference) -> StoredThing:
+    def resolve(self, ref: UniformReference) -> WrappedStoredThing:
         return self.find(ref)
 
     def all_modified(self): # -> list[WrappedStoredThing]:
@@ -512,7 +516,7 @@ class OverlayEngine(BaseModel):
             return self.find_blob(identifier=identifier)
 
     def find_thing_from_backend(self, identifier: UniformReference, backend: GitJsonFilesBackend) -> WrappedStoredThing:
-        return WrappedStoredThing(thing=backend.find(identifier), backend=backend)
+        return backend.find(identifier)
 
     def get_path(self, st: Union[StoredThing, WrappedStoredThing]) -> str:
         if isinstance(st, WrappedStoredThing):
@@ -554,23 +558,30 @@ class OverlayEngine(BaseModel):
         return WrappedStoredThing(thing=st, backend=be)
 
     def save_thing(self, ws: WrappedStoredThing, fsync=False) -> GitJsonFilesBackend:
-        return self.save_item(stored_thing=ws.thing, backend=ws.backend, fsync=fsync)
+        ws.backend.save_item(ws.thing, fsync=fsync)
+        return ws.backend
 
     def save_item(self, stored_thing: StoredThing, backend: Optional[GitJsonFilesBackend]=None, fsync=False) -> GitJsonFilesBackend:
+        if isinstance(backend, str):
+            raise Exception("Backend was declared as a backend, not a string")
         b = None
 
-        # TODO: Migrating?
+        # If the backend is supplied directly
         if backend is not None:
+            b = backend
+            # for be in self.backends:
+            #     if be.name == backend:
+            #         b = be
+            #         break
+
+        # Try looking for existing BEs with this specific identifier
+        if b is None:
             for be in self.backends:
-                if be.name == backend:
+                if be.has(stored_thing.identifier):
                     b = be
                     break
 
-        for be in self.backends:
-            if be.has(stored_thing.identifier):
-                b = be
-                break
-
+        # Otherwise we take the first available one.
         if b is None:
             b = self.backends[0]
 
@@ -645,28 +656,26 @@ class OverlayEngine(BaseModel):
     _cache_sqlite = None
     _enable_sqlite = True # os.environ.get('SQLITE', 'false') != 'false'
     def make_a_db(self, ensure_present):
-        if self._enable_sqlite:
-            import sqlite3
-            if self._cache_sqlite is None:
-                self._cache_sqlite = sqlite3.connect(":memory:", check_same_thread=False)
-                # self._cache_sqlite = sqlite3.connect(".cache")
+        if self._cache_sqlite is None:
+            self._cache_sqlite = sqlite3.connect(":memory:", check_same_thread=False)
+            # self._cache_sqlite = sqlite3.connect(".cache")
 
         # Saves less time than I thought. hmm.
         # return self._make_a_db(ensure_present)
         if self._cache is None or any([x.thing.data.model_has_changed for x in self.all_things()]):
             # print("Loading SQL DB")
             res = self._make_a_db(ensure_present)
-            a = time.time()
+            # a = time.time()
             self._cache = res
             # print(f"Created HASH in {time.time() - a}")
             if self._enable_sqlite:
-                a = time.time()
+                # a = time.time()
                 for table, rows in res.items():
                     if len(rows) == 0:
                         continue
                     okeys = sorted(rows[0].keys())
                     qokeys = [f"'{x}'" for x in okeys]
-                    qqkeys = ['?' for x in okeys]
+                    qqkeys = ['?'] * len(okeys)
 
                     stmt = f"DROP TABLE IF EXISTS {table}"
                     self._cache_sqlite.execute(stmt)
@@ -859,6 +868,9 @@ class OverlayEngine(BaseModel):
         # print(f'=> {groupless_query}')
 
         # a = time.time()
+        if self._cache_sqlite is None:
+            raise Exception("DB was not built")
+
         results = self._cache_sqlite.execute(groupless_query)
         # print(f'Executed query in {time.time() - a}')
         header = [x.split(' AS ')[1] if ' AS ' in x else x for x in selects]

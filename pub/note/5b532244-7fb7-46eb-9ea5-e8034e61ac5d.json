@@ -1,0 +1,40 @@
+{
+  "title": "Improving sync interface",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "52bba035-1bd7-402f-b190-f3c447e48a9d"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "f38ec9af-7a7b-4131-8d69-0272da3847fd",
+      "created_unix": 1739291052.268326,
+      "updated_unix": 1739291052.2684875
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1739286000.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1739291052.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739291046.6846454,
+  "updated_unix": 1739291052.268472,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}
