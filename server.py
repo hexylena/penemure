@@ -122,8 +122,8 @@ def reload():
     bos.load()
     return [len(b.data.keys()) for b in oe.backends]
 
-@app.post("/sync", tags=['system'])
-def sync():
+@app.post("/api/sync", tags=['system', 'api'])
+def api_sync():
     prev = [len(b.data.keys()) for b in oe.backends]
     bos.save()
     for b in oe.backends:
@@ -466,6 +466,7 @@ def custom_404_handler(request, res):
 @app.get("/redir", response_class=HTMLResponse, tags=['view'])
 @app.get("/new", response_class=HTMLResponse, tags=['view'])
 @app.get("/time", response_class=HTMLResponse, tags=['view'])
+@app.get("/sync", response_class=HTMLResponse, tags=['view'])
 @app.get("/review", response_class=HTMLResponse, tags=['view'])
 def fixed_page_list(request: Request):
     page = request.url.path.lstrip('/').replace('.html', '')

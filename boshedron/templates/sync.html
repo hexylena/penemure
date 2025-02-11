@@ -68,4 +68,26 @@
 
 {% endfor %}
 
+<button class="btn btn-primary" type="button" title="Sync" id="sync" onclick="sync()">Sync <div id="sync-icon">💫</div></button>
+
+<script>
+async function sync(){
+	document.getElementById('sync-icon').classList.add('spin');
+	document.getElementById('sync').disabled = true;
+
+	const response = await fetch("/api/sync", {
+		method: "POST",
+	});
+	const result = await response.json();
+	alert(JSON.stringify(result));
+	document.getElementById('sync-icon').classList.remove('spin');
+	document.getElementById('sync').disabled = false;
+}
+	/*
+navigator.registerProtocolHandler(
+  "web+boshedron",
+  `${window.location.protocol}://${window.location.origin}/redir.html?q=%s`,
+);*/
+</script>
+
 {% endblock %}

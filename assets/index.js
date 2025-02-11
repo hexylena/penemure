@@ -18,9 +18,11 @@ function autoResize() {
 
 
 /* Auto localise times */
-document.querySelectorAll('time').forEach(time => {
-	let iso_time = time.attributes.datetime.value.replace(' ', 'T'),
-	    lux_time = luxon.DateTime.fromISO(iso_time);
+document.addEventListener("DOMContentLoaded", function(event) {
+	document.querySelectorAll('time').forEach(time => {
+		let iso_time = time.attributes.datetime.value.replace(' ', 'T'),
+		    lux_time = luxon.DateTime.fromISO(iso_time);
 
-	time.innerText = lux_time.toLocaleString(luxon.DateTime.DATETIME_FULL);
+		time.innerText = lux_time.toLocaleString(luxon.DateTime.DATETIME_FULL);
+	});
 });
