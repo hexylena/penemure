@@ -36,7 +36,7 @@
 			<td>{{ note.thing.urn.urn }}#link</td>
 			<td>{{ note.relative_path }}</td>
 			<td>{{ note.thing.__class__.__name__ }}</td>
-			<td>{{ note.state }}</td>
+			<td>{{ note.state.value }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
@@ -56,7 +56,7 @@
 		{% for k, v in git_mods.items() %}
 		<tr>
 			<td>{{ k }}</td>
-			<td>{{ v }}</td>
+			<td>{{ v.value }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

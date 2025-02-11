@@ -29,8 +29,9 @@ class MutatedEnum(Enum):
     untouched = 'Untouched'
     added = 'Added'
     modified = 'Modified'
-    modified_unstaged = 'Unstaged Modification'
+    modified_unstaged = 'Unstaged Modification (Probably done externally)'
     deleted = 'Deleted'
+    deleted_unstaged = 'Unstaged Deletion (Probably done externally)'
 
     @classmethod
     def parse(cls, s: str):
@@ -43,13 +44,15 @@ class MutatedEnum(Enum):
 
         if s[0] == 'M':
             return path, MutatedEnum.modified
-        if s[1] == 'M':
+        elif s[1] == 'M':
             # Modified but not staged
             return path, MutatedEnum.modified_unstaged
         elif s[0] == 'A':
             return path, MutatedEnum.added
         elif s[0] == 'D':
             return path, MutatedEnum.deleted
+        elif s[1] == 'D':
+            return path, MutatedEnum.deleted_unstaged
         else:
             raise NotImplementedError("Unsupported file state")
 
@@ -313,9 +316,9 @@ class GitJsonFilesBackend(BaseBackend):
     def save_item(self, stored_thing: StoredThing, fsync=True):
         """Save updates to an existing file."""
         if stored_thing.identifier not in self.data:
-            state = MutatedEnum.modified
-        else:
             state = MutatedEnum.added
+        else:
+            state = MutatedEnum.modified
         self.data[stored_thing.identifier] = WrappedStoredThing(thing=stored_thing, backend=self, state=state)
 
 
@@ -341,9 +344,9 @@ class GitJsonFilesBackend(BaseBackend):
     def save_blob(self, stored_blob: StoredBlob, fsync=True, data: Optional[bytes]=None):
         """Save updates to an existing file."""
         if stored_blob.identifier not in self.data:
-            state = MutatedEnum.modified
-        else:
             state = MutatedEnum.added
+        else:
+            state = MutatedEnum.modified
         self.blob[stored_blob.identifier] = WrappedStoredBlob(thing=stored_blob, backend=self, state=state)
 
         full_path = os.path.join(self.path, stored_blob.relative_path)
@@ -451,6 +454,8 @@ class GitJsonFilesBackend(BaseBackend):
                 continue
 
             status = statuses.get(short_path, MutatedEnum.untouched)
+            if '.' not in short_path:
+                print("ERROR: missing file extension", short_path)
 
             if 'file/blob/' in path:
                 st = StoredBlob.realise_from_path(self.path, path)
