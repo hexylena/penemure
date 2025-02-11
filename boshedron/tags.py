@@ -4,7 +4,6 @@ import json
 from typing import Literal
 from pydantic import ConfigDict
 from typing import Optional, Union, Any
-from enum import Enum
 import datetime
 from zoneinfo import ZoneInfo
 from .refs import *
@@ -198,7 +197,8 @@ class TemplateTag(BaseModel):
         elif self.val.type == 'future_date':
             return f'<span class="tag">{y}{get_time(value).strftime("%Y %b %d")}</span>'
         elif self.val.type == 'unix_time':
-            return f'<span class="tag">{y}{get_time(value).strftime("%Y %b %d %H:%M")}</span>'
+            t = get_time(value)
+            return f'<span class="tag">{y}<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time></span>'
         elif self.val.type == 'status':
             icon = {
                 'done': "✅",

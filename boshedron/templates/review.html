@@ -7,6 +7,10 @@
 	<h1>Review Lineage</h1>
 </hgroup>
 
+<hgroup>
+<h2>Potentially Confused Lineage</h2>
+<p>Notes stored in a different backend than their parents.</p>
+</hgroup>
 <table id="results">
 	<thead>
 	<tr>
@@ -17,6 +21,15 @@
 	</thead>
 	<tbody>
 	{% for note in oe.all_things() %}
+		{% set ns = namespace(row_include=0) %}
+		{% for parent in note.thing.data.get_parents() %}
+		{% set par = oe.find_thing(parent.urn) %}
+		{% if par.backend.name != note.backend.name %}
+		    {% set ns.row_include = 1 + ns.row_include %}
+		{% endif %}
+		{% endfor %}
+
+		{% if ns.row_include %}
 	<tr>
 		<td><a class="urn" href="{{ note.thing.urn.urn }}#url">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
 		<td class="a">{{ note.backend.name }}</td>
@@ -28,14 +41,44 @@
 			{% endfor %}
 		</td>
 	</tr>
+		{% endif %}
 	{% endfor %}
 	</tbody>
 </table>
 
-<script>
-document.querySelectorAll('tbody tr').forEach(row => {
-	console.log(row)
-})
-</script>
+<h2>Standard Lineage</h2>
+<table id="results">
+	<thead>
+	<tr>
+		<th>Note</th>
+		<th>Backend</th>
+		<th>Parent's backend</th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for note in oe.all_things() %}
+		{% set ns = namespace(row_include=0) %}
+		{% for parent in note.thing.data.get_parents() %}
+		{% set par = oe.find_thing(parent.urn) %}
+		{% if par.backend.name != note.backend.name %}
+		    {% set ns.row_include = 1 + ns.row_include %}
+		{% endif %}
+		{% endfor %}
+
+		{% if ns.row_include == 0 %}
+	<tr>
+		<td><a class="urn" href="{{ note.thing.urn.urn }}#url">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
+		<td class="a">{{ note.backend.name }}</td>
+		<td class="b">
+			{% for parent in note.thing.data.get_parents() %}
+			{% set par = oe.find_thing(parent.urn) %}
+			{{ par.backend.name }}
+			{% endfor %}
+		</td>
+	</tr>
+		{% endif %}
+	{% endfor %}
+	</tbody>
+</table>
 
 {% endblock %}

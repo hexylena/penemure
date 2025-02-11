@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Sync | {{ Config.Title | safe }}{% endblock %}
+
+{% block main %}
+<hgroup>
+	<h1>Sync Notes</h1>
+</hgroup>
+
+{% for backend in oe.backends %}
+
+{% set git_mods = backend.get_backend_modifications() %}
+{% set mods = backend.all_modified() %}
+{% set any = git_mods|length > 0 or mods %}
+
+{% if any %}
+<hgroup>
+<h2>{{ backend.html_title }}</h2>
+<p><code>{{ backend.path }}</code></p>
+</hgroup>
+{% endif %}
+
+{% if mods %}
+<table>
+	<thead>
+	<tr>
+		<th>Note</th>
+		<th>Path</th>
+		<th>Type</th>
+		<th>Status</th>
+	</tr>
+	</thead>
+	<tbody>
+		{% for note in mods %}
+		<tr>
+			<td>{{ note.thing.urn.urn }}#link</td>
+			<td>{{ note.relative_path }}</td>
+			<td>{{ note.thing.__class__.__name__ }}</td>
+			<td>{{ note.state }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
+{% if git_mods %}
+<table>
+	<caption>Git Tracked Modifications</caption>
+	<thead>
+	<tr>
+		<th>Path</th>
+		<th>Status</th>
+	</tr>
+	</thead>
+	<tbody>
+		{% for k, v in git_mods.items() %}
+		<tr>
+			<td>{{ k }}</td>
+			<td>{{ v }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
+<br/>
+<br/>
+
+{% endfor %}
+
+{% endblock %}

@@ -61,7 +61,7 @@ TRY_FORMATS = [
 ]
 def get_time(t):
     try:
-        return datetime.datetime.fromtimestamp(float(t))
+        return datetime.datetime.fromtimestamp(float(t), tz=zoneinfo.ZoneInfo('UTC'))
     except ValueError:
         pass
     for fmt in TRY_FORMATS:

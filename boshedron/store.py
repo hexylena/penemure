@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 import glob
+from enum import Enum
 
 from .note import Note
 from .refs import UniformReference
@@ -22,6 +23,34 @@ from typing import Dict, Generator
 from typing import Optional, Union
 from .refs import *
 
+
+class MutatedEnum(Enum):
+    untouched = 'Untouched'
+    added = 'Added'
+    modified = 'Modified'
+    modified_unstaged = 'Unstaged Modification'
+    deleted = 'Deleted'
+
+    @classmethod
+    def parse(cls, s: str):
+        if '->' in s:
+            raise NotImplementedError("No support for renamed files yet")
+        else:
+            path = s[3:]
+
+        print(f"s {s} -> path=|{path}|")
+
+        if s[0] == 'M':
+            return path, MutatedEnum.modified
+        if s[1] == 'M':
+            # Modified but not staged
+            return path, MutatedEnum.modified_unstaged
+        elif s[0] == 'A':
+            return path, MutatedEnum.added
+        elif s[0] == 'D':
+            return path, MutatedEnum.deleted
+        else:
+            raise NotImplementedError("Unsupported file state")
 
 class StoredThing(StoredBlob):
     data: Union[Note, Account]
@@ -92,18 +121,19 @@ class BaseBackend(BaseModel):
     name: str
     description: str
     path: str
+    icon: str = '💿'
 
     @property
     def html_title(self):
-        return f'{self.description} ({self.name})'
+        return f'{self.icon} {self.name}: {self.description}'
 
     @classmethod
-    def new_meta(cls, path, name, description=''):
+    def new_meta(cls, path, name, description='', icon='💿'):
         if not os.path.exists(path):
             os.makedirs(path)
 
         meta = os.path.join(path, 'meta.json')
-        data = {'name': name, 'description': description}
+        data = {'name': name, 'description': description, 'icon': icon}
         with open(meta, 'w') as handle:
             json.dump(data, handle, indent=2)
 
@@ -116,7 +146,7 @@ class BaseBackend(BaseModel):
             with open(meta, 'r') as handle:
                 data = json.load(handle)
         else:
-            data = {'name': path, 'description': ''}
+            data = {'name': path, 'description': '', 'icon': ''}
             with open(meta, 'w') as handle:
                 json.dump(data, handle, indent=2)
         data['path'] = path
@@ -127,166 +157,35 @@ class BaseBackend(BaseModel):
         data = cls.discover_meta(path)
         return cls.model_validate(data)
 
+    def save_blob(self, stored_blob: StoredBlob, fsync=True, data: Optional[bytes]=None):
+        raise NotImplementedError(f"save_blob {stored_blob} {fsync} {data}")
+
+
+    def save_item(self, stored_thing: StoredThing, fsync=True):
+        raise NotImplementedError(f"save_blob {stored_thing} {fsync}")
+
     def __str__(self):
         return self.__repr__()
 
     def __repr__(self):
-        return f'GitJsonFilesBackend(name={self.name}, description={self.description}, path={self.path})'
-
-
-class GitJsonFilesBackend(BaseBackend):
-    data: Dict[UniformReference, StoredThing] = Field(default=dict())
-    blob: Dict[UniformReference, StoredBlob] = Field(default=dict())
-    last_update: Optional[PastDatetime] = None
-    latest_commit: Optional[str] = None
-
-    @classmethod
-    def discover(cls, path):
-        data = cls.discover_meta(path)
-        commit, commitdate = subprocess_check_output([
-            'git', 'log', '-n', '1', '--format=%H %at',
-        ], cwd=path).decode('utf-8').strip().split(' ')
-        data['latest_commit'] = commit
-        data['last_update'] = datetime.datetime.fromtimestamp(int(commitdate))
-
-        return cls.model_validate(data)
-
-    def sync(self):
-        if self.last_update is not None:
-            pass # todo logic to not push/pull too frequently
-
-        has_changes = subprocess_check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
-        new_files =  subprocess_check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
-        if len(has_changes) > 0 or len(new_files) > 0:
-            print(f'{self.path} has changes, {len(has_changes)} || len({new_files})')
-            subprocess_check_call(['git', 'commit', '-m', f'automatic {self.name}'], cwd=self.path)
-
-        subprocess_check_call(['git', 'pull', '--rebase'], cwd=self.path)
-        subprocess_check_call(['git', 'push'], cwd=self.path)
-
-    def save_item(self, stored_thing: StoredThing, fsync=True):
-        """Save updates to an existing file."""
-        self.data[stored_thing.identifier] = stored_thing
-
-        full_path = os.path.join(self.path, stored_thing.relative_path)
-        print(f'Saving to {full_path}')
-        if not os.path.exists(os.path.dirname(full_path)):
-            os.makedirs(os.path.dirname(full_path))
-
-        stored_thing.data.persist_attachments(os.path.join(self.path, 'file', 'blob'))
-
-        with open(full_path, 'wb') as f:
-            if not stored_thing.data.model_has_changed:
-                print("Writing this despite no changes")
-            f.write(to_json(stored_thing.data, indent=2))
-
-        stored_thing.data.model_reset_changed()
-
-        subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
-
-        if fsync:
-            self.sync()
-
-    def save_blob(self, stored_blob: StoredBlob, fsync=True, data: bytes=None):
-        """Save updates to an existing file."""
-        self.blob[stored_blob.identifier] = stored_blob
-
-        full_path = os.path.join(self.path, stored_blob.relative_path)
-        print(f'Saving blob to {full_path}')
-        if not os.path.exists(os.path.dirname(full_path)):
-            os.makedirs(os.path.dirname(full_path))
-
-        # stored_blob.data.persist_attachments(os.path.join(self.path, 'file',
-        # 'blob'))
-        # TODO: do we need to write to the blob at all??
-        if data:
-            with open(full_path, 'wb') as f:
-                f.write(data)
-
-        stored_blob.refresh_meta(full_path)
-        subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
-
-        if fsync:
-            self.sync()
-
-    def remove_item(self, stored_thing: StoredThing, fsync=False):
-        del self.data[stored_thing.identifier]
-        full_path = os.path.join(self.path, stored_thing.relative_path)
-        os.unlink(full_path)
-        subprocess_check_call(['git', 'rm', rebase_path(full_path, self.path)], cwd=self.path)
-        if fsync:
-            self.sync()
-
-    def save(self, fsync=True):
-        for v in self.data.values():
-            if isinstance(v, StoredThing):
-                self.save_item(v, fsync=fsync)
-            elif isinstance(v, StoredBlob):
-                self.save_blob(v, fsync=fsync)
-
-    def find(self, identifier: UniformReference) -> StoredThing:
-        if identifier in self.data:
-            return self.data[identifier]
-
-        for ident, ref in self.data.items():
-            if ident.ident == identifier.ident:
-                return ref
-        raise KeyError(f"Could not find {identifier.ident}")
-
-    def find_s(self, identifier: str) -> StoredThing:
-        ufr = UniformReference.from_string(identifier)
-        return self.find(ufr)
-
-    def find_blob(self, identifier: UniformReference) -> StoredBlob:
-        if identifier in self.blob:
-            return self.blob[identifier]
-
-        for ident, ref in self.blob.items():
-            if ident.ident == identifier.ident:
-                return ref
-        raise KeyError(f"Could not find {identifier.ident}")
-
-    def find_blob_s(self, identifier: str) -> StoredBlob:
-        ufr = UniformReference.from_string(identifier)
-        return self.find(ufr)
-
-    def get_path(self, identifier: UniformReference):
-        st = self.find(identifier)
-        return os.path.join(self.path, st.relative_path)
-
-    def has(self, identifier: UniformReference):
-        return identifier in self.data
-
-    def resolve(self, ref: UniformReference) -> StoredThing:
-        return self.find(ref)
-
-    def load(self):
-        self.data = {}
-        for path in glob.glob(self.path + '/**/*', recursive=True):
-            if os.path.isdir(path):
-                continue
-
-            # Ignore backend meta
-            if path.replace(self.path.rstrip('/') + '/', '') == 'meta.json':
-                continue
-
-            if 'file/blob/' in path:
-                st = StoredBlob.realise_from_path(self.path, path)
-                self.blob[st.identifier] = st
-            else:
-                st = StoredThing.realise_from_path(self.path, path)
-                self.data[st.identifier] = st
+        return f'Backend(name={self.name}, description={self.description}, path={self.path})'
 
 
 class WrappedStoredBlob(BaseModel):
     thing: StoredBlob
-    backend: GitJsonFilesBackend
+    backend: BaseBackend
+    state: MutatedEnum = MutatedEnum.untouched
 
     def save(self, fsync=False):
         self.backend.save_blob(self.thing, fsync=fsync)
 
     def not_blob(self):
         return False
+
+    @computed_field
+    @property
+    def relative_path(self) -> str:
+        return self.thing.urn.path
 
     @computed_field
     @property
@@ -302,7 +201,8 @@ class WrappedStoredBlob(BaseModel):
 
 class WrappedStoredThing(BaseModel):
     thing: StoredThing
-    backend: GitJsonFilesBackend
+    backend: BaseBackend
+    state: MutatedEnum = MutatedEnum.untouched
 
     def not_blob(self):
         return True
@@ -310,13 +210,21 @@ class WrappedStoredThing(BaseModel):
     def save(self, fsync=False):
         self.backend.save_item(self.thing, fsync=fsync)
 
-    def get_template(self, oe=None):
+    def get_template(self, oe):
         res = oe.search(type='template', title=self.thing.data.type)
         if len(res) > 0:
             return res[0]
         return None
 
-    def clean_dict(self, oe=None, template=None):
+    @property
+    def relative_path(self) -> str:
+        return self.thing.relative_path
+
+    @property
+    def full_path(self) -> str:
+        return os.path.join(self.backend.path, self.thing.relative_path)
+
+    def clean_dict(self, oe, template=None):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.ident
         d['urn'] = self.thing.urn.urn
@@ -367,6 +275,187 @@ class WrappedStoredThing(BaseModel):
         return d
 
 
+
+class GitJsonFilesBackend(BaseBackend):
+    data: Dict[UniformReference, WrappedStoredThing] = Field(default=dict())
+    blob: Dict[UniformReference, WrappedStoredBlob] = Field(default=dict())
+    last_update: Optional[PastDatetime] = None
+    latest_commit: Optional[str] = None
+
+    @classmethod
+    def discover(cls, path):
+        data = cls.discover_meta(path)
+        commit, commitdate = subprocess_check_output([
+            'git', 'log', '-n', '1', '--format=%H %at',
+        ], cwd=path).decode('utf-8').strip().split(' ')
+        data['latest_commit'] = commit
+        data['last_update'] = datetime.datetime.fromtimestamp(int(commitdate))
+
+        return cls.model_validate(data)
+
+    def sync(self):
+        if self.last_update is not None:
+            pass # todo logic to not push/pull too frequently
+
+        has_changes = subprocess_check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
+        new_files =  subprocess_check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
+        if len(has_changes) > 0 or len(new_files) > 0:
+            print(f'{self.path} has changes, {len(has_changes)} || len({new_files})')
+            subprocess_check_call(['git', 'commit', '-m', f'automatic {self.name}'], cwd=self.path)
+
+        subprocess_check_call(['git', 'pull', '--rebase'], cwd=self.path)
+        subprocess_check_call(['git', 'push'], cwd=self.path)
+
+    def save_item(self, stored_thing: StoredThing, fsync=True):
+        """Save updates to an existing file."""
+        if stored_thing.identifier not in self.data:
+            state = MutatedEnum.modified
+        else:
+            state = MutatedEnum.added
+        self.data[stored_thing.identifier] = WrappedStoredThing(thing=stored_thing, backend=self, state=state)
+
+
+        full_path = os.path.join(self.path, stored_thing.relative_path)
+        print(f'Saving to {full_path}')
+        if not os.path.exists(os.path.dirname(full_path)):
+            os.makedirs(os.path.dirname(full_path))
+
+        stored_thing.data.persist_attachments(os.path.join(self.path, 'file', 'blob'))
+
+        with open(full_path, 'wb') as f:
+            if not stored_thing.data.model_has_changed:
+                print("Writing this despite no changes")
+            f.write(to_json(stored_thing.data, indent=2))
+
+        stored_thing.data.model_reset_changed()
+
+        subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
+
+        if fsync:
+            self.sync()
+
+    def save_blob(self, stored_blob: StoredBlob, fsync=True, data: Optional[bytes]=None):
+        """Save updates to an existing file."""
+        if stored_blob.identifier not in self.data:
+            state = MutatedEnum.modified
+        else:
+            state = MutatedEnum.added
+        self.blob[stored_blob.identifier] = WrappedStoredBlob(thing=stored_blob, backend=self, state=state)
+
+        full_path = os.path.join(self.path, stored_blob.relative_path)
+        if not os.path.exists(os.path.dirname(full_path)):
+            os.makedirs(os.path.dirname(full_path))
+
+        # stored_blob.data.persist_attachments(os.path.join(self.path, 'file',
+        # 'blob'))
+        # TODO: do we need to write to the blob at all??
+        if data:
+            with open(full_path, 'wb') as f:
+                f.write(data)
+
+        stored_blob.refresh_meta(full_path)
+        subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
+
+        if fsync:
+            self.sync()
+
+    def remove_item(self, stored_thing: StoredThing, fsync=False):
+        del self.data[stored_thing.identifier]
+        full_path = os.path.join(self.path, stored_thing.relative_path)
+        os.unlink(full_path)
+        subprocess_check_call(['git', 'rm', rebase_path(full_path, self.path)], cwd=self.path)
+        if fsync:
+            self.sync()
+
+    def save(self, fsync=True):
+        for v in self.data.values():
+            if isinstance(v, StoredThing):
+                self.save_item(v, fsync=fsync)
+            elif isinstance(v, StoredBlob):
+                self.save_blob(v, fsync=fsync)
+
+    def find(self, identifier: UniformReference) -> WrappedStoredThing:
+        if identifier in self.data:
+            return self.data[identifier]
+
+        for ident, ref in self.data.items():
+            if ident.ident == identifier.ident:
+                return ref
+        raise KeyError(f"Could not find {identifier.ident}")
+
+    def find_s(self, identifier: str) -> WrappedStoredThing:
+        ufr = UniformReference.from_string(identifier)
+        return self.find(ufr)
+
+    def find_blob(self, identifier: UniformReference) -> WrappedStoredBlob:
+        if identifier in self.blob:
+            return self.blob[identifier]
+
+        for ident, ref in self.blob.items():
+            if ident.ident == identifier.ident:
+                return ref
+        raise KeyError(f"Could not find {identifier.ident}")
+
+    def find_blob_s(self, identifier: str) -> WrappedStoredBlob:
+        ufr = UniformReference.from_string(identifier)
+        return self.find_blob(ufr)
+
+    def get_path(self, identifier: UniformReference):
+        st = self.find(identifier)
+        return os.path.join(self.path, st.relative_path)
+
+    def has(self, identifier: UniformReference):
+        return identifier in self.data
+
+    def resolve(self, ref: UniformReference) -> StoredThing:
+        return self.find(ref)
+
+    def all_modified(self): # -> list[WrappedStoredThing]:
+        res = []
+        for item in self.data.values():
+            if item.state != MutatedEnum.untouched:
+                res.append(item)
+        for item in self.blob.values():
+            if item.state != MutatedEnum.untouched:
+                res.append(item)
+        return res
+
+    def get_backend_modifications(self):
+        # Get statuses for existing files
+        statuses = subprocess_check_output(['git', 'status', '-s', '.'], cwd=self.path).decode('utf-8')
+        statuses = [x for x in statuses.split('\n') if len(x) > 0]
+        # Remove invalid empty line statuses
+        if len(statuses) == 1 and len(statuses[0]) == 0:
+            statuses = []
+        return {
+            path: status
+            for path, status
+            in map(MutatedEnum.parse, statuses)
+        }
+
+    def load(self):
+        self.data = {}
+        statuses = self.get_backend_modifications()
+
+        for path in glob.glob(self.path + '/**/*', recursive=True):
+            if os.path.isdir(path):
+                continue
+
+            # Ignore backend meta
+            short_path = rebase_path(path, self.path)
+            if short_path == 'meta.json':
+                continue
+
+            status = statuses.get(short_path, MutatedEnum.untouched)
+
+            if 'file/blob/' in path:
+                st = StoredBlob.realise_from_path(self.path, path)
+                self.blob[st.identifier] = WrappedStoredBlob(thing=st, backend=self, state=status)
+            else:
+                st = StoredThing.realise_from_path(self.path, path)
+                self.data[st.identifier] = WrappedStoredThing(thing=st, backend=self, state=status)
+
+
 class OverlayEngine(BaseModel):
     backends: list[GitJsonFilesBackend]
 
@@ -379,8 +468,8 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             try:
                 if isinstance(identifier, str):
-                    return WrappedStoredThing(thing=backend.find_s(identifier), backend=backend)
-                return WrappedStoredThing(thing=backend.find(identifier), backend=backend)
+                    return backend.find_s(identifier)
+                return backend.find(identifier)
             except KeyError:
                 pass
         raise KeyError(f"Cannot find {identifier}")
@@ -407,8 +496,8 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             try:
                 if isinstance(identifier, str):
-                    return WrappedStoredBlob(thing=backend.find_blob_s(identifier), backend=backend)
-                return WrappedStoredBlob(thing=backend.find_blob(identifier), backend=backend)
+                    return backend.find_blob_s(identifier)
+                return backend.find_blob(identifier)
             except KeyError:
                 pass
         raise KeyError(f"Cannot find {identifier}")
@@ -445,10 +534,13 @@ class OverlayEngine(BaseModel):
     def all_things(self) -> list[WrappedStoredThing]:
         return [x for x in self.all()]
 
+    def all_modified(self) -> list[WrappedStoredThing]:
+        return [x for x in self.all() if x.state != MutatedEnum.untouched]
+
     def all_blobs(self):
         for backend in self.backends:
             for blob in backend.blob.values():
-                yield WrappedStoredBlob(thing=blob, backend=backend)
+                yield blob
 
     def keys(self) -> set[UniformReference]:
         all_keys = set()
