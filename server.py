@@ -88,6 +88,7 @@ config = {
 }
 
 def render_fixed(fixed, note=None, rewrite=True, note_template=None):
+    a = time.time()
     template = env.get_template(fixed)
     gn = {'VcsRev': 'deadbeefcafe'}
     kwargs = {'bos': bos, 'oe': bos.overlayengine, 'Config': config,
@@ -101,7 +102,8 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None):
     page_content = template.render(**kwargs)
     if rewrite:
         page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
-    return HTMLResponse(page_content)
+
+    return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html'):
     a = time.time()
@@ -112,8 +114,7 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html'
     gn = {'VcsRev': 'deadbeefcafe'}
     page_content = template.render(note=st, bos=bos, oe=bos.overlayengine, Config=config, Gn=gn, blob=blobify)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
-    print(time.time() - a)
-    return HTMLResponse(page_content)
+    return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
 
@@ -218,7 +219,7 @@ def get_new(template: Optional[str] = None):
     if template.startswith('urn:boshedron:'):
         # Then they're providing a note ref.
         u = UniformReference.from_string(template)
-        print(orig)
+        orig = oe.find(u)
         return render_fixed('new.html', note_template=orig.thing.data)
 
     tpl = oe.search(type='template', title=template)
@@ -281,7 +282,7 @@ def only_valid_attachments(atts: list[UploadFile] | None) -> list[UploadFile]:
     # Should we be stricter about the size?
     return [
         a for a in atts
-        if (a.size and a.size > 0) or a.filename != ''
+        if (a.size and a.size > 0) or (a.filename != '' and a.filename is not None)
     ]
 
 class NewMultiData(BaseModel):
@@ -361,6 +362,7 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
 def delete_question(urn: str):
+    a = time.time()
     u = UniformReference.from_string(urn)
     try:
         thing = oe.find(u)
@@ -371,7 +373,7 @@ def delete_question(urn: str):
     gn = {'VcsRev': 'deadbeefcafe'}
     page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, note=thing)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
-    return HTMLResponse(page_content)
+    return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
 @app.get("/delete/{urn}", tags=['mutate'])
@@ -452,12 +454,13 @@ def save_time(data: Annotated[TimeFormData, Form()]):
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 @app.exception_handler(404)
-def custom_404_handler(request, res):
+def custom_404_handler(_, res):
+    a = time.time()
     template = env.get_template('404.html')
     gn = {'VcsRev': 'deadbeefcafe'}
     page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, error=res.detail)
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
-    return HTMLResponse(page_content)
+    return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
 @app.get("/search.html", response_class=HTMLResponse, tags=['view'])
