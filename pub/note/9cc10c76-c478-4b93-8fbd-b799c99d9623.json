@@ -1,0 +1,60 @@
+{
+  "title": "Notion Data Model Comparison",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    },
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "Conceptually we have arrived at a result very similar to Notion, and it was intentional, we're solving the same class of problem. We want structure combined with free form databases ",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "3249f6db-8551-4a69-b42b-c32544b21a1d",
+      "created_unix": 1739257327.3745897,
+      "updated_unix": 1739257327.3745906
+    },
+    {
+      "contents": "## Databases / Templates\r\n\r\nNotion has the concept of \"databases\" which describe the structure of their child tasks\r\nhttps://developers.notion.com/docs/working-with-databases\r\n\r\nthese provide the schema and you can customise them. Any customisation of a note is just applied directly to the parent database.\r\n\r\nyou can link databases, they'll add a foreign key relationship and enforce it for you which is lovely.\r\n\r\nWe have the very similar concept of urn:boshedron:7a1bb42d-eb09-4ce1-8356-0d4cd57cb7c5#link , these are a note that define the correct way to interpret the shape of every note of that type.\r\n\r\n### Differences\r\n\r\nWe've made the ... choice, that templates are optional, and enable richer display of a set of notes, but they're just optional. They aren't necessary, and they must be shared between repos if you want them available everywhere.\r\n\r\nThis leads to the immediately obvious problem of the need/desire to keep them in sync. One could imagine wanting to sync templates, or, extract templates into a common shared repo that gets reused.",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "61841ac2-5055-45b2-a1d7-274f82027122",
+      "created_unix": 1739257327.3746119,
+      "updated_unix": 1739257327.3746126
+    },
+    {
+      "contents": "## Pages / Notes\r\n\r\nthen there are individual pages which live within a \"database\" (quoted because it's not necessarily a real db like PostgreSQL)\r\n\r\nOurs are much closer to notions here than our databases. You can query all notes within a database/template, that all works, and see any and all properties thereof.",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "666f2f78-648d-4faf-ac9c-d0e2f751a20f",
+      "created_unix": 1739257327.374629,
+      "updated_unix": 1739257327.3746297
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1739257269.745754,
+  "updated_unix": 1739257303.7305758,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
