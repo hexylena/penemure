@@ -819,7 +819,7 @@ class OverlayEngine(BaseModel):
         # print('fmt query', qtype, qselect)
         return qtype + ' ' +transpile(qselect, pretty=True)[0]
 
-    def query(self, query, via=None, sql=False) -> Optional[GroupedResultSet]:
+    def query(self, query, via=None, sql=False) -> GroupedResultSet:
         # Allow overriding with keywords
         qtype, qselect = self.query_type(query)
         if qtype == 'GROUP':
@@ -901,7 +901,7 @@ class OverlayEngine(BaseModel):
         # r = ResultSet(title=None, header=header, rows=list(results))
 
         if len(r.rows) == 0:
-            return None
+            return GroupedResultSet(groups=[])
 
         # if we don't want any groupings, just return as-is
         if len(desired_groups) == 0:

@@ -127,6 +127,56 @@ def api_sync():
 # def list() -> list[StoredThing]:
 #     return oe.all_things()
 
+@app.get('/manifest.json', tags=['view'])
+def manifest():
+    # why the fuck
+    title = pen.title.replace('"', '”')
+    man = {
+        "background_color": "#ffffff",
+        # TODO: better san
+        "name":             title,
+        "description":      pen.about.replace('"', '”'),
+        "display":          "standalone",
+        "scope":            '/', # TODO: make this configurable
+        "icons":            [{
+            "src":   "/assets/favicon@256.png",
+            "type":  "image/png",
+            "sizes": "256x256",
+        }],
+        "start_url":        '/', # TODO
+        "theme_color":      "#CE3518",
+        "shortcuts": [
+          {
+            "description": "search all notes",
+            "name": "Search",
+            "short_name": "Search",
+            "url": "/search.html"
+          },
+          {
+            "description": "log new times",
+            "name": "Time",
+            "short_name": "Time",
+            "url": "/log"
+          },
+        ],
+    }
+    
+    grs = oe.query('SQL select type, count(type) as count from __all__ group by type order by count desc')
+    for group in grs.groups:
+        for row in group.rows:
+            app = row[0] # Don't care about count
+            if app == 'time':
+                continue
+            man['shortcuts'].append({
+                "description": f"to {title}",
+                "name": f"Add New {app.title()}",
+                "short_name": f"+{app.title()}",
+                "url": f"/new/{app}/"
+            })
+    return man
+
+
+
 class BaseFormData(BaseModel):
     urn: Optional[str] = None
     title: str
@@ -542,8 +592,6 @@ def read_items(_app, b, c=None, d=None, e=None):
     if u.endswith('.html'):
         u = u[0:-5]
 
-    print(u)
-
     try:
         note = oe.find_thing(u)
         if note is None:
@@ -558,25 +606,6 @@ def read_items(_app, b, c=None, d=None, e=None):
 
     except KeyError:
         raise HTTPException(status_code=404, detail=f"URN {u} not found")
-
-@app.get('/manifest.json', tags=['view'])
-def manifest():
-    return {
-        "background_color": "#ffffff",
-        # TODO: better san
-        "name":             pen.title.replace('"', '”'),
-        "description":      pen.about.replace('"', '”'),
-        "display":          "standalone",
-        "scope":            '/', # TODO: make this configurable
-        "icons":            [{
-            "src":   "/assets/favicon@256.png",
-            "type":  "image/png",
-            "sizes": "256x256",
-        }],
-        "start_url":        '/', # TODO
-        "theme_color":      "#CE3518",
-    }
-
 
 @app.get('/sitesearch.xml', tags=['view'])
 def search():
