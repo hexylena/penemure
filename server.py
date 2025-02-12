@@ -426,7 +426,7 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
         oe.migrate_backend_thing(orig, be)
 
     orig.thing.data.touch()
-    return RedirectResponse(os.path.join(path, thing.data.urn.url), status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, thing.thing.urn.url), status_code=status.HTTP_302_FOUND)
     # return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
