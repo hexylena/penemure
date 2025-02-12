@@ -102,7 +102,7 @@ class UniformReference(BaseModel, frozen=True):
                     try:
                         ref = oe.find_blob(urn_ref)
                         url = os.path.join(prefix, ref.thing.url)
-                        return f'<a href="{url}">{urn_ref.url}</a>' 
+                        return f'<a href="{url}">{ref.thing.urn.urn}</a>' 
 
                     except KeyError:
                         return f'<a href="#">{urn_ref.urn}</a>' 
