@@ -78,7 +78,7 @@ class Penemure(BaseModel):
         things = self.overlayengine.all_things()
 
         if format == 'html':
-            for fixed in('search.html', 'redir.html'):
+            for fixed in('search.html', ):
                 with open(os.path.join(path, fixed), 'w') as handle:
                     template = env.get_template(fixed)
                     page_content = template.render(notes=things, **config)

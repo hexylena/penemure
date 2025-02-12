@@ -331,7 +331,8 @@ def save_new(data: Annotated[BaseFormData, Form()]):
         obj.attachments.append((att.filename, att_urn))
 
     res = pen.overlayengine.add(obj, backend=be)
-    return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
+    # TODO: figure out why note was missing from URL
+    return RedirectResponse(os.path.join(path, 'note', res.thing.urn.url), status_code=status.HTTP_302_FOUND)
 
 
 def only_valid_attachments(atts: list[UploadFile] | None) -> list[UploadFile]:
@@ -420,12 +421,13 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
         # data = '\t'.join(headers) + '\n' + '\t'.join(columns) + '\n'
         # be.save_blob(att, fsync=False, data=data.encode('utf-8'))
 
-    oe.save_thing(orig, fsync=False)
+    thing = oe.save_thing(orig, fsync=False)
     if be != orig.backend.name:
         oe.migrate_backend_thing(orig, be)
 
     orig.thing.data.touch()
-    return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, thing.data.urn.url), status_code=status.HTTP_302_FOUND)
+    # return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
 def delete_question(urn: str):
@@ -516,8 +518,6 @@ def custom_404_handler(_, res):
 
 @app.get("/search.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/search", response_class=HTMLResponse, tags=['view'])
-@app.get("/redir.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/redir", response_class=HTMLResponse, tags=['view'])
 @app.get("/new", response_class=HTMLResponse, tags=['view'])
 @app.get("/time", response_class=HTMLResponse, tags=['view'])
 @app.get("/time", response_class=HTMLResponse, tags=['view'])
@@ -557,17 +557,6 @@ def edit_get(urn: str):
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
     return render_fixed('edit.html', note, rewrite=False)
-
-
-@app.get("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
-@app.post("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
-@app.get("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
-@app.post("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
-def redir(urn: str):
-    urn = urn.replace('.html', '')
-    u = UniformReference.from_string(urn)
-    note = oe.find_thing(u)
-    return RedirectResponse('/' + note.thing.url, status_code=status.HTTP_302_FOUND)
 
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])

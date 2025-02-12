@@ -1,0 +1,31 @@
+{
+  "title": "DELETE ME",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "index"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d9c6b0b4-6d26-4679-b5bd-e37435af96f4",
+      "created_unix": 1739394480.5554175,
+      "updated_unix": 1739394480.5554187
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1739394480.5554464,
+  "updated_unix": 1739394480.555447,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

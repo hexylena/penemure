@@ -580,9 +580,9 @@ class OverlayEngine(BaseModel):
         be = self.save_item(st, backend=backend, fsync=fsync)
         return WrappedStoredThing(thing=st, backend=be)
 
-    def save_thing(self, ws: WrappedStoredThing, fsync=False) -> GitJsonFilesBackend:
+    def save_thing(self, ws: WrappedStoredThing, fsync=False) -> WrappedStoredThing:
         ws.backend.save_item(ws.thing, fsync=fsync)
-        return ws.backend
+        return ws
 
     def save_item(self, stored_thing: StoredThing, backend: Optional[GitJsonFilesBackend]=None, fsync=False) -> GitJsonFilesBackend:
         if isinstance(backend, str):
