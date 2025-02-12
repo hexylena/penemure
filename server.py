@@ -254,10 +254,11 @@ def download_ident(ident: str):
     u = UniformReference(app='file', namespace='blob', ident=ident)
     return download_blob(u)
 
-@app.get("/download/{urn}", response_class=HTMLResponse, tags=['download'])
-def download(urn: str):
-    u = UniformReference.from_string(urn)
-    return download_blob(u)
+# /file/blob is preferred so it matches static deployment.
+# @app.get("/download/{urn}", response_class=HTMLResponse, tags=['download'])
+# def download(urn: str):
+#     u = UniformReference.from_string(urn)
+#     return download_blob(u)
 
 
 @app.get("/new/{template}", response_class=HTMLResponse, tags=['mutate'])
