@@ -11,14 +11,6 @@ services:
       - 8484:8000
     env_file: "prod.env"
 
-  # cron:
-  #   restart: always
-  #   build: .
-  #   command: |
-  #     bash -c "while true; do curl http://web:8000/sync; sleep 600; done;"
-  #   links:
-  #     - web:web
-
   # imgproxy:
   #   image: ghcr.io/imgproxy/imgproxy:latest
   #   container_name: image
@@ -31,7 +23,7 @@ services:
   ts:
     image: tailscale/tailscale:v1.76
     container_name: ts-hxpm
-    hostname: hxpm
+    hostname: penemure 
     env_file: "prod.env"
     volumes:
       - ${PWD}/ts/state:/var/lib/tailscale
@@ -41,3 +33,11 @@ services:
       - net_admin
       - sys_module
     restart: unless-stopped
+
+  #cron:
+  #  restart: always
+  #  build: .
+  #  command: |
+  #    bash -c "while true; do curl http://web:8000/sync; sleep 600; done;"
+  #  links:
+  #    - web:web
