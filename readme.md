@@ -1,10 +1,13 @@
-# penemure
+# Penemure
 
-the one system to replace all of the rest. (ofc it's not, it's just option #15.)
+The project management system to replace all of the others.
+
+> And pointed out to them every secret of their wisdom.
+> He taught men to understand writing, and the use of ink and paper.
 
 ## Explicit Target Audience
 
-Academic weapons :sparkle:
+Academic Weapons :sparkle:🔪
 
 ## User Stories
 
@@ -24,9 +27,8 @@ Academic weapons :sparkle:
     - when I switch tasks I'll enter the new task
     - maybe it should suggest a list of parent tasks it should be associated with?
     - and maybe I want to take some notes about what I worked on then
-- I want to share a grocery list with my partner
 
-## Required features
+## Planned features
 
 - [x] projects (v0)
     - [x] title (v0)
@@ -86,49 +88,3 @@ Academic weapons :sparkle:
 - [ ] Import
     - [ ] import from calendar, generate an associated task that follows a calendar event around / can automatically have reminders.
 
-## System Design
-
-### Git Based
-
-Consider taking from [git-bug's](https://github.com/MichaelMure/git-bug/blob/master/doc/model.md)
-model which meets the non-goals of offline-first, fast local experiences which
-isn't really part of most project management tools but would make my boss happy
-(and me.)
-
-I want a system that's basically built on git, so that we can have the entire
-system shared with everyone involved, automatically.
-
-Initially it'll only support a single repository, you'll just go into that repo
-and manage issues/bugs/etc for that repo.
-
-Long term, additionally there will be a 'server' component that exposes it to
-the world with configurable authentication, (and a local version of that server
-that runs without that auth.)
-
-I think the AuthZ should be offloaded to your git host, if you have permission
-to clone a repo, you have permission to modify all the issues in it, access
-everything. Want to delegate only a sub-set of tasks? Great, put them in a
-separate repo.
-
-How do you see all your tasks in the future? That's where the server comes in, once that's
-written you'll list your projects that are using this system, and it'll
-aggregate everything you can access in one nice display. 
-
-### Internal Structure
-
-Is it possible (useful?) to make this recursive? Tasks all the way down with different flavours of tasks?
-
-```
-project (it's a task!)
-└── task
-    └── (sub)task
-        └── ...
-```
-
-yeah that actually sounds sensible weirdly.
-
-## Roadmap
-
-- v0 - schemas that can be edited by shitty cli tools so we can get *something* functional.
-- v1 - git-bug backing, so they can be synced
-- v2 - the server implementation
