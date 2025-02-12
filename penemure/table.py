@@ -170,3 +170,21 @@ def render_cards(results: GroupedResultSet) -> str:
 
         page_content += '</div>'
     return page_content
+
+def render_masonry(results: GroupedResultSet) -> str:
+    page_content = ''
+    # Header is the same for each group so just take the first.
+    for group in results.groups:
+        if len(results.groups) > 1:
+            if group.title:
+                page_content += f'<div class="title">{group.title.title()}</div>'
+            else:
+                page_content += f'<div class="title">Unknown</div>'
+
+        page_content += f'<div class="masonry">'
+        for row_id, row in group.enum():
+            page_content += f'<a href="{row[0]}#url">'
+            page_content += f'{row[0]}#embed'
+            page_content += "</a>"
+        page_content += '</div>'
+    return page_content

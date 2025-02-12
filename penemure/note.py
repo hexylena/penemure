@@ -25,6 +25,7 @@ class BlockTypes(Enum):
     queryTableEditable = 'query-table-edit'
     queryKanban = 'query-kanban'
     queryCards = 'query-cards'
+    queryMasony = 'query-masony'
     chartTable = 'chart-table'
     chartPie = 'chart-pie'
     chartBar = 'chart-bar'
@@ -46,6 +47,7 @@ class BlockTypes(Enum):
             'chartBar': 'SQL Query: Bar Chart',
             'chartGantt': 'SQLish Query: Gantt Chart (expects columns url, id, time_start, time_end)',
             'queryCards': 'SQL Query: Cards (expects columns urn, title, blurb)',
+            'queryMasony': 'SQL Query: Masonry Layout (expects only urn)',
             'formNumeric': "(Form) Numeric Input",
             'formMultipleChoice': "(Form) Multiple choice (checkbox), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
             'formSingleChoice': "(Form) Single choice (radio), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
@@ -137,6 +139,8 @@ class MarkdownBlock(BaseModel):
                 page_content = render_kanban(res)
             elif self.type == BlockTypes.queryCards.value:
                 page_content = render_cards(res)
+            elif self.type == BlockTypes.queryMasony.value:
+                page_content = render_masonry(res)
             else:
                 raise NotImplementedError(f"self.type={self.type}")
         elif self.type.startswith('chart'):
