@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "- also had to fix time.html, the backend wasn't being used\r\n- found another `group` missing form the `oe.query`\r\n- added a milestone template + milestone to urn:boshedron:note:4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe#link ",
+      "contents": "- also had to fix time.html, the backend wasn't being used\r\n- found another `group` missing form the `oe.query`\r\n- added a milestone template + milestone to urn:penemure:note:4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe#link ",
       "author": {
         "app": "x",
         "namespace": null,

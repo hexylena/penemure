@@ -70,7 +70,7 @@ class MarkdownBlock(BaseModel):
     author: UniformReference
     type: str = 'markdown'
     # Planning to support transcluding blocks at some point with like
-    # urn:boshedron:note:deadbeef#dead-beef-cafe-4096
+    # urn:penemure:note:deadbeef#dead-beef-cafe-4096
     id: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
     created_unix: float = Field(default_factory=lambda : time.time())

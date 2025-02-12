@@ -1,8 +1,8 @@
-from boshedron.store import GitJsonFilesBackend, OverlayEngine, StoredThing
-from boshedron.note import Note, MarkdownBlock
-from boshedron.refs import UniformReference, UnresolvedReference
-from boshedron.apps import *
-from boshedron.main import *
+from penemure.store import GitJsonFilesBackend, OverlayEngine, StoredThing
+from penemure.note import Note, MarkdownBlock
+from penemure.refs import UniformReference, UnresolvedReference
+from penemure.apps import *
+from penemure.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -46,10 +46,10 @@ for blob in bos.overlayengine.all_blobs():
 # p = Project(title="HXPM")
 # oe.add(p)
 #
-# f = File(title="logo.png", attachments=[UnresolvedReference(path="boshedron.png")])
+# f = File(title="logo.png", attachments=[UnresolvedReference(path="penemure.png")])
 # oe.add(f)
 #
-# f = File_S3(title="logo2.png", attachments=[UnresolvedReference(path="boshedron.png")])
+# f = File_S3(title="logo2.png", attachments=[UnresolvedReference(path="penemure.png")])
 # oe.add(f)
 #
 # dt = datetime.now()

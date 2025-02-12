@@ -14,10 +14,10 @@ const paths = {
 
 let params = new URL(document.location.toString()).searchParams;
 console.log(params);
-let url = paths[params.get('q').replace('web+boshedron:', '')]
+let url = paths[params.get('q').replace('web+penemure:', '')]
 window.location = url
 </script>
 
-<!-- <a href="web+boshedron:urn:boshedron:page:index">web+boshedron://urn:boshedron:page:index</a> -->
+<!-- <a href="web+penemure:urn:penemure:page:index">web+penemure://urn:penemure:page:index</a> -->
 
 {% endblock %}

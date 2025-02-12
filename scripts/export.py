@@ -1,5 +1,5 @@
-from boshedron.apps import *
-from boshedron.main import *
+from penemure.apps import *
+from penemure.main import *
 import sys
 import argparse
 

@@ -254,7 +254,7 @@ class WrappedStoredThing(BaseModel):
             else:
                 d[tag.key] = vv
 
-        # TODO: web+boshedron: also works as a prefix instead of #url as a suffix.
+        # TODO: web+penemure: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'
         d['title_plain'] = f'{self.thing.txt_title}'
         d['title_txt'] = f'{self.thing.data.title}'

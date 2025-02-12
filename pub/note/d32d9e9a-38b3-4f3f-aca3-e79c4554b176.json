@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "currently don't have a good solution for handling mentions, they exist but, there's no \"list of mentions\" or \"when was this mention created\" which we could use to generate notifications\r\n\r\n\r\nresolved in urn:boshedron:8c51eadd-51a6-430a-8ff8-4f7410fcba46#link ",
+      "contents": "currently don't have a good solution for handling mentions, they exist but, there's no \"list of mentions\" or \"when was this mention created\" which we could use to generate notifications\r\n\r\n\r\nresolved in urn:penemure:8c51eadd-51a6-430a-8ff8-4f7410fcba46#link ",
       "author": {
         "app": "x",
         "namespace": null,

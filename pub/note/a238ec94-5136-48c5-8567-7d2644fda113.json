@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "Here we'll keep track of some of the design documentation/planning\r\n\r\none of my insane ideas was that “i’d like my json files in a directory to be sort of a database queryable via SQL!” and so I implemented the world’s worst sql parser (subsequently replaced with a slightly better one in urn:boshedron:note:9da05f42-b883-4584-bb36-302eb983cb5b#link ) that would let the user filter flattened json blobs from their “”“”“database”“”“”.\r\n\r\n(This is roughly similar to notion’s ability to do the same, except probably worse and less friendly since their’s has nice dropdowns.)\r\n",
+      "contents": "Here we'll keep track of some of the design documentation/planning\r\n\r\none of my insane ideas was that “i’d like my json files in a directory to be sort of a database queryable via SQL!” and so I implemented the world’s worst sql parser (subsequently replaced with a slightly better one in urn:penemure:note:9da05f42-b883-4584-bb36-302eb983cb5b#link ) that would let the user filter flattened json blobs from their “”“”“database”“”“”.\r\n\r\n(This is roughly similar to notion’s ability to do the same, except probably worse and less friendly since their’s has nice dropdowns.)\r\n",
       "author": {
         "app": "x",
         "namespace": null,

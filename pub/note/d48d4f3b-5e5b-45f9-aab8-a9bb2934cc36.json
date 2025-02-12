@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "- [ ] i feel like it's horridly slow and i just haven't hit it yet.\r\n- [ ] finally removed StoredBlob from usage, that's... not as clean as i'd imagined.\r\n- [ ] fixed tags in search page \r\n- urn:boshedron:task:0a3fc124-03a3-4315-8143-3f92c3932828#link\r\n- urn:boshedron:task:299e94f0-88fe-423f-a3fd-d92be09227a5#link",
+      "contents": "- [ ] i feel like it's horridly slow and i just haven't hit it yet.\r\n- [ ] finally removed StoredBlob from usage, that's... not as clean as i'd imagined.\r\n- [ ] fixed tags in search page \r\n- urn:penemure:task:0a3fc124-03a3-4315-8143-3f92c3932828#link\r\n- urn:penemure:task:299e94f0-88fe-423f-a3fd-d92be09227a5#link",
       "author": {
         "app": "x",
         "namespace": null,

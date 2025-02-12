@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "We want to replicate the important features of clockify\r\n\r\nsingle line for new entry with\r\n\r\n- what are you working on (title)\r\n- parent(s)\r\n- tag(s)  - not currently implemented\r\n- updateable start time\r\n- start button\r\n\r\nand then historical entries grouped by date with editable title/project/start/end/total time.\r\n\r\n## TODO:\r\n\r\n- urn:boshedron:task:ff3237ca-0c2f-4c2f-8760-9cc81fd592d5#link\r\n- urn:boshedron:task:6e7b16c8-9465-4d9d-9fc1-03e1178c9315#link\r\n- urn:boshedron:task:c8f5e888-65e2-4876-9baa-7cf7c27c498e#link\r\n",
+      "contents": "We want to replicate the important features of clockify\r\n\r\nsingle line for new entry with\r\n\r\n- what are you working on (title)\r\n- parent(s)\r\n- tag(s)  - not currently implemented\r\n- updateable start time\r\n- start button\r\n\r\nand then historical entries grouped by date with editable title/project/start/end/total time.\r\n\r\n## TODO:\r\n\r\n- urn:penemure:task:ff3237ca-0c2f-4c2f-8760-9cc81fd592d5#link\r\n- urn:penemure:task:6e7b16c8-9465-4d9d-9fc1-03e1178c9315#link\r\n- urn:penemure:task:c8f5e888-65e2-4876-9baa-7cf7c27c498e#link\r\n",
       "author": {
         "app": "x",
         "namespace": null,

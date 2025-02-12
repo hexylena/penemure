@@ -4,12 +4,12 @@ import starlette.status as status
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
-from boshedron.store import *
-from boshedron.note import Note, MarkdownBlock
-from boshedron.refs import UniformReference, UnresolvedReference
-from boshedron.apps import *
-from boshedron.errr import *
-from boshedron.main import *
+from penemure.store import *
+from penemure.note import Note, MarkdownBlock
+from penemure.refs import UniformReference, UnresolvedReference
+from penemure.apps import *
+from penemure.errr import *
+from penemure.main import *
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import List, Tuple, Dict
@@ -66,7 +66,7 @@ if 'SENTRY_SDK' in os.environ:
 
 
 env = Environment(
-    loader=PackageLoader("boshedron", "templates"),
+    loader=PackageLoader("penemure", "templates"),
     # TODO: re-enable
     autoescape=select_autoescape(".html")
 )
@@ -84,7 +84,7 @@ config = {
     'About': bos.about,
     'MarkdownBlock': MarkdownBlock,
     'UniformReference': UniformReference,
-    'System': UniformReference.from_string('urn:boshedron:account:system'),
+    'System': UniformReference.from_string('urn:penemure:account:system'),
 }
 
 def render_fixed(fixed, note=None, rewrite=True, note_template=None):
@@ -216,7 +216,7 @@ def get_new(template: Optional[str] = None):
     if template is None:
         return render_fixed('new.html')
 
-    if template.startswith('urn:boshedron:'):
+    if template.startswith('urn:penemure:'):
         # Then they're providing a note ref.
         u = UniformReference.from_string(template)
         orig = oe.find(u)
@@ -523,7 +523,7 @@ def redir(urn: str):
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
 async def post_form(urn: str, request: Request):
     # TODO: enable auth'd responses
-    account = 'urn:boshedron:account:system-form'
+    account = 'urn:penemure:account:system-form'
 
     u = UniformReference.from_string(urn)
     try:
@@ -564,7 +564,7 @@ def get_form(urn: str):
 def read_items(_app, b, c=None, d=None, e=None):
     # _app is intentionally ignored.
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
-    p = ['urn', 'boshedron', 'note', b, p2]
+    p = ['urn', 'penemure', 'note', b, p2]
     p = [x for x in p if x is not None and x != '']
     u = ':'.join(p)
     if u.endswith('.html'):

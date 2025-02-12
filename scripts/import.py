@@ -1,9 +1,9 @@
-from boshedron.store import GitJsonFilesBackend
+from penemure.store import GitJsonFilesBackend
 import subprocess
-from boshedron.main import *
-from boshedron.apps import *
-from boshedron.note import *
-from boshedron.tags import *
+from penemure.main import *
+from penemure.apps import *
+from penemure.note import *
+from penemure.tags import *
 import sqlglot
 import sys
 
@@ -14,7 +14,7 @@ bos.load()
 
 contents = subprocess.check_output(['xsel', '-b']).decode('utf-8')
 
-res = Note(title=sys.argv[1], contents=[MarkdownBlock(contents=contents, author=UniformReference.from_string('urn:boshedron:account:hexylena'), type='markdown')])
+res = Note(title=sys.argv[1], contents=[MarkdownBlock(contents=contents, author=UniformReference.from_string('urn:penemure:account:hexylena'), type='markdown')])
 
 ws = bos.overlayengine.add(res, backend=gb2, fsync=False)
 print(ws.thing.urn.urn)

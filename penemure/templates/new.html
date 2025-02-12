@@ -1,28 +1,27 @@
 {% extends "base_edit.html" %}
 
-{% block description %}{{ note.thing.data.title | e }}: {{ note.thing.data.blurb | e }}{% endblock %}
-{% block title %}Editing {{ note.thing.data.title | e }} | {{ Config.Title | e }}{% endblock %}
+{% block title %}New | {{ Config.Title | escape }}{% endblock %}
 
 {% block main %}
 	<hgroup>
-	<h1>Editing {{ note.thing.data.title | e }}</h1>
+		<h1>Add a {% if template %}{{ template.title.title() }}{% else %}Note{% endif %}</h1>
 	</hgroup>
 
-	<form method="post" action="/edit/{{ note.thing.urn.urn }}" enctype="multipart/form-data">
+	<form method="post" action="/new" enctype="multipart/form-data">
 		<fieldset>
-			<legend>Editing Note {{ note.thing.urn.urn | e }}</legend>
+			<legend>New Note</legend>
 
 			<label for="title">Title</label>
-			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" value="{{ note.thing.data.title | e }}">
-			<input type="hidden" name="urn" value="{{ note.thing.urn.urn }}">
+			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" 
+				{% if template %}value="{{ template.title }}"{% endif %}>
 
-			<label  for="project">Parent(s)</label>
-			<select  id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
+			<label for="project">Parent(s)</label>
+			<select id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
 				{% for group in oe.query('group select urn, title_plain, type from __all__ group by type').groups %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
-					<option data-urn="{{id}}" value="{{ id }}" {% if note.thing.data.has_parent(id) %}selected{% endif %}>
-					{{ title }}
+					<option data-urn="{{id}}" value="{{ id }}">
+						{{ title }}
 					</option>
 					{% endfor %}
 				</optgroup>
@@ -30,6 +29,11 @@
 			</select>
 
 			<script>
+				var params = (new URL(document.location)).searchParams;
+				if(params.get('parent')){
+					let els = document.querySelector(`#parent-select option[data-urn="${params.get('parent')}"]`)
+					if (els) { els.selected = true; }
+				}
 				new TomSelect("#parent-select", {
 					plugins: ['remove_button'],
 				});
@@ -39,24 +43,25 @@
 			<select id="type" name="type">
 				{% for app in bos.apps() %}
 				<option value="{{ app }}"
-					{% if app == note.thing.data.type %}selected{% endif %}
+					{% if template %}{% if template.type == app %}selected{% endif %}
+					{% elif app == 'note' %} selected
+					{% endif %}
 				>{{ app.title() }}</option>
 				{% endfor %}
 			</select>
 
 			<label for="notes">Contents</label>
 			<div id="notes" name='contents'>
-				{% for block in note.thing.data.get_contents() %}
-				<div data-urn="{{ block.id }}" class="block existing mb-4" style="margin-bottom: 1em">
-					<div class="row">
-					<div class="col-1 d-flex flex-column">
-						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
-						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
-						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
+				{% if template %}
+				{% for block in template.contents %}
+				<div class="block existing" style="display: flex">
+					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
+						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
+						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
+						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
 					</div>
-					<div class="col-10">
-						<div class="row">
-						<select class="form-select" id="type" name="content_type">
+					<div style="display: flex; flex-direction: column; flex-grow: 7">
+						<select id="type" name="content_type">
 							{% for bt in blocktypes %}
 							<option value="{{ bt.value }}" {% if bt.value == block.type %}selected{% endif %}>{{ bt.pretty() }}</option>
 							{% endfor %}
@@ -75,17 +80,14 @@
 							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
 							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
-							<button type="button" data-md-button class="btn btn-outline-secondary" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', '{{ block.id }}')">📤</button>
 						</markdown-toolbar>
-						<textarea id="block-{{ block.id }}" name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
+						<textarea id="REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
 						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
-						</div>
-					</div>
 					</div>
 				</div>
 				{% endfor %}
-
-				<div id='default-block' class="block mb-4" style="display: flex">
+				{% endif %}
+				<div id='default-block' class="block" style="display: flex">
 					<div class="d-flex" style="flex-direction: column; flex-grow: 1; padding-right: 0.5em">
 						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
 						<button class="btn btn-outline-secondary" type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
@@ -98,7 +100,7 @@
 							{% endfor %}
 						</select>
 						<input type="hidden" name="content_uuid" value="REPLACEME">
-						<input type="hidden" name="content_author" value="urn:boshedron:account:hexylena"> <!-- TODO -->
+						<input type="hidden" name="content_author" value="urn:penemure:account:hexylena"> <!-- TODO -->
 
 						<markdown-toolbar for="block-REPLACEME">
 							<md-bold class="btn btn-outline-secondary"><b>B</b></md-bold>
@@ -112,7 +114,6 @@
 							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
 							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
-							<button type="button" data-md-button class="btn btn-outline-secondary" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', 'REPLACEME')">📤</button>
 						</markdown-toolbar>
 						<textarea id="block-REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
 					</div>
@@ -130,21 +131,20 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% for tag in note.thing.data.tags %}
+						{% if template %}
+						{% for tag in template.tags %}
 						<tr class='tag existing'>
-							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>
-								{% if note.thing.data.type == 'template' %}
-									<input type="text" name="tag_val" placeholder="value" value="{{tag.val_safe | e}}"/>
-								{% else %}
-									{{ tag.render_input(note.get_template(oe)) }}
-								{% endif %}
+								{{ tag.val_html }}
+								<input type="text" name="tag_val" placeholder="value" value="{{ tag.val_safe | escape }}"/>
 							</td>
 						</tr>
 						{% endfor %}
+						{% endif %}
 						<tr id="default-tag" class="tag">
-							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key"/></td>
 							<td><input type="text" name="tag_val" placeholder="value"/></td>
 						</tr>
@@ -159,15 +159,24 @@
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
-				<option value="{{ backend.name }}" {% if note.backend.name == backend.name %}selected{%endif%}>{{ backend.description }} ({{ backend.name }})</option>
+				<option data-backend="{{ backend.name }}" value="{{ backend.name }}">{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}
 			</select>
+			<script>
+				if(params.get('backend')){
+					let els = document.querySelector(`#backend option[data-backend="${params.get('backend')}"]`)
+					els.selected = true;
+				}
+			</script>
 
 			<button class="btn btn-primary" type="submit">Save Notes</button>
 		</fieldset>
 	</form>
 
 	<script>
+document.querySelector('input#title').addEventListener('change', e => {
+	document.querySelector('head title').innerText = `New: ${e.target.value}`
+})
 
 // automatically resize textareas
 document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', autoResize, false));
@@ -213,89 +222,6 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 		document.querySelector('#tags table tbody').insertAdjacentHTML('beforeend', templateTag);
 	}
 
-var tribute = new Tribute({
-  values: [
-    {% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
-    {% for (id, title) in group.rows %}
-	  { key: "{{ title | e}}", value: "{{ id }}#link" },
-    {% endfor %}
-    {% endfor %}
-
-    {% for group in oe.query('group select id, urn, parent_title from __attachments__ order by id asc').groups %}
-    {% for (id, urn, parent_title) in group.rows %}
-	  { key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}#url" },
-    {% endfor %}
-    {% endfor %}
-
-    {% for (id, urn) in oe.query('select distinct id, urn from __blobs__ where urn not in (select urn from __attachments__) order by id asc').groups[0].rows %}
-	  { key: "📎 {{ id | e }} (unattached)", value: "{{ urn }}#embed" },
-    {% endfor %}
-  ],
-  selectTemplate: function (item) {
-    return item.original.value;
-  },
-});
-tribute.attach(document.querySelectorAll("textarea"));
-
-document.querySelector('input#title').addEventListener('change', e => {
-	document.querySelector('head title').innerText = `Editing ${e.target.value}`
-})
-
-//[...document.querySelectorAll('textarea')]
-
-function select(event){
-	let ta = event.target,
-	    urn = ta.parentNode.parentNode.dataset.urn,
-	    be = document.querySelector("#backend").value,
-	    selection = event.target.value.substring(
-	        event.target.selectionStart,
-	        event.target.selectionEnd,
-	    )
-	    bt = ta.parentNode.querySelector("markdown-toolbar .extract-issues")
-
-	bt.disabled = false // Enable the action
-	console.log(urn, be, selection);
-}
-
-const textarea = document.querySelector("textarea");
-textarea.addEventListener("select", select);
-
-async function extractIssues(urn, be, bid){
-	const  txt = document.querySelector(`div[data-urn="${bid}"] textarea`),
-		slst = txt.selectionStart,
-		slse = txt.selectionEnd,
-		issues_text = txt.value.substring(txt.selectionStart, txt.selectionEnd).trim(),
-		textPre = txt.value.substring(0, txt.selectionStart),
-		textPost = txt.value.substring(txt.selectionEnd);
-	
-	let issues = issues_text.split('\n').map((x) => {
-		if (x.startsWith('- [x]')){
-			return [true, x.replace('- [x]', '').trim()]
-		} else if (x.startsWith('- [ ]')){
-			return [false, x.replace('- [ ]', '').trim()]
-		} else if (x.startsWith('- ')){
-			return [false, x.replace('- ', '').trim()]
-		}
-		return [false, x.trim()]
-	})
-	data = {
-		project: urn,
-		titles: issues.map(x => x[1]),
-		tags: issues.map(x => { return {status: x[0] ? 'done': 'backlog' }}),
-		backend: be,
-		type: 'task',
-	}
-	const myHeaders = new Headers();
-	myHeaders.append("Content-Type", "application/json");
-
-	const response = await fetch("/new/multi", {
-		method: "POST",
-		headers: myHeaders,
-		body: JSON.stringify(data),
-	});
-	const json = await response.json();
-	txt.value = textPre + json.map(urn => `- ${urn}#link`).join('\n') + textPost
-}
 
 </script>
 {% endblock %}

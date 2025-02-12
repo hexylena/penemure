@@ -37,7 +37,7 @@ def subprocess_check_output(*args, **kwargs):
 def sqlite3_type(val):
     if val is None:
         return None
-    if str(type(val)) == "<class 'boshedron.tags.TemplateValue'>":
+    if str(type(val)) == "<class 'penemure.tags.TemplateValue'>":
         return None
 
     # print(str(type(val)))

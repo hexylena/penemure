@@ -13,7 +13,7 @@ config = {
     'IsServing': False,
     'MarkdownBlock': MarkdownBlock,
     'UniformReference': UniformReference,
-    'System': UniformReference.from_string('urn:boshedron:account:system'),
+    'System': UniformReference.from_string('urn:penemure:account:system'),
 }
 
 
@@ -48,7 +48,7 @@ class Boshedron(BaseModel):
             raise Exception("Should not be reached.")
 
         env = Environment(
-            loader=PackageLoader("boshedron", "templates"),
+            loader=PackageLoader("penemure", "templates"),
             # TODO: re-enable
             autoescape=select_autoescape(".html")
         )

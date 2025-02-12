@@ -30,7 +30,7 @@ class UniformReference(BaseModel, frozen=True):
 
     @property
     def urn(self) -> str:
-        parts = ['urn', 'boshedron'] + self._assemble()
+        parts = ['urn', 'penemure'] + self._assemble()
         return ':'.join(parts)
 
     @property
@@ -50,7 +50,7 @@ class UniformReference(BaseModel, frozen=True):
     @classmethod
     def from_string(cls, raw_urn: str):
         urn = raw_urn.split(':')
-        if urn[0:2] != ['urn', 'boshedron']:
+        if urn[0:2] != ['urn', 'penemure']:
             raise Exception(f"Unknown URN prefix: {urn}")
 
         urn = urn[2:]
@@ -126,7 +126,7 @@ class UniformReference(BaseModel, frozen=True):
             # print(u, u.group(3), ref)
             # return prefix + '/' + '/'.join(u.group(0).split(':')[2:]) + '.html'
 
-        contents = re.sub('(urn:boshedron:[a-z0-9:./-]+)(#(title|url|link|embed))?', urn_to_url, contents)
+        contents = re.sub('(urn:penemure:[a-z0-9:./-]+)(#(title|url|link|embed))?', urn_to_url, contents)
 
         return contents
 

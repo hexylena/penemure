@@ -1,8 +1,8 @@
-from boshedron.store import *
-from boshedron.main import *
-from boshedron.apps import *
-from boshedron.note import *
-from boshedron.tags import *
+from penemure.store import *
+from penemure.main import *
+from penemure.apps import *
+from penemure.note import *
+from penemure.tags import *
 import sqlglot
 import sys
 

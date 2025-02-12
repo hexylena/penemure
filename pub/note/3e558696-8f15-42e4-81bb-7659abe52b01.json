@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "- fixed attachments, i think. \r\n- and blobs.\r\n- yeah forms and blobs are working. sick.\r\n\r\nurn:boshedron:file:blob:714b32a8-588e-4e52-b89a-480ba412a9ad.csv#link \r\n\r\n![testing an image](urn:boshedron:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#url)",
+      "contents": "- fixed attachments, i think. \r\n- and blobs.\r\n- yeah forms and blobs are working. sick.\r\n\r\nurn:penemure:file:blob:714b32a8-588e-4e52-b89a-480ba412a9ad.csv#link \r\n\r\n![testing an image](urn:penemure:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#url)",
       "author": {
         "app": "x",
         "namespace": "account",
