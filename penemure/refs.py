@@ -109,7 +109,6 @@ class UniformReference(BaseModel, frozen=True):
                         return f'<a href="#">{urn_ref.urn}</a>' 
             elif u.group(3) == "embed":
                 try:
-                    ref = oe.find_blob(urn_ref)
                     url = os.path.join(prefix, urn_ref.url)
                     return f'<img src="{url}" />'
                 except KeyError:
