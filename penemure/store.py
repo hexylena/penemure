@@ -242,7 +242,7 @@ class WrappedStoredThing(BaseModel):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.ident
         d['urn'] = self.thing.urn.urn
-        d['url'] = f"/redir/{self.thing.urn.urn}"
+        d['url'] = f"{self.thing.urn.urn}#url"
         d['backend'] = self.backend.name
         d['created'] = self.thing.data.created
         d['updated'] = self.thing.data.updated
