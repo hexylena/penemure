@@ -16,8 +16,7 @@ parser.add_argument('-d', '--desc', type=str, default='The public example static
 args = parser.parse_args()
 
 backends = [GitJsonFilesBackend.discover(x) for x in args.repo]
-pen = Penemure(backends=backends)
+pen = Penemure(backends=backends, title=args.title, description=args.desc)
 oe = pen.overlayengine
 oe.load()
-pen.export(args.output, format=args.format, prefix=args.prefix,
-           title=args.title, description=args.desc)
+pen.export(args.output, format=args.format, prefix=args.prefix)
