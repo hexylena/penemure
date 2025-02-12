@@ -1,5 +1,7 @@
 # Penemure
 
+<img alt="logo depicting an icosahedron with green triangular eyes on each face, wrapped in two bands like a biblical angel" src="./penemure.png" align="right" width="150px" />
+
 The project management system to replace all of the others.
 
 > And pointed out to them every secret of their wisdom.
