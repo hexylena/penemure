@@ -10,13 +10,23 @@ services:
     ports:
       - 8484:8000
     env_file: "prod.env"
-  cron:
-    restart: always
-    build: .
-    command: |
-      bash -c "while true; do curl http://web:8000/sync; sleep 600; done;"
-    links:
-      - web:web
+
+  # cron:
+  #   restart: always
+  #   build: .
+  #   command: |
+  #     bash -c "while true; do curl http://web:8000/sync; sleep 600; done;"
+  #   links:
+  #     - web:web
+
+  # imgproxy:
+  #   image: ghcr.io/imgproxy/imgproxy:latest
+  #   container_name: image
+  #   ports:
+  #   environment:
+  #     IMGPROXY_BASE_URL: "http://web/file/blob"
+  #   links:
+  #     - web:web
 
   ts:
     image: tailscale/tailscale:v1.76

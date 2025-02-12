@@ -240,8 +240,17 @@ def download_blob(urn: UniformReference):
     blob = oe.find_blob(urn)
     return FileResponse(blob.full_path)
 
+@app.get("/raw/file/blob/{ident}", response_class=HTMLResponse, tags=['download'])
+def download_ident_raw(ident: str):
+    u = UniformReference(app='file', namespace='blob', ident=ident)
+    return download_blob(u)
+
 @app.get("/file/blob/{ident}", response_class=HTMLResponse, tags=['download'])
 def download_ident(ident: str):
+    # if ident[-4:] in ('.png', 'webp', 'jpeg', '.jpg'):
+    # TODO: imgproxy
+    #     return
+
     u = UniformReference(app='file', namespace='blob', ident=ident)
     return download_blob(u)
 
