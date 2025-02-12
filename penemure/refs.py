@@ -88,7 +88,6 @@ class UniformReference(BaseModel, frozen=True):
                 except KeyError:
                     return urn_ref.urn
             elif u.group(3) == "url":
-                # return prefix + '/view/' + urn_ref.url + '.html'
                 try:
                     ref = oe.find_thing_or_blob(urn_ref)
                     return os.path.join(prefix, ref.thing.url)
@@ -102,19 +101,20 @@ class UniformReference(BaseModel, frozen=True):
                 except KeyError:
                     try:
                         ref = oe.find_blob(urn_ref)
-                        url = os.path.join(prefix, urn_ref.url)
+                        url = os.path.join(prefix, ref.url)
                         return f'<a href="{url}">{urn_ref.url}</a>' 
 
                     except KeyError:
                         return f'<a href="#">{urn_ref.urn}</a>' 
             elif u.group(3) == "embed":
                 try:
-                    url = os.path.join(prefix, urn_ref.url)
+                    ref = oe.find_blob(urn_ref)
+                    url = os.path.join(prefix, ref.url)
                     return f'<img src="{url}" />'
                 except KeyError:
                     try:
                         ref = oe.find(urn_ref)
-                        url = os.path.join(prefix, 'view', urn_ref.url + '.html')
+                        url = os.path.join(prefix, ref.url)
                         return f'<a href="{url}">{ref.thing.html_title}</a>' 
 
                     except KeyError:
