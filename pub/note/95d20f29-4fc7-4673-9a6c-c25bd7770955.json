@@ -1,0 +1,52 @@
+{
+  "title": "Federation",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "We are moving further and further towards something that looks like federation.\r\n\r\nWe need to just fucking do it properly which requires in my mind:\r\n\r\n- [ ] System backend status page, for each backend, including refresh date / sync status\r\n- [ ] HttpApiBackend next to GitJson backend\r\n- [ ] Declaring subsets of things that should be automatically synced, namely files and eventually emoji, that every referenced one should be auto-synced to other backends.",
+      "author": {
+        "app": "x",
+        "namespace": null,
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "e57bbdf2-866a-4c85-ab31-4f93df3b91bc",
+      "created_unix": 1739342719.2342432,
+      "updated_unix": 1739342719.2342436
+    },
+    {
+      "contents": "GROUP SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb,\n  type\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type DESC,\n  title_plain ASC",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "query-cards",
+      "id": "cf16ace8-f9c9-4b43-bc83-fcf9fb1276ba",
+      "created_unix": 1739342719.2350795,
+      "updated_unix": 1739342719.2350798
+    }
+  ],
+  "tags": [
+    {
+      "key": "milestone",
+      "val": "2.0"
+    },
+    {
+      "key": "description",
+      "val": "it's worse than ActivityPub, probably"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739342679.791237,
+  "updated_unix": 1739342699.62171,
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}

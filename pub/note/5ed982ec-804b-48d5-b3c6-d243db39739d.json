@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "we'd like to have some support for two flavours of FORMS.\r\n\r\n## Note Forms\r\n\r\n- [ ] scriptable things\r\n- [ ] define whatever fields you want the user to input\r\n- [ ] and their mapping to the backend.\r\n\r\n## Data Forms\r\n\r\n- [x] simpler forms that just accept data (feedback/quiz style)\r\n- [x] no scripting needed\r\n\r\nWe implemented that in urn:boshedron:3e558696-8f15-42e4-81bb-7659abe52b01#link which went successfully but still need to do the other flavour. This also meant we mostly implemented urn:boshedron:0a3fc124-03a3-4315-8143-3f92c3932828#link support",
+      "contents": "we'd like to have some support for two flavours of FORMS.\r\n\r\n## Note Forms\r\n\r\n- [ ] scriptable things\r\n- [ ] define whatever fields you want the user to input\r\n- [ ] and their mapping to the backend.\r\n\r\n## Data Forms\r\n\r\n- [x] simpler forms that just accept data (feedback/quiz style)\r\n- [x] no scripting needed\r\n\r\nWe implemented that in urn:boshedron:3e558696-8f15-42e4-81bb-7659abe52b01#link which went successfully but still need to do the other flavour. This also meant we mostly implemented urn:boshedron:0a3fc124-03a3-4315-8143-3f92c3932828#link support\r\n\r\n## Todo \r\n\r\nneed to distinguish \r\n\r\n- [ ] between \"show during form rendering\" and \"show when viewing internally\". Right now it's all shown in both places. Do we need a \"Form:Markdown\"?\r\n- [ ] I wanna make graphs with the data directly!!",
       "author": {
         "app": "x",
         "namespace": null,
@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "11354918-0fab-466f-8e3f-957423dc0035",
-      "created_unix": 1739191772.219067,
-      "updated_unix": 1739191772.2190685
+      "created_unix": 1739342856.9438233,
+      "updated_unix": 1739342856.9438238
     }
   ],
   "tags": [
