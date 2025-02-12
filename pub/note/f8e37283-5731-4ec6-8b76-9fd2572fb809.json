@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "I toyed around with many, many name ideas for this. I wanted something that encapsulated the biblical horrors of academic project management, that incorporated the feeling of terror that one feels in the face of overwhelm, in the face of the soldiers of 'light' trying to enforce the ways of their world upon those of us lowly creatures of mud.\r\n\r\nNaturally this led to looking through the list of fallen angels. Eventually I settled on [Penemue](https://en.wikipedia.org/wiki/Penemue) who taught humans to understand writing, and the use of ink and paper. Please enjoy this quote found on the wikipedia page:\r\n\r\n> Nor would death, which destroys everything, have effected [sic] them;  \r\n> But by this their knowledge they perish, and by this also its power consumes them.[2]\r\n\r\nas I too have been consumed by the power of knowledge brought about by having this project management system, that looks a lot like a personal knowledge management solution crossed with Notion.\r\n\r\nAnd naturally there's a logo as well\r\n\r\n![logo depicting an icosahedron with green triangular eyes on each face, wrapped in two pale pink bands with illegible writing atop, like a biblical angel](urn:penemure:file:blob:56769efd-c2e1-444b-a116-8f11a1de4b03.png#url)",
+      "contents": "I toyed around with many, many name ideas for this. I wanted something that encapsulated the biblical horrors of academic project management, that incorporated the feeling of terror that one feels in the face of overwhelm, in the face of the soldiers of 'light' trying to enforce the ways of their world upon those of us lowly creatures of mud.\r\n\r\nNaturally this led to looking through the list of fallen angels. Eventually I settled on [Penemue](https://en.wikipedia.org/wiki/Penemue) who taught humans to understand writing, and the use of ink and paper. Please enjoy this quote found on the wikipedia page:\r\n\r\n> Nor would death, which destroys everything, have effected [sic] them;  \r\n> But by this their knowledge they perish, and by this also its power consumes them.[2]\r\n\r\nas I too have been consumed by the power of knowledge brought about by having this project management system, that looks a lot like a personal knowledge management solution crossed with Notion.\r\n\r\nAnd naturally there's a logo as well\r\n\r\n![logo depicting an icosahedron with bright white triangular eyes on each face, wrapped in two black bands with illegible writing atop, like a biblical angel](urn:penemure:file:blob:aeef1fcaa2b77b1f9db0878c35ee68ec9980f2699ef1e8b3040e57655617b647.png#url)",
       "author": {
         "app": "x",
         "namespace": "account",
@@ -17,14 +17,14 @@
       },
       "type": "markdown",
       "id": "abbba864-c86d-4b56-93dd-95bdc414b926",
-      "created_unix": 1739353871.2803636,
-      "updated_unix": 1739353871.2803638
+      "created_unix": 1739393763.5097618,
+      "updated_unix": 1739393763.509763
     }
   ],
   "tags": [],
   "version": 2,
   "created_unix": 1739353802.6386468,
-  "updated_unix": 1739353802.6386476,
+  "updated_unix": 1739393711.6597185,
   "namespace": null,
   "type": "note",
   "attachments": [
@@ -34,6 +34,14 @@
         "app": "file",
         "namespace": "blob",
         "ident": "56769efd-c2e1-444b-a116-8f11a1de4b03.png"
+      }
+    ],
+    [
+      "penemure.png",
+      {
+        "app": "file",
+        "namespace": "blob",
+        "ident": "aeef1fcaa2b77b1f9db0878c35ee68ec9980f2699ef1e8b3040e57655617b647.png"
       }
     ]
   ]
