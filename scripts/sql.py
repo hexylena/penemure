@@ -8,30 +8,16 @@ import sys
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-bos = Penemure(backends=backends)
-bos.load()
+pen = Penemure(backends=backends)
+pen.load()
 
-me = bos.overlayengine.search(type='account', namespace=None)[0]
-# index = bos.overlayengine.search(type='page')[0]
-# print(index.data.tags)
-# t = TemplateTag(value="plain.html")
-# index.data.add_tag(t, unique=True)
-#
-# print("Getting tags")
-# print(index.data.get_tag(typ='template'))
-
-# p = Page(title="Home", page_path="page/index")
-# p.contents = [
-#     MarkdownBlock(author=me.urn, contents="Testing blocks"),
-#     MarkdownBlock(author=me.urn, contents="select title, created from project", type="query-table"),
-#     MarkdownBlock(author=me.urn, contents="select title, created from task", type="query-kanban"),
-# ]
-# bos.save()
+# me = pen.overlayengine.search(type='account', namespace=None)[0]
 
 def f(w, s):
     return f'{str(s):{w}s}'
 
-res = bos.overlayengine.query(sys.argv[1], sql=True)
+res = pen.overlayengine.query(sys.argv[1], sql=True)
+print(res)
 if res is None:
     sys.exit(1)
 

@@ -9,14 +9,6 @@ from .note import *
 from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
 
 
-config = {
-    'IsServing': False,
-    'MarkdownBlock': MarkdownBlock,
-    'UniformReference': UniformReference,
-    'System': UniformReference.from_string('urn:penemure:account:system'),
-}
-
-
 class Penemure(BaseModel):
     title: str = "PENEMURE"
     about: str = 'A project manager'
@@ -38,19 +30,33 @@ class Penemure(BaseModel):
         """List registered 'apps'"""
         return self.overlayengine.apps()
 
-    def export(self, path, format='html', prefix='project-management', title='PENEMURE', description='A project manager'):
-        pathed_pages = {
+    def get_config(self, path, serving=True):
+        def blobify(b: BlobReference, width='40'):
+            return f'<img width="{width}" src="{path}{b.id.url}{b.ext}">'
+
+        config = {
+            'ExportPrefix': '/' + path.lstrip('/').rstrip('/'),
+            'IsServing': serving,
+            'Title': self.title,
+            'About': self.about,
+            'MarkdownBlock': MarkdownBlock,
+            'UniformReference': UniformReference,
+            'System': UniformReference.from_string('urn:penemure:account:system'),
+            'VcsRev': 'deadbeefcafe',
+        }
+        kwargs = {'penemure': self, 'oe': self.overlayengine, 'Config': config,
+                  'blocktypes': BlockTypes, 'blob': blobify}
+        kwargs['pathed_pages'] = {
             x.thing.data.get_tag('page_path').val: x
             for x in
             self.overlayengine.all_pathed_pages()}
-        config.update({'ExportPrefix': '/' + prefix, 'IsServing': False,
-                       'Title': title, 'About': description, 'pathed_pages': pathed_pages})
+        return kwargs
+
+    def export(self, path, format='html', prefix='project-management'):
+        config = self.get_config(path=prefix, serving=False)
 
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
-
-        def blobify(b: BlobReference, width='40'):
-            return f'<img width="{width}" src="/{prefix}/{b.id.url}{b.ext}">'
 
         if self.overlayengine is None:
             raise Exception("Should not be reached.")
@@ -68,8 +74,7 @@ class Penemure(BaseModel):
             for fixed in('search.html', 'redir.html'):
                 with open(os.path.join(path, fixed), 'w') as handle:
                     template = env.get_template(fixed)
-                    gn = {'VcsRev': 'deadbeefcafe'}
-                    page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
+                    page_content = template.render(notes=things, **config)
                     page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)
                     handle.write(page_content)
 
@@ -85,8 +90,7 @@ class Penemure(BaseModel):
                 requested_template = tag.val.replace('.html', '.' + format)
 
             template = env.get_template(requested_template)
-            gn = {'VcsRev': 'deadbeefcafe'}
-            page_content = template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify)
+            page_content = template.render(note=st, **config)
             page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)
 
             with open(p, 'w') as handle:

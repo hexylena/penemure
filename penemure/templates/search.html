@@ -35,7 +35,7 @@
 		<th>Tags</th>
 		<th>Contributor(s)</th>
 		<th>Backend</th>
-		<th>Ancestors</th>
+		<th>Parents</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -56,14 +56,11 @@
 		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.urn }}#url">{{ c.urn }}#title</a>{% endfor %}</td>
 		<td>{{ note.backend.name }}</td>
 		<td>
-			{% set lin = oe.get_lineage(note) %}
-			{% if lin %}
+			{% if note.thing.data.parents %}
 			<ul class="list-group">
-				{% for chain in lin %}
+				{% for parent in note.thing.data.parents %}
 				<li class="list-group-item">
-					{% for p in chain %}
-						{% if loop.index > 1 %}→{% endif %} {{ p.urn }}#title
-					{% endfor %}
+					{{ parent.urn }}#title
 				</li>
 				{% endfor %}
 			</ul>

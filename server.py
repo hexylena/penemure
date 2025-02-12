@@ -21,8 +21,8 @@ import mimetypes
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-bos = Penemure(backends=backends)
-oe = bos.overlayengine
+pen = Penemure(backends=backends)
+oe = pen.overlayengine
 oe.load()
 
 
@@ -42,8 +42,8 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title=bos.title,
-    description=bos.about,
+    title=pen.title,
+    description=pen.about,
     contact={
         "name": "hexylena",
         "url": "https://hexylena.galaxians.org/",
@@ -74,35 +74,13 @@ env = Environment(
 path = ''
 # request.scope.get("root_path")
 
-def blobify(b: BlobReference, width='40'):
-    return f'<img width="{width}" src="{path}{b.id.url}{b.ext}">'
-
-config = {
-    'ExportPrefix': path,
-    'IsServing': True,
-    'Title': bos.title,
-    'About': bos.about,
-    'MarkdownBlock': MarkdownBlock,
-    'UniformReference': UniformReference,
-    'System': UniformReference.from_string('urn:penemure:account:system'),
-    'VcsRev': 'deadbeefcafe',
-}
-
-def get_config():
-    kwargs = {'bos': bos, 'oe': bos.overlayengine, 'Config': config,
-              'blocktypes': BlockTypes, 'blob': blobify}
-    kwargs['pathed_pages'] = {
-        x.thing.data.get_tag('page_path').val: x
-        for x in
-        oe.all_pathed_pages()}
-    return kwargs
 
 
 def render_fixed(fixed, note=None, rewrite=True, note_template=None):
     a = time.time()
     template = env.get_template(fixed)
 
-    kwargs = get_config()
+    kwargs = pen.get_config(path)
     if note is not None:
         kwargs['note'] = note
 
@@ -111,7 +89,7 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None):
 
     page_content = template.render(**kwargs)
     if rewrite:
-        page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
+        page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
 
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
@@ -121,24 +99,24 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html'
         requested_template = tag.val or requested_template
 
     template = env.get_template(requested_template)
-    page_content = template.render(note=st, **get_config())
-    page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
+    page_content = template.render(note=st, **pen.get_config(path))
+    page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
 
 @app.get("/reload", tags=['system'])
 def reload():
-    bos.load()
+    pen.load()
     return [len(b.data.keys()) for b in oe.backends]
 
 @app.post("/api/sync", tags=['system', 'api'])
 def api_sync():
     prev = [len(b.data.keys()) for b in oe.backends]
-    bos.save()
+    pen.save()
     for b in oe.backends:
         b.sync()
-    bos.load()
+    pen.load()
     after = [len(b.data.keys()) for b in oe.backends]
     return {
         name.name: {'before': b, 'after': a}
@@ -164,17 +142,20 @@ class BaseFormData(BaseModel):
     # attachments: Annotated[UploadFile, File()]
     attachments: Optional[List[UploadFile]] = Field(default_factory=list)
 
+
 class TimeFormData(BaseModel):
     urn: Optional[str] = None
     title: str
     project: Optional[str | List[str]] = []
-    content_type: List[str]
-    content_uuid: List[str]
-    content_note: List[str]
-    content_author: List[str]
+    content_type: Optional[List[str]] = []
+    content_uuid: Optional[List[str]] = []
+    content_note: Optional[List[str]] = []
+    content_author: Optional[List[str]] = []
     backend: str
-    start_unix: int
-    end_unix: int
+    start_unix: float = Field(default_factory=lambda: time.time())
+    end_unix: Optional[float] = None
+    # Default
+    type: str = 'log'
 
 
 def extract_contents(data: BaseFormData | TimeFormData, default_author=None):
@@ -281,7 +262,7 @@ def save_new(data: Annotated[BaseFormData, Form()]):
         be.save_blob(att_blob, fsync=False, data=att.file.read())
         obj.attachments.append((att.filename, att_urn))
 
-    res = bos.overlayengine.add(obj, backend=be)
+    res = pen.overlayengine.add(obj, backend=be)
     return RedirectResponse(f"/redir/{res.thing.urn.urn}", status_code=status.HTTP_302_FOUND)
 
 
@@ -304,13 +285,13 @@ class NewMultiData(BaseModel):
 @app.post("/new/multi", tags=['mutate'])
 def save_new_multi(data: NewMultiData):
     res = []
-    be = bos.overlayengine.get_backend(data.backend)
+    be = pen.overlayengine.get_backend(data.backend)
 
     for (title, tags) in zip(data.titles, data.tags):
         n = Note(title=title, type=data.type)
         n.parents = [UniformReference.from_string(data.project)]
         n.tags = [Tag(key=k, val=v) for (k, v) in tags.items()]
-        r = bos.overlayengine.add(n, backend=be)
+        r = pen.overlayengine.add(n, backend=be)
         res.append(r.thing.urn.urn)
     return res
 
@@ -379,8 +360,8 @@ def delete_question(urn: str):
         return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
     template = env.get_template('delete.html')
-    page_content = template.render(note=thing, **get_config())
-    page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
+    page_content = template.render(note=thing, **pen.get_config(path))
+    page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
@@ -396,20 +377,6 @@ def delete(urn: str):
     orig.backend.remove_item(orig.thing)
     return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
-
-class TimeFormData(BaseModel):
-    urn: Optional[str] = None
-    title: str
-    project: Optional[str | List[str]] = []
-    content_type: Optional[List[str]] = []
-    content_uuid: Optional[List[str]] = []
-    content_note: Optional[List[str]] = []
-    content_author: Optional[List[str]] = []
-    backend: str
-    start_unix: float = Field(default_factory=lambda: time.time())
-    end_unix: Optional[float] = None
-    # Default
-    type: str = 'log'
 
 class PatchTimeFormData(BaseModel):
     urn: str
@@ -432,7 +399,7 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
 
     # Copy title, parents only
     new_log = Note(title=log.thing.data.title, type='log')
-    new_log = bos.overlayengine.add(new_log, backend=log.backend)
+    new_log = pen.overlayengine.add(new_log, backend=log.backend)
     new_log.thing.data.set_parents(copy.copy(log.thing.data.parents))
     new_log.thing.data.ensure_tag(key='start_date', value=str(time.time()))
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
@@ -446,8 +413,8 @@ def save_time(data: Annotated[TimeFormData, Form()]):
         log = oe.find(u)
     else:
         log = Note(title=data.title, type='log')
-        be = bos.overlayengine.get_backend(data.backend)
-        log = bos.overlayengine.add(log, backend=be)
+        be = pen.overlayengine.get_backend(data.backend)
+        log = pen.overlayengine.add(log, backend=be)
 
     log.thing.data.touch()
     log.thing.data.set_contents(extract_contents(data))
@@ -457,7 +424,7 @@ def save_time(data: Annotated[TimeFormData, Form()]):
         log.thing.data.set_parents([UniformReference.from_string(p) for p in new_parents])
     if data.end_unix:
         log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
-    bos.overlayengine.save_thing(log)
+    pen.overlayengine.save_thing(log)
 
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
@@ -465,8 +432,8 @@ def save_time(data: Annotated[TimeFormData, Form()]):
 def custom_404_handler(_, res):
     a = time.time()
     template = env.get_template('404.html')
-    page_content = template.render(error=res.detail, **get_config())
-    page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
+    page_content = template.render(error=res.detail, **pen.get_config(path))
+    page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
@@ -494,7 +461,7 @@ def index(page=None):
     page = page.replace('.html', '')
 
     # try and find an index page
-    config = get_config()
+    config = pen.get_config(path)
     if 'index' in config['pathed_pages']:
         return render_dynamic(config['pathed_pages']['index'])
     raise HTTPException(status_code=404, detail="Item not found")
@@ -597,8 +564,8 @@ def manifest():
     return {
         "background_color": "#ffffff",
         # TODO: better san
-        "name":             bos.title.replace('"', '”'),
-        "description":      bos.about.replace('"', '”'),
+        "name":             pen.title.replace('"', '”'),
+        "description":      pen.about.replace('"', '”'),
         "display":          "standalone",
         "scope":            '/', # TODO: make this configurable
         "icons":            [{
@@ -616,8 +583,8 @@ def search():
     data = f"""<?xml version="1.0"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-  <ShortName>{bos.title}</ShortName>
-  <Description>{bos.about}</Description>
+  <ShortName>{pen.title}</ShortName>
+  <Description>{pen.about}</Description>
   <InputEncoding>UTF-8</InputEncoding>
   <Image width="16" height="16" type="image/x-icon">/assets/favicon@256.png</Image>
   <Url type="text/html" template="/search.html?q={ '{searchTerms}' }"/>

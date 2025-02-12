@@ -41,7 +41,7 @@
 
 			<label for="type">Type</label>
 			<select id="type" name="type">
-				{% for app in bos.apps() %}
+				{% for app in penemure.apps() %}
 				<option value="{{ app }}"
 					{% if template %}{% if template.type == app %}selected{% endif %}
 					{% elif app == 'note' %} selected

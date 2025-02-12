@@ -40,8 +40,6 @@ class MutatedEnum(Enum):
         else:
             path = s[3:]
 
-        print(f"s {s} -> path=|{path}|")
-
         if s[0] == 'M':
             return path, MutatedEnum.modified
         elif s[1] == 'M':
@@ -545,7 +543,7 @@ class OverlayEngine(BaseModel):
 
     def all_pathed_pages(self) -> list[WrappedStoredThing]:
         return [x for x in self.all()
-                if x.thing.data.type == 'page'
+                if x.thing.data.type in ('page', 'note')
                 and x.thing.data.has_tag('page_path')]
 
     def all_modified(self) -> list[WrappedStoredThing]:
@@ -664,6 +662,7 @@ class OverlayEngine(BaseModel):
 
     _cache = None
     _cache_sqlite = None
+    _cached_valid_tables = []
     _enable_sqlite = True # os.environ.get('SQLITE', 'false') != 'false'
     def make_a_db(self, ensure_present):
         if self._cache_sqlite is None:
@@ -686,6 +685,8 @@ class OverlayEngine(BaseModel):
                     okeys = sorted(rows[0].keys())
                     qokeys = [f"'{x}'" for x in okeys]
                     qqkeys = ['?'] * len(okeys)
+                    self._cached_valid_tables.append(table)
+                    # print(table, okeys, qokeys, qqkeys)
 
                     stmt = f"DROP TABLE IF EXISTS {table}"
                     self._cache_sqlite.execute(stmt)
@@ -739,7 +740,9 @@ class OverlayEngine(BaseModel):
             })
 
 
-        tables['__attachments__'] = []
+        tables['__attachments__'] = [
+            # {'id': 'logo', 'urn': 'urn:penemure:system:logo', 'parent': None, 'parent_title': 'System', 'size': 0}
+        ]
         for note in self.all_things():
             n = note.thing
             for block in n.data.get_contents():
@@ -832,6 +835,8 @@ class OverlayEngine(BaseModel):
             query = query.replace('SELF', via.ident)
 
         res = parse_one(query)
+
+
         # print(res.sql())
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
@@ -843,6 +848,12 @@ class OverlayEngine(BaseModel):
 
         # Build the database
         _ = self.make_a_db(selects)
+
+        # TODO: does not work with CTEs
+        tables = [x.this.this for x in res.find_all(exp.Table) if not x.this.this.startswith('cte_')]
+        if any([t not in self._cached_valid_tables for t in tables]):
+            print(f"Query has a mismatch with known tables: requested={tables} all={self._cached_valid_tables}")
+            return GroupedResultSet(groups=[])
 
         # TODO: add any group by clauses to the select, otherwise we won't get
         # that data back! they can then be hidden afterwards.
@@ -910,25 +921,35 @@ class OverlayEngine(BaseModel):
         raise KeyError(f"Could not find {name}")
 
     def get_lineage(self, note: WrappedStoredThing, lineage=None): # -> Generator[list[WrappedStoredThing]]:
-        res = list(self._get_lineage(note, lineage=lineage))
-        if res == [[]]:
-            return []
-        return res
-
-    def _get_lineage(self, note: WrappedStoredThing, lineage=None): # -> Generator[list[WrappedStoredThing]]:
-        parents = note.thing.data.get_parents()
-        if len(parents) == 0:
-            if lineage is not None:
-                yield lineage
-            else:
+        res = []
+        for x in self._get_lineage(note):
+            if x == []:
                 yield []
+            else:
+                yield x[1:]
+
+    def _get_lineage(self, note: WrappedStoredThing, lineage=None, orig: str = "", _depth: int=0): # -> Generator[list[WrappedStoredThing]]:
+        if lineage is None:
+            lineage = []
+
+        # print(f"{'  ' * _depth}_get_lineage({note.thing.urn.urn}, lineage={lineage})")
+        parents = note.thing.data.get_parents()
+        if note.thing.urn in lineage:
+            yield lineage + [UniformReference(app='system', namespace='lineage', ident='loop')]
+        elif _depth > 10:
+            yield lineage + [note.thing.urn] #+ ['depth-exceeded']
+        elif len(parents) == 0:
+            yield lineage + [note.thing.urn] #+ ['orphan']
         else:
-            for p_urn in parents:
-                try:
-                    p = self.find(p_urn)
-                    if lineage is not None:
-                        yield from self.get_lineage(p, lineage=lineage + [p.thing.urn])
-                    else:
-                        yield from self.get_lineage(p, lineage=[p.thing.urn])
-                except KeyError:
-                    yield [p_urn]
+            for p_urn in parents[::-1]:
+                # print(f"{'  ' * _depth} >{p_urn}")
+                if p_urn in lineage:
+                    yield lineage + [UniformReference(app='system', namespace='lineage', ident='loop')]
+                else:
+                    try:
+                        p = self.find(p_urn)
+                        # print(f"{'  ' * _depth} RET {lineage + [note.thing.urn]}")
+                        yield from self._get_lineage(p, lineage=lineage + [note.thing.urn], _depth=_depth + 1)
+                    except KeyError:
+                        # print(f"{'  ' * _depth} RETZ: {lineage + [p_urn]}")
+                        yield lineage + [note.thing.urn] + [p_urn]

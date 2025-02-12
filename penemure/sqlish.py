@@ -41,6 +41,9 @@ class ResultSet(BaseModel):
 class GroupedResultSet(BaseModel):
     groups: list[ResultSet]
 
+    def is_empty(self):
+        return len(self.groups) == 0
+
     def render_html_table(self):
         if len(self.groups) == 0:
             return "<table></table>"

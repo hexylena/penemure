@@ -37,7 +37,7 @@
 
 			<label for="type">Type</label>
 			<select id="type" name="type">
-				{% for app in bos.apps() %}
+				{% for app in penemure.apps() %}
 				<option value="{{ app }}"
 					{% if app == note.thing.data.type %}selected{% endif %}
 				>{{ app.title() }}</option>
@@ -215,21 +215,24 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 
 var tribute = new Tribute({
   values: [
-    {% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
-    {% for (id, title) in group.rows %}
-	  { key: "{{ title | e}}", value: "{{ id }}#link" },
-    {% endfor %}
-    {% endfor %}
+	{% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
+	{% for (id, title) in group.rows %}
+	{ key: "{{ title | e}}", value: "{{ id }}#link" },
+	{% endfor %}
+	{% endfor %}
 
-    {% for group in oe.query('group select id, urn, parent_title from __attachments__ order by id asc').groups %}
-    {% for (id, urn, parent_title) in group.rows %}
-	  { key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}#url" },
-    {% endfor %}
-    {% endfor %}
+	{% for group in oe.query('group select id, urn, parent_title from __attachments__ order by id asc').groups %}
+	{% for (id, urn, parent_title) in group.rows %}
+	{ key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}#url" },
+	{% endfor %}
+	{% endfor %}
 
-    {% for (id, urn) in oe.query('select distinct id, urn from __blobs__ where urn not in (select urn from __attachments__) order by id asc').groups[0].rows %}
-	  { key: "📎 {{ id | e }} (unattached)", value: "{{ urn }}#embed" },
-    {% endfor %}
+	{% set att_res = oe.query('select distinct id, urn from __blobs__ where urn not in (select urn from __attachments__) order by id asc') %}
+	{% if not att_res.is_empty() %}
+	{% for (id, urn) in att_res.groups[0].rows %}
+	{ key: "📎 {{ id | e }} (unattached)", value: "{{ urn }}#embed" },
+	{% endfor %}
+	{% endif %}
   ],
   selectTemplate: function (item) {
     return item.original.value;
