@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "- [ ] need to be able to delete\r\n- [ ] rename?\r\n- [ ] delete dangling attachments \r\n- [ ] move attachments between backends\r\n- [ ] duplicate attachment to any backend that's wanting to use it. (allow disabling?)\r\n- [ ] attachment support in cards\r\n- [ ] some items in urn:boshedron:95d20f29-4fc7-4673-9a6c-c25bd7770955#link ",
+      "contents": "- [ ] need to be able to delete\r\n- [ ] rename?\r\n- [ ] delete dangling attachments \r\n- [ ] move attachments between backends\r\n- [ ] duplicate attachment to any backend that's wanting to use it. (allow disabling?)\r\n- [ ] attachment support in cards\r\n- [ ] some items in urn:penemure:95d20f29-4fc7-4673-9a6c-c25bd7770955#link ",
       "author": {
         "app": "x",
         "namespace": "account",

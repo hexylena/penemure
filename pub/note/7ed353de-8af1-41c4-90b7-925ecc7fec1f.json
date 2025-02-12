@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "I am finally actively using this myself, namely to work on urn:boshedron:5c6880ba-de38-485b-97a9-e78a85beaf88#link (see note). It is sufficiently useful for me which is an excellent state.\r\n\r\nThis of course is far, far short of General Utility. I'm not convinced that is a worthwhile goal for me though.\r\n\r\n<details><summary>Note</summary>\r\n\r\nAn itentionally dangling reference. Maybe someday I'll make that repo public, and then the issues from it will be included as part of deployment, and that link will become clickable.\r\n\r\n</details>",
+      "contents": "I am finally actively using this myself, namely to work on urn:penemure:5c6880ba-de38-485b-97a9-e78a85beaf88#link (see note). It is sufficiently useful for me which is an excellent state.\r\n\r\nThis of course is far, far short of General Utility. I'm not convinced that is a worthwhile goal for me though.\r\n\r\n<details><summary>Note</summary>\r\n\r\nAn itentionally dangling reference. Maybe someday I'll make that repo public, and then the issues from it will be included as part of deployment, and that link will become clickable.\r\n\r\n</details>",
       "author": {
         "app": "x",
         "namespace": "account",
