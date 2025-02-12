@@ -308,6 +308,7 @@ def save_new(data: Annotated[BaseFormData, Form()]):
     obj = ModelFromAttr(dj).model_validate(dj)
     be = oe.get_backend(data.backend)
     for att in only_valid_attachments(data.attachments):
+        assert att.filename is not None
         ext = None
         try:
             ext = mimetypes.guess_extension(att.headers['content-type']) or 'bin'
@@ -316,10 +317,16 @@ def save_new(data: Annotated[BaseFormData, Form()]):
         finally:
             if ext is None:
                 ext = 'bin'
-        att_urn = UniformReference.new_file_urn(ext=ext.lstrip('.'))
-        att_blob = StoredBlob(urn=att_urn)
         # suboptimal for large files probably.
-        be.save_blob(att_blob, fsync=False, data=att.file.read())
+        file_data = att.file.read()
+        m = hashlib.sha256()
+        m.update(file_data)
+        file_hash = m.hexdigest()
+
+        att_urn = UniformReference(app='file', namespace='blob', ident=f"{file_hash}.{ext.lstrip('.')}")
+        att_blob = StoredBlob(urn=att_urn)
+
+        be.save_blob(att_blob, fsync=False, data=file_data)
         obj.attachments.append((att.filename, att_urn))
 
     res = pen.overlayengine.add(obj, backend=be)
