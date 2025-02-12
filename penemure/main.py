@@ -38,7 +38,7 @@ class Penemure(BaseModel):
         #     return f'<img width="{width}" src="{img_path}">'
 
         config = {
-            'ExportPrefix': '/' + path.lstrip('/'),
+            'ExportPrefix': '/' + path.lstrip('/').rstrip('/') + '/',
             'IsServing': serving,
             'Title': self.title,
             'About': self.about,
@@ -47,6 +47,9 @@ class Penemure(BaseModel):
             'System': UniformReference.from_string('urn:penemure:account:system'),
             'VcsRev': 'deadbeefcafe',
         }
+        if config['ExportPrefix'] == '//':
+            config['ExportPrefix'] = '/'
+
         kwargs = {'penemure': self, 'oe': self.overlayengine, 'Config': config,
                   'blocktypes': BlockTypes, #'blob': blobify
                   }
