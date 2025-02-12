@@ -11,8 +11,8 @@
       },
       "type": "markdown",
       "id": "c2f0a61f-fedb-4739-8e9f-35e16f2e982b",
-      "created_unix": 1739199806.6583834,
-      "updated_unix": 1739199806.6583846
+      "created_unix": 1739378097.8791378,
+      "updated_unix": 1739378097.8791392
     },
     {
       "contents": "SQL SELECT\n  backend,\n  COUNT(*)\nFROM __all__\nGROUP BY\n  backend",
@@ -23,8 +23,8 @@
       },
       "type": "chart-pie",
       "id": "85b8293a-0dac-4063-a3ec-1d9fc8f81faf",
-      "created_unix": 1739199806.6589854,
-      "updated_unix": 1739199806.6589866
+      "created_unix": 1739378097.879836,
+      "updated_unix": 1739378097.8798366
     },
     {
       "contents": "## Notes over Time",
@@ -35,8 +35,8 @@
       },
       "type": "markdown",
       "id": "d24ed3a8-f07c-4e29-9fc1-f6df6b0e0a0a",
-      "created_unix": 1739199806.6589987,
-      "updated_unix": 1739199806.658999
+      "created_unix": 1739378097.8798504,
+      "updated_unix": 1739378097.879851
     },
     {
       "contents": "SQL SELECT\n  t.date AS date,\n  COUNT(*) AS count\nFROM (\n  SELECT DISTINCT\n    DATE(created) AS date\n  FROM __all__\n) AS t\nLEFT JOIN __all__ AS r\n  ON (\n    DATE(r.created) < t.date\n  )\nGROUP BY\n  t.date",
@@ -47,8 +47,8 @@
       },
       "type": "chart-bar",
       "id": "9eea9cda-a533-4a0b-bd53-38a493d4e09a",
-      "created_unix": 1739199806.6603985,
-      "updated_unix": 1739199806.6603994
+      "created_unix": 1739378097.8812456,
+      "updated_unix": 1739378097.881246
     },
     {
       "contents": "## Blobs",
@@ -59,11 +59,11 @@
       },
       "type": "markdown",
       "id": "379161c5-ea6b-4d53-92d9-7d8554f040c5",
-      "created_unix": 1739199806.6604173,
-      "updated_unix": 1739199806.6604176
+      "created_unix": 1739378097.881259,
+      "updated_unix": 1739378097.8812592
     },
     {
-      "contents": "SQL SELECT\n  parent_title || ' ' || SUBSTRING(parent, 40, 4) AS parent,\n  SUM(size) AS size\nFROM __attachments__\nGROUP BY\n  parent",
+      "contents": "SQL SELECT\n  parent_title || ' ' || SUBSTRING(parent, 40, 4) AS parent,\n  SUM(size) AS size\nFROM __attachments__\nGROUP BY\n  parent\nORDER BY\n  size DESC",
       "author": {
         "app": "x",
         "namespace": "account",
@@ -71,8 +71,32 @@
       },
       "type": "chart-bar",
       "id": "9a2c06ee-d0c6-46ce-9657-af70956b8416",
-      "created_unix": 1739199806.6614823,
-      "updated_unix": 1739199806.661483
+      "created_unix": 1739378097.8842309,
+      "updated_unix": 1739378097.8842313
+    },
+    {
+      "contents": "## Words",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "877133c3-d369-4155-b680-9544810fa490",
+      "created_unix": 1739378097.884246,
+      "updated_unix": 1739378097.8842463
+    },
+    {
+      "contents": "SQL SELECT\n  SUM(LENGTH(b.contents) - LENGTH(REPLACE(b.contents, ' ', '')) + 1) AS words,\n  a.final_ancestor_titles AS projects\nFROM __block__ AS b\nLEFT JOIN __all__ AS a\n  ON b.parent = a.urn\nGROUP BY\n  projects\nORDER BY\n  words DESC",
+      "author": {
+        "app": "x",
+        "namespace": "account",
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "5d01a754-6e9f-4385-8240-e37997eeb9ed",
+      "created_unix": 1739378097.8856392,
+      "updated_unix": 1739378097.88564
     }
   ],
   "tags": [
@@ -91,7 +115,7 @@
   ],
   "version": 2,
   "created_unix": 1738945535.8183742,
-  "updated_unix": 1739199798.8327894,
+  "updated_unix": 1739378075.5842965,
   "namespace": null,
   "type": "page",
   "attachments": []

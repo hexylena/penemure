@@ -257,6 +257,7 @@ class WrappedStoredThing(BaseModel):
         d['title_plain'] = f'{self.thing.txt_title}'
         d['title_txt'] = f'{self.thing.data.title}'
         #d['contributors'] = self.thing.data.get_contributors(oe)
+        d['final_ancestor_titles'] = []
 
         if d['parents'] is not None and len(d['parents']) > 0:
             d['parents'] = ' '.join([x.urn for x in self.thing.data.get_parents()])
@@ -268,15 +269,20 @@ class WrappedStoredThing(BaseModel):
         else:
             d['parents'] = None
             d['parent_first_title'] = None
-            # d['final_ancestor_first_title'] = None
-            # if 'final_ancestor_first_title' not in d:
-            #     d['final_ancestor_first_title'] = oe.find_thing(ancestor_chain[-1]).thing.data.title
 
         ancestors = []
         for ancestor_chain in oe.get_lineage(self):
+            if len(ancestor_chain) > 0:
+                try:
+                    thing = oe.find_thing(ancestor_chain[-1]).thing.data.title
+                except KeyError:
+                    thing = ancestor_chain[-1]
+                d['final_ancestor_titles'].append(thing)
+
             for thing in ancestor_chain:
                 ancestors.append(thing.urn)
         d['ancestors'] = ' '.join(set(ancestors))
+        d['final_ancestor_titles'] = ', '.join(set(d['final_ancestor_titles']))
         return d
 
 

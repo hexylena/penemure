@@ -77,7 +77,6 @@ class UniformReference(BaseModel, frozen=True):
     @classmethod
     def rewrite_urns(cls, contents: str, prefix: str, oe) -> str:
         def urn_to_url(u: re.Match):
-            print(prefix, u.groups())
             urn_ref = cls.from_string(u.group(1))
             if urn_ref.urn != u.group(1):
                 raise Exception(f"Maybe mis-parsed URN, {urn_ref.urn} != {u.group(1)}")
@@ -88,7 +87,6 @@ class UniformReference(BaseModel, frozen=True):
                     return ref.thing.html_title # should it be html by default?
                 except KeyError:
                     return urn_ref.urn
-                # print(ref, urn_ref.urn)
             elif u.group(3) == "url":
                 # return prefix + '/view/' + urn_ref.url + '.html'
                 try:
@@ -124,8 +122,6 @@ class UniformReference(BaseModel, frozen=True):
                         return f'<a href="#">Couldn\'t find {urn_ref.urn}</a>' 
             else:
                 return urn_ref.urn
-            # print(u, u.group(3), ref)
-            # return prefix + '/' + '/'.join(u.group(0).split(':')[2:]) + '.html'
 
         contents = re.sub('(urn:penemure:[a-z0-9:./-]+)(#(title|url|link|embed))?', urn_to_url, contents)
 

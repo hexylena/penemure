@@ -115,9 +115,11 @@
 
 
 
+<hr/>
 
 {% if note.thing.data.attachments %}
-<h3>Attachments</h3>
+<details>
+	<summary><h3>Attachments</h3></summary>
 <table>
 	<!-- <caption>Attachments</caption> -->
 	<thead>
@@ -142,19 +144,19 @@
 	{% endfor %}
 	</tbody>
 </table>
+</details>
 {% endif %}
 
 
 
-<hr/>
 <details>
-	<summary>Children</summary>
+	<summary><h3>Children</h3></summary>
 {% set b = Config.MarkdownBlock(author=Config.System, type="query-table", contents="group select title, date(created) as created from __all__ where parents like '%" + note.thing.urn.ident + "%' group by type order by type asc, updated asc") %}
 {{ b.render(oe, Config.ExportPrefix, note.thing) }}
 </details>
 
 <details>
-	<summary>Queryable fields</summary>
+	<summary><h3>Queryable fields</h3></summary>
 	<table>
 		{% for k, v in note.clean_dict(oe).items() %}
 		<tr>

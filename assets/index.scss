@@ -247,3 +247,20 @@ blockquote {
 	border-inline-start: var(--bs-border-width) solid var(--bs-border-color);
 	padding-inline-start: 0.5em;
 }
+
+details {
+	border: var(--bs-border-width) solid var(--bs-border-color);
+
+	summary {
+		padding: 0.5em;
+
+		h3 {
+			font-size: 1em;
+			display: inline;
+		}
+	}
+
+	@extend .mb-2;
+
+
+}

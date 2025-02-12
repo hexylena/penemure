@@ -86,6 +86,22 @@ def render_bar(results: GroupedResultSet) -> str:
         page_content += '</pre>'
     return page_content
 
+def render_bar_chartscss(results: GroupedResultSet) -> str:
+    page_content = ''
+    for group in results.groups:
+        # chartscss instead of mermaid?
+        page_content += f'<table class="charts-css column" style="--labels-size: 18em;">'
+        if group.title:
+            page_content += f'<caption>{group.title or ''}</caption>'
+
+        max_value = max([x[1] for x in group.rows])
+        for (x, y) in group.rows:
+            page_content += f'<tr><th scope="row">{x}</th>'
+            page_content += f'<td style="--size: {y / max_value};"><span class="data">{y}</span></td></tr>'
+
+        page_content += '</tbody></table>'
+    return page_content
+
 def get_index(group, col):
         try:
             return group.header.index(col)
