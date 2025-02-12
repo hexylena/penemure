@@ -21,7 +21,7 @@ import mimetypes
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-bos = Boshedron(backends=backends)
+bos = Penemure(backends=backends)
 oe = bos.overlayengine
 oe.load()
 

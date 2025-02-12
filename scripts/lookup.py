@@ -13,7 +13,7 @@ gb2 = GitJsonFilesBackend.discover('./projects/alt')
 gb1.load()
 for k, v in gb1.data.items():
     print(repr(k))
-# bos = Boshedron(backends=[gb1, gb2])
+# bos = Penemure(backends=[gb1, gb2])
 # bos.load()
 #
 # me = bos.overlayengine.search(type='account', namespace=None)[0]

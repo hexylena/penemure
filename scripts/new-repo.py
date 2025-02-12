@@ -9,7 +9,7 @@ import sys
 import argparse
 
 parser = argparse.ArgumentParser(
-                    prog='BOSHEDRON',
+                    prog='PENEMURE',
                     description='Initialises a new repo')
 parser.add_argument('path', type=str)
 parser.add_argument('-n', '--name', type=str, required=True)
@@ -24,7 +24,7 @@ print(be)
 # gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
 # gb2 = GitJsonFilesBackend.discover('./projects/alt')
 #
-# bos = Boshedron(backends=[gb1, gb2])
+# bos = Penemure(backends=[gb1, gb2])
 # bos.load()
 #
 # n = Project(title="Testing")

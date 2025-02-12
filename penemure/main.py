@@ -17,8 +17,8 @@ config = {
 }
 
 
-class Boshedron(BaseModel):
-    title: str = "BOSHEDRON"
+class Penemure(BaseModel):
+    title: str = "PENEMURE"
     about: str = '<b style="color:red">DROP AND RUN</b><br><br>DO NOT USE.'
     overlayengine: OverlayEngine = None
     backends: list[GitJsonFilesBackend]

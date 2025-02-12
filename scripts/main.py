@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-bos = Boshedron(backends=backends)
+bos = Penemure(backends=backends)
 bos.load()
 
 # me = bos.overlayengine.search(type='account', namespace='gh')[0]

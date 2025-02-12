@@ -7,7 +7,7 @@ import sys
 
 gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
 gb2 = GitJsonFilesBackend.discover('./pub')
-bos = Boshedron(backends=[gb1, gb2])
+bos = Penemure(backends=[gb1, gb2])
 bos.load()
 
 (urn, new_backend) = sys.argv[1:]
