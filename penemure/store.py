@@ -834,9 +834,7 @@ class OverlayEngine(BaseModel):
         if via is not None and 'SELF' in query:
             query = query.replace('SELF', via.ident)
 
-        res = parse_one(query)
-
-
+        res = parse_one(query, read='sqlite')
         # print(res.sql())
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
