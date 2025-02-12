@@ -88,3 +88,7 @@ Academic Weapons :sparkle:🔪
 - [ ] Import
     - [ ] import from calendar, generate an associated task that follows a calendar event around / can automatically have reminders.
 
+
+## LICENSE
+
+Licensed under [EUPL-1.2](./LICENSE.txt)
