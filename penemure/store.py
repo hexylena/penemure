@@ -543,6 +543,11 @@ class OverlayEngine(BaseModel):
     def all_things(self) -> list[WrappedStoredThing]:
         return [x for x in self.all()]
 
+    def all_pathed_pages(self) -> list[WrappedStoredThing]:
+        return [x for x in self.all()
+                if x.thing.data.type == 'page'
+                and x.thing.data.has_tag('page_path')]
+
     def all_modified(self) -> list[WrappedStoredThing]:
         return [x for x in self.all() if x.state != MutatedEnum.untouched]
 
@@ -835,7 +840,9 @@ class OverlayEngine(BaseModel):
         if len(selects) > 0:
             selects = [x.sql() for x in res]
         # print('after', selects)
-        tables = self.make_a_db(selects)
+
+        # Build the database
+        _ = self.make_a_db(selects)
 
         # TODO: add any group by clauses to the select, otherwise we won't get
         # that data back! they can then be hidden afterwards.

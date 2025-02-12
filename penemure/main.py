@@ -19,7 +19,8 @@ config = {
 
 class Penemure(BaseModel):
     title: str = "PENEMURE"
-    about: str = '<b style="color:red">DROP AND RUN</b><br><br>DO NOT USE.'
+    about: str = 'A project manager'
+
     overlayengine: OverlayEngine = None
     backends: list[GitJsonFilesBackend]
 
@@ -37,7 +38,14 @@ class Penemure(BaseModel):
         """List registered 'apps'"""
         return self.overlayengine.apps()
 
-    def export(self, path, format='html', prefix='project-management'):
+    def export(self, path, format='html', prefix='project-management', title='PENEMURE', description='A project manager'):
+        pathed_pages = {
+            x.thing.data.get_tag('page_path').val: x
+            for x in
+            self.overlayengine.all_pathed_pages()}
+        config.update({'ExportPrefix': '/' + prefix, 'IsServing': False,
+                       'Title': title, 'About': description, 'pathed_pages': pathed_pages})
+
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
 
@@ -60,7 +68,6 @@ class Penemure(BaseModel):
             for fixed in('search.html', 'redir.html'):
                 with open(os.path.join(path, fixed), 'w') as handle:
                     template = env.get_template(fixed)
-                    config.update({'ExportPrefix': '/' + prefix, 'IsServing': False, 'Title': self.title, 'About': self.about})
                     gn = {'VcsRev': 'deadbeefcafe'}
                     page_content = template.render(notes=things, oe=self.overlayengine, Config=config, Gn=gn)
                     page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)
@@ -78,7 +85,6 @@ class Penemure(BaseModel):
                 requested_template = tag.val.replace('.html', '.' + format)
 
             template = env.get_template(requested_template)
-            config.update({'ExportPrefix': '/' + prefix, 'IsServing': False, 'Title': self.title, 'About': self.about})
             gn = {'VcsRev': 'deadbeefcafe'}
             page_content = template.render(note=st, oe=self.overlayengine, Config=config, Gn=gn, blob=blobify)
             page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)

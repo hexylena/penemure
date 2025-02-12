@@ -29,9 +29,9 @@
 
         <link rel="license" href="https://spdx.org/licenses/CC-BY-4.0">
         <meta name="theme-color" content="#ff0000"/>
-	<meta name="description" content="{% block description %}{% endblock %}">
-	<meta property="og:site_name" content="{{ Config.Title }}">
-	<meta property="og:title" content="{{ Config.Title }}">
+	<meta name="description" content="{% block description %}{{ Config.About | e }}{% endblock %}">
+	<meta property="og:site_name" content="{{ Config.Title | e }}">
+	<meta property="og:title" content="{{ Config.Title | e }}">
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
@@ -102,24 +102,27 @@
 				{{ Config.Title }}
 			</a>
 			<p>{{ Config.About }}</p>
+			<hr>
+			<p><b style="color:red">DROP AND RUN</b></p>
+			<p>DO NOT USE.</p>
 		</div>
 
 		<div class="col mb-3">
 			<h5>About</h5>
 			<ul class="nav flex-column">
 				<li class="nav-item mb-2">EUPL-1.2</li>
-				<li class="nav-item mb-2">Rev <a href="https://github.com/hexylena/project-management/commit/{{ Gn.VcsRev }}">{{ Gn.VcsRev }}</a></li>
+				<li class="nav-item mb-2">Rev <a href="https://github.com/hexylena/project-management/commit/{{ Config.VcsRev }}">{{ Config.VcsRev }}</a></li>
 			</ul>
 		</div>
 
 		<div class="col mb-3">
-			<h5>Section</h5>
+			<h5>Pages</h5>
 			<ul class="nav flex-column">
-				<li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Home</a></li>
-				<li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Features</a></li>
-				<li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Pricing</a></li>
-				<li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">FAQs</a></li>
-				<li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">About</a></li>
+				{% for pathed_page in pathed_pages.values() %}
+				<li class="nav-item mb-2">
+					<a href="{{ pathed_page.thing.urn.urn }}#url" class="nav-link p-0 text-body-secondary">{{ pathed_page.thing.data.title }}</a>
+				</li>
+				{% endfor %}
 			</ul>
 		</div>
 

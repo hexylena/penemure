@@ -85,14 +85,24 @@ config = {
     'MarkdownBlock': MarkdownBlock,
     'UniformReference': UniformReference,
     'System': UniformReference.from_string('urn:penemure:account:system'),
+    'VcsRev': 'deadbeefcafe',
 }
+
+def get_config():
+    kwargs = {'bos': bos, 'oe': bos.overlayengine, 'Config': config,
+              'blocktypes': BlockTypes, 'blob': blobify}
+    kwargs['pathed_pages'] = {
+        x.thing.data.get_tag('page_path').val: x
+        for x in
+        oe.all_pathed_pages()}
+    return kwargs
+
 
 def render_fixed(fixed, note=None, rewrite=True, note_template=None):
     a = time.time()
     template = env.get_template(fixed)
-    gn = {'VcsRev': 'deadbeefcafe'}
-    kwargs = {'bos': bos, 'oe': bos.overlayengine, 'Config': config,
-              'Gn': gn, 'blocktypes': BlockTypes}
+
+    kwargs = get_config()
     if note is not None:
         kwargs['note'] = note
 
@@ -111,8 +121,7 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html'
         requested_template = tag.val or requested_template
 
     template = env.get_template(requested_template)
-    gn = {'VcsRev': 'deadbeefcafe'}
-    page_content = template.render(note=st, bos=bos, oe=bos.overlayengine, Config=config, Gn=gn, blob=blobify)
+    page_content = template.render(note=st, **get_config())
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
@@ -370,8 +379,7 @@ def delete_question(urn: str):
         return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
     template = env.get_template('delete.html')
-    gn = {'VcsRev': 'deadbeefcafe'}
-    page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, note=thing)
+    page_content = template.render(note=thing, **get_config())
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
@@ -457,8 +465,7 @@ def save_time(data: Annotated[TimeFormData, Form()]):
 def custom_404_handler(_, res):
     a = time.time()
     template = env.get_template('404.html')
-    gn = {'VcsRev': 'deadbeefcafe'}
-    page_content = template.render(oe=bos.overlayengine, Config=config, Gn=gn, error=res.detail)
+    page_content = template.render(error=res.detail, **get_config())
     page_content = UniformReference.rewrite_urns(page_content, path, bos.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
@@ -487,11 +494,9 @@ def index(page=None):
     page = page.replace('.html', '')
 
     # try and find an index page
-    for x in oe.all_things():
-        if x.thing.data.type == 'page':
-            if x.thing.data.has_tag('page_path') and \
-               x.thing.data.get_tag('page_path').val == page:
-                return render_dynamic(x)
+    config = get_config()
+    if 'index' in config['pathed_pages']:
+        return render_dynamic(config['pathed_pages']['index'])
     raise HTTPException(status_code=404, detail="Item not found")
 
 
