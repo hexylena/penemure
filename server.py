@@ -156,11 +156,11 @@ def manifest():
             "description": "log new times",
             "name": "Time",
             "short_name": "Time",
-            "url": "/log"
+            "url": "/time"
           },
         ],
     }
-    
+
     grs = oe.query('SQL select type, count(type) as count from __all__ group by type order by count desc')
     for group in grs.groups:
         for row in group.rows:
@@ -492,6 +492,7 @@ def custom_404_handler(_, res):
 @app.get("/redir.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/redir", response_class=HTMLResponse, tags=['view'])
 @app.get("/new", response_class=HTMLResponse, tags=['view'])
+@app.get("/time", response_class=HTMLResponse, tags=['view'])
 @app.get("/time", response_class=HTMLResponse, tags=['view'])
 @app.get("/sync", response_class=HTMLResponse, tags=['view'])
 @app.get("/review", response_class=HTMLResponse, tags=['view'])
