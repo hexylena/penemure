@@ -110,17 +110,12 @@ class Penemure(BaseModel):
                     with open(p, 'w') as handle:
                         handle.write(page_content)
 
-            # for att in st.thing.data.attachments:
-            #     if isinstance(att, ExternalReference) or isinstance(att, UnresolvedReference):
-            #         # TODO
-            #         continue
-            #
-            #     blob = self.overlayengine.find(att.id)
-            #     out = os.path.join(path, blob.thing.relative_path + att.ext)
-            #
-            #     if not os.path.exists(os.path.dirname(out)):
-            #         os.makedirs(os.path.dirname(out), exist_ok=True)
-            #     shutil.copy(self.overlayengine.get_path(blob), out)
+            for (_, att) in st.thing.data.attachments:
+                blob = self.overlayengine.find_blob(att)
+                p = os.path.join(path, blob.thing.relative_path)
+                if not os.path.exists(os.path.dirname(p)):
+                    os.makedirs(os.path.dirname(p), exist_ok=True)
+                shutil.copy(blob.full_path, p)
 
         os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
         # TODO: use env resolver to find the files?

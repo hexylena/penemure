@@ -137,7 +137,7 @@
 	<tr>
 		<td>{{ identifier }}</td>
 		{% set blob = oe.find_blob(att) %}
-		<td><a href="{{ Config.ExportPrefix }}/download/{{ blob.thing.urn.urn }}">Download</a></td>
+		<td><a href="{{ Config.ExportPrefix }}{{ blob.thing.url }}">Download</a></td>
 		<!-- <td>{{ blob.thing.created }}</td> -->
 		<!-- <td>{{ blob.thing.updated }}</td> -->
 		<td>{{ blob.thing.human_size() }}</td>
