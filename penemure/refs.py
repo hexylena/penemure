@@ -77,6 +77,7 @@ class UniformReference(BaseModel, frozen=True):
     @classmethod
     def rewrite_urns(cls, contents: str, prefix: str, oe) -> str:
         def urn_to_url(u: re.Match):
+            print(prefix, u.groups())
             urn_ref = cls.from_string(u.group(1))
             if urn_ref.urn != u.group(1):
                 raise Exception(f"Maybe mis-parsed URN, {urn_ref.urn} != {u.group(1)}")
@@ -92,18 +93,18 @@ class UniformReference(BaseModel, frozen=True):
                 # return prefix + '/view/' + urn_ref.url + '.html'
                 try:
                     ref = oe.find_thing_or_blob(urn_ref)
-                    return prefix + '/' + ref.thing.url
+                    return os.path.join(prefix, ref.thing.url)
                 except KeyError:
                     return urn_ref.urn
             elif u.group(3) == "link":
                 try:
                     ref = oe.find(urn_ref)
-                    url = prefix + '/view/' + urn_ref.url + '.html'
+                    url = os.path.join(prefix, 'view', urn_ref.url + '.html')
                     return f'<a href="{url}">{ref.thing.html_title}</a>' 
                 except KeyError:
                     try:
                         ref = oe.find_blob(urn_ref)
-                        url = prefix + '/' +  urn_ref.url
+                        url = os.path.join(prefix, urn_ref.url)
                         return f'<a href="{url}">{urn_ref.url}</a>' 
 
                     except KeyError:
@@ -111,12 +112,12 @@ class UniformReference(BaseModel, frozen=True):
             elif u.group(3) == "embed":
                 try:
                     ref = oe.find_blob(urn_ref)
-                    url = prefix + '/' +  urn_ref.url
+                    url = os.path.join(prefix, urn_ref.url)
                     return f'<img src="{url}" />'
                 except KeyError:
                     try:
                         ref = oe.find(urn_ref)
-                        url = prefix + '/view/' + urn_ref.url + '.html'
+                        url = os.path.join(prefix, 'view', urn_ref.url + '.html')
                         return f'<a href="{url}">{ref.thing.html_title}</a>' 
 
                     except KeyError:

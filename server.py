@@ -71,7 +71,8 @@ env = Environment(
     autoescape=select_autoescape(".html")
 )
 
-path = ''
+config = pen.get_config('/') # Serve at /
+path = config['Config']['ExportPrefix']
 # request.scope.get("root_path")
 
 

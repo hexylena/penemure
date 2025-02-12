@@ -31,11 +31,11 @@ class Penemure(BaseModel):
         return self.overlayengine.apps()
 
     def get_config(self, path, serving=True):
-        def blobify(b: BlobReference, width='40'):
-            # return f'<img width="{width}" src="/{prefix}/{b.id.url}{b.ext}">'
-            img_path = os.path.join('', path, b.id.url + b.ext)
-            print('img', img_path)
-            return f'<img width="{width}" src="{img_path}">'
+        # def blobify(b: BlobReference, width='40'):
+        #     # return f'<img width="{width}" src="/{prefix}/{b.id.url}{b.ext}">'
+        #     img_path = os.path.join('', path, b.id.url + b.ext)
+        #     print('img', img_path)
+        #     return f'<img width="{width}" src="{img_path}">'
 
         config = {
             'ExportPrefix': '/' + path.lstrip('/'),
@@ -48,7 +48,8 @@ class Penemure(BaseModel):
             'VcsRev': 'deadbeefcafe',
         }
         kwargs = {'penemure': self, 'oe': self.overlayengine, 'Config': config,
-                  'blocktypes': BlockTypes, 'blob': blobify}
+                  'blocktypes': BlockTypes, #'blob': blobify
+                  }
         kwargs['pathed_pages'] = {
             x.thing.data.get_tag('page_path').val: x
             for x in
@@ -78,7 +79,7 @@ class Penemure(BaseModel):
                 with open(os.path.join(path, fixed), 'w') as handle:
                     template = env.get_template(fixed)
                     page_content = template.render(notes=things, **config)
-                    page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)
+                    page_content = UniformReference.rewrite_urns(page_content, config['Config']['ExportPrefix'], self.overlayengine)
                     handle.write(page_content)
 
         # print(env.list_templates())
@@ -94,7 +95,7 @@ class Penemure(BaseModel):
 
             template = env.get_template(requested_template)
             page_content = template.render(note=st, **config)
-            page_content = UniformReference.rewrite_urns(page_content, '/' + prefix, self.overlayengine)
+            page_content = UniformReference.rewrite_urns(page_content, config['Config']['ExportPrefix'], self.overlayengine)
 
             with open(p, 'w') as handle:
                 handle.write(page_content)
