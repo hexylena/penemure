@@ -11,8 +11,8 @@
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created_unix": 1739394712.779317,
-      "updated_unix": 1739394712.7793179
+      "created_unix": 1739394773.9426014,
+      "updated_unix": 1739394773.9426026
     },
     {
       "contents": "GROUP SELECT\n  title,\n  description,\n  backend,\n  type\nFROM __all__\nWHERE\n  (\n    parents IS NULL OR parents LIKE '%SELF%'\n  )\n  AND system IS FALSE\n  AND type <> 'account'\nGROUP BY\n  type\nORDER BY\n  type DESC",
@@ -23,8 +23,8 @@
       },
       "type": "query-table",
       "id": "61f8fbdb-50e0-4bb0-a2d4-1d94bb3b21d0",
-      "created_unix": 1739394712.7803392,
-      "updated_unix": 1739394712.7803395
+      "created_unix": 1739394773.94443,
+      "updated_unix": 1739394773.944431
     },
     {
       "contents": "## Current issue progress",
@@ -35,8 +35,8 @@
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created_unix": 1739394712.780352,
-      "updated_unix": 1739394712.780352
+      "created_unix": 1739394773.9444528,
+      "updated_unix": 1739394773.944453
     },
     {
       "contents": "GROUP SELECT\n  title,\n  status,\n  CAST(created AS DATE),\n  updated - created,\n  backend AS duration\nFROM task\nGROUP BY\n  status",
@@ -47,8 +47,8 @@
       },
       "type": "query-kanban",
       "id": "3dc98087-0754-41f1-b6be-1a84449a297c",
-      "created_unix": 1739394712.7809172,
-      "updated_unix": 1739394712.7809174
+      "created_unix": 1739394773.9453259,
+      "updated_unix": 1739394773.9453266
     },
     {
       "contents": "## Note Storage Location\r\n\r\nThis section looks pretty boring on the public online version, but since this supports overlaying multiple git repositories as backends, the internal one is a bit more interesting, with issues being stored in their individual project repositories, a subset customisable to each viewer, according to their own access.",
@@ -59,8 +59,8 @@
       },
       "type": "markdown",
       "id": "8d3b7cea-28d1-4a94-b48f-a2dac946fb65",
-      "created_unix": 1739394712.7809267,
-      "updated_unix": 1739394712.780927
+      "created_unix": 1739394773.9453416,
+      "updated_unix": 1739394773.945342
     },
     {
       "contents": "SQL SELECT\n  __all__.backend AS Name,\n  MIN(__backend__.description) AS Description,\n  MIN(SUBSTRING(__backend__.last_commit, 1, 8)) AS LastCommit,\n  MIN(__backend__.last_update) AS LastUpdate,\n  COUNT(*) AS Count\nFROM __all__\nLEFT JOIN __backend__\n  ON __all__.backend = __backend__.id\nGROUP BY\n  __all__.backend",
@@ -71,8 +71,8 @@
       },
       "type": "chart-table",
       "id": "0e28c29f-7744-4ad8-ae7f-0e97314edb06",
-      "created_unix": 1739394712.7823281,
-      "updated_unix": 1739394712.7823288
+      "created_unix": 1739394773.9473426,
+      "updated_unix": 1739394773.9473433
     },
     {
       "contents": "SQL SELECT\n  backend,\n  COUNT(*)\nFROM __all__\nGROUP BY\n  backend",
@@ -83,8 +83,8 @@
       },
       "type": "chart-pie",
       "id": "8fbc6705-69c9-4d7e-856f-c822e9b09312",
-      "created_unix": 1739394712.7841163,
-      "updated_unix": 1739394712.784117
+      "created_unix": 1739394773.9478981,
+      "updated_unix": 1739394773.9478986
     },
     {
       "contents": "GROUP SELECT\n  title_plain AS title,\n  created AS time_start,\n  updated AS time_end,\n  type,\n  id,\n  url\nFROM __all__\nWHERE\n  backend = 'pub'\nGROUP BY\n  type\nORDER BY\n  type ASC,\n  created ASC",
@@ -95,8 +95,8 @@
       },
       "type": "chart-gantt",
       "id": "19ada4d5-b85f-4a61-aae2-30158ac3f356",
-      "created_unix": 1739394712.7851865,
-      "updated_unix": 1739394712.785187
+      "created_unix": 1739394773.9493344,
+      "updated_unix": 1739394773.9493356
     },
     {
       "contents": "'system' files are below:",
@@ -107,8 +107,8 @@
       },
       "type": "markdown",
       "id": "5828332b-ed00-4459-975b-df52106f1050",
-      "created_unix": 1739394712.7852032,
-      "updated_unix": 1739394712.7852037
+      "created_unix": 1739394773.9493682,
+      "updated_unix": 1739394773.9493685
     },
     {
       "contents": "GROUP SELECT\n  title,\n  parents,\n  type,\n  backend\nFROM __all__\nWHERE\n  parents IS NULL AND system IS TRUE\nGROUP BY\n  type\nORDER BY\n  type DESC",
@@ -119,8 +119,8 @@
       },
       "type": "query-table",
       "id": "08c9d28a-feb7-4f8c-800c-d1e8d4a5d3a4",
-      "created_unix": 1739394712.7875009,
-      "updated_unix": 1739394712.7875016
+      "created_unix": 1739394773.9503827,
+      "updated_unix": 1739394773.9503837
     }
   ],
   "tags": [

@@ -24,9 +24,9 @@ class UniformReference(BaseModel, frozen=True):
         parts.append(self.ident)
         return parts
 
-    @property
-    def url(self) -> str:
-        return '/'.join(self._assemble())
+    # @property
+    # def url(self) -> str:
+    #     return '/'.join(self._assemble())
 
     @property
     def urn(self) -> str:
@@ -97,7 +97,7 @@ class UniformReference(BaseModel, frozen=True):
             elif u.group(3) == "link":
                 try:
                     ref = oe.find(urn_ref)
-                    url = os.path.join(prefix, 'view', urn_ref.url + '.html')
+                    url = os.path.join(prefix, 'view', ref.thing.url + '.html')
                     return f'<a href="{url}">{ref.thing.html_title}</a>' 
                 except KeyError:
                     try:
