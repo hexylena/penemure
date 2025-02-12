@@ -97,7 +97,7 @@ class UniformReference(BaseModel, frozen=True):
             elif u.group(3) == "link":
                 try:
                     ref = oe.find(urn_ref)
-                    url = os.path.join(prefix, 'view', ref.thing.url + '.html')
+                    url = os.path.join(prefix, ref.thing.url)
                     return f'<a href="{url}">{ref.thing.html_title}</a>' 
                 except KeyError:
                     try:

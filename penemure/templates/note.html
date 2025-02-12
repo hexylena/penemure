@@ -94,8 +94,8 @@
 	<tr>
 		<td scope="row">Important Links</td>
 		<td>
-			<a href="/form/{{ note.thing.urn.urn }}">Form</a>
-			<a href="/download/{{ note.thing.data.has_attachment('data').urn }}">Download</a>
+			<a href="{{ Config.ExportPrefix }}form/{{ note.thing.urn.urn }}">Form</a>
+			<a href="{{ Config.ExportPrefix }}download/{{ note.thing.data.has_attachment('data').urn }}">Download</a>
 		</td>
 	</tr>
 	{% endif %}
@@ -137,7 +137,7 @@
 	<tr>
 		<td>{{ identifier }}</td>
 		{% set blob = oe.find_blob(att) %}
-		<td><a href="/download/{{ blob.thing.urn.urn }}">Download</a></td>
+		<td><a href="{{ Config.ExportPrefix }}/download/{{ blob.thing.urn.urn }}">Download</a></td>
 		<!-- <td>{{ blob.thing.created }}</td> -->
 		<!-- <td>{{ blob.thing.updated }}</td> -->
 		<td>{{ blob.thing.human_size() }}</td>
