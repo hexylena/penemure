@@ -156,7 +156,10 @@ class BaseBackend(BaseModel):
         gitmeta = os.path.join(path, '.gitattributes')
         if not os.path.exists(gitmeta):
             with open(gitmeta, 'w') as handle:
-                handle.write("file/blob/* filter=lfs diff=lfs merge=lfs -text")
+                handle.write("*.png filter=lfs diff=lfs merge=lfs -text")
+                handle.write("*.jpg filter=lfs diff=lfs merge=lfs -text")
+                handle.write("*.jpeg filter=lfs diff=lfs merge=lfs -text")
+                handle.write("*.webp filter=lfs diff=lfs merge=lfs -text")
                 subprocess.check_call(['git', 'add', '.gitattributes'], cwd=path)
         return data
 
