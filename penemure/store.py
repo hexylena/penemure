@@ -152,6 +152,12 @@ class BaseBackend(BaseModel):
             with open(meta, 'w') as handle:
                 json.dump(data, handle, indent=2)
         data['path'] = path
+
+        gitmeta = os.path.join(path, '.gitattributes')
+        if not os.path.exists(gitmeta):
+            with open(gitmeta, 'w') as handle:
+                handle.write("file/blob/* filter=lfs diff=lfs merge=lfs -text")
+                subprocess.check_call(['git', 'add', '.gitattributes'], cwd=path)
         return data
 
     @classmethod
