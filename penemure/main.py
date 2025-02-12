@@ -32,10 +32,13 @@ class Penemure(BaseModel):
 
     def get_config(self, path, serving=True):
         def blobify(b: BlobReference, width='40'):
-            return f'<img width="{width}" src="{path}{b.id.url}{b.ext}">'
+            # return f'<img width="{width}" src="/{prefix}/{b.id.url}{b.ext}">'
+            img_path = os.path.join('', path, b.id.url + b.ext)
+            print('img', img_path)
+            return f'<img width="{width}" src="{img_path}">'
 
         config = {
-            'ExportPrefix': '/' + path.lstrip('/').rstrip('/'),
+            'ExportPrefix': '/' + path.lstrip('/'),
             'IsServing': serving,
             'Title': self.title,
             'About': self.about,
