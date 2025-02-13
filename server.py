@@ -550,7 +550,7 @@ class PatchNoteAttachments(BaseModel):
     atts: str
     action: str
     identifier_old: str
-    identifier_new: Optional[str]
+    identifier_new: Optional[str] = None
 
 @app.patch("/note/atts", tags=['mutate'])
 def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()]):
