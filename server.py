@@ -330,7 +330,7 @@ def save_new(data: Annotated[BaseFormData, Form()]):
 
     res = pen.overlayengine.add(obj, backend=be)
     # TODO: figure out why note was missing from URL
-    return RedirectResponse(os.path.join(path, 'note', res.thing.url), status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, res.thing.url), status_code=status.HTTP_302_FOUND)
 
 
 def only_valid_attachments(atts: list[UploadFile] | None) -> list[UploadFile]:
@@ -425,7 +425,6 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
 
     orig.thing.data.touch()
     return RedirectResponse(os.path.join(path, thing.thing.url), status_code=status.HTTP_302_FOUND)
-    # return RedirectResponse(f"/redir/{urn}", status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
 def delete_question(urn: str):
