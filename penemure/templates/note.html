@@ -257,6 +257,9 @@ function Patch(form, delete_row){
 	.then((data) => {
 		if (delete_row === true ){
 			form.parentElement.parentElement.remove();
+		} else {
+			form.querySelectorAll('.result > div:not(.d-none)').forEach(n => n.classList.add('d-none'))
+			form.querySelector('.result .state-success').classList.remove('d-none')
 		}
 	});
 }
@@ -286,6 +289,9 @@ document.querySelectorAll('form[method="patch"] button').forEach(i => i.addEvent
 .masonry img {
 	height: auto;
 	width: 100%;
+}
+.result {
+	min-width: 2em;
 }
 </style>
 
