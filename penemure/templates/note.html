@@ -126,21 +126,53 @@
 	<thead>
 		<tr>
 			<th scope="col">Attachment</th>
-			<th scope="col">Download</th>
 			<!-- <th scope="col">Created</th> -->
 			<!-- <th scope="col">Updated</th> -->
 			<th scope="col">Size</th>
+			<th scope="col">Actions</th>
 		</tr>
 	</thead>
 	<tbody>
 	{% for identifier, att in note.thing.data.attachments %}
 	<tr>
-		<td>{{ identifier }}</td>
 		{% set blob = oe.find_blob(att) %}
-		<td><a href="{{ Config.ExportPrefix }}{{ blob.thing.url }}">Download</a></td>
-		<!-- <td>{{ blob.thing.created }}</td> -->
-		<!-- <td>{{ blob.thing.updated }}</td> -->
+		<td>
+			<form method="patch" action="/note/atts" class="d-flex">
+				<a href="{{ Config.ExportPrefix }}{{ blob.thing.url }}">
+					<img src="{{ Config.ExportPrefix }}{{ blob.thing.url }}" width="80"/>
+				</a>
+				<input type="hidden" name="note" value="{{ note.thing.urn.urn }}">
+				<input type="hidden" name="atts" value="{{ blob.thing.urn.urn }}">
+				<input type="hidden" name="identifier_old" value="{{ identifier }}" />
+				<input type="hidden" name="action" value="rename-blob">
+				{% if Config.IsServing %}
+				<input type="text" name="identifier_new" value="{{ identifier }}"  />
+				{% else %}
+				{{ identifier }}
+				{% endif %}
+				<span class="result" style="align-content: center" aria-live="polite">
+					<div class="d-none state-success" role="status">
+						✔️<span class="visually-hidden">Success</span>
+					</div>
+					<div class="d-none state-error" role="status">
+						❌<span class="visually-hidden">Error</span>
+					</div>
+					<div class="d-none spinner-grow text-primary state-loading" role="status">
+						<span class="visually-hidden">Loading...</span>
+					</div>
+				</span>
+			</form>
+		</td>
 		<td>{{ blob.thing.human_size() }}</td>
+		<td>
+			<form method="patch" action="/note">
+				<input type="hidden" name="note" value="{{ note.thing.urn.urn }}">
+				<input type="hidden" name="atts" value="{{ blob.thing.urn.urn }}">
+				<input type="hidden" name="action" value="detach-blob">
+				<input type="hidden" name="identifier_old" value="{{ identifier }}" />
+				<button type="button" class="btn btn-outline-danger">Delete</a>
+			</form>
+		</td>
 	</tr>
 	{% endfor %}
 	</tbody>
@@ -168,19 +200,71 @@
 </details>
 
 <script>
-var macy = Macy({
-    container: '.masonry',
-    trueOrder: true,
-    waitForImages: false,
-    margin: 8,
-    columns: 6,
-    breakAt: {
-        1200: 5,
-        940: 3,
-        520: 2,
-        400: 1
-    }
-});
+if(document.querySelectorAll('.masonry').length){
+	var macy = Macy({
+	    container: '.masonry',
+	    trueOrder: true,
+	    waitForImages: false,
+	    margin: 8,
+	    columns: 6,
+	    breakAt: {
+		1200: 5,
+		940: 3,
+		520: 2,
+		400: 1
+	    }
+	});
+}
+
+function Patch(form){
+	let inputs = form.querySelectorAll('input');
+	let url = form.attributes.action.value;
+	console.log(`patch ${url} => ${inputs}`);
+
+	const data = new URLSearchParams();
+	inputs.forEach(i => {
+		data.append(i.name, i.value);
+	});
+
+	// Hide them all
+	form.querySelectorAll('.result > div:not(.d-none)').forEach(n => n.classList.add('d-none'))
+	form.querySelector('.result .state-loading').classList.remove('d-none')
+	
+	fetch(url, {
+		method: "PATCH",
+		body: data
+	})
+	.then((response) => {
+		if (!response.ok) {
+			form.querySelectorAll('.result > div:not(.d-none)').forEach(n => n.classList.add('d-none'))
+			form.querySelector('.result .state-error').classList.remove('d-none')
+			throw new Error(`HTTP error: ${response.status}`);
+		}
+		return response.text();
+	})
+	.then((data) => {
+		form.querySelectorAll('.result > div:not(.d-none)').forEach(n => n.classList.add('d-none'))
+		form.querySelector('.result .state-success').classList.remove('d-none')
+	});
+}
+
+// For all our PATCH forms, if any of their inputs change, trigger the Patch
+// method on them. Progressively enhanced, the form will work normally without JS.
+document.querySelectorAll('form[method="patch"] input').forEach(i => i.addEventListener('change', () => {
+	Patch(i.parentElement);
+}));
+
+[...document.querySelectorAll("input.time")].forEach(i => i.addEventListener('focus', () => i.select()));
+[...document.querySelectorAll("input.time")].forEach(i => i.addEventListener('change', () => {
+	i.value = simple_time_to_hms(i.value);
+	Update();
+}));
+
+[...document.querySelectorAll("input.patch")].forEach(i => i.addEventListener('change', () => {
+	Patch(i.dataset.urn)
+}));
+
+
 </script>
 <style>
 .masonry img {

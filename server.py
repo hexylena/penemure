@@ -545,6 +545,38 @@ def index(page=None):
         return render_dynamic(config['pathed_pages']['index'])
     raise HTTPException(status_code=404, detail="Item not found")
 
+class PatchNoteAttachments(BaseModel):
+    note: str
+    atts: str
+    action: str
+    identifier_old: str
+    identifier_new: Optional[str]
+
+@app.patch("/note/atts", tags=['mutate'])
+def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()]):
+    note = oe.find(UniformReference.from_string(data.note))
+    atts = UniformReference.from_string(data.atts)
+
+    updated_atts = []
+    if data.action == 'rename-blob':
+        for (i, ref) in note.thing.data.attachments:
+            if data.identifier_old == i and atts == ref:
+                updated_atts.append((data.identifier_new, ref))
+            else:
+                updated_atts.append((i, ref))
+    elif data.action == 'detach-blob':
+        for (i, ref) in note.thing.data.attachments:
+            if data.identifier_old == i and atts == ref:
+                continue
+            else:
+                updated_atts.append((i, ref))
+    else:
+        raise Exception()
+
+    note.thing.data.attachments = updated_atts
+    note.save(fsync=False)
+    return RedirectResponse(os.path.join(path, note.thing.url), status_code=status.HTTP_200_OK)
+
 
 @app.get("/edit/{backend}/{urn}", response_class=HTMLResponse, tags=['mutate'])
 def edit_get(backend: str, urn: str):
