@@ -1,18 +1,15 @@
-from fastapi import FastAPI, HTTPException, Form, Response, Request, UploadFile, Depends
+from fastapi import FastAPI, HTTPException, Form, Response, Request, UploadFile
 from fastapi.responses import RedirectResponse, FileResponse
 import starlette.status as status
 from fastapi.staticfiles import StaticFiles
-from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from penemure.store import *
 from penemure.note import Note, MarkdownBlock
-from penemure.refs import UniformReference, UnresolvedReference
+from penemure.refs import UniformReference
 from penemure.apps import *
 from penemure.errr import *
 from penemure.main import *
-from datetime import datetime
-from zoneinfo import ZoneInfo
-from typing import List, Tuple, Dict
+from typing import List, Dict
 import os
 import sentry_sdk
 import copy
@@ -333,7 +330,7 @@ def save_new(data: Annotated[BaseFormData, Form()]):
 
     res = pen.overlayengine.add(obj, backend=be)
     # TODO: figure out why note was missing from URL
-    return RedirectResponse(os.path.join(path, 'note', res.thing.urn.url), status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, 'note', res.thing.url), status_code=status.HTTP_302_FOUND)
 
 
 def only_valid_attachments(atts: list[UploadFile] | None) -> list[UploadFile]:
