@@ -77,9 +77,15 @@ path = config['Config']['ExportPrefix']
 # request.scope.get("root_path")
 
 
-# security = RemoteUserAuthentication(header='REMOTE_USER')
-security = TailscaleHeaderAuthentication()
-security = LocalUserAuthentication()
+AUTH_METHOD = os.environ.get('PENEMURE_AUTH_METHOD', 'Local').lower()
+
+if AUTH_METHOD == 'tailscale':
+    security = TailscaleHeaderAuthentication()
+elif AUTH_METHOD == 'remoteuser':
+    # TODO: expose headers?
+    security = RemoteUserAuthentication()
+else:
+    security = LocalUserAuthentication()
 
 @cache
 def locate_account(username: str, name: str):
