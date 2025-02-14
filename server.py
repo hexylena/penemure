@@ -92,13 +92,13 @@ def locate_account(username: str, name: str, namespace: str):
     if username.endswith('@github'):
         user = username.replace('@github', '')
         acc = oe.search(type='account', namespace='gh', username=user)
-        if len(acc) == 1:
+        if len(acc) >= 1:
             return acc[0]
-        elif len(acc) > 1:
-            print(len(acc))
-            for a in acc:
-                print(a)
-            raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
+        # elif len(acc) > 1:
+        #     print(len(acc))
+        #     for a in acc:
+        #         print(a)
+        #     raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
         else:
             acc = AccountGithub(title=name, username=user)
             # Fetch profile pic/status/etc.
@@ -106,10 +106,10 @@ def locate_account(username: str, name: str, namespace: str):
             return oe.add(acc, urn=acc.suggest_urn())
     else:
         acc = oe.search(type='account', namespace=None, username=username)
-        if len(acc) == 1:
+        if len(acc) >= 1:
             return acc[0]
-        elif len(acc) > 1:
-            raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
+        # elif len(acc) > 1:
+        #     raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
         else:
             acc = Account(title=name, username=username, namespace=namespace)
             return oe.add(acc, urn=acc.suggest_urn())
