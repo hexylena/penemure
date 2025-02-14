@@ -198,6 +198,28 @@ class WrappedStoredBlob(BaseModel):
     def not_blob(self):
         return False
 
+    def queryable(self, id, note):
+        if self.thing.urn.ext != 'csv':
+            return None
+
+        def sanitize(s):
+            return re.sub('[^A-Za-z0-9_]', '', s.lower().replace(' ', '_'))
+
+        table_name = sanitize(f"csv_{note.thing.data.title.lower()}__{id}")
+        res = []
+        columns = []
+
+        with open(self.full_path) as csvfile:
+            reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+            for row in reader:
+                if not columns:
+                    columns = [sanitize(k) for k in row.keys()]
+                clean = {sanitize(k): v for (k, v) in row.items()}
+                res.append(clean)
+
+        return (table_name, columns, res)
+
+
     @computed_field
     @property
     def relative_path(self) -> str:
@@ -787,18 +809,9 @@ class OverlayEngine(BaseModel):
                     'backend': blob.backend.name,
                 })
 
-                if urn.urn.endswith('.csv'):
-                    def sanitize(s):
-                        return re.sub('[^A-Za-z0-9_]', '', s.lower().replace(' ', '_'))
-
-                    table_name = sanitize(f"csv_{note.thing.data.title.lower()}__{id}")
-                    tables[table_name] = []
-
-                    with open(blob.full_path) as csvfile:
-                        reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
-                        for row in reader:
-                            clean = {sanitize(k): v for (k, v) in row.items()}
-                            tables[table_name].append(clean)
+                if results := blob.queryable(id, note):
+                    (name, _, rows) = results
+                    tables[name] = rows
 
         for app in self.apps():
             if app not in tables:

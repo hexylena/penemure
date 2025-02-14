@@ -24,6 +24,12 @@ class UniformReference(BaseModel, frozen=True):
         parts.append(self.ident)
         return parts
 
+    @property
+    def ext(self) -> str | None:
+        if '.' in self.ident:
+            return self.ident[self.ident.rindex('.') + 1:]
+        return None
+
     # @property
     # def url(self) -> str:
     #     return '/'.join(self._assemble())

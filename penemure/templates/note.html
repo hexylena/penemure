@@ -141,9 +141,20 @@
 		{% set blob = oe.find_blob(att) %}
 		<td>
 			<form method="patch" action="/note/atts" class="d-flex">
+				<span>
+				{% if blob.thing.urn.ext == "csv" %}
+				<a href="{{ Config.ExportPrefix }}{{ blob.thing.url }}">
+					Download
+				</a> &nbsp; or query in SQL (
+				{% set (name, cols, _) = blob.queryable(identifier, note) %}
+				SELECT {{ ','.join(cols) }} from {{ name }})
+				{% else %}
 				<a href="{{ Config.ExportPrefix }}{{ blob.thing.url }}">
 					<img src="{{ Config.ExportPrefix }}{{ blob.thing.url }}" width="80"/>
 				</a>
+				{% endif %}
+				</span>
+
 				<input type="hidden" name="note" value="{{ note.thing.urn.urn }}">
 				<input type="hidden" name="atts" value="{{ blob.thing.urn.urn }}">
 				<input type="hidden" name="identifier_old" value="{{ identifier }}" />
