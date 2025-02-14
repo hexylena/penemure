@@ -151,11 +151,11 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html'
 
 
 @app.get("/reload", tags=['system'])
-def reload():
+def reload(username: Annotated[UniformReference, Depends(get_current_username)]):
     pen.load()
     return [len(b.data.keys()) for b in oe.backends]
 
-@app.post("/api/sync", tags=['system', 'api'])
+@app.post("/api/sync", tags=['system', 'api'], username: Annotated[UniformReference, Depends(get_current_username)])
 def api_sync():
     prev = [len(b.data.keys()) for b in oe.backends]
     pen.save()
@@ -387,6 +387,7 @@ def save_new_multi(data: NewMultiData):
     res = []
     be = pen.overlayengine.get_backend(data.backend)
 
+    # TODO: no authorship of these tracked!
     for (title, tags) in zip(data.titles, data.tags):
         n = Note(title=title, type=data.type)
         n.parents = [UniformReference.from_string(data.project)]
@@ -432,7 +433,7 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
     return RedirectResponse(os.path.join(path, thing.thing.url), status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
-def delete_question(urn: str):
+def delete_question(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     a = time.time()
     u = UniformReference.from_string(urn)
     try:
@@ -447,7 +448,7 @@ def delete_question(urn: str):
 
 
 @app.get("/delete/{urn}", tags=['mutate'])
-def delete(urn: str):
+def delete(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     try:
         thing = oe.find(u)
@@ -465,7 +466,7 @@ class PatchTimeFormData(BaseModel):
     end_unix: float
 
 @app.patch("/time", tags=['mutate'])
-def patch_time(data: Annotated[PatchTimeFormData, Form()]):
+def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
     log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
@@ -474,7 +475,7 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     return log
 
 @app.post("/time/continue", tags=['mutate'])
-def patch_time(data: Annotated[PatchTimeFormData, Form()]):
+def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
 
@@ -488,7 +489,7 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
 
 @app.post("/time.html", tags=['mutate'])
 @app.post("/time", tags=['mutate'])
-def save_time(data: Annotated[TimeFormData, Form()], 
+def save_time(data: Annotated[TimeFormData, Form()],
               username: Annotated[UniformReference, Depends(get_current_username)]):
     if data.urn:
         u = UniformReference.from_string(data.urn)
@@ -555,7 +556,8 @@ class PatchNoteAttachments(BaseModel):
     identifier_new: Optional[str] = None
 
 @app.patch("/note/atts", tags=['mutate'])
-def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()]):
+def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()],
+                    username: Annotated[UniformReference, Depends(get_current_username)]):
     note = oe.find(UniformReference.from_string(data.note))
     atts = UniformReference.from_string(data.atts)
 
@@ -595,10 +597,7 @@ def edit_get(urn: str):
 
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-async def post_form(urn: str, request: Request):
-    # TODO: enable auth'd responses
-    account = 'urn:penemure:account:system-form'
-
+async def post_form(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
@@ -607,7 +606,7 @@ async def post_form(urn: str, request: Request):
 
     async with request.form() as form:
         assert isinstance(note.thing.data, DataForm)
-        blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend, account)
+        blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend, username)
         # Save changes to the note itself.
         blob = oe.find_blob(blob_id)
         blob.save(fsync=False)
