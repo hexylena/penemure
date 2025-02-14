@@ -3,6 +3,7 @@ from pydantic import Field
 import csv
 from .note import *
 from .tags import *
+from .util import *
 from .sqlish import ResultSet
 from .mixins import AttachmentMixin
 import requests
@@ -130,22 +131,28 @@ class Account(Note):
             return f'<img src="{t.val}" alt="avatar" style="width: 1em">'
         return "👩‍🦰"
 
+    def suggest_urn(self):
+        return UniformReference(app=self.type, namespace=self.namespace, ident=self.username)
 
-class AccountGithubDotCom(Account):
+class AccountGithub(Account):
     namespace: Optional[str] = 'gh'
 
-    def update(self):
+    def update(self, be):
         # TODO: if the file is too recently updated, don't hit the API again.
         data = requests.get(f'https://api.github.com/users/{self.username}').json()
         self.ensure_tag('icon', data['avatar_url'])
         self.ensure_tag('description', data['bio'])
-        self.attachments.append(UnresolvedReference(path=data['avatar_url'], remote=True))
+
+        req = requests.get(data['avatar_url'])
+        ext = guess_extension(req.headers['content-type'])
+        att_urn = be.store_blob(file_data=req.content, ext=ext)
+        self.attachments.append(('avatar', att_urn))
 
 
 def ModelFromAttr(data):
     if data['type'] == 'account':
         if data['namespace'] == 'gh':
-            return AccountGithubDotCom
+            return AccountGithub
         return Account
     elif data['type'] == 'file':
         if data['namespace'] == 'meta':

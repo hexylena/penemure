@@ -1,13 +1,17 @@
 from fastapi import FastAPI, HTTPException, Form, Response, Request, UploadFile
+from functools import cache
 from fastapi.responses import RedirectResponse, FileResponse
 import starlette.status as status
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from penemure.store import *
+from penemure.auth import *
 from penemure.note import Note, MarkdownBlock
 from penemure.refs import UniformReference
 from penemure.apps import *
 from penemure.errr import *
+from penemure.util import *
 from penemure.main import *
 from typing import List, Dict
 import os
@@ -72,6 +76,49 @@ config = pen.get_config('/') # Serve at /
 path = config['Config']['ExportPrefix']
 # request.scope.get("root_path")
 
+
+# security = RemoteUserAuthentication(header='REMOTE_USER')
+security = TailscaleHeaderAuthentication()
+security = LocalUserAuthentication()
+
+@cache
+def locate_account(username: str, name: str):
+    if username.endswith('@github'):
+        user = username.replace('@github', '')
+        acc = oe.search(type='account', namespace='gh', username=user)
+        if len(acc) == 1:
+            return acc[0]
+        elif len(acc) > 1:
+            print(len(acc))
+            for a in acc:
+                print(a)
+            raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
+        else:
+            acc = AccountGithub(title=name, username=user)
+            # Fetch profile pic/status/etc.
+            acc.update(oe.backends[0])
+            return oe.add(acc, urn=acc.suggest_urn())
+    else:
+        acc = oe.search(type='account', namespace=None, username=username)
+        if len(acc) == 1:
+            return acc[0]
+        elif len(acc) > 1:
+            raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
+        else:
+            acc = Account(title=name, username=username)
+            return oe.add(acc, urn=acc.suggest_urn())
+
+
+def get_current_username(credentials: Annotated[PenemureCredentials, Depends(security)],) -> UniformReference:
+    if not credentials.username:
+        return UniformReference(app='account', ident='anonymous')
+    else:
+        return locate_account(credentials.username, credentials.name).thing.urn
+
+
+@app.get("/users/me")
+def read_current_user(username: Annotated[UniformReference, Depends(get_current_username)]):
+    return {"username": username}
 
 
 def render_fixed(fixed, note=None, rewrite=True, note_template=None):
@@ -195,10 +242,10 @@ class TimeFormData(BaseModel):
     urn: Optional[str] = None
     title: str
     project: Optional[str | List[str]] = []
-    content_type: Optional[List[str]] = []
-    content_uuid: Optional[List[str]] = []
-    content_note: Optional[List[str]] = []
-    content_author: Optional[List[str]] = []
+    content_type: List[str] = Field(default_factory=list)
+    content_uuid: List[str] = Field(default_factory=list)
+    content_note: List[str] = Field(default_factory=list)
+    content_author: List[str] = Field(default_factory=list)
     backend: str
     start_unix: float = Field(default_factory=lambda: time.time())
     end_unix: Optional[float] = None
@@ -206,17 +253,17 @@ class TimeFormData(BaseModel):
     type: str = 'log'
 
 
-def extract_contents(data: BaseFormData | TimeFormData, default_author=None):
-    a2 = None
-    if default_author is None:
-        a2 = UniformReference.model_validate({"app":"account","ident":"hexylena"}) # TODO
-    # else:
-    #     a2 = UniformReference.model_validate(a) # TODO
-
+def extract_contents(data: BaseFormData | TimeFormData, 
+                     username: UniformReference, 
+                     original: List[MarkdownBlock] | None=None):
     res = []
-    for (t, u, n, a) in zip(data.content_type, data.content_uuid, data.content_note, data.content_author):
-        if isinstance(a, str):
-            a = UniformReference.from_string(a)
+    orig = {}
+    if original is not None:
+        orig = {
+            b.id: b
+            for b in original}
+
+    for (t, u, n) in zip(data.content_type, data.content_uuid, data.content_note):
 
         if t.startswith('chart') or t.startswith('query'):
             n = oe.fmt_query(n)
@@ -224,12 +271,15 @@ def extract_contents(data: BaseFormData | TimeFormData, default_author=None):
         if u == 'REPLACEME':
             u = str(uuid.uuid4())
 
-        res.append(MarkdownBlock.model_validate({
-            'contents': n,
-            'author': a or a2,
-            'type': BlockTypes.from_str(t),
-            'id': u
-        }))
+        if u in orig and orig[u].contents == n:
+            res.append(orig[u])
+        else:
+            res.append(MarkdownBlock.model_validate({
+                'contents': n,
+                'author': username,
+                'type': BlockTypes.from_str(t),
+                'id': u
+            }))
     return res
 
 
@@ -281,11 +331,11 @@ def get_new(template: Optional[str] = None):
 
 @app.post("/new.html", tags=['mutate'])
 @app.post("/new", tags=['mutate'])
-def save_new(data: Annotated[BaseFormData, Form()]):
+def save_new(data: Annotated[BaseFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
     dj = {
         'title': data.title,
         'type': data.type,
-        'contents': extract_contents(data)
+        'contents': extract_contents(data, username, None)
     }
     if data.project is None:
         dj['parents'] = []
@@ -307,25 +357,8 @@ def save_new(data: Annotated[BaseFormData, Form()]):
     be = oe.get_backend(data.backend)
     for att in only_valid_attachments(data.attachments):
         assert att.filename is not None
-        ext = None
-        try:
-            ext = mimetypes.guess_extension(att.headers['content-type']) or 'bin'
-        except KeyError:
-            ext = 'bin'
-        finally:
-            if ext is None:
-                ext = 'bin'
-        # suboptimal for large files probably.
-        file_data = att.file.read()
-        m = hashlib.sha256()
-        m.update(file_data)
-        file_hash = m.hexdigest()
-
-        att_urn = UniformReference(app='file', namespace='blob', ident=f"{file_hash}.{ext.lstrip('.')}")
-        print(f'Should be stored as {att_urn}')
-        att_blob = StoredBlob(urn=att_urn)
-
-        be.save_blob(att_blob, fsync=False, data=file_data)
+        ext = guess_extension(att.headers['content-type'])
+        att_urn = be.store_blob(file_data=att.file.read(), ext=ext)
         obj.attachments.append((att.filename, att_urn))
 
     res = pen.overlayengine.add(obj, backend=be)
@@ -363,12 +396,14 @@ def save_new_multi(data: NewMultiData):
     return res
 
 @app.post("/edit/{urn}", tags=['mutate'])
-def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart/form-data")]):
+def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart/form-data")],
+              username: Annotated[UniformReference, Depends(get_current_username)]):
+
     u = UniformReference.from_string(urn)
     orig = oe.find(u)
     orig.thing.data.title = data.title
     orig.thing.data.type = data.type
-    orig.thing.data.set_contents(extract_contents(data))
+    orig.thing.data.set_contents(extract_contents(data, username, orig.thing.data.contents))
 
     if isinstance(data.project, str):
         orig.thing.data.set_parents([UniformReference.from_string(data.project)])
@@ -385,39 +420,9 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
     be = oe.get_backend(data.backend)
     for att in only_valid_attachments(data.attachments):
         assert att.filename is not None
-        # >>> mimetypes.guess_extension('image/webp')
-        # '.webp'
-        # >>> mimetypes.guess_type('test.webp')
-        # ('image/webp', None)
-        # TODO: safety!
-        ext = None
-        try:
-            ext = mimetypes.guess_extension(att.headers['content-type']) or 'bin'
-        except KeyError:
-            ext = 'bin'
-        finally:
-            if ext is None:
-                ext = 'bin'
-
-        file_data = att.file.read()
-        m = hashlib.sha256()
-        m.update(file_data)
-        file_hash = m.hexdigest()
-
-        att_urn = UniformReference(app='file', namespace='blob', ident=f"{file_hash}.{ext.lstrip('.')}")
-        print(f'Should be stored as {att_urn}')
-        att_blob = StoredBlob(urn=att_urn)
-
-        # suboptimal for large files probably.
-        be.save_blob(att_blob, fsync=False, data=file_data)
+        ext = guess_extension(att.headers['content-type'])
+        att_urn = be.store_blob(file_data=att.file.read(), ext=ext)
         orig.thing.data.attachments.append((att.filename, att_urn))
-        # print(att_urn)
-        # print(att)
-        # UploadFile(filename='23-06_Bristol_Stool_Chart.webp', size=90964, headers=Headers({'content-disposition': 'form-data; name="attachments"; filename="23-06_Bristol_Stool_Chart.webp"', 'content-type': 'image/webp'}))
-        # urn = UniformReference.new_file_urn(ext='csv')
-        # att = StoredBlob(urn=urn)
-        # data = '\t'.join(headers) + '\n' + '\t'.join(columns) + '\n'
-        # be.save_blob(att, fsync=False, data=data.encode('utf-8'))
 
     thing = oe.save_thing(orig, fsync=False)
     if be != orig.backend.name:
@@ -476,14 +481,15 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()]):
     # Copy title, parents only
     new_log = Note(title=log.thing.data.title, type='log')
     new_log = pen.overlayengine.add(new_log, backend=log.backend)
-    new_log.thing.data.set_parents(copy.copy(log.thing.data.parents))
+    new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
     new_log.thing.data.ensure_tag(key='start_date', value=str(time.time()))
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 
 @app.post("/time.html", tags=['mutate'])
 @app.post("/time", tags=['mutate'])
-def save_time(data: Annotated[TimeFormData, Form()]):
+def save_time(data: Annotated[TimeFormData, Form()], 
+              username: Annotated[UniformReference, Depends(get_current_username)]):
     if data.urn:
         u = UniformReference.from_string(data.urn)
         log = oe.find(u)
@@ -493,7 +499,7 @@ def save_time(data: Annotated[TimeFormData, Form()]):
         log = pen.overlayengine.add(log, backend=be)
 
     log.thing.data.touch()
-    log.thing.data.set_contents(extract_contents(data))
+    log.thing.data.set_contents(extract_contents(data, username, log.thing.data.contents))
     log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
     new_parents = (data.project or [])
     if new_parents:

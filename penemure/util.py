@@ -1,4 +1,5 @@
 import zoneinfo
+import mimetypes
 import markdown
 import subprocess
 import datetime
@@ -102,3 +103,14 @@ def md(c):
         ]
     )
 
+
+def guess_extension(content_type_header):
+    # >>> mimetypes.guess_extension('image/webp')
+    # '.webp'
+    # >>> mimetypes.guess_type('test.webp')
+    # ('image/webp', None)
+    # TODO: safety!
+    try:
+        return mimetypes.guess_extension(content_type_header) or 'bin'
+    except KeyError:
+        return 'bin'

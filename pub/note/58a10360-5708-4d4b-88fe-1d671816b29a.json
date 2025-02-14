@@ -1,0 +1,64 @@
+{
+  "title": "Authentication",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "implemented tailscale",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "user@projects.local"
+      },
+      "type": "markdown",
+      "id": "910edfef-2296-4ee7-b355-c1e91546c9ef",
+      "created_unix": 1739536361.8774772,
+      "updated_unix": 1739536361.881219
+    },
+    {
+      "contents": "and remote user",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "user@projects.local"
+      },
+      "type": "markdown",
+      "id": "81342e59-4efe-464b-bc2e-58e85cf46e4c",
+      "created_unix": 1739536361.8774858,
+      "updated_unix": 1739536361.8812296
+    },
+    {
+      "contents": "and local user auth!",
+      "author": {
+        "app": "account",
+        "namespace": null,
+        "ident": "user@projects.local"
+      },
+      "type": "markdown",
+      "id": "9f63e2c4-1426-4538-8f33-90382f6d0dbc",
+      "created_unix": 1739536387.3305423,
+      "updated_unix": 1739536387.3305433
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1739530800.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1739535874.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739535844.0682294,
+  "updated_unix": 1739536361.8811808,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}

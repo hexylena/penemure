@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 import glob
+import hashlib
 import sqlite3
 from enum import Enum
 
@@ -430,6 +431,16 @@ class GitJsonFilesBackend(BaseBackend):
     def resolve(self, ref: UniformReference) -> WrappedStoredThing:
         return self.find(ref)
 
+    def store_blob(self, file_data: bytes, ext:str = 'bin'):
+            m = hashlib.sha256()
+            m.update(file_data)
+            file_hash = m.hexdigest()
+            fn = f"{file_hash}.{ext.lstrip('.')}"
+            att_urn = UniformReference(app='file', namespace='blob', ident=fn)
+            att_blob = StoredBlob(urn=att_urn)
+            self.save_blob(att_blob, fsync=False, data=file_data)
+            return att_urn
+
     def all_modified(self): # -> list[WrappedStoredThing]:
         res = []
         for item in self.data.values():
@@ -447,6 +458,8 @@ class GitJsonFilesBackend(BaseBackend):
         # Remove invalid empty line statuses
         if len(statuses) == 1 and len(statuses[0]) == 0:
             statuses = []
+        # Ignore untracked files
+        statuses = [x for x in statuses if x[0:2] != '??']
         return {
             path: status
             for path, status
@@ -575,8 +588,10 @@ class OverlayEngine(BaseModel):
             all_keys.update(backend.data.keys())
         return all_keys
 
-    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None, fsync=False) -> WrappedStoredThing:
-        st = StoredThing(data=note, urn=UniformReference(app=note.type, namespace=note.namespace))
+    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None, fsync=False, urn=None) -> WrappedStoredThing:
+        if urn is None:
+            urn = UniformReference(app=note.type, namespace=note.namespace)
+        st = StoredThing(data=note, urn=urn)
         be = self.save_item(st, backend=backend, fsync=fsync)
         return WrappedStoredThing(thing=st, backend=be)
 
@@ -622,9 +637,7 @@ class OverlayEngine(BaseModel):
             custom = kwargs['custom']
             del kwargs['custom']
 
-        for st in self.all():
-            if not isinstance(st.thing, StoredThing): continue
-
+        for st in self.all_things():
             add = True
             for k, v in kwargs.items():
                 if not hasattr(st.thing.data, k):
@@ -966,3 +979,5 @@ class OverlayEngine(BaseModel):
                     except KeyError:
                         # print(f"{'  ' * _depth} RETZ: {lineage + [p_urn]}")
                         yield lineage + [note.thing.urn] + [p_urn]
+
+
