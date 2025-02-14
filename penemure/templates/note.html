@@ -109,14 +109,17 @@
 {% endfor %}
 {% endif %}
 
-{% if note.thing.data.type == 'form' %}
-<h3>Form Responses</h3>
-{{ note.thing.data.form_responses(oe).render_html_table() }}
-{% endif %}
 
 
 
 <hr/>
+
+{% if note.thing.data.type == 'form' %}
+<details><summary><h3>Form Responses</h3></summary>
+{{ note.thing.data.form_responses(oe).render_html_table() }}
+</details>
+{% endif %}
+
 
 {% if note.thing.data.attachments %}
 <details>

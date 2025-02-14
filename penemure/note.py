@@ -31,6 +31,7 @@ class BlockTypes(Enum):
     chartBar = 'chart-bar'
     chartGantt = 'chart-gantt'
     # only appropriate for form pages. TODO: restrict?
+    formMarkdown = 'form-markdown'
     formNumeric = 'form-numeric'
     formMultipleChoice = 'form-multiple-choice'
     formSingleChoice = 'form-single-choice'
@@ -48,6 +49,7 @@ class BlockTypes(Enum):
             'chartGantt': 'SQLish Query: Gantt Chart (expects columns url, id, time_start, time_end)',
             'queryCards': 'SQL Query: Cards (expects columns urn, title, blurb)',
             'queryMasony': 'SQL Query: Masonry Layout (expects only urn)',
+            'formMarkdown': "(Form) Markdown",
             'formNumeric': "(Form) Numeric Input",
             'formMultipleChoice': "(Form) Multiple choice (checkbox), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
             'formSingleChoice': "(Form) Single choice (radio), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
@@ -96,14 +98,14 @@ class MarkdownBlock(BaseModel):
         d['updated'] = self.updated
         return d
 
-    def render(self, oe, path, parent, format='html'):
+    def render(self, oe, path, parent, format='html', form=False):
         import traceback
         try:
-            return self._render(oe, path, parent, format=format)
+            return self._render(oe, path, parent, format=format, form=form)
         except Exception as e:
             return f'Error: {e} <details><summary>Traceback</summary><pre>{traceback.format_exc()}</pre></details>'
 
-    def _render(self, oe, path, parent, format='html'):
+    def _render(self, oe, path, parent, format='html', form=False):
         # if isinstance(self.type, str):
         #     self.type = BlockTypes.from_str(self.type)
 
@@ -165,7 +167,13 @@ class MarkdownBlock(BaseModel):
 
             page_content += f'<div class="col-sm-10">'
 
-            if self.type == BlockTypes.formNumeric.value:
+            # if we aren't rendering the form for user consumption, just make
+            # it smaller.
+            if not form:
+                page_content = f'<div><details><summary>Form Field: {title} ({self.type})</summary><pre>{self.contents}</pre></details>'
+            elif self.type == BlockTypes.formMarkdown.value:
+                page_content += md(self.contents)
+            elif self.type == BlockTypes.formNumeric.value:
                 page_content += f'<input name="block-{self.id}" type="number" {ra} step="any" class="form-control"/>'
             elif self.type == BlockTypes.formText.value:
                 page_content += f'<input name="block-{self.id}" type="text" {ra} placeholder="{title}..." class="form-control" />'

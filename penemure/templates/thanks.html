@@ -3,9 +3,10 @@
 {% block title %}Thanks! | {{ Config.Title | e }}{% endblock %}
 
 {% block main %}
-{% if note.thing.data.cover_image() %}
+{% set cover = note.thing.data.cover_image(Config.ExportPrefix, oe) %}
+{% if cover %}
 <div>
-	<img src="{{ note.thing.data.cover_image() }}" class="cover">
+	<img src="{{ cover }}" class="cover">
 </div>
 {% endif %}
 <hgroup>

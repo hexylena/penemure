@@ -1,5 +1,5 @@
 import itertools
-import time
+import csv
 import datetime
 import json
 import os
@@ -705,32 +705,31 @@ class OverlayEngine(BaseModel):
             res = self._make_a_db(ensure_present)
             # a = time.time()
             self._cache = res
-            # print(f"Created HASH in {time.time() - a}")
-            if self._enable_sqlite:
-                # a = time.time()
-                for table, rows in res.items():
-                    if len(rows) == 0:
-                        continue
-                    okeys = sorted(rows[0].keys())
-                    qokeys = [f"'{x}'" for x in okeys]
-                    qqkeys = ['?'] * len(okeys)
-                    self._cached_valid_tables.append(table)
-                    # print(table, okeys, qokeys, qqkeys)
+            # a = time.time()
+            for table, rows in res.items():
+                if len(rows) == 0:
+                    continue
+                okeys = sorted(rows[0].keys())
+                qokeys = [f"'{x}'" for x in okeys]
+                qqkeys = ['?'] * len(okeys)
+                self._cached_valid_tables.append(table)
+                # print(table, okeys, qokeys, qqkeys)
 
-                    stmt = f"DROP TABLE IF EXISTS {table}"
-                    self._cache_sqlite.execute(stmt)
+                stmt = f"DROP TABLE IF EXISTS {table}"
+                self._cache_sqlite.execute(stmt)
 
-                    stmt = f"CREATE TABLE {table}({', '.join(qokeys)})"
-                    self._cache_sqlite.execute(stmt)
+                stmt = f"CREATE TABLE {table}({', '.join(qokeys)})"
+                self._cache_sqlite.execute(stmt)
 
-                    data = [
-                        [sqlite3_type(row[ok]) for ok in okeys]
-                        for row in rows
-                    ]
-                    stmt = f"INSERT INTO {table} VALUES({', '.join(qqkeys)})"
-                    self._cache_sqlite.executemany(stmt, data)
-                self._cache_sqlite.commit()
-                # print(f"Created SQLITE3 DB in {time.time() - a}")
+                data = [
+                    [sqlite3_type(row[ok]) for ok in okeys]
+                    for row in rows
+                ]
+                stmt = f"INSERT INTO {table} VALUES({', '.join(qqkeys)})"
+                self._cache_sqlite.executemany(stmt, data)
+
+            self._cache_sqlite.commit()
+            # print(f"Created SQLITE3 DB in {time.time() - a}")
 
             return res
         else:
@@ -787,6 +786,19 @@ class OverlayEngine(BaseModel):
                     'size': blob.thing.size,
                     'backend': blob.backend.name,
                 })
+
+                if urn.urn.endswith('.csv'):
+                    def sanitize(s):
+                        return re.sub('[^A-Za-z0-9_]', '', s.lower().replace(' ', '_'))
+
+                    table_name = sanitize(f"csv_{note.thing.data.title.lower()}__{id}")
+                    tables[table_name] = []
+
+                    with open(blob.full_path) as csvfile:
+                        reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+                        for row in reader:
+                            clean = {sanitize(k): v for (k, v) in row.items()}
+                            tables[table_name].append(clean)
 
         for app in self.apps():
             if app not in tables:

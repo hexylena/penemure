@@ -33,7 +33,7 @@ class Template(Note):
 class DataForm(Note):
     type: str = 'form'
 
-    def form_submission(self, d, oe, be, account) -> UniformReference:
+    def form_submission(self, d, oe, be, account: UniformReference) -> UniformReference:
         columns = [None] * len(self.get_form_fields())
         headers = []
 
@@ -61,20 +61,32 @@ class DataForm(Note):
 
         # Must be strings.
         headers = map(str, ['date', 'account'] + headers)
-        columns = map(str, [time.time(), account] + columns)
+        columns = map(str, [time.time(), account.urn] + columns)
 
         # Need to persist this somewhere. Blob store?
         if t := self.has_attachment('data'):
             att = oe.find_blob(t)
-            with open(att.full_path, 'ab') as handle:
-                data = '\t'.join(columns) + '\n'
-                handle.write(data.encode('utf-8'))
+
+            with open(att.full_path, 'a') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',', quotechar='"',
+                                    quoting=csv.QUOTE_MINIMAL)
+                writer.writerow(columns)
             return t
         else:
             urn = UniformReference.new_file_urn(ext='csv')
-            att = StoredBlob(urn=urn)
-            data = '\t'.join(headers) + '\n' + '\t'.join(columns) + '\n'
-            be.save_blob(att, fsync=False, data=data.encode('utf-8'))
+            blob = StoredBlob(urn=urn)
+            # Get the full path
+            att = be.save_blob(blob, fsync=False)
+
+            with open(att.full_path, 'w') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',', quotechar='"',
+                                    quoting=csv.QUOTE_MINIMAL)
+                writer.writerow(headers)
+                writer.writerow(columns)
+
+            # ensure it gets added to the git staging
+            att = be.save_blob(blob, fsync=False)
+
             self.attachments.append(('data', urn))
             return urn
 
@@ -82,7 +94,7 @@ class DataForm(Note):
         if t := self.has_attachment('data'):
             att = oe.find_blob(t)
             with open(att.full_path) as csvfile:
-                reader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+                reader = csv.reader(csvfile, delimiter=',', quotechar='"')
                 header = next(reader)
                 rows = [row for row in reader]
                 rs = ResultSet.build(header, rows, title='Form Data')
@@ -94,7 +106,9 @@ class DataForm(Note):
         results = ""
 
         for i, block in enumerate(self.get_contents()):
-            results += block.render(oe, path, parent)
+            if not block.type.startswith('form-'):
+                continue
+            results += block.render(oe, path, parent, form=True)
         return results
 
     def persist_results(self, oe, data):
