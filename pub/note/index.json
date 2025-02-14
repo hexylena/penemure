@@ -5,26 +5,26 @@
     {
       "contents": "# Project Management\r\n\r\nRebuilt from the ground up in python this time.",
       "author": {
-        "app": "x",
-        "namespace": null,
+        "app": "accountgithub",
+        "namespace": "gh",
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created_unix": 1739394773.9426014,
-      "updated_unix": 1739394773.9426026
+      "created_unix": 1739540887.5312753,
+      "updated_unix": 1739540887.5312765
     },
     {
-      "contents": "GROUP SELECT\n  title,\n  description,\n  backend,\n  type\nFROM __all__\nWHERE\n  (\n    parents IS NULL OR parents LIKE '%SELF%'\n  )\n  AND system IS FALSE\n  AND type <> 'account'\nGROUP BY\n  type\nORDER BY\n  type DESC",
+      "contents": "GROUP SELECT\n  title,\n  description,\n  backend,\n  type\nFROM __all__\nWHERE\n  (\n    parents IS NULL OR parents LIKE '%SELF%'\n  )\n  AND system IS FALSE\n  AND type <> 'account'\nGROUP BY\n  type\nORDER BY\n  type DESC,\n  title ASC",
       "author": {
-        "app": "x",
-        "namespace": null,
+        "app": "accountgithub",
+        "namespace": "gh",
         "ident": "hexylena"
       },
       "type": "query-table",
       "id": "61f8fbdb-50e0-4bb0-a2d4-1d94bb3b21d0",
-      "created_unix": 1739394773.94443,
-      "updated_unix": 1739394773.944431
+      "created_unix": 1739540887.5328875,
+      "updated_unix": 1739540887.5328882
     },
     {
       "contents": "## Current issue progress",
