@@ -18,7 +18,7 @@ class UniformReference(BaseModel, frozen=True):
     def _assemble(self) -> list[str]:
         parts = []
         if self.app == 'file' and self.namespace == 'blob':
-            parts.append('file')
+            parts.append(self.app)
         if self.namespace:
             parts.append(self.namespace)
         parts.append(self.ident)
@@ -61,6 +61,9 @@ class UniformReference(BaseModel, frozen=True):
 
         if len(urn) > 2 and urn[0] == 'file' and urn[1] == 'blob':
             return cls(app='file', namespace='blob', ident=urn[2])
+        elif len(urn) > 2 and urn[0] == 'account':
+            print(urn)
+            return cls(app='account', namespace=urn[1], ident=urn[2])
         elif len(urn) == 2:
             return cls(app='x', namespace=urn[0], ident=urn[1])
         elif len(urn) == 1:
@@ -122,7 +125,7 @@ class UniformReference(BaseModel, frozen=True):
             else:
                 return urn_ref.urn
 
-        contents = re.sub('(urn:penemure:[a-z0-9:./-]+)(#(title|url|link|embed))?', urn_to_url, contents)
+        contents = re.sub('(urn:penemure:[a-z0-9:./@-]+)(#(title|url|link|embed))?', urn_to_url, contents)
 
         return contents
 

@@ -2,34 +2,34 @@
   "title": "Issue with Status Field",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
   ],
   "contents": [
     {
-      "contents": "# Hello",
+      "contents": "",
       "author": {
         "app": "account",
-        "namespace": "gh",
-        "ident": "github.com/hexylena"
+        "namespace": "projects",
+        "ident": "user"
       },
       "type": "markdown",
       "id": "d8b4400d-9f32-4129-9133-a115e39d951c",
-      "created_unix": 1738861599.424719,
-      "updated_unix": 1738861599.4247198
+      "created_unix": 1739537789.4404562,
+      "updated_unix": 1739537789.4536405
     }
   ],
   "tags": [
     {
       "key": "status",
-      "val": "backlog"
+      "val": "done"
     }
   ],
   "version": 2,
   "created_unix": 1736507101.875503,
-  "updated_unix": 1737117000.060105,
+  "updated_unix": 1739537789.4535766,
   "namespace": null,
   "type": "task",
   "attachments": []

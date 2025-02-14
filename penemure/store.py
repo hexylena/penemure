@@ -76,6 +76,7 @@ class StoredThing(StoredBlob):
     @computed_field
     @property
     def relative_path(self) -> str:
+        print(self.identifier, self.data.__class__.__name__.lower(), self.identifier.path)
         return os.path.join(self.data.__class__.__name__.lower(),
                             self.identifier.path + '.json')
 

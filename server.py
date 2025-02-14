@@ -88,7 +88,7 @@ else:
     security = LocalUserAuthentication()
 
 @cache
-def locate_account(username: str, name: str):
+def locate_account(username: str, name: str, namespace: str):
     if username.endswith('@github'):
         user = username.replace('@github', '')
         acc = oe.search(type='account', namespace='gh', username=user)
@@ -111,7 +111,7 @@ def locate_account(username: str, name: str):
         elif len(acc) > 1:
             raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
         else:
-            acc = Account(title=name, username=username)
+            acc = Account(title=name, username=username, namespace=namespace)
             return oe.add(acc, urn=acc.suggest_urn())
 
 
@@ -119,7 +119,7 @@ def get_current_username(credentials: Annotated[PenemureCredentials, Depends(sec
     if not credentials.username:
         return UniformReference(app='account', ident='anonymous')
     else:
-        return locate_account(credentials.username, credentials.name).thing.urn
+        return locate_account(credentials.username, credentials.name, credentials.namespace).thing.urn
 
 
 @app.get("/users/me")
@@ -127,7 +127,7 @@ def read_current_user(username: Annotated[UniformReference, Depends(get_current_
     return {"username": username}
 
 
-def render_fixed(fixed, note=None, rewrite=True, note_template=None):
+def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=None):
     a = time.time()
     template = env.get_template(fixed)
 
@@ -138,19 +138,19 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None):
     if note_template is not None:
         kwargs['template'] = note_template
 
-    page_content = template.render(**kwargs)
+    page_content = template.render(**kwargs, username=username)
     if rewrite:
         page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
 
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
-def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html'):
+def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html', username=None):
     a = time.time()
     if tag := st.thing.data.get_tag(key='template'):
         requested_template = tag.val or requested_template
 
     template = env.get_template(requested_template)
-    page_content = template.render(note=st, **pen.get_config(path))
+    page_content = template.render(note=st, **pen.get_config(path), username=username)
     page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
@@ -161,8 +161,8 @@ def reload(username: Annotated[UniformReference, Depends(get_current_username)])
     pen.load()
     return [len(b.data.keys()) for b in oe.backends]
 
-@app.post("/api/sync", tags=['system', 'api'], username: Annotated[UniformReference, Depends(get_current_username)])
-def api_sync():
+@app.post("/api/sync", tags=['system', 'api'])
+def api_sync(username: Annotated[UniformReference, Depends(get_current_username)]):
     prev = [len(b.data.keys()) for b in oe.backends]
     pen.save()
     for b in oe.backends:
@@ -316,24 +316,24 @@ def download_ident(ident: str):
 
 @app.get("/new/{template}", response_class=HTMLResponse, tags=['mutate'])
 @app.get("/new", response_class=HTMLResponse, tags=['mutate'])
-def get_new(template: Optional[str] = None):
+def get_new(username: Annotated[UniformReference, Depends(get_current_username)], template: Optional[str] = None):
     if template is None:
-        return render_fixed('new.html')
+        return render_fixed('new.html', username=username)
 
     if template.startswith('urn:penemure:'):
         # Then they're providing a note ref.
         u = UniformReference.from_string(template)
         orig = oe.find(u)
-        return render_fixed('new.html', note_template=orig.thing.data)
+        return render_fixed('new.html', note_template=orig.thing.data, username=username)
 
     tpl = oe.search(type='template', title=template)
     if len(tpl) > 0:
         # TODO: how to select which template?
         tpl = tpl[0]
         assert isinstance(tpl.thing.data, Template)
-        return render_fixed('new.html', note_template=tpl.thing.data.instantiate())
+        return render_fixed('new.html', note_template=tpl.thing.data.instantiate(), username=username)
     else:
-        return render_fixed('new.html')
+        return render_fixed('new.html', username=username)
 
 @app.post("/new.html", tags=['mutate'])
 @app.post("/new", tags=['mutate'])
@@ -447,10 +447,7 @@ def delete_question(urn: str, username: Annotated[UniformReference, Depends(get_
     except KeyError:
         return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
-    template = env.get_template('delete.html')
-    page_content = template.render(note=thing, **pen.get_config(path))
-    page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
-    return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
+    return render_fixed('delete.html', username=username)
 
 
 @app.get("/delete/{urn}", tags=['mutate'])
@@ -533,14 +530,14 @@ def custom_404_handler(_, res):
 @app.get("/time", response_class=HTMLResponse, tags=['view'])
 @app.get("/sync", response_class=HTMLResponse, tags=['view'])
 @app.get("/review", response_class=HTMLResponse, tags=['view'])
-def fixed_page_list(request: Request):
+def fixed_page_list(request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
     page = request.url.path.lstrip('/').replace('.html', '')
-    return render_fixed(page + '.html')
+    return render_fixed(page + '.html', username=username)
 
 @app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/{page}", response_class=HTMLResponse, tags=['view'])
 @app.get("/", response_class=HTMLResponse, tags=['view'])
-def index(page=None):
+def index(username: Annotated[UniformReference, Depends(get_current_username)], page=None):
     if page is None:
         page = 'index'
 
@@ -551,7 +548,7 @@ def index(page=None):
     # try and find an index page
     config = pen.get_config(path)
     if 'index' in config['pathed_pages']:
-        return render_dynamic(config['pathed_pages']['index'])
+        return render_dynamic(config['pathed_pages']['index'], username=username)
     raise HTTPException(status_code=404, detail="Item not found")
 
 class PatchNoteAttachments(BaseModel):
@@ -589,17 +586,17 @@ def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()],
 
 
 @app.get("/edit/{backend}/{urn}", response_class=HTMLResponse, tags=['mutate'])
-def edit_get(backend: str, urn: str):
+def edit_get(backend: str, urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     be = oe.get_backend(backend)
     note = oe.find_thing_from_backend(u, be)
-    return render_fixed('edit.html', note, rewrite=False)
+    return render_fixed('edit.html', note, rewrite=False, username=username)
 
 @app.get("/edit/{urn}", response_class=HTMLResponse, tags=['mutate'])
-def edit_get(urn: str):
+def edit_get_nobe(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
-    return render_fixed('edit.html', note, rewrite=False)
+    return render_fixed('edit.html', note, rewrite=False, username=username)
 
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
@@ -617,33 +614,38 @@ async def post_form(urn: str, request: Request, username: Annotated[UniformRefer
         blob = oe.find_blob(blob_id)
         blob.save(fsync=False)
         note.save(fsync=False)
-        return render_fixed('thanks.html', note=note)
+        return render_fixed('thanks.html', note=note, username=username)
 
 
 @app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-def get_form(urn: str):
+def get_form(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
     except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    return render_dynamic(note, requested_template='form.html')
+    return render_dynamic(note, requested_template='form.html', username=username)
 
 
 # Eww.
-@app.get("/{_app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{_app}/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{_app}/{b}/{c}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{_app}/{b}.html", response_class=HTMLResponse, tags=['view'])
-@app.get("/{_app}/{b}/{c}/{d}/{e}", response_class=HTMLResponse, tags=['view'])
-@app.get("/{_app}/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
-@app.get("/{_app}/{b}/{c}", response_class=HTMLResponse, tags=['view'])
-@app.get("/{_app}/{b}", response_class=HTMLResponse, tags=['view'])
-def read_items(_app, b, c=None, d=None, e=None):
+@app.get("/{app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{app}/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{app}/{b}/{c}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{app}/{b}.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/{app}/{b}/{c}/{d}/{e}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{app}/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{app}/{b}/{c}", response_class=HTMLResponse, tags=['view'])
+@app.get("/{app}/{b}", response_class=HTMLResponse, tags=['view'])
+def read_items(username: Annotated[UniformReference, Depends(get_current_username)], 
+               app, b, c=None, d=None, e=None):
+
     # _app is intentionally ignored.
+    if app != 'account':
+        app = 'note'
+
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
-    p = ['urn', 'penemure', 'note', b, p2]
+    p = ['urn', 'penemure', app, b, p2]
     p = [x for x in p if x is not None and x != '']
     u = ':'.join(p)
     if u.endswith('.html'):
@@ -653,7 +655,7 @@ def read_items(_app, b, c=None, d=None, e=None):
         note = oe.find_thing(u)
         if note is None:
             raise HTTPException(status_code=404, detail="Item not found")
-        return render_dynamic(note)
+        return render_dynamic(note, username=username)
     except OnlyNonBlobs:
         blob = oe.find(u)
         path = oe.get_path(blob)

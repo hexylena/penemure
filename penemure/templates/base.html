@@ -47,6 +47,8 @@
 						<img src="{{ Config.ExportPrefix }}assets/favicon.ico" width="40" height="40" alt="logo">&nbsp;
 						<a class="navbar-brand" href="{{ Config.ExportPrefix }}index.html">{{ Config.Title }}</a>
 
+						<span>{{ username.ident }}</span>
+
 						<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 							<span class="navbar-toggler-icon"></span>
 						</button>
@@ -74,8 +76,8 @@
 								<a class="nav-link" href="{{ Config.ExportPrefix }}edit/{{ note.backend.name }}/{{ note.thing.urn.urn }}" title="Edit">📝</a>
 								<a class="nav-link" href="{{ Config.ExportPrefix }}new/{{ note.thing.urn.urn }}" title="Duplicate">➿</a>
 								<a class="nav-link" href="{{ Config.ExportPrefix }}delete_question/{{ note.thing.urn.urn }}" title="Delete">❌</a>
-								<a class="nav-link" href="{{ Config.ExportPrefix }}sync" title="Sync">💫</a>
 								{% endif %}
+								<a class="nav-link" href="{{ Config.ExportPrefix }}sync" title="Sync">💫</a>
 								<a class="nav-link" href="{{ Config.ExportPrefix }}time{{ params }}" title="Log Time">⏰</a> &nbsp;
 							</div>
 							{% endif %}
