@@ -1,0 +1,40 @@
+{
+  "title": "CSV querying",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "you can now query attached CSVs to build charts.",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "a7d00816-4147-4b6b-9366-3d321679a6ff",
+      "created_unix": 1739540615.6944318,
+      "updated_unix": 1739540615.6945362
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1739538000.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1739540611.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739540605.7738204,
+  "updated_unix": 1739540615.6945274,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}
