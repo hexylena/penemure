@@ -635,6 +635,34 @@ def get_form(urn: str, username: Annotated[UniformReference, Depends(get_current
 
     return render_dynamic(note, requested_template='form.html', username=username)
 
+@app.get('/form/{urn}/manifest.json', tags=['view'])
+def form_manifest(urn):
+    u = UniformReference.from_string(urn)
+    try:
+        note = oe.find_thing(u)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    title = note.thing.data.title.replace('"', '”')
+    man = {
+        "background_color": "#73c3c3",
+        # TODO: better san
+        "name":             title,
+        "description":      "A form",
+        "display":          "standalone",
+        "scope":            f'/form/{urn}',
+        "icons":            [{
+            "src":   "/assets/favicon@256.png",
+            "type":  "image/png",
+            "sizes": "256x256",
+        }],
+        "start_url":        f'/form/{urn}', # TODO
+        "theme_color":      "#73c3c3",
+        "shortcuts": [],
+    }
+    return man
+
+
 
 # Eww.
 @app.get("/{app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
