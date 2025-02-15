@@ -5,20 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
 		<meta name="theme-color" content="#ffffff"/>
+		{% block manifest %}
 		<link rel="manifest" href="{{ Config.ExportPrefix }}manifest.json">
+		{% endblock %}
 
 		<title>{% block title %}{% endblock %}</title>
-		{% if Config.ExportUseGoogleFonts %}
-		{% else %}
-		<style>
-		@font-face {
-		  font-family: 'Recursive';
-		  font-style: oblique 0deg 15deg;
-		  font-weight: 300 800;
-		  font-display: swap;
-		  src: url({{ Config.ExportPrefix}}assets/recursive.woff2) format('woff2');
-		}
-		</style>
 		<script src="{{ Config.ExportPrefix }}assets/index.js"></script>
 		{% endif %}
 		<link rel="icon" type="image/x-icon" href="{{ Config.ExportPrefix }}assets/favicon.ico">

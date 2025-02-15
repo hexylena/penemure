@@ -9,6 +9,14 @@ $border-color: black;
 $border-radius: 0px;
 
 @font-face {
+  font-family: 'Recursive';
+  font-style: oblique 0deg 15deg;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url(recursive.woff2) format('woff2');
+}
+
+@font-face {
     font-family: 'Gorton';
     src: url(GortonPerfectedVF.woff2) format(woff2);
 }
