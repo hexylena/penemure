@@ -58,6 +58,40 @@ app = FastAPI(
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
 
 
+ICONS = [
+    {
+        "purpose": "maskable",
+        "sizes": "1462x1462",
+        "src": "maskable_icon.png",
+        "type": "image/png"
+    },
+    {
+        "purpose": "maskable",
+        "sizes": "96x96",
+        "src": "maskable_icon_x96.png",
+        "type": "image/png"
+    },
+    {
+        "purpose": "maskable",
+        "sizes": "512x512",
+        "src": "maskable_icon_x512.png",
+        "type": "image/png"
+    },
+    {
+        "src":   "/assets/favicon@1024.png",
+        "type":  "image/png",
+        "sizes": "1024x1024",
+    }, {
+        "src":   "/assets/favicon@64.png",
+        "type":  "image/png",
+        "sizes": "64x64",
+    }, {
+        "src":   "/assets/favicon@256.png",
+        "type":  "image/png",
+        "sizes": "256x256",
+    }
+]
+
 if 'SENTRY_SDK' in os.environ:
     sentry_sdk.init(
         dsn=os.environ['SENTRY_SDK'],
@@ -189,19 +223,7 @@ def manifest():
         "description":      pen.about.replace('"', '”'),
         "display":          "standalone",
         "scope":            '/', # TODO: make this configurable
-        "icons":            [{
-            "src":   "/assets/favicon@1024.png",
-            "type":  "image/png",
-            "sizes": "1024x1024",
-        }, {
-            "src":   "/assets/favicon@64.png",
-            "type":  "image/png",
-            "sizes": "64x64",
-        }, {
-            "src":   "/assets/favicon@256.png",
-            "type":  "image/png",
-            "sizes": "256x256",
-        }],
+        "icons":            ICONS,
         "start_url":        '/', # TODO
         "theme_color":      "#f80000",
         "shortcuts": [
@@ -651,11 +673,7 @@ def form_manifest(urn):
         "description":      "A form",
         "display":          "standalone",
         "scope":            f'/form/{urn}',
-        "icons":            [{
-            "src":   "/assets/favicon@256.png",
-            "type":  "image/png",
-            "sizes": "256x256",
-        }],
+        "icons":            ICONS,
         "start_url":        f'/form/{urn}', # TODO
         "theme_color":      "#f80000",
         "shortcuts": [],
