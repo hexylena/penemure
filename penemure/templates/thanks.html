@@ -15,8 +15,11 @@
 	</h1>
 </hgroup>
 
-TODO: only show if authenticated
-<a href="{{ note.thing.urn.urn }}#url">Return to form</a>
+<a class="btn btn-primary" href="{{ Config.ExportPrefix }}form/{{ note.thing.urn.urn }}">Submit another entry</a>
+
+{% if user %}
+<a class="btn btn-secondary" href="{{ note.thing.urn.urn }}#url">Return to Note</a>
+{% endif %}
 
 
 {% endblock %}
