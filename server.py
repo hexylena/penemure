@@ -183,7 +183,7 @@ def manifest():
     # why the fuck
     title = pen.title.replace('"', '”')
     man = {
-        "background_color": "#73c3c3",
+        "background_color": "#f80000",
         # TODO: better san
         "name":             title,
         "description":      pen.about.replace('"', '”'),
@@ -203,7 +203,7 @@ def manifest():
             "sizes": "256x256",
         }],
         "start_url":        '/', # TODO
-        "theme_color":      "#73c3c3",
+        "theme_color":      "#f80000",
         "shortcuts": [
           {
             "description": "search all notes",
@@ -645,7 +645,7 @@ def form_manifest(urn):
 
     title = note.thing.data.title.replace('"', '”')
     man = {
-        "background_color": "#73c3c3",
+        "background_color": "#f80000",
         # TODO: better san
         "name":             title,
         "description":      "A form",
@@ -657,7 +657,7 @@ def form_manifest(urn):
             "sizes": "256x256",
         }],
         "start_url":        f'/form/{urn}', # TODO
-        "theme_color":      "#73c3c3",
+        "theme_color":      "#f80000",
         "shortcuts": [],
     }
     return man
