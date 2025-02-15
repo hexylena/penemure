@@ -315,12 +315,3 @@ document.querySelectorAll('form[method="patch"] button').forEach(i => i.addEvent
 <script src="{{ Config.ExportPrefix }}assets/luxon.min.js"></script>
 <script src="{{ Config.ExportPrefix }}assets/macy@2.min.js"></script>
 {% endblock %}
-
-
-{% block manifest %}
-	{% if note.thing.data.type == 'form' %}
-		<link rel="manifest" href="{{ Config.ExportPrefix }}form/{{ note.thing.urn.urn }}/manifest.json">
-	{% else %}
-		<link rel="manifest" href="{{ Config.ExportPrefix }}manifest.json">
-	{% endif %}
-{% endblock %}

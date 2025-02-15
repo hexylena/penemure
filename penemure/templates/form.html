@@ -40,3 +40,8 @@ input:valid {
 </style>
 
 {% endblock %}
+
+
+{% block manifest %}
+<link rel="manifest" href="{{ Config.ExportPrefix }}form/{{ note.thing.urn.urn }}/manifest.json">
+{% endblock %}
