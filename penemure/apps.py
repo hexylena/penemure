@@ -56,6 +56,8 @@ class DataForm(Note):
                 columns[i] = ', '.join([x for x in matching_values if len(x) > 0])
             elif block.type == 'form-single-choice':
                 columns[i] = matching_values[0]
+            elif block.type == 'form-markdown':
+                continue
             else:
                 raise NotImplementedError(f"No support yet for {block.type}")
 

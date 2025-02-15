@@ -357,7 +357,8 @@ class Note(ChangeDetectionMixin, BaseModel):
         return self.contents or []
 
     def get_form_fields(self) -> list[MarkdownBlock]:
-        return [x for x in self.get_contents() if x.type.startswith('form-')]
+        return [x for x in self.get_contents() 
+                if x.type.startswith('form-') and x.type != "form-markdown"]
 
     def get_contributors(self, _oe):
         c = []
