@@ -116,10 +116,10 @@ def locate_account(username: str, name: str, namespace: str):
 
 
 def get_current_username(credentials: Annotated[PenemureCredentials, Depends(security)],) -> UniformReference:
-    if not credentials.username:
-        return UniformReference(app='account', ident='anonymous')
-    else:
+    if credentials and credentials.username:
         return locate_account(credentials.username, credentials.name, credentials.namespace).thing.urn
+    else:
+        return UniformReference(app='account', ident='anonymous')
 
 
 @app.get("/users/me")
