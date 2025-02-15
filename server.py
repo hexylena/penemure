@@ -62,19 +62,19 @@ ICONS = [
     {
         "purpose": "maskable",
         "sizes": "1462x1462",
-        "src": "maskable_icon.png",
+        "src": "/assets/maskable_icon.png",
         "type": "image/png"
     },
     {
         "purpose": "maskable",
         "sizes": "96x96",
-        "src": "maskable_icon_x96.png",
+        "src": "/assets/maskable_icon_x96.png",
         "type": "image/png"
     },
     {
         "purpose": "maskable",
         "sizes": "512x512",
-        "src": "maskable_icon_x512.png",
+        "src": "/assets/maskable_icon_x512.png",
         "type": "image/png"
     },
     {
