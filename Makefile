@@ -1,11 +1,11 @@
 watch:
-	$(MAKE) serve
+	find server.py assets/index.scss penemure -type f | entr -r $(MAKE) serve
 
 watch-css:
 	./node_modules/.bin/sass --quiet --style compressed assets/index.scss assets/bootstrap.css --watch
 
 serve: assets/bootstrap.css
-	find server.py penemure -type f | entr -r fastapi run server.py
+	fastapi run server.py
 
 assets/bootstrap.css: assets/index.scss
 	./node_modules/.bin/sass --quiet --style compressed assets/index.scss assets/bootstrap.css

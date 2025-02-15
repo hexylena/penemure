@@ -75,7 +75,7 @@
 							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
 							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
-							<button type="button" data-md-button class="btn btn-outline-secondary" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', '{{ block.id }}')">📤</button>
+							<button type="button" data-md-button class="btn btn-outline-secondary extract-issues" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', '{{ block.id }}')">📤</button>
 						</markdown-toolbar>
 						<textarea id="block-{{ block.id }}" name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents }}</textarea>
 						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
@@ -112,7 +112,7 @@
 							<md-ordered-list class="btn btn-outline-secondary">1.</md-ordered-list>
 							<md-task-list class="btn btn-outline-secondary">✔️</md-task-list>
 							<!-- <md-mention>@</md-mention> -->
-							<button type="button" data-md-button class="btn btn-outline-secondary" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', 'REPLACEME')">📤</button>
+							<button type="button" data-md-button class="btn btn-outline-secondary extract-issues" disabled onclick="extractIssues('{{ note.thing.urn.urn }}', '{{ note.backend.name }}', 'REPLACEME')">📤</button>
 						</markdown-toolbar>
 						<textarea id="block-REPLACEME" name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
 					</div>

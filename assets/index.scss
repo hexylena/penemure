@@ -7,8 +7,19 @@ $enable-shadows: true;
 $border-width: 2px;
 $border-color: black;
 $border-radius: 0px;
-$font-family-sans-serif: 'Recursive';
-$font-family-monospace: 'Recursive';
+
+@font-face {
+    font-family: 'Gorton';
+    src: url(GortonPerfectedVF.woff2) format(woff2);
+}
+
+@font-face {
+    font-family: 'NationalPark';
+    src: url(NationalPark-VariableVF.woff2) format(woff2);
+}
+
+$font-family-sans-serif: "Gorton", "NationalPark";
+$font-family-monospace: "Gorton", "NationalPark";
 
 body {
 	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 0;
