@@ -183,19 +183,27 @@ def manifest():
     # why the fuck
     title = pen.title.replace('"', '”')
     man = {
-        "background_color": "#ffffff",
+        "background_color": "#73c3c3",
         # TODO: better san
         "name":             title,
         "description":      pen.about.replace('"', '”'),
         "display":          "standalone",
         "scope":            '/', # TODO: make this configurable
         "icons":            [{
+            "src":   "/assets/favicon@1024.png",
+            "type":  "image/png",
+            "sizes": "1024x1024",
+        }, {
+            "src":   "/assets/favicon@64.png",
+            "type":  "image/png",
+            "sizes": "64x64",
+        }, {
             "src":   "/assets/favicon@256.png",
             "type":  "image/png",
             "sizes": "256x256",
         }],
         "start_url":        '/', # TODO
-        "theme_color":      "#CE3518",
+        "theme_color":      "#73c3c3",
         "shortcuts": [
           {
             "description": "search all notes",

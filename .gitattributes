@@ -1,3 +1,4 @@
 pub/file/blob/* filter=lfs diff=lfs merge=lfs -text
 assets/bootstrap.css filter=lfs diff=lfs merge=lfs -text
 assets/bootstrap.css.map filter=lfs diff=lfs merge=lfs -text
+assets/favicon*.png filter=lfs diff=lfs merge=lfs -text
