@@ -10,6 +10,10 @@
     {
       "key": "description",
       "val": "(Experiencing reduced availability, feel free to ping, expect delayed responses.)\r\n\r\nSystems Witch ✨ Casting the spell to make the servers work 🧙‍"
+    },
+    {
+      "key": "locale",
+      "val": "nl"
     }
   ],
   "version": 2,
