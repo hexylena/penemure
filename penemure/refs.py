@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 import re
 import os
-from typing import Optional
+from typing import Optional, Annotated
 from pydantic import computed_field
 import uuid
 from .util import *
@@ -11,6 +11,9 @@ class UniformReference(BaseModel, frozen=True):
     app: str
     namespace: Optional[str] = None
     ident: str = Field(default_factory=lambda : str(uuid.uuid4()))
+
+    _url: str | None = PrivateAttr(default=None)
+    _prefs: dict = PrivateAttr(default_factory=dict)
 
     def __repr__(self):
         return self.urn

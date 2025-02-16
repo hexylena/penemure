@@ -30,6 +30,11 @@
 {% endblock %}
 	</head>
 	<body>
+		{% if username._prop and username._prop.locale %}
+		<script>
+			luxon.Settings.defaultLocale = "{{ username._prop.locale }}";
+		</script>
+		{% endif %}
 		<header class="container-xl">
 			<div class="row">
 				<nav class="navbar navbar-expand-md bg-body-tertiary">
@@ -38,7 +43,11 @@
 						<a class="navbar-brand" href="{{ Config.ExportPrefix }}index.html">{{ Config.Title }}</a>
 
 						{% if username %}
-						<span>{{ username.ident }}</span>
+						<span>
+							{% if username._url %}<a href="/{{ username._url }}">{% endif %}
+								{{ username.ident }}
+							{% if username._url %}</a>{% endif %}
+						</span>
 						{% else %}
 						<span>ANON</span>
 						{% endif %}

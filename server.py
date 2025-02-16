@@ -139,11 +139,9 @@ def locate_account(username: str, name: str, namespace: str):
             acc.update(oe.backends[0])
             return oe.add(acc, urn=acc.suggest_urn())
     else:
-        acc = oe.search(type='account', namespace=None, username=username)
+        acc = oe.search(type='account', namespace=namespace, username=username)
         if len(acc) >= 1:
             return acc[0]
-        # elif len(acc) > 1:
-        #     raise Exception("Multiple accounts found, due to overlay? BUG! Not your fault.")
         else:
             acc = Account(title=name, username=username, namespace=namespace)
             return oe.add(acc, urn=acc.suggest_urn())
@@ -151,7 +149,15 @@ def locate_account(username: str, name: str, namespace: str):
 
 def get_current_username(credentials: Annotated[PenemureCredentials, Depends(security)],) -> UniformReference:
     if credentials and credentials.username:
-        return locate_account(credentials.username, credentials.name, credentials.namespace).thing.urn
+        acc = locate_account(credentials.username, credentials.name, credentials.namespace)
+        urn = acc.thing.urn
+        # Smuggle the URL in
+        urn._url = acc.thing.url
+        urn._prop = {
+            t.key: t.val
+            for t in acc.thing.data.tags
+        }
+        return urn
     else:
         return UniformReference(app='account', ident='anonymous')
 
