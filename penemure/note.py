@@ -162,47 +162,48 @@ class MarkdownBlock(BaseModel):
             title = self.contents.split('\n', 1)[0].strip()
             required = title.endswith('*')
             ra = " required " if required else ""
-            page_content = "<div class=\"row question\">"
-            page_content += f'<label class="col-sm-2" for="block-{self.id}">{title}</label>'
-
-            page_content += f'<div class="col-sm-10">'
 
             # if we aren't rendering the form for user consumption, just make
             # it smaller.
             if not form:
-                page_content = f'<div><details><summary>Form Field: {title} ({self.type})</summary><pre>{self.contents}</pre></details>'
+                page_content = f'<details><summary>Form Field: {title} ({self.type})</summary><pre>{self.contents}</pre></details>'
             elif self.type == BlockTypes.formMarkdown.value:
-                page_content += md(self.contents)
-            elif self.type == BlockTypes.formNumeric.value:
-                page_content += f'<input name="block-{self.id}" type="number" {ra} step="any" class="form-control"/>'
-            elif self.type == BlockTypes.formText.value:
-                page_content += f'<input name="block-{self.id}" type="text" {ra} placeholder="{title}..." class="form-control" />'
-            elif self.type == BlockTypes.formMultipleChoice.value:
-                options = self.contents.split('\n')[1:]
-                options = [re.sub(r'^-\s*', '', x.strip()) for x in options]
-                for j, option in enumerate(options):
-                    if len(option) > 0:
+                page_content = md(self.contents)
+            else:
+                page_content = "<div class=\"row question\">"
+                page_content += f'<label class="col-sm-2" for="block-{self.id}">{title}</label>'
+                page_content += f'<div class="col-sm-10">'
+
+                if self.type == BlockTypes.formNumeric.value:
+                    page_content += f'<input name="block-{self.id}" type="number" {ra} step="any" class="form-control"/>'
+                elif self.type == BlockTypes.formText.value:
+                    page_content += f'<input name="block-{self.id}" type="text" {ra} placeholder="{title}..." class="form-control" />'
+                elif self.type == BlockTypes.formMultipleChoice.value:
+                    options = self.contents.split('\n')[1:]
+                    options = [re.sub(r'^-\s*', '', x.strip()) for x in options]
+                    for j, option in enumerate(options):
+                        if len(option) > 0:
+                            page_content += '<div class="form-option">'
+                            page_content += f'<input name="block-{self.id}" type="checkbox" value="{option}" id="block-{self.id}-{j}" />'
+                            page_content += f'<label for="block-{self.id}-{j}" style="display: inline">{option}</label>'
+                            page_content += '</div>'
+                        else:
+                            page_content += '<div>'
+                            page_content += f'<label for="block-{self.id}">Other</label>'
+                            page_content += f'<input name="block-{self.id}" type="text" placeholder="Another value..." class="form-control"/>'
+                            page_content += '</div>'
+                elif self.type == BlockTypes.formSingleChoice.value:
+                    options = self.contents.split('\n')[1:]
+                    options = [re.sub('^- ', '', x.strip()) for x in options]
+                    print(options)
+                    for j, option in enumerate(options):
                         page_content += '<div class="form-option">'
-                        page_content += f'<input name="block-{self.id}" type="checkbox" value="{option}" id="block-{self.id}-{j}" />'
+                        page_content += f'<input name="block-{self.id}" type="radio" value="{option}" id="block-{self.id}-{j}" />'
                         page_content += f'<label for="block-{self.id}-{j}" style="display: inline">{option}</label>'
                         page_content += '</div>'
-                    else:
-                        page_content += '<div>'
-                        page_content += f'<label for="block-{self.id}">Other</label>'
-                        page_content += f'<input name="block-{self.id}" type="text" placeholder="Another value..." class="form-control"/>'
-                        page_content += '</div>'
-            elif self.type == BlockTypes.formSingleChoice.value:
-                options = self.contents.split('\n')[1:]
-                options = [re.sub('^- ', '', x.strip()) for x in options]
-                print(options)
-                for j, option in enumerate(options):
-                    page_content += '<div class="form-option">'
-                    page_content += f'<input name="block-{self.id}" type="radio" value="{option}" id="block-{self.id}-{j}" />'
-                    page_content += f'<label for="block-{self.id}-{j}" style="display: inline">{option}</label>'
-                    page_content += '</div>'
-            else:
-                raise NotImplementedError(f"No support yet for {self.type}")
-            page_content += '</div>'
+                else:
+                    raise NotImplementedError(f"No support yet for {self.type}")
+                page_content += '</div>'
         else:
             raise NotImplementedError(f"self.type={self.type}")
 
