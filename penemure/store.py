@@ -396,12 +396,15 @@ class GitJsonFilesBackend(BaseBackend):
         if data:
             with open(full_path, 'wb') as f:
                 f.write(data)
+        else:
+            subprocess_check_call(['touch', full_path], cwd=self.path)
 
         stored_blob.refresh_meta(full_path)
         subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
 
         if fsync:
             self.sync()
+        return self.blob[stored_blob.identifier]
 
     def remove_item(self, stored_thing: StoredThing, fsync=False):
         del self.data[stored_thing.identifier]
