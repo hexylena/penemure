@@ -1,1 +1,10 @@
-{"name": "pub", "description": "HXPM Public Issues", "icon": "😇"}
+{
+  "name": "pub",
+  "description": "HXPM Public Issues",
+  "icon": "\ud83d\ude07",
+  "pubkey": null,
+  "data": {},
+  "blob": {},
+  "last_update": null,
+  "latest_commit": null
+}

@@ -1,4 +1,5 @@
 import itertools
+import tempfile
 import csv
 import datetime
 import json
@@ -76,7 +77,6 @@ class StoredThing(StoredBlob):
     @computed_field
     @property
     def relative_path(self) -> str:
-        print(self.identifier, self.data.__class__.__name__.lower(), self.identifier.path)
         return os.path.join(self.data.__class__.__name__.lower(),
                             self.identifier.path + '.json')
 
@@ -97,17 +97,15 @@ class StoredThing(StoredBlob):
         return self.urn
 
     @classmethod
-    def realise_from_path(cls, base, full_path):
+    def realise_from_str(cls, base, full_path, json_data):
         end = full_path.replace(base, '').lstrip('/').rstrip('.json')
         urn = UniformReference.from_path(end)
 
-        with open(full_path, 'r') as f:
-            # here we need to be smarter about which class we're using?
-            try:
-                data = from_json(f.read())
-                res = ModelFromAttr(data).model_validate(data)
-            except ValueError as ve:
-                raise ValueError(f"Error reading {full_path}: {ve}")
+        try:
+            data = from_json(json_data)
+            res = ModelFromAttr(data).model_validate(data)
+        except ValueError as ve:
+            raise ValueError(f"Error reading {full_path}: {ve}")
 
         if res.namespace != urn.namespace:
             print(f"Odd, {urn.namespace} != {res.namespace} (end={end})")
@@ -122,26 +120,63 @@ class StoredThing(StoredBlob):
 
 
 class BaseBackend(BaseModel):
-    name: str
-    description: str
     path: str
+    name: str
+    description: str = ''
     icon: str = '💿'
+    pubkey: str | None = None
+    _private_key_path: str | None = None
+
+    def read(self, path, mode: str = 'r'):
+        if self.pubkey is None:
+            with open(path, mode) as handle:
+                return handle.read()
+        else:
+            if self._private_key_path is None:
+                raise Exception("Cannot read, missing a private key for this backend")
+            return subprocess_check_output([
+                'age', '--decrypt',
+                '-i', self._private_key_path,
+                path
+            ])
+            # age --encrypt -r age1ntr5ck90ml3xvmjany6zfcgc07z38hjnvh48kqdmke7xnh2fpaaql2z8k5 -o tmp.enc sec/meta.json
+            # data = subprocess_check_output([])
+            pass
+
+    def write(self, full_path: str, data: str | bytes, mode: str = 'w'):
+        if 'a' in mode:
+            raise NotImplementedError()
+
+        if self.pubkey is None:
+            with open(full_path, mode) as handle:
+                handle.write(data)
+        else:
+            with tempfile.NamedTemporaryFile(delete_on_close=False, mode=mode) as fp:
+                fp.write(data)
+                fp.close()
+                subprocess_check_call(['age', '--encrypt', '-r', self.pubkey, '-o', full_path, fp.name])
+                os.unlink(fp.name)
 
     @property
     def html_title(self):
         return f'{self.icon} {self.name}: {self.description}'
 
-    @classmethod
-    def new_meta(cls, path, name, description='', icon='💿'):
-        if not os.path.exists(path):
-            os.makedirs(path)
+    @property
+    def meta_path(self):
+        return os.path.join(self.path, 'meta.json')
 
-        meta = os.path.join(path, 'meta.json')
-        data = {'name': name, 'description': description, 'icon': icon}
-        with open(meta, 'w') as handle:
+    def initialise(self):
+        self.persist_meta()
+        return self.discover_meta(self.path)
+
+    def persist_meta(self):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+
+        data = self.model_dump()
+        del data['path']
+        with open(self.meta_path, 'w') as handle:
             json.dump(data, handle, indent=2)
-
-        return cls.discover_meta(path)
 
     @classmethod
     def discover_meta(cls, path):
@@ -150,25 +185,25 @@ class BaseBackend(BaseModel):
             with open(meta, 'r') as handle:
                 data = json.load(handle)
         else:
-            data = {'name': path, 'description': '', 'icon': ''}
-            with open(meta, 'w') as handle:
-                json.dump(data, handle, indent=2)
+            data = {'name': path}
         data['path'] = path
+
+        cls = cls.model_validate(data)
+        cls.persist_meta()
 
         gitmeta = os.path.join(path, '.gitattributes')
         if not os.path.exists(gitmeta):
             with open(gitmeta, 'w') as handle:
-                handle.write("*.png filter=lfs diff=lfs merge=lfs -text")
-                handle.write("*.jpg filter=lfs diff=lfs merge=lfs -text")
-                handle.write("*.jpeg filter=lfs diff=lfs merge=lfs -text")
-                handle.write("*.webp filter=lfs diff=lfs merge=lfs -text")
+                handle.write("*.png filter=lfs diff=lfs merge=lfs -text\n")
+                handle.write("*.jpg filter=lfs diff=lfs merge=lfs -text\n")
+                handle.write("*.jpeg filter=lfs diff=lfs merge=lfs -text\n")
+                handle.write("*.webp filter=lfs diff=lfs merge=lfs -text\n")
                 subprocess.check_call(['git', 'add', '.gitattributes'], cwd=path)
-        return data
+        return cls
 
     @classmethod
     def discover(cls, path):
-        data = cls.discover_meta(path)
-        return cls.model_validate(data)
+        return cls.discover_meta(path)
 
     def save_blob(self, stored_blob: StoredBlob, fsync=True, data: Optional[bytes]=None):
         raise NotImplementedError(f"save_blob {stored_blob} {fsync} {data}")
@@ -332,15 +367,15 @@ class GitJsonFilesBackend(BaseBackend):
         commit, commitdate = subprocess_check_output([
             'git', 'log', '-n', '1', '--format=%H %at',
         ], cwd=path).decode('utf-8').strip().split(' ')
-        data['latest_commit'] = commit
-        data['last_update'] = datetime.datetime.fromtimestamp(int(commitdate))
-
-        return cls.model_validate(data)
+        data.latest_commit = commit
+        data.last_update = datetime.datetime.fromtimestamp(int(commitdate))
+        return data
 
     def sync(self):
         if self.last_update is not None:
             pass # todo logic to not push/pull too frequently
 
+        # TODO: replace with git status -s ?
         has_changes = subprocess_check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
         new_files =  subprocess_check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
         if len(has_changes) > 0 or len(new_files) > 0:
@@ -366,10 +401,10 @@ class GitJsonFilesBackend(BaseBackend):
 
         stored_thing.data.persist_attachments(os.path.join(self.path, 'file', 'blob'))
 
-        with open(full_path, 'wb') as f:
-            if not stored_thing.data.model_has_changed:
-                print("Writing this despite no changes")
-            f.write(to_json(stored_thing.data, indent=2))
+        if not stored_thing.data.model_has_changed:
+            print("Writing this despite no changes")
+
+        self.write(full_path, to_json(stored_thing.data, indent=2), mode='wb')
 
         stored_thing.data.model_reset_changed()
 
@@ -394,8 +429,7 @@ class GitJsonFilesBackend(BaseBackend):
         # 'blob'))
         # TODO: do we need to write to the blob at all??
         if data:
-            with open(full_path, 'wb') as f:
-                f.write(data)
+            self.write(full_path, data, 'wb')
         else:
             subprocess_check_call(['touch', full_path], cwd=self.path)
 
@@ -513,7 +547,8 @@ class GitJsonFilesBackend(BaseBackend):
                 st = StoredBlob.realise_from_path(self.path, path)
                 self.blob[st.identifier] = WrappedStoredBlob(thing=st, backend=self, state=status)
             else:
-                st = StoredThing.realise_from_path(self.path, path)
+                json_data = self.read(path)
+                st = StoredThing.realise_from_str(self.path, path, json_data)
                 self.data[st.identifier] = WrappedStoredThing(thing=st, backend=self, state=status)
 
 
