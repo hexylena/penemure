@@ -139,9 +139,6 @@ class BaseBackend(BaseModel):
                 '-i', self._private_key_path,
                 path
             ])
-            # age --encrypt -r age1ntr5ck90ml3xvmjany6zfcgc07z38hjnvh48kqdmke7xnh2fpaaql2z8k5 -o tmp.enc sec/meta.json
-            # data = subprocess_check_output([])
-            pass
 
     def write(self, full_path: str, data: str | bytes, mode: str = 'w'):
         if 'a' in mode:
@@ -404,8 +401,6 @@ class GitJsonFilesBackend(BaseBackend):
         print(f'Saving to {full_path}')
         if not os.path.exists(os.path.dirname(full_path)):
             os.makedirs(os.path.dirname(full_path))
-
-        stored_thing.data.persist_attachments(os.path.join(self.path, 'file', 'blob'))
 
         if not stored_thing.data.model_has_changed:
             print("Writing this despite no changes")

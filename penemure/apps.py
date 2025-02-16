@@ -5,7 +5,6 @@ from .note import *
 from .tags import *
 from .util import *
 from .sqlish import ResultSet
-from .mixins import AttachmentMixin
 import requests
 import re
 
@@ -127,7 +126,7 @@ class File(Note):
     # I'm really not sure there's a reason for it to be multiple?
 
 
-class File_S3(File, AttachmentMixin):
+class File_S3(File):
     type: str = 'file'
     namespace: Optional[str] = 's3'
 

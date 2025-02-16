@@ -386,38 +386,6 @@ class Note(ChangeDetectionMixin, BaseModel):
         else:
             raise Exception("Too many tags")
 
-    def persist_attachments(self, location):
-        updated_attachments = []
-        for attachment in self.attachments:
-            if not isinstance(attachment, UnresolvedReference):
-                updated_attachments.append(attachment)
-                continue
-
-            # attachments are all stored in file/blob namespace.
-            if attachment.remote:
-                self.touch()
-                tmp = tempfile.NamedTemporaryFile(delete=False)
-                r = requests.get(attachment.path)
-                tmp.write(r.content)
-                tmp.close()
-                attachment.path = tmp.name
-
-            with open(attachment.path, 'rb') as f:
-                file_hash = hashlib.file_digest(f, 'sha256').hexdigest()
-
-            path = os.path.join(location, file_hash)
-            if not os.path.exists(os.path.dirname(path)):
-                os.makedirs(os.path.dirname(path))
-            shutil.copy(attachment.path, path)
-
-            blob = BlobReference(
-                id=UniformReference(app='file', namespace='blob', ident=file_hash),
-                type=magic.from_file(path, mime=True)
-            )
-            updated_attachments.append(blob)
-        self.attachments = updated_attachments
-
-
     def _fmt_datetime(self, t: Tag, a: Literal['date'] | Literal['time'] | Literal['unix']):
         if a == 'unix':
             return float(str(t.val))
