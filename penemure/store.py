@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
 from sqlglot import parse_one, exp, transpile
 from sqlglot.executor import execute
-from typing import Dict, Generator
+from typing import Dict, Generator, List
 from typing import Optional, Union
 from .refs import *
 
@@ -124,11 +124,11 @@ class BaseBackend(BaseModel):
     name: str
     description: str = ''
     icon: str = '💿'
-    pubkey: str | None = None
+    pubkeys: List[str] | None = None
     _private_key_path: str | None = None
 
     def read(self, path, mode: str = 'r'):
-        if self.pubkey is None:
+        if self.pubkeys is None:
             with open(path, mode) as handle:
                 return handle.read()
         else:
@@ -147,14 +147,20 @@ class BaseBackend(BaseModel):
         if 'a' in mode:
             raise NotImplementedError()
 
-        if self.pubkey is None:
+        if self.pubkeys is None:
             with open(full_path, mode) as handle:
                 handle.write(data)
         else:
             with tempfile.NamedTemporaryFile(delete_on_close=False, mode=mode) as fp:
                 fp.write(data)
                 fp.close()
-                subprocess_check_call(['age', '--encrypt', '-r', self.pubkey, '-o', full_path, fp.name])
+                args = ['age', '--encrypt']
+                for r in self.pubkeys:
+                    args.append('-r')
+                    args.append(r)
+
+                args.extend(['-o', full_path, fp.name])
+                subprocess_check_call(args)
                 os.unlink(fp.name)
 
     @property
