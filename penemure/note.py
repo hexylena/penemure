@@ -21,6 +21,9 @@ from enum import Enum
 
 class BlockTypes(Enum):
     markdown = 'markdown'
+    # Transclude
+    transclude = 'transclude'
+    # Charts & Graphs
     queryTable = 'query-table'
     queryTableEditable = 'query-table-edit'
     queryKanban = 'query-kanban'
@@ -40,6 +43,7 @@ class BlockTypes(Enum):
     def pretty(self):
         return {
             'markdown': 'Markdown',
+            'transclude': 'Transclude Block',
             'queryTable': 'SQLish Query: Table',
             'queryTableEditable': 'Editable Table',
             'queryKanban': 'SQL Query: 看板',
@@ -106,10 +110,6 @@ class MarkdownBlock(BaseModel):
             return f'Error: {e} <details><summary>Traceback</summary><pre>{traceback.format_exc()}</pre></details>'
 
     def _render(self, oe, path, parent, format='html', form=False):
-        # if isinstance(self.type, str):
-        #     self.type = BlockTypes.from_str(self.type)
-
-        a = time.time()
         if format == 'md':
             if self.type == BlockTypes.markdown.value:
                 page_content = self.contents + '\n'
@@ -127,6 +127,20 @@ class MarkdownBlock(BaseModel):
 
         elif self.type == BlockTypes.markdown.value:
             page_content = md(self.contents)
+        elif self.type == BlockTypes.transclude.value:
+            # Just allow one, right?
+            note_ref, block_ref = self.contents.strip().split('#', 1)
+            note = oe.find(note_ref)
+            block = [b for b in note.thing.data.contents if b.id == block_ref]
+            if len(block) == 0:
+                raise Exception("Could not find a matching block")
+            block = block[0]
+            page_content = f'''
+              <div class="transcluded">
+                {md(block.contents)}
+              </div>
+              <a href="/{note.thing.url}#{block.id}"><small>Source</small></a>
+            '''
         elif self.type.startswith('query'):
             try:
                 res = oe.query(self.contents, via=parent.urn)
@@ -214,9 +228,8 @@ class MarkdownBlock(BaseModel):
 
         # TODO: something better with author.
         return f'''
-            <article class="block">
+            <article class="block" id="{self.id}" data-author="{self.author.urn}">
                 <div class="contents">{page_content}</div>
-                <!-- <span class="author">{self.author.urn}</span> -->
             </article>
         '''
 

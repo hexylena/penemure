@@ -67,6 +67,30 @@
       "id": "bbfc6740-2359-4e18-ab2c-037e3cd8201a",
       "created_unix": 1739191993.414242,
       "updated_unix": 1739607960.5654824
+    },
+    {
+      "contents": "## Transclude test",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "c2f2687e-7192-4285-a052-bdab416da63c",
+      "created_unix": 1739733594.3871355,
+      "updated_unix": 1739733594.387137
+    },
+    {
+      "contents": "urn:penemure:45d21e13-cb52-4d82-82c6-79888b9731ba#fb6b3c4a-54e9-4339-8969-e6f686dbcaa9",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "transclude",
+      "id": "79b80d83-58df-4b9e-a870-eceae7829288",
+      "created_unix": 1739733566.9815872,
+      "updated_unix": 1739733566.9815881
     }
   ],
   "tags": [],

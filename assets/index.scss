@@ -2,7 +2,12 @@
 
 // Variable overrides first
 $primary: #CE3518;
+
+// oled are real y'all
+$body-color-dark: white;
 $body-bg-dark: black;
+$body-color: black;
+
 $enable-shadows: true;
 $border-width: 2px;
 $border-color: black;
@@ -265,6 +270,12 @@ img.cover {
 blockquote {
 	border-inline-start: var(--bs-border-width) solid var(--bs-border-color);
 	padding-inline-start: 0.5em;
+}
+
+.transcluded {
+        @extend .p-2;
+	// border-inline-start: var(--bs-border-width) dashed var(--bs-border-color);
+        box-shadow: 0px 0px 5px var(--bs-border-color) inset;
 }
 
 details {
