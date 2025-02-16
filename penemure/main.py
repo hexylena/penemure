@@ -12,13 +12,21 @@ from .refs import BlobReference, ExternalReference, UnresolvedReference, Uniform
 class Penemure(BaseModel):
     title: str = "PENEMURE"
     about: str = 'A project manager'
+    private_key_path: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_PRIVATE_KEY', None))
 
     overlayengine: OverlayEngine = None
     backends: list[GitJsonFilesBackend]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.overlayengine = OverlayEngine(backends=kwargs['backends'])
+        print(f'PENEMURE: private key enabled: {self.private_key_path}')
+        be = kwargs['backends']
+        pk = kwargs.get('private_key_path', self.private_key_path)
+        if pk:
+            for b in be:
+                if b.pubkeys is not None:
+                    b._private_key_path = pk
+        self.overlayengine = OverlayEngine(backends=be)
 
     def load(self):
         return self.overlayengine.load()

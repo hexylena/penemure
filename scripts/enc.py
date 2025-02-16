@@ -10,15 +10,12 @@ from zoneinfo import ZoneInfo
 # REPOS = os.environ.get('REPOS', './sec').split(':')
 REPOS = './sec'.split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-for b in backends:
-    b._private_key_path = './key.txt'
-bos = Penemure(backends=backends)
+bos = Penemure(backends=backends, private_key_path='./key.txt')
 bos.load()
 
-n = Note(title="Testing")
-print(bos.overlayengine.add(n))
-
-bos.save()
+# n = Note(title="Testing")
+# print(bos.overlayengine.add(n))
+# bos.save()
 
 for n in bos.overlayengine.all():
-    print(n.thing.urn.urn, n.thing.relative_path)
+    print(n.thing.urn.urn, n.thing.relative_path, n.thing.data.title)

@@ -176,8 +176,13 @@ class BaseBackend(BaseModel):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-        data = self.model_dump()
-        del data['path']
+        data = {
+            k: v
+            for (k, v)
+            in self.model_dump().items()
+            if k in ('name', 'description', 'icon', 'pubkeys')
+        }
+
         with open(self.meta_path, 'w') as handle:
             json.dump(data, handle, indent=2)
 
@@ -359,8 +364,8 @@ class WrappedStoredThing(BaseModel):
 
 
 class GitJsonFilesBackend(BaseBackend):
-    data: Dict[UniformReference, WrappedStoredThing] = Field(default=dict())
-    blob: Dict[UniformReference, WrappedStoredBlob] = Field(default=dict())
+    data: Dict[UniformReference, WrappedStoredThing] = Field(default_factory=dict)
+    blob: Dict[UniformReference, WrappedStoredBlob] = Field(default_factory=dict)
     last_update: Optional[PastDatetime] = None
     latest_commit: Optional[str] = None
 
@@ -860,6 +865,7 @@ class OverlayEngine(BaseModel):
             {
                 'id': b.name,
                 'name': b.name,
+                'icon': b.icon,
                 'description': b.description,
                 'path': b.path,
                 'last_commit': b.latest_commit,

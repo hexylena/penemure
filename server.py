@@ -477,7 +477,7 @@ def delete_question(urn: str, username: Annotated[UniformReference, Depends(get_
     except KeyError:
         return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
-    return render_fixed('delete.html', username=username)
+    return render_fixed('delete.html', username=username, note=thing)
 
 
 @app.get("/delete/{urn}", tags=['mutate'])
