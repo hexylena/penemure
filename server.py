@@ -701,7 +701,7 @@ def read_items(username: Annotated[UniformReference, Depends(get_current_usernam
                app, b, c=None, d=None, e=None):
 
     # _app is intentionally ignored.
-    if app != 'account':
+    if app not in ('account', 'accountgithub'):
         app = 'note'
 
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
