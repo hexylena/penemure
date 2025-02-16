@@ -1,0 +1,40 @@
+{
+  "title": "duplicating turned URN refs into links properly",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## Description\r\n\r\nit was unhelpful for sure.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1739734390.6781135,
+      "updated_unix": 1739734398.5609832
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "low"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739734390.6782017,
+  "updated_unix": 1739734398.5609376,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
