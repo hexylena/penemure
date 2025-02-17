@@ -64,7 +64,7 @@ class StoredThing(StoredBlob):
 
     @property
     def html_title(self):
-        return f'{self.data.icon} {self.data.title}'
+        return f'<span class="title">{self.data.icon} {self.data.title}</span>'
 
     @property
     def txt_title(self):

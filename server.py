@@ -184,12 +184,15 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=No
 
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
-def render_dynamic(st: WrappedStoredThing, requested_template: str = 'note.html', username=None):
+def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None, username=None):
     a = time.time()
+    use_template = 'note.html'
     if tag := st.thing.data.get_tag(key='template'):
-        requested_template = tag.val or requested_template
+        use_template = tag.val
+    elif requested_template is not None:
+        use_template = requested_template
 
-    template = env.get_template(requested_template)
+    template = env.get_template(use_template)
     page_content = template.render(note=st, **pen.get_config(path), username=username)
     page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
@@ -687,6 +690,11 @@ def form_manifest(urn):
     return man
 
 
+@app.get("/print/{urn}", response_class=HTMLResponse, tags=['print'])
+def print(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+    u = UniformReference.from_string(urn)
+    note = oe.find_thing(u)
+    return render_dynamic(note, username=username, requested_template='print.html')
 
 # Eww.
 @app.get("/{app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
