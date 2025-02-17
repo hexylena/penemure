@@ -90,15 +90,18 @@
 	</tr>
 	{% endif %}
 
-	{% if note.thing.data.type == 'form' %}
 	<tr>
-		<td scope="row">Important Links</td>
+		<td scope="row">Links</td>
 		<td>
-			<a href="{{ Config.ExportPrefix }}form/{{ note.thing.urn.urn }}">Form</a>
-			<a href="{{ Config.ExportPrefix }}download/{{ note.thing.data.has_attachment('data').urn }}">Download</a>
+			<div class="btn-group" role="group" aria-label="Basic outlined example">
+				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}print/{{ note.thing.urn.urn }}">Print</a>
+				{% if note.thing.data.type == 'form' %}
+				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}form/{{ note.thing.urn.urn }}">Form</a>
+				<a class="btn btn-outline-secondary" href="{{ Config.ExportPrefix }}download/{{ note.thing.data.has_attachment('data').urn }}">Download</a>
+				{% endif %}
+			</div>
 		</td>
 	</tr>
-	{% endif %}
 
 	</tbody>
 </table>
