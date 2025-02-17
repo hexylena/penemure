@@ -28,7 +28,6 @@ class Template(Note):
             return t[0].val.get_tag_value(value)
         return value
 
-
 class DataForm(Note):
     type: str = 'form'
 
@@ -119,17 +118,6 @@ class DataForm(Note):
         # close.
         pass
 
-class File(Note):
-    type: str = 'file'
-    namespace: Optional[str] = 'meta'
-    # We assume attachments is length = 1.
-    # I'm really not sure there's a reason for it to be multiple?
-
-
-class File_S3(File):
-    type: str = 'file'
-    namespace: Optional[str] = 's3'
-
 
 class Account(Note):
     type: str = 'account'
@@ -169,13 +157,6 @@ def ModelFromAttr(data):
         if data['namespace'] == 'gh':
             return AccountGithub
         return Account
-    elif data['type'] == 'file':
-        if data['namespace'] == 'meta':
-            return File
-        elif data['namespace'] == 's3':
-            return File_S3
-        else:
-            return Note
     elif data['type'] == 'template':
         return Template
     elif data['type'] == 'form':
