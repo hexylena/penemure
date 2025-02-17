@@ -12,7 +12,7 @@
       "type": "markdown",
       "id": "c2f0a61f-fedb-4739-8e9f-35e16f2e982b",
       "created_unix": 1739378097.8791378,
-      "updated_unix": 1739378097.8791392
+      "updated_unix": 1739736748.877747
     },
     {
       "contents": "SQL SELECT\n  backend,\n  COUNT(*)\nFROM __all__\nGROUP BY\n  backend",
@@ -24,7 +24,7 @@
       "type": "chart-pie",
       "id": "85b8293a-0dac-4063-a3ec-1d9fc8f81faf",
       "created_unix": 1739378097.879836,
-      "updated_unix": 1739378097.8798366
+      "updated_unix": 1739736748.877752
     },
     {
       "contents": "## Notes over Time",
@@ -36,7 +36,7 @@
       "type": "markdown",
       "id": "d24ed3a8-f07c-4e29-9fc1-f6df6b0e0a0a",
       "created_unix": 1739378097.8798504,
-      "updated_unix": 1739378097.879851
+      "updated_unix": 1739736748.8777552
     },
     {
       "contents": "SQL SELECT\n  t.date AS date,\n  COUNT(*) AS count\nFROM (\n  SELECT DISTINCT\n    DATE(created) AS date\n  FROM __all__\n) AS t\nLEFT JOIN __all__ AS r\n  ON (\n    DATE(r.created) < t.date\n  )\nGROUP BY\n  t.date",
@@ -48,7 +48,7 @@
       "type": "chart-bar",
       "id": "9eea9cda-a533-4a0b-bd53-38a493d4e09a",
       "created_unix": 1739378097.8812456,
-      "updated_unix": 1739378097.881246
+      "updated_unix": 1739736748.8777578
     },
     {
       "contents": "## Blobs",
@@ -60,7 +60,7 @@
       "type": "markdown",
       "id": "379161c5-ea6b-4d53-92d9-7d8554f040c5",
       "created_unix": 1739378097.881259,
-      "updated_unix": 1739378097.8812592
+      "updated_unix": 1739736748.8777602
     },
     {
       "contents": "SQL SELECT\n  parent_title || ' ' || SUBSTRING(parent, 40, 4) AS parent,\n  SUM(size) AS size\nFROM __attachments__\nGROUP BY\n  parent\nORDER BY\n  size DESC",
@@ -72,7 +72,7 @@
       "type": "chart-bar",
       "id": "9a2c06ee-d0c6-46ce-9657-af70956b8416",
       "created_unix": 1739378097.8842309,
-      "updated_unix": 1739378097.8842313
+      "updated_unix": 1739736748.8777626
     },
     {
       "contents": "## Words",
@@ -84,7 +84,7 @@
       "type": "markdown",
       "id": "877133c3-d369-4155-b680-9544810fa490",
       "created_unix": 1739378097.884246,
-      "updated_unix": 1739378097.8842463
+      "updated_unix": 1739736748.8777647
     },
     {
       "contents": "SQL SELECT\n  SUM(LENGTH(b.contents) - LENGTH(REPLACE(b.contents, ' ', '')) + 1) AS words,\n  a.final_ancestor_titles AS projects\nFROM __block__ AS b\nLEFT JOIN __all__ AS a\n  ON b.parent = a.urn\nGROUP BY\n  projects\nORDER BY\n  words DESC",
@@ -96,7 +96,19 @@
       "type": "query-table",
       "id": "5d01a754-6e9f-4385-8240-e37997eeb9ed",
       "created_unix": 1739378097.8856392,
-      "updated_unix": 1739378097.88564
+      "updated_unix": 1739736748.8777666
+    },
+    {
+      "contents": "SQL SELECT\n  SUM(LENGTH(b.contents) - LENGTH(REPLACE(b.contents, ' ', '')) + 1) AS \"Total Words\"\nFROM __block__ AS b",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "chart-table",
+      "id": "d7fae8ef-dd86-48e4-af72-46ae8318887d",
+      "created_unix": 1739736748.8753948,
+      "updated_unix": 1739736748.8777695
     }
   ],
   "tags": [
@@ -115,7 +127,7 @@
   ],
   "version": 2,
   "created_unix": 1738945535.8183742,
-  "updated_unix": 1739378075.5842965,
+  "updated_unix": 1739736748.8777344,
   "namespace": null,
   "type": "page",
   "attachments": []

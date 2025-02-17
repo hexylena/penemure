@@ -9,16 +9,16 @@
   ],
   "contents": [
     {
-      "contents": "Now that we've got this cute lil document store, it would be nice to build some \"apps\" on top of it. As tech demos, for utility, etc.\r\n\r\n- CalDav (yes, I know.)\r\n- wayback machine/wallabag replacement",
+      "contents": "Now that we've got this cute lil document store, it would be nice to build some \"apps\" on top of it. As tech demos, for utility, etc.\r\n",
       "author": {
-        "app": "x",
-        "namespace": null,
+        "app": "accountgithub",
+        "namespace": "gh",
         "ident": "hexylena"
       },
       "type": "markdown",
       "id": "e57bbdf2-866a-4c85-ab31-4f93df3b91bc",
-      "created_unix": 1739343827.5521116,
-      "updated_unix": 1739343827.552112
+      "created_unix": 1739800787.1076305,
+      "updated_unix": 1739800787.1126912
     },
     {
       "contents": "## Wallabag/Wayback\r\n\r\nI think this would be fairly easy to do (famous last words). The implementation is straightforward though:\r\n\r\n- a (baked in?) template type for archived URLs.\r\n    - it only needs parameters for \"URL\" and \"frequency\"\r\n- a Cron hook that refreshes them if necessary/archives them\r\n    - creating a WARC which is attached to the record as an attachment\r\n    - updating the contents field with a markdownified preview of the article a la Firefox's readability.",
@@ -30,7 +30,7 @@
       "type": "markdown",
       "id": "beef17cc-0e65-4a0b-99af-e1fcabc04a20",
       "created_unix": 1739343827.5521197,
-      "updated_unix": 1739343827.5521197
+      "updated_unix": 1739800787.1126986
     },
     {
       "contents": "## CalDav\r\n\r\nit would provide API endpoints to behave as a CalDav server, and also potentially produce an iCal file like Google calendar does \r\n\r\nthe iCal file is relatively more trivial, but the CalDav endpoint configuration, I guess we would choose a backend where new events are automatically added. Additionally scoping it within a project is potentially interesting, so e.g. we could have a url for just the gallantries calendar, and we could freely share that url, and anyone with it could create events on the calendar for us ",
@@ -42,7 +42,19 @@
       "type": "markdown",
       "id": "0055afc4-b978-493b-b86d-46467461c2a6",
       "created_unix": 1739343827.5521247,
-      "updated_unix": 1739343827.552125
+      "updated_unix": 1739800787.112702
+    },
+    {
+      "contents": "## WebDAV \r\n\r\nor at minimum a file/folder browser view of files and attachments similar to how next cloud shows files and folders.\r\n\r\nexcept each folder is a note, and the files are the attachments",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "06216bb2-8f53-4db0-a6ca-65e2013d9c5b",
+      "created_unix": 1739800920.8835614,
+      "updated_unix": 1739800920.883562
     }
   ],
   "tags": [
@@ -53,7 +65,7 @@
   ],
   "version": 2,
   "created_unix": 1739343827.552144,
-  "updated_unix": 1739343827.5521445,
+  "updated_unix": 1739800787.1126688,
   "namespace": null,
   "type": "project",
   "attachments": []

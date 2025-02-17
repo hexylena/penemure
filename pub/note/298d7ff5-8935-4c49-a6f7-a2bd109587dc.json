@@ -1,0 +1,40 @@
+{
+  "title": "Print mode",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "68238081-3ffe-4c32-87a9-bc92743408c3",
+      "created_unix": 1739807696.162819,
+      "updated_unix": 1739807696.1630197
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1739800800.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1739807697.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739807691.5192616,
+  "updated_unix": 1739807696.1629992,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}
