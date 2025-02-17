@@ -50,7 +50,6 @@ time, mark, audio, video {
 	/*margin: 0;*/
 	padding: 0;
 	border: 0;
-	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
 }
@@ -99,7 +98,7 @@ table {
   font-weight: var(--font-weight-normal);
   font-style: normal;
   font-variant-numeric: tabular-nums lining-nums;
-  font-size: 16px;
+  font-size: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -143,7 +142,7 @@ body {
 
 @media screen and (max-width: 480px) {
   :root {
-    font-size: 14px;
+    font-size: 10px;
   }
   body {
     padding: var(--line-height) 1ch;
