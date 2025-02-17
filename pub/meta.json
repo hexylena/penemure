@@ -2,5 +2,6 @@
   "name": "pub",
   "description": "HXPM Public Issues",
   "icon": "\ud83d\ude07",
+  "prefix": "PNMR",
   "pubkeys": null
 }

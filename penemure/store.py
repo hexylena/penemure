@@ -1,5 +1,7 @@
 import itertools
 import tempfile
+import random
+import string
 import csv
 import datetime
 import json
@@ -124,6 +126,7 @@ class BaseBackend(BaseModel):
     name: str
     description: str = ''
     icon: str = '💿'
+    prefix: str = Field(default_factory=lambda: ''.join(random.choices(string.ascii_uppercase, k=2)))
     pubkeys: List[str] | None = None
     _private_key_path: str | None = None
 
@@ -180,7 +183,7 @@ class BaseBackend(BaseModel):
             k: v
             for (k, v)
             in self.model_dump().items()
-            if k in ('name', 'description', 'icon', 'pubkeys')
+            if k in ('name', 'description', 'icon', 'pubkeys', 'prefix')
         }
 
         with open(self.meta_path, 'w') as handle:
