@@ -73,10 +73,11 @@ class UniformReference(BaseModel, frozen=True):
             raise Exception(f"Cannot parse empty URN")
 
         if len(urn) > 2 and urn[0] == 'file' and urn[1] == 'blob':
-            return cls(app='file', namespace='blob', ident=urn[2])
+            return cls(app=urn[0], namespace=urn[1], ident=urn[2])
         elif len(urn) > 2 and urn[0] == 'account':
-            print(urn)
-            return cls(app='account', namespace=urn[1], ident=urn[2])
+            return cls(app=urn[0], namespace=urn[1], ident=urn[2])
+        elif len(urn) > 2 and urn[0] == 'accountgithub':
+            return cls(app=urn[0], namespace=urn[1], ident=urn[2])
         elif len(urn) == 2:
             return cls(app='x', namespace=urn[0], ident=urn[1])
         elif len(urn) == 1:
