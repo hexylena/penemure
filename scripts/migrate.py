@@ -5,24 +5,15 @@ from penemure.note import *
 from penemure.tags import *
 import sys
 
-gb1 = GitJsonFilesBackend.discover('/home/user/projects/issues/')
-gb2 = GitJsonFilesBackend.discover('./pub')
-bos = Penemure(backends=[gb1, gb2])
+REPOS = os.environ.get('REPOS', './sec').split(':')
+REPOS = './sec'.split(':')
+backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
+bos = Penemure(backends=backends, private_key_path='./key.txt')
 bos.load()
 
-(urn, new_backend) = sys.argv[1:]
-n = bos.overlayengine.find(urn)
+# n = Note(title="Testing")
+# print(bos.overlayengine.add(n))
+# bos.save()
 
-print(repr(n.thing))
-print(f"→ is currently stored in {n.backend.name}")
-print()
-print(f"Available backends: {[b.name for b in bos.backends]}")
-
-new_be = [b for b in bos.backends if b.name == new_backend]
-if len(new_be) == 0:
-    raise Exception("Could not find backend")
-
-new_be = new_be[0]
-
-print(bos.overlayengine.migrate_backend(n.thing.urn, new_be))
-bos.save()
+for n in bos.overlayengine.all():
+    print(n.thing.urn.urn, n.thing.relative_path, n.thing.data.title)

@@ -250,6 +250,11 @@ class Note(ChangeDetectionMixin, BaseModel):
     type: str = 'note'
     attachments: list[Tuple[str, UniformReference]] = Field(default_factory=list)
 
+    # prefix_num: int = 0
+    #
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+
     def has_attachment(self, identifier) -> Optional[UniformReference]:
         r = [x for (i, x) in self.attachments if i == identifier]
         if len(r) > 0:

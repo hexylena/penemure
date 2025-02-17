@@ -529,6 +529,18 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[U
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 
+@app.get("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
+@app.post("/redir/note/{urn}", response_class=HTMLResponse, tags=['view'])
+@app.get("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
+@app.post("/redir/{urn}", response_class=HTMLResponse, tags=['view'])
+def redir(urn: str):
+    urn = urn.replace('.html', '')
+    u = UniformReference.from_string(urn)
+    note = oe.find_thing(u)
+    return RedirectResponse(os.path.join(path, note.thing.url), status_code=status.HTTP_302_FOUND)
+
+
+
 @app.post("/time.html", tags=['mutate'])
 @app.post("/time", tags=['mutate'])
 def save_time(data: Annotated[TimeFormData, Form()],
@@ -562,6 +574,7 @@ def custom_404_handler(_, res):
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
+@app.get("/redir.html", response_class=HTMLResponse, tags=['redir'])
 @app.get("/search.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/search", response_class=HTMLResponse, tags=['view'])
 @app.get("/new", response_class=HTMLResponse, tags=['view'])

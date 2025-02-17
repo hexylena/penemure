@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, PrivateAttr
+import base64
 import re
 import os
 from typing import Optional, Annotated
@@ -149,6 +150,21 @@ class UniformReference(BaseModel, frozen=True):
         if ext:
             ident += '.' + ext
         return cls(app='file', namespace='blob', ident=ident)
+
+    def a_ident(self, enc=64) -> str:
+        b: bytes = uuid.UUID(self.ident).bytes
+        if enc == 16:
+            return base64.b16encode(b).decode('utf-8').rstrip('=')
+        elif enc == 32:
+            return base64.b32encode(b).decode('utf-8').rstrip('=')
+        elif enc == 64:
+            return base64.b64encode(b).decode('utf-8').rstrip('=')
+        elif enc == 85:
+            return base64.a85encode(b).decode('utf-8').rstrip('=')
+        elif enc == 164:
+            return base64.b64encode(b[-6:]).decode('utf-8').rstrip('=')
+        elif enc == 185:
+            return base64.a85encode(b[-6:]).decode('utf-8').rstrip('=')
 
 # TODO: probably should be more capable? URN style?
 class Reference(BaseModel):

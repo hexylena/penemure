@@ -27,6 +27,11 @@ $border-radius: 0px;
 }
 
 @font-face {
+    font-family: 'KIX';
+    src: url(kix.woff2) format(woff2);
+}
+
+@font-face {
     font-family: 'NationalPark';
     src: url(NationalPark-VariableVF.woff2) format(woff2);
 }

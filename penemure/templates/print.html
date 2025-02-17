@@ -18,7 +18,25 @@
 </head>
 <body>
 
-<header id="title-block-header">
+<table class="repeat-wrapper">
+  <thead><tr><td>
+    <div class="header-space">&nbsp;</div>
+  </td></tr></thead>
+  <tbody><tr><td>
+    <div class="content">
+{% if note.thing.data.contents %}
+{% for b in note.thing.data.contents %}
+{{ b.render(oe, Config.ExportPrefix, note.thing) }}
+{% endfor %}
+{% endif %}
+    </div>
+  </td></tr></tbody>
+  <tfoot><tr><td>
+    <div class="footer-space">&nbsp;</div>
+  </td></tr></tfoot>
+</table>
+
+<header id="title-block-header" class="repeat-header">
 <table class="header">
   <tr>
     <td colspan="2" rowspan="2" class="width-auto">
@@ -39,17 +57,40 @@
       {% endfor %}
     </td>
     <th class="width-min">Doc №</th>
-    <td>GG-30</td>
+    <td>{{ note.backend.prefix }}-{{ note.thing.urn.a_ident(164) }}</td>
   </tr>
 </table>
 </header>
 
+<footer class="repeat-footer">
+	<br>
+	<br>
+	<span class="barcode">{{ note.thing.urn.a_ident(32) }}</span>
+	<br>{{ note.thing.urn.urn }}
+</footer>
 
-{% if note.thing.data.contents %}
-{% for b in note.thing.data.contents %}
-{{ b.render(oe, Config.ExportPrefix, note.thing) }}
-{% endfor %}
-{% endif %}
+<style>
+.repeat-wrapper > thead > tr > td,
+.repeat-wrapper > tbody > tr > td,
+.repeat-wrapper > tfoot > tr > td
+{
+	border: 0 !important;
+}
+.repeat-header, .header-space, .repeat-footer, .footer-space {
+  height: 150px;
+}.repeat-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+}.repeat-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+body {
+
+}
+</style>
 
 
 
