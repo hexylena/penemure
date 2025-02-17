@@ -30,7 +30,7 @@
 {% endblock %}
 	</head>
 	<body>
-		{% if username._prop and username._prop.locale %}
+		{% if username and username._prop and username._prop.locale %}
 		<script>
 			luxon.Settings.defaultLocale = "{{ username._prop.locale }}";
 		</script>
