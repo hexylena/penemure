@@ -1009,8 +1009,9 @@ class OverlayEngine(BaseModel):
         if self._cache_sqlite is None:
             raise Exception("DB was not built")
 
+        # print(groupless_query)
         results = self._cache_sqlite.execute(groupless_query)
-        print(f'Executed query in {time.time() - a}')
+        # print(f'Executed query in {time.time() - a}')
         header = [x.split(' AS ')[1] if ' AS ' in x else x for x in selects]
         r = ResultSet.build(header, list(results), has_id=not(sql))
         # r = ResultSet(title=None, header=header, rows=list(results))
