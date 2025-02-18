@@ -797,7 +797,7 @@ class OverlayEngine(BaseModel):
                 qokeys = [f"'{x}'" for x in okeys]
                 qqkeys = ['?'] * len(okeys)
                 self._cached_valid_tables.append(table)
-                print(table, rows[0])
+                # print(table, rows[0])
 
                 stmt = f"DROP TABLE IF EXISTS {table}"
                 self._cache_sqlite.execute(stmt)
@@ -951,7 +951,7 @@ class OverlayEngine(BaseModel):
         if via is not None and 'SELF' in query:
             query = query.replace('SELF', via.ident)
 
-        res = parse_one(query, read='sqlite')
+        res = parse_one(query)
         # print(res.sql())
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
