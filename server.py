@@ -322,7 +322,7 @@ def extract_contents(data: BaseFormData | TimeFormData,
         if u == 'REPLACEME':
             u = str(uuid.uuid4())
 
-        if u in orig and orig[u].contents == n:
+        if u in orig and orig[u].contents == n and orig[u].type == t:
             res.append(orig[u])
         else:
             res.append(MarkdownBlock.model_validate({
