@@ -17,6 +17,7 @@ from typing import List, Dict
 import os
 import sentry_sdk
 import copy
+import sqlglot
 import mimetypes
 
 
@@ -311,7 +312,12 @@ def extract_contents(data: BaseFormData | TimeFormData,
     for (t, u, n) in zip(data.content_type, data.content_uuid, data.content_note):
 
         if t.startswith('chart') or t.startswith('query'):
-            n = oe.fmt_query(n)
+            try:
+                n = oe.fmt_query(n)
+            except sqlglot.errors.ParseError:
+                # User error
+                pass
+
 
         if u == 'REPLACEME':
             u = str(uuid.uuid4())
