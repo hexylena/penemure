@@ -1,6 +1,9 @@
 {
   "dependencies": {
+    "@phosphor-icons/core": "^2.1.1",
     "bootstrap": "^5.3.3",
+    "healthicons": "^2.0.0",
+    "pixelarticons": "^1.8.1",
     "sass": "^1.84.0"
   }
 }
