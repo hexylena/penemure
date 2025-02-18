@@ -58,6 +58,10 @@ class MutatedEnum(Enum):
         else:
             raise NotImplementedError("Unsupported file state")
 
+    @property
+    def staged(self):
+        return self.name in ('added', 'modified', 'deleted')
+
 class StoredThing(StoredBlob):
     data: Union[Note, Account]
     created: Optional[float] = None
@@ -101,7 +105,10 @@ class StoredThing(StoredBlob):
     @classmethod
     def realise_from_str(cls, base, full_path, json_data):
         end = full_path.replace(base, '').lstrip('/').rstrip('.json')
-        urn = UniformReference.from_path(end)
+        try:
+            urn = UniformReference.from_path(end)
+        except ValueError as ve:
+            raise ValueError(f"Error parsing {full_path} into a URN: {ve}")
 
         try:
             data = from_json(json_data)
@@ -387,14 +394,15 @@ class GitJsonFilesBackend(BaseBackend):
             pass # todo logic to not push/pull too frequently
 
         # TODO: replace with git status -s ?
-        has_changes = subprocess_check_output(['git', 'diff-index', 'HEAD', '.'], cwd=self.path)
-        new_files =  subprocess_check_output(['git', 'ls-files', '--other', '--directory', '--exclude-standard'], cwd=self.path)
-        if len(has_changes) > 0 or len(new_files) > 0:
-            print(f'{self.path} has changes, {len(has_changes)} || len({new_files})')
+        mods = self.get_backend_modifications().values()
+        if any([m.staged for m in mods]):
             subprocess_check_call(['git', 'commit', '-m', f'automatic {self.name}'], cwd=self.path)
 
         subprocess_check_call(['git', 'pull', '--rebase'], cwd=self.path)
-        subprocess_check_call(['git', 'push'], cwd=self.path)
+
+        # no point in pushing if nothing's changed.
+        if any([m.staged for m in mods]):
+            subprocess_check_call(['git', 'push'], cwd=self.path)
 
     def save_item(self, stored_thing: StoredThing, fsync=True):
         """Save updates to an existing file."""
@@ -553,12 +561,19 @@ class GitJsonFilesBackend(BaseBackend):
                 print("ERROR: missing file extension", short_path)
 
             if 'file/blob/' in path:
-                st = StoredBlob.realise_from_path(self.path, path)
-                self.blob[st.identifier] = WrappedStoredBlob(thing=st, backend=self, state=status)
+                try:
+                    st = StoredBlob.realise_from_path(self.path, path)
+                    self.blob[st.identifier] = WrappedStoredBlob(thing=st, backend=self, state=status)
+                except ValueError as ve:
+                    print(f"Error loading: {path} {ve}")
             else:
-                json_data = self.read(path)
-                st = StoredThing.realise_from_str(self.path, path, json_data)
-                self.data[st.identifier] = WrappedStoredThing(thing=st, backend=self, state=status)
+                try:
+                    json_data = self.read(path)
+                    st = StoredThing.realise_from_str(self.path, path, json_data)
+                    self.data[st.identifier] = WrappedStoredThing(thing=st, backend=self, state=status)
+                except ValueError as ve:
+                    print(f"Error loading: {path} {ve}")
+
 
 
 class OverlayEngine(BaseModel):
@@ -762,16 +777,16 @@ class OverlayEngine(BaseModel):
     _cache_sqlite = None
     _cached_valid_tables = []
     _enable_sqlite = True # os.environ.get('SQLITE', 'false') != 'false'
-    def make_a_db(self, ensure_present):
+    def make_a_db(self):
         if self._cache_sqlite is None:
             self._cache_sqlite = sqlite3.connect(":memory:", check_same_thread=False)
-            # self._cache_sqlite = sqlite3.connect(".cache")
+            # self._cache_sqlite = sqlite3.connect(".cache.db", check_same_thread=False)
 
         # Saves less time than I thought. hmm.
         # return self._make_a_db(ensure_present)
         if self._cache is None or any([x.thing.data.model_has_changed for x in self.all_things()]):
             # print("Loading SQL DB")
-            res = self._make_a_db(ensure_present)
+            res = self._make_a_db()
             # a = time.time()
             self._cache = res
             # a = time.time()
@@ -782,7 +797,7 @@ class OverlayEngine(BaseModel):
                 qokeys = [f"'{x}'" for x in okeys]
                 qqkeys = ['?'] * len(okeys)
                 self._cached_valid_tables.append(table)
-                # print(table, okeys, qokeys, qqkeys)
+                print(table, rows[0])
 
                 stmt = f"DROP TABLE IF EXISTS {table}"
                 self._cache_sqlite.execute(stmt)
@@ -805,7 +820,7 @@ class OverlayEngine(BaseModel):
             # print("Using cached SQL DB")
             return self._cache
 
-    def _make_a_db(self, ensure_present):
+    def _make_a_db(self):
         templates = {
             x.thing.data.title: x.thing.data
             for x in self.all_things()
@@ -891,7 +906,7 @@ class OverlayEngine(BaseModel):
                         i[k] = ""
             return items
 
-        tables = {k: fix_tags(v, ensure=ensure_present)
+        tables = {k: fix_tags(v)
                   for k, v in tables.items()}
 
         # Shitty meta description
@@ -947,7 +962,7 @@ class OverlayEngine(BaseModel):
         # print('after', selects)
 
         # Build the database
-        _ = self.make_a_db(selects)
+        _ = self.make_a_db()
 
         # TODO: does not work with CTEs
         tables = [x.this.this for x in res.find_all(exp.Table) if not x.this.this.startswith('cte_')]
@@ -995,7 +1010,7 @@ class OverlayEngine(BaseModel):
             raise Exception("DB was not built")
 
         results = self._cache_sqlite.execute(groupless_query)
-        # print(f'Executed query in {time.time() - a}')
+        print(f'Executed query in {time.time() - a}')
         header = [x.split(' AS ')[1] if ' AS ' in x else x for x in selects]
         r = ResultSet.build(header, list(results), has_id=not(sql))
         # r = ResultSet(title=None, header=header, rows=list(results))
