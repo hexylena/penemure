@@ -965,10 +965,10 @@ class OverlayEngine(BaseModel):
         _ = self.make_a_db()
 
         # TODO: does not work with CTEs
-        tables = [x.this.this for x in res.find_all(exp.Table) if not x.this.this.startswith('cte_')]
+        tables = [x.this.this for x in res.find_all(exp.Table) 
+                  if not x.this.this.startswith('cte_') and f"WITH {x.this.this}" not in res.sql()]
         if any([t not in self._cached_valid_tables for t in tables]):
-            print(f"Query has a mismatch with known tables: requested={tables} all={self._cached_valid_tables}")
-            return GroupedResultSet(groups=[])
+            raise Exception(f"Query has a mismatch with known tables: requested={tables} all={self._cached_valid_tables}")
 
         # TODO: add any group by clauses to the select, otherwise we won't get
         # that data back! they can then be hidden afterwards.
