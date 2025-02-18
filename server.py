@@ -710,7 +710,7 @@ def form_manifest(urn):
 
 
 @app.get("/print/{urn}", response_class=HTMLResponse, tags=['print'])
-def print(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+def print_ready(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
     return render_dynamic(note, username=username, requested_template='print.html')
