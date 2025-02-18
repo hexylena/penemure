@@ -1,12 +1,6 @@
 {
   "title": "Penemure",
-  "parents": [
-    {
-      "app": "x",
-      "namespace": null,
-      "ident": "index"
-    }
-  ],
+  "parents": [],
   "contents": [
     {
       "contents": "# About\r\n\r\n## Explicit Target Audience\r\n\r\nAcademic weapons 🔪✨\r\n\r\n## User Stories\r\n\r\n- I want to quickly add a task to be categorised later, I should just be able to write the title and be done, no other information required.\r\n- I want to create a project\r\n- I want to track a project, split it into subprojects (maybe work packages)\r\n    - Dates relative to project start must be supported, enabling design of hypothetical projects.\r\n    - And those can become concrete once the project is concrete.\r\n- I want to start a timer when I start working, it should record what I'm working on, and which project/customer it was for.\r\n- ~~I want to share a grocery list with my partner~~ (perhaps an unnecessarily real-time use case)\r\n- I want to be able to model things that are relevant for me, a project just as well as e.g. a plant with metadata about watering frequency and planting season\r\n\r\n\r\n# Important Links\r\n\r\n- urn:penemure:note:a238ec94-5136-48c5-8567-7d2644fda113#link\r\n- urn:penemure:note:71596cb9-e3f4-44b4-9b21-974fff7b5201#link \r\n\r\n\r\n",
