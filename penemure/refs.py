@@ -152,6 +152,8 @@ class UniformReference(BaseModel, frozen=True):
         return cls(app='file', namespace='blob', ident=ident)
 
     def a_ident(self, enc=64) -> str:
+        if self.ident.count('-') != 4:
+            return self.ident
         b: bytes = uuid.UUID(self.ident).bytes
         if enc == 16:
             return base64.b16encode(b).decode('utf-8').rstrip('=')
