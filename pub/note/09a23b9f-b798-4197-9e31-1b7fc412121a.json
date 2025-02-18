@@ -1,0 +1,40 @@
+{
+  "title": "Custom Emoji / Icons",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## Description\r\n\r\nWe've got some new icons that we want to make available\r\n\r\n```diff\r\n+        \"@phosphor-icons/core\": \"^2.1.1\",\r\n+        \"healthicons\": \"^2.0.0\",\r\n+        \"pixelarticons\": \"^1.8.1\",\r\n```\r\n\r\nneed to also support custom icon packs, maybe in the akkoma format",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1739870920.6199338,
+      "updated_unix": 1739870920.6199355
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739870913.0734274,
+  "updated_unix": 1739870913.0734286,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

@@ -1,0 +1,64 @@
+{
+  "title": "persist start time of time logs when changed",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "using the patch funcitonality we use for updating the past logs.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1739874181.123133,
+      "updated_unix": 1739874181.1231344
+    },
+    {
+      "contents": "## Work on this Issue\r\n\r\n(todo, make this a gantt in the template, and add 'self')",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "c17d038f-6aa1-44da-9332-1d1a3bfad6eb",
+      "created_unix": 1739874181.1231568,
+      "updated_unix": 1739874181.1231573
+    },
+    {
+      "contents": "SQL SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
+      "created_unix": 1739874181.1251204,
+      "updated_unix": 1739874181.1251214
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1739874181.125207,
+  "updated_unix": 1739874181.125208,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
