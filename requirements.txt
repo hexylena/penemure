@@ -12,6 +12,7 @@ markdown-it-py==3.0.0
 mdformat_tables==1.0.0
 mdit-py-plugins==0.4.2
 mdurl==0.1.2
+opentelemetry-instrumentation-fastapi==0.51b0
 pydantic-changedetect==0.8.0
 pydantic==2.10.5
 pydantic_core==2.27.2

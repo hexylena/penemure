@@ -20,6 +20,9 @@ import copy
 import sqlglot
 
 
+import fastapi
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
 data = {}
@@ -62,6 +65,8 @@ app = FastAPI(
     openapi_tags=tags_metadata
 )
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
+
+FastAPIInstrumentor.instrument_app(app)
 
 
 ICONS = [
