@@ -18,12 +18,17 @@ import os
 import sentry_sdk
 import copy
 import sqlglot
-import mimetypes
 
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-pen = Penemure(backends=backends)
+data = {}
+for k in glob.glob('assets/data/*.json'):
+    f = os.path.basename(k).replace('.json', '')
+    with open(k, 'r') as handle:
+        data[f] = json.load(handle)
+
+pen = Penemure(backends=backends, data=data)
 oe = pen.overlayengine
 oe.load()
 
@@ -584,7 +589,7 @@ def custom_404_handler(_, res):
 @app.get("/search.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/search", response_class=HTMLResponse, tags=['view'])
 @app.get("/new", response_class=HTMLResponse, tags=['view'])
-@app.get("/time", response_class=HTMLResponse, tags=['view'])
+@app.get("/icon", response_class=HTMLResponse, tags=['view'])
 @app.get("/time", response_class=HTMLResponse, tags=['view'])
 @app.get("/sync", response_class=HTMLResponse, tags=['view'])
 @app.get("/review", response_class=HTMLResponse, tags=['view'])

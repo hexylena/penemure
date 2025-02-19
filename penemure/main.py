@@ -8,6 +8,9 @@ from .store import GitJsonFilesBackend, OverlayEngine, WrappedStoredThing
 from .note import *
 from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
 
+from importlib import resources as impresources
+from . import templates
+
 
 class Penemure(BaseModel):
     title: str = "PENEMURE"
@@ -16,6 +19,8 @@ class Penemure(BaseModel):
 
     overlayengine: OverlayEngine = None
     backends: list[GitJsonFilesBackend]
+
+    data: dict = Field(default_factory=dict)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,6 +32,12 @@ class Penemure(BaseModel):
                 if b.pubkeys is not None:
                     b._private_key_path = pk
         self.overlayengine = OverlayEngine(backends=be)
+
+    # TODO: all assets.
+    def pkg_file(self, path: str):
+        inp_file = impresources.files(templates) / path
+        with inp_file.open("rt") as f:
+            return f.read()
 
     def load(self):
         return self.overlayengine.load()
@@ -54,6 +65,7 @@ class Penemure(BaseModel):
             'UniformReference': UniformReference,
             'System': UniformReference.from_string('urn:penemure:account:system'),
             'VcsRev': 'deadbeefcafe',
+            'data': self.data,
         }
         if config['ExportPrefix'] == '//':
             config['ExportPrefix'] = '/'

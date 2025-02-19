@@ -16,7 +16,17 @@ parser.add_argument('-d', '--desc', type=str, default='The public example static
 args = parser.parse_args()
 
 backends = [GitJsonFilesBackend.discover(x) for x in args.repo]
-pen = Penemure(backends=backends, title=args.title, description=args.desc)
+
+ASSETS = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    '..', 'assets', 'data', '*.json')
+data = {}
+for k in glob.glob(ASSETS):
+    f = os.path.basename(k).replace('.json', '')
+    with open(k, 'r') as handle:
+        data[f] = json.load(handle)
+
+pen = Penemure(backends=backends, title=args.title, description=args.desc, data=data)
 oe = pen.overlayengine
 oe.load()
 pen.export(args.output, format=args.format, prefix=args.prefix)

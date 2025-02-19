@@ -23,16 +23,19 @@ $border-radius: 0px;
 
 @font-face {
     font-family: 'Gorton';
+    font-display: swap;
     src: url(GortonPerfectedVF.woff2) format(woff2);
 }
 
 @font-face {
     font-family: 'KIX';
+    font-display: swap;
     src: url(kix.woff2) format(woff2);
 }
 
 @font-face {
     font-family: 'NationalPark';
+  font-display: swap;
     src: url(NationalPark-VariableVF.woff2) format(woff2);
 }
 
@@ -50,6 +53,7 @@ pre, kbd, samp, code {
 	font-variation-settings: "CASL" 0.5, "CRSV" 0, "MONO" 1;
 }
 
+@import "../node_modules/@phosphor-icons/web/src/regular/style";
 
 @import "../node_modules/bootstrap/scss/functions";
 @import "../node_modules/bootstrap/scss/variables";
