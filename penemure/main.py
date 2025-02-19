@@ -127,5 +127,9 @@ class Penemure(BaseModel):
 
         os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
         # TODO: use env resolver to find the files?
-        for file in glob.glob("assets/*"):
+        ASSET_DIR = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            '..', 'assets', '*')
+
+        for file in glob.glob(ASSET_DIR):
             shutil.copy(file, os.path.join(path, 'assets'))
