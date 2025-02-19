@@ -361,9 +361,10 @@ class WrappedStoredThing(BaseModel):
             if len(ancestor_chain) > 0:
                 try:
                     thing = oe.find_thing(ancestor_chain[-1]).thing.data.title
+                    d['final_ancestor_titles'].append(thing)
                 except KeyError:
                     thing = ancestor_chain[-1]
-                d['final_ancestor_titles'].append(thing)
+                    d['final_ancestor_titles'].append(thing.urn)
 
             for thing in ancestor_chain:
                 ancestors.append(thing.urn)
