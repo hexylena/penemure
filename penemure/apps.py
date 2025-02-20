@@ -48,16 +48,20 @@ class DataForm(Note):
 
             if block.type == 'form-numeric':
                 columns[i] = float(matching_values[0])
-            elif block.type == 'form-text':
-                columns[i] = matching_values[0]
             elif block.type == 'form-multiple-choice':
                 columns[i] = ', '.join([x for x in matching_values if len(x) > 0])
-            elif block.type == 'form-single-choice':
-                columns[i] = matching_values[0]
             elif block.type == 'form-markdown':
                 continue
             else:
-                raise NotImplementedError(f"No support yet for {block.type}")
+                columns[i] = matching_values[0]
+
+            # elif block.type == 'form-text':
+            # elif block.type == 'form-single-choice':
+            #     columns[i] = matching_values[0]
+            # elif block.type == 'form-single-choice':
+            #     columns[i] = matching_values[0]
+            # else:
+            #     raise NotImplementedError(f"No support yet for {block.type}")
 
         # Must be strings.
         headers = map(str, ['date', 'account'] + headers)
