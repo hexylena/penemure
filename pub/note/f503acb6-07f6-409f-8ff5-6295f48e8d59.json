@@ -1,0 +1,36 @@
+{
+  "title": "Block Properties",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "da961955-1450-468c-a118-27e087c40730"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "should blocks have more properties/annotations. tags? should they have tags? I could see tagging a specific markdown block as \"type=decision\" and wanting to select all decision blocks.\r\n\r\nWhat sort of tags do I want?\r\n\r\nKey | Possible Values\r\n--- | ---\r\ntype | decision\r\nstatus | decided\r\nclassification | c/s/ts/tsi...",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "b3b58d96-6135-447f-8607-3f7a8c04d580",
+      "created_unix": 1740047478.1796684,
+      "updated_unix": 1740047478.1796706
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1740046935.5773983,
+  "updated_unix": 1740047114.9441903,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
