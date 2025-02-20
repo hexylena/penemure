@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}ICONS | {{ Config.Title | e }}{% endblock %}
+
+{% block main %}
+<hgroup>
+	<h1>Icons</h1>
+</hgroup>
+
+<input type="search" placeholder="Search icons...">
+
+<h2>Phosphor</h2>
+<table>
+{% for k, v in Config.data.phosphor.meta.items() %}
+<tr><td scope="row">{{k}}</td><td>{{v}}</td></tr>
+{% endfor %}
+</table>
+<div class="row">
+{% for icon in Config.data.phosphor.icons %}
+<div class="col" class="icon">
+	<i style="font-size:350%" class="ph ph-{{ icon['id'] }}"></i>
+	{% for x in icon['tags'] %}
+	{{ x }}
+	{% endfor %}
+</div>
+{% endfor %}
+</div>
+
+<h2>Health</h2>
+<table>
+{% for k, v in Config.data.healthicons.meta.items() %}
+<tr><td scope="row">{{k}}</td><td>{{v}}</td></tr>
+{% endfor %}
+</table>
+<div class="row">
+{% for icon in Config.data.healthicons.icons %}
+<div class="col" class="icon">
+	<img src="/assets/healthicons/svg/outline/{{ icon.path }}.svg" width="50" loading="lazy"/>
+	{% for x in icon['tags'] %}
+	{{ x }}
+	{% endfor %}
+</div>
+{% endfor %}
+</div>
+
+
+{% endblock %}

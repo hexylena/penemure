@@ -592,6 +592,7 @@ def custom_404_handler(_, res):
 
 @app.get("/redir.html", response_class=HTMLResponse, tags=['redir'])
 @app.get("/search.html", response_class=HTMLResponse, tags=['view'])
+@app.get("/fulltext.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/search", response_class=HTMLResponse, tags=['view'])
 @app.get("/new", response_class=HTMLResponse, tags=['view'])
 @app.get("/icon", response_class=HTMLResponse, tags=['view'])

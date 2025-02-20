@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Search | {{ Config.Title | safe }}{% endblock %}
+{% block title %}Full Text Search | {{ Config.Title | safe }}{% endblock %}
 
 {% block main %}
 <hgroup>
 	<h1>Search</h1>
-	<p>Or use the <a href="fulltext.html">full text search</a></p>
 </hgroup>
 
 <form>
 	<fieldset>
-		<legend>Search</legend>
+		<legend>Search Blocks</legend>
 		<div class="row">
 			<div class="column-2">
 				<label for="title">Title</label>
@@ -33,28 +32,19 @@
 		<th>Title</th>
 		<th>Type</th>
 		<th>Status</th>
-		<th>Tags</th>
-		<th>Contributor(s)</th>
+		<th>Author</th>
 		<th>Backend</th>
 		<th>Parents</th>
 	</tr>
 	</thead>
 	<tbody>
 	{% for note in oe.all_things() %}
+	{% for block in note.thing.data.get_contents() %}
 	<tr>
-		<td><a class="urn" href="{{ note.thing.url }}">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
-		<td>{{ note.thing.data.type }}</td>
-		<td>{% if note.thing.data.has_tag('status') %}{{ note.thing.data.get_tag('status').render(note.get_template(oe)) }}{% endif %}</td>
-		<td>
-			<div class="pills">
-			{% for tag in note.thing.data.tags %}
-				{% if tag.key != 'status' %}
-				{{ tag.render(note.get_template(oe), standalone=True) }}
-				{% endif %}
-			{% endfor %}
-			</div>
-		</td>
-		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.urn }}#url">{{ c.urn }}#title</a>{% endfor %}</td>
+		<td><a class="urn" href="{{ note.thing.url }}#{{ block.id }}">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
+		<td>{{ block.type }}</td>
+		<td>{{ block.contents }}</td>
+		<td>{{ block.author.urn }}#link</td>
 		<td>{{ note.backend.name }}</td>
 		<td>
 			{% if note.thing.data.parents %}
@@ -68,6 +58,7 @@
 			{% endif %}
 		</td>
 	</tr>
+	{% endfor %}
 	{% endfor %}
 	</tbody>
 </table>
@@ -105,7 +96,7 @@ function search(){
 	// Which should be hidden
 
 	var to_hide = rows.filter(row => {
-		let searchable = [0,1,2,3,4,5,6].map(i => row.children[i].innerText.toLowerCase()).join(' ');
+		let searchable = [0,1,2,3,4,5].map(i => row.children[i].innerText.toLowerCase()).join(' ');
 		if (typeFilter != "Any" && row.children[1].innerText != typeFilter) {
 			return true;
 		}

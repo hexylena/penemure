@@ -98,7 +98,7 @@ class Penemure(BaseModel):
         things = self.overlayengine.all_things()
 
         if format == 'html':
-            for fixed in('search.html', ):
+            for fixed in('search.html', 'fulltext.html', 'redir.html'):
                 with open(os.path.join(path, fixed), 'w') as handle:
                     template = env.get_template(fixed)
                     page_content = template.render(notes=things, **config)
@@ -137,11 +137,9 @@ class Penemure(BaseModel):
                     os.makedirs(os.path.dirname(p), exist_ok=True)
                 shutil.copy(blob.full_path, p)
 
-        os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
+        # os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
         # TODO: use env resolver to find the files?
         ASSET_DIR = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            '..', 'assets', '*')
-
-        for file in glob.glob(ASSET_DIR):
-            shutil.copy(file, os.path.join(path, 'assets'))
+            '..', 'assets')
+        shutil.copytree(ASSET_DIR, os.path.join(path, 'assets'))
