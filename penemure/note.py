@@ -39,6 +39,7 @@ class BlockTypes(Enum):
     formMultipleChoice = 'form-multiple-choice'
     formSingleChoice = 'form-single-choice'
     formText = 'form-text'
+    formLocalTime = 'form-local-time'
 
     def pretty(self):
         return {
@@ -58,6 +59,7 @@ class BlockTypes(Enum):
             'formMultipleChoice': "(Form) Multiple choice (checkbox), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
             'formSingleChoice': "(Form) Single choice (radio), one per line, prefixed with -. Leave an empty '- ' on the last line for a free text entry.",
             'formText': "(Form) Free Text (Short)",
+            'formLocalTime': '(Form) Local Time',
         }.get(self.name, self.name)
 
     def chart_type(self):
@@ -184,9 +186,10 @@ class MarkdownBlock(BaseModel):
             elif self.type == BlockTypes.formMarkdown.value:
                 page_content = md(self.contents)
             else:
-                page_content = "<div class=\"row question\">"
-                page_content += f'<label class="col-sm-2" for="block-{self.id}">{title}</label>'
-                page_content += f'<div class="col-sm-10">'
+                frontmatter = "<div class=\"row question\">"
+                frontmatter += f'<label class="col-sm-2" for="block-{self.id}">{title}</label>'
+                frontmatter += f'<div class="col-sm-10">'
+                page_content = ''
 
                 if self.type == BlockTypes.formNumeric.value:
                     page_content += f'<input name="block-{self.id}" type="number" {ra} step="any" class="form-control"/>'
@@ -215,9 +218,24 @@ class MarkdownBlock(BaseModel):
                         page_content += f'<input name="block-{self.id}" type="radio" value="{option}" id="block-{self.id}-{j}" />'
                         page_content += f'<label for="block-{self.id}-{j}" style="display: inline">{option}</label>'
                         page_content += '</div>'
+                elif self.type == BlockTypes.formLocalTime.value:
+                    # Don't wrap it.
+                    frontmatter = None
+                    page_content += f'<input id="block-{self.id}" name="block-{self.id}" type="hidden" value="" />'
+                    page_content += f"""<script>
+                        let local_time = new Date(),
+                            local_h = local_time.getHours().toString().padStart(2, "0"),
+                            local_m = local_time.getMinutes().toString().padStart(2, "0"),
+                            local_s = local_time.getSeconds().toString().padStart(2, "0");
+                        document.getElementById("block-{self.id}").value = local_h + ":" + local_m + ":" + local_s;
+                        </script>
+                    """
+
                 else:
                     raise NotImplementedError(f"No support yet for {self.type}")
-                page_content += '</div>'
+
+                if frontmatter:
+                    page_content =  frontmatter + page_content + '</div>'
         else:
             raise NotImplementedError(f"self.type={self.type}")
 
