@@ -32,6 +32,7 @@ from .refs import *
 class MutatedEnum(Enum):
     untouched = 'Untouched'
     added = 'Added'
+    rename = 'Rename'
     modified = 'Modified'
     modified_unstaged = 'Unstaged Modification (Probably done externally)'
     deleted = 'Deleted'
@@ -40,7 +41,7 @@ class MutatedEnum(Enum):
     @classmethod
     def parse(cls, s: str):
         if '->' in s:
-            raise NotImplementedError("No support for renamed files yet")
+            path, new_path = s[3:].split(' -> ', 1)
         else:
             path = s[3:]
 
@@ -53,6 +54,8 @@ class MutatedEnum(Enum):
             return path, MutatedEnum.added
         elif s[0] == 'D':
             return path, MutatedEnum.deleted
+        elif s[0] == 'R':
+            return (path, new_path), MutatedEnum.rename
         elif s[1] == 'D':
             return path, MutatedEnum.deleted_unstaged
         else:
@@ -60,7 +63,7 @@ class MutatedEnum(Enum):
 
     @property
     def staged(self):
-        return self.name in ('added', 'modified', 'deleted')
+        return self.name in ('added', 'modified', 'deleted', 'rename')
 
 class StoredThing(StoredBlob):
     data: Union[Note, Account]
