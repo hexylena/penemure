@@ -719,6 +719,13 @@ def form_manifest(urn):
     return man
 
 
+@app.get("/view/{backend}/{urn}", response_class=HTMLResponse, tags=['print'])
+def view_backend(backend: str, urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+    be = oe.get_backend(backend)
+    u = UniformReference.from_string(urn)
+    note = oe.find_thing_from_backend(u, backend=be)
+    return render_dynamic(note, username=username, requested_template='note.html')
+
 @app.get("/print/{urn}", response_class=HTMLResponse, tags=['print'])
 def print_ready(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
