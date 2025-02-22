@@ -20,7 +20,7 @@ class Penemure(BaseModel):
     private_key_path: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_PRIVATE_KEY', None))
     auth_method: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_AUTH_METHOD', 'Local').lower())
     imgproxy_host: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_IMGPROXY', None))
-    path: str = Field(default_factory=lambda: '/' + os.environ.get('PENEMURE_PREFIX', '/').lstrip('/').rstrip('/') + '/')
+    path: str = Field(default_factory=lambda: ('/' + os.environ.get('PENEMURE_PREFIX', '/').lstrip('/').rstrip('/') + '/').replace('//', '/'))
 
     # Hmm
     overlayengine: OverlayEngine = None

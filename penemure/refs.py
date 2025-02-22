@@ -94,7 +94,6 @@ class UniformReference(BaseModel, frozen=True):
 
     @classmethod
     def rewrite_urns(cls, contents: str, pen) -> str:
-        print(type(pen.urn_to_url))
         contents = re.sub('(urn:penemure:[a-z0-9:./@-]+)(#(title|url|link|embed))?', pen.urn_to_url, contents)
         return contents
 

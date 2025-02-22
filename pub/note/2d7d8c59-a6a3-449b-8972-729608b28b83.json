@@ -1,0 +1,40 @@
+{
+  "title": "imageproxy",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "a78b359b-eff9-43db-b8d3-493b8bf7336e",
+      "created_unix": 1740239959.8894522,
+      "updated_unix": 1740239959.8895605
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1740236400.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1740239959.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1740239955.966245,
+  "updated_unix": 1740239959.8895512,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}
