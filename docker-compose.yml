@@ -19,6 +19,8 @@ services:
     environment:
       IMGPROXY_BASE_URL: "http://web:8000/file/blob/"
       IMGPROXY_PATH_PREFIX: "/imgproxy"
+      IMGPROXY_KEEP_ALIVE_TIMEOUT: 30
+      IMGPROXY_DOWNLOAD_TIMEOUT: 10
     links:
       - web:web
 
