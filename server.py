@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Form, Response, Request, UploadFile
 from functools import cache
 from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.responses import StreamingResponse
 import starlette.status as status
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.staticfiles import StaticFiles
@@ -18,6 +19,7 @@ import os
 import sentry_sdk
 import copy
 import sqlglot
+import requests
 
 
 import fastapi
@@ -123,6 +125,7 @@ path = config['Config']['ExportPrefix']
 
 
 AUTH_METHOD = os.environ.get('PENEMURE_AUTH_METHOD', 'Local').lower()
+IMGPROXY_ENABLE = os.environ.get('PENEMURE_IMGPROXY', 'false').lower() != 'false'
 
 if AUTH_METHOD == 'tailscale':
     security = TailscaleHeaderAuthentication()
@@ -590,6 +593,25 @@ def custom_404_handler(_, res):
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
+# http://image:8080/imgproxy/insecure/rs:fill:800:400/plain/c04331cd-b033-4ea8-9962-81c19c1e8d1e.png
+@app.get("/imgproxy/{path_params:path}")
+def imgproxy(request: Request, path_params: str = ""):
+    if not IMGPROXY_ENABLE:
+        raise Exception("IMGPROXY not enabled")
+
+    headers = {k: v for k, v in request.headers.items()}
+    headers.pop('host')
+    headers.pop('accept-encoding')
+
+    res = requests.get(f'http://image:8080/imgproxy/{path_params}', params=request.query_params, headers=headers, stream=True)
+
+    return StreamingResponse(
+        res.iter_lines(),
+        status_code=res.status_code,
+        headers=headers,
+    )
+
+
 @app.get("/redir.html", response_class=HTMLResponse, tags=['redir'])
 @app.get("/search.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/fulltext.html", response_class=HTMLResponse, tags=['view'])
@@ -669,14 +691,14 @@ def edit_get_nobe(urn: str, username: Annotated[UniformReference, Depends(get_cu
 
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-async def post_form(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
+def post_form(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
     except KeyError:
         raise HTTPException(status_code=404, detail="Form not found")
 
-    async with request.form() as form:
+    with request.form() as form:
         assert isinstance(note.thing.data, DataForm)
         blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend, username)
         # Save changes to the note itself.
