@@ -119,7 +119,7 @@ env = Environment(
     autoescape=select_autoescape(".html")
 )
 
-config = pen.get_config('/') # Serve at /
+config = pen.get_config() # Serve at /
 path = config['Config']['ExportPrefix']
 # request.scope.get("root_path")
 
@@ -181,7 +181,7 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=No
     a = time.time()
     template = env.get_template(fixed)
 
-    kwargs = pen.get_config(path)
+    kwargs = pen.get_config()
     if note is not None:
         kwargs['note'] = note
 
@@ -190,7 +190,7 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=No
 
     page_content = template.render(**kwargs, username=username)
     if rewrite:
-        page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
+        page_content = UniformReference.rewrite_urns(page_content, pen)
 
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
@@ -203,8 +203,8 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None
         use_template = requested_template
 
     template = env.get_template(use_template)
-    page_content = template.render(note=st, **pen.get_config(path), username=username)
-    page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
+    page_content = template.render(note=st, **pen.get_config(), username=username)
+    page_content = UniformReference.rewrite_urns(page_content, pen)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
@@ -584,14 +584,15 @@ def save_time(data: Annotated[TimeFormData, Form()],
 def custom_404_handler(_, res):
     a = time.time()
     template = env.get_template('404.html')
-    page_content = template.render(error=res.detail, **pen.get_config(path))
-    page_content = UniformReference.rewrite_urns(page_content, path, pen.overlayengine)
+    page_content = template.render(error=res.detail, **pen.get_config())
+    page_content = UniformReference.rewrite_urns(page_content, pen)
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 
 # http://image:8080/imgproxy/insecure/rs:fill:800:400/plain/c04331cd-b033-4ea8-9962-81c19c1e8d1e.png
 @app.get("/imgproxy/{path_params:path}")
 def imgproxy(request: Request, path_params: str = ""):
+    # TODO: sign urls
     if not pen.imgproxy_host:
         raise Exception("IMGPROXY not enabled")
 
@@ -634,7 +635,7 @@ def index(username: Annotated[UniformReference, Depends(get_current_username)], 
     page = page.replace('.html', '')
 
     # try and find an index page
-    config = pen.get_config(path)
+    config = pen.get_config()
     if 'index' in config['pathed_pages']:
         return render_dynamic(config['pathed_pages']['index'], username=username)
     raise HTTPException(status_code=404, detail="Item not found")

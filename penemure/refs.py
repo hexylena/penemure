@@ -93,55 +93,9 @@ class UniformReference(BaseModel, frozen=True):
         return urn_a.ident == urn_b.ident
 
     @classmethod
-    def rewrite_urns(cls, contents: str, prefix: str, oe) -> str:
-        def urn_to_url(u: re.Match):
-            urn_ref = cls.from_string(u.group(1))
-            if urn_ref.urn != u.group(1):
-                raise Exception(f"Maybe mis-parsed URN, {urn_ref.urn} != {u.group(1)}")
-
-            if u.group(3) == "title":
-                try:
-                    ref = oe.find(urn_ref)
-                    return ref.thing.html_title # should it be html by default?
-                except KeyError:
-                    return urn_ref.urn
-            elif u.group(3) == "url":
-                try:
-                    ref = oe.find_thing_or_blob(urn_ref)
-                    return os.path.join(prefix, ref.thing.url)
-                except KeyError:
-                    return urn_ref.urn
-            elif u.group(3) == "link":
-                try:
-                    ref = oe.find(urn_ref)
-                    url = os.path.join(prefix, ref.thing.url)
-                    return f'<a href="{url}">{ref.thing.html_title}</a>' 
-                except KeyError:
-                    try:
-                        ref = oe.find_blob(urn_ref)
-                        url = os.path.join(prefix, ref.thing.url)
-                        return f'<a href="{url}">{ref.thing.urn.urn}</a>' 
-
-                    except KeyError:
-                        return f'<a href="#">{urn_ref.urn}</a>' 
-            elif u.group(3) == "embed":
-                try:
-                    ref = oe.find_blob(urn_ref)
-                    url = os.path.join(prefix, ref.thing.url)
-                    return f'<img src="{url}" />'
-                except KeyError:
-                    try:
-                        ref = oe.find(urn_ref)
-                        url = os.path.join(prefix, ref.thing.url)
-                        return f'<a href="{url}">{ref.thing.html_title}</a>' 
-
-                    except KeyError:
-                        return f'<a href="#">Couldn\'t find {urn_ref.urn}</a>' 
-            else:
-                return urn_ref.urn
-
-        contents = re.sub('(urn:penemure:[a-z0-9:./@-]+)(#(title|url|link|embed))?', urn_to_url, contents)
-
+    def rewrite_urns(cls, contents: str, pen) -> str:
+        print(type(pen.urn_to_url))
+        contents = re.sub('(urn:penemure:[a-z0-9:./@-]+)(#(title|url|link|embed))?', pen.urn_to_url, contents)
         return contents
 
     @classmethod

@@ -104,14 +104,14 @@ class MarkdownBlock(BaseModel):
         d['updated'] = self.updated
         return d
 
-    def render(self, oe, path, parent, format='html', form=False):
+    def render(self, oe, path, parent, pen, format='html', form=False):
         import traceback
         try:
-            return self._render(oe, path, parent, format=format, form=form)
+            return self._render(oe, path, parent, pen, format=format, form=form)
         except Exception as e:
             return f'Error: {e} <details><summary>Traceback</summary><pre>{traceback.format_exc()}</pre></details>'
 
-    def _render(self, oe, path, parent, format='html', form=False):
+    def _render(self, oe, path, parent, pen, format='html', form=False):
         if format == 'md':
             if self.type == BlockTypes.markdown.value:
                 page_content = self.contents + '\n'
@@ -239,7 +239,7 @@ class MarkdownBlock(BaseModel):
         else:
             raise NotImplementedError(f"self.type={self.type}")
 
-        page_content = UniformReference.rewrite_urns(page_content, path, oe)
+        page_content = UniformReference.rewrite_urns(page_content, pen)
 
         if format == 'md':
             return page_content + f'\n<!-- {self.author.urn} | {self.id} -->\n'

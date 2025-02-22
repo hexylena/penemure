@@ -19,7 +19,7 @@ tags:
 
 {% if note.thing.data.contents %}
 {% for b in note.thing.data.contents %}
-{{ b.render(oe, Config.ExportPrefix, note.thing, format="md") }}
+{{ b.render(oe, Config.ExportPrefix, note.thing, penemure, format="md") }}
 {% endfor %}
 {% endif %}
 

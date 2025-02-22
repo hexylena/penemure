@@ -6,7 +6,7 @@
 {% set cover = note.thing.data.cover_image(Config.ExportPrefix, oe) %}
 {% if cover %}
 <div>
-	<img src="{{ cover }}" class="cover">
+	<img src="{{ penemure.image(cover, args="rs:fill:1400:300:1:1") }}" class="cover">
 </div>
 {% endif %}
 <hgroup>
@@ -113,7 +113,7 @@
 
 {% if note.thing.data.contents %}
 {% for b in note.thing.data.contents %}
-{{ b.render(oe, Config.ExportPrefix, note.thing) }}
+{{ b.render(oe, Config.ExportPrefix, note.thing, penemure) }}
 {% endfor %}
 {% endif %}
 
@@ -219,7 +219,7 @@
 <details>
 	<summary><h3>Children</h3></summary>
 {% set b = Config.MarkdownBlock(author=Config.System, type="query-table", contents="group select title, date(created) as created from __all__ where parents like '%" + note.thing.urn.ident + "%' group by type order by type asc, updated asc") %}
-{{ b.render(oe, Config.ExportPrefix, note.thing) }}
+{{ b.render(oe, Config.ExportPrefix, note.thing, penemure) }}
 </details>
 
 <details>
