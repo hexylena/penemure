@@ -1,0 +1,36 @@
+{
+  "title": "The Inbox",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "I want an inbox that i can review daily, inbox zero style.\r\n\r\n- [ ] new tasks that have been added but not categorised\r\n- [ ] things that might need review (? what algo)\r\n- [ ] new files that were uploaded but not yet tagged/categoriesd.\r\n- [ ] new mentions of me (4.0)",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "e57bbdf2-866a-4c85-ab31-4f93df3b91bc",
+      "created_unix": 1740233376.5114195,
+      "updated_unix": 1740233376.511421
+    }
+  ],
+  "tags": [
+    {
+      "key": "milestone",
+      "val": "3.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1740233376.5114818,
+  "updated_unix": 1740233376.511483,
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}

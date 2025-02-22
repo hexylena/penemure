@@ -629,6 +629,12 @@ class OverlayEngine(BaseModel):
     def find_thing(self, identifier: (UniformReference | str)) -> WrappedStoredThing:
         return self.find(identifier=identifier)
 
+    def find_thing_safe(self, identifier: (UniformReference | str), safe=False) -> WrappedStoredThing | None:
+        try:
+            return self.find(identifier=identifier)
+        except KeyError:
+            return None
+
     def find_thing_or_blob(self, identifier: (UniformReference | str)) -> WrappedStoredThing | WrappedStoredBlob:
         try:
             return self.find(identifier=identifier)

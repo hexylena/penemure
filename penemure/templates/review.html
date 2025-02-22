@@ -23,10 +23,12 @@
 	{% for note in oe.all_things() %}
 		{% set ns = namespace(row_include=0) %}
 		{% for parent in note.thing.data.get_parents() %}
-		{% set par = oe.find_thing(parent.urn) %}
-		{% if par.backend.name != note.backend.name %}
-		    {% set ns.row_include = 1 + ns.row_include %}
-		{% endif %}
+		{% set par = oe.find_thing_safe(parent.urn) %}
+			{% if par %}
+			{% if par.backend.name != note.backend.name %}
+			    {% set ns.row_include = 1 + ns.row_include %}
+			{% endif %}
+			{% endif %}
 		{% endfor %}
 
 		{% if ns.row_include %}
@@ -35,9 +37,13 @@
 		<td class="a">{{ note.backend.name }}</td>
 		<td class="b">
 			{% for parent in note.thing.data.get_parents() %}
-			{% set par = oe.find_thing(parent.urn) %}
-			{{ par.backend.name }}
-			{% if par.backend.name != note.backend.name %}❌{% else%}✔️{% endif %}
+			{% set par = oe.find_thing_safe(parent.urn) %}
+				{% if not par %}
+					{{ parent.urn }}
+				{% else %}
+					{{ par.backend.name }}
+					{% if par.backend.name != note.backend.name %}❌{% else%}✔️{% endif %}
+				{% endif %}
 			{% endfor %}
 		</td>
 	</tr>
@@ -46,7 +52,8 @@
 	</tbody>
 </table>
 
-<h2>Standard Lineage</h2>
+<details>
+	<summary>Standard Lineage</summary>
 <table id="results">
 	<thead>
 	<tr>
@@ -59,10 +66,12 @@
 	{% for note in oe.all_things() %}
 		{% set ns = namespace(row_include=0) %}
 		{% for parent in note.thing.data.get_parents() %}
-		{% set par = oe.find_thing(parent.urn) %}
-		{% if par.backend.name != note.backend.name %}
-		    {% set ns.row_include = 1 + ns.row_include %}
-		{% endif %}
+		{% set par = oe.find_thing_safe(parent.urn) %}
+			{% if par %}
+				{% if par.backend.name != note.backend.name %}
+				    {% set ns.row_include = 1 + ns.row_include %}
+				{% endif %}
+			{% endif %}
 		{% endfor %}
 
 		{% if ns.row_include == 0 %}
@@ -71,8 +80,12 @@
 		<td class="a">{{ note.backend.name }}</td>
 		<td class="b">
 			{% for parent in note.thing.data.get_parents() %}
-			{% set par = oe.find_thing(parent.urn) %}
-			{{ par.backend.name }}
+			{% set par = oe.find_thing_safe(parent.urn) %}
+				{% if par %}
+					{{ par.backend.name }}
+				{% else %}
+					{{ parent.urn }}
+				{% endif %}
 			{% endfor %}
 		</td>
 	</tr>
@@ -80,5 +93,8 @@
 	{% endfor %}
 	</tbody>
 </table>
+</details>
+
+
 
 {% endblock %}
