@@ -4,21 +4,23 @@ services:
     build: .
     volumes:
       - "${PWD}:/code/"
-      #- "${PWD}/repos:/repos"
-      #- "/root/.ssh/:/root/.ssh/"
-      #- "/root/.gitconfig:/root/.gitconfig"
+      - "${PWD}/repos:/repos"
+      - "/root/.ssh/:/root/.ssh/"
+      - "/root/.gitconfig:/root/.gitconfig"
+    container_name: web
+    hostname: web
     ports:
       - 8484:8000
     env_file: "prod.env"
 
-  # imgproxy:
-  #   image: ghcr.io/imgproxy/imgproxy:latest
-  #   container_name: image
-  #   ports:
-  #   environment:
-  #     IMGPROXY_BASE_URL: "http://web/file/blob"
-  #   links:
-  #     - web:web
+  imgproxy:
+    image: ghcr.io/imgproxy/imgproxy:latest
+    container_name: image
+    environment:
+      IMGPROXY_BASE_URL: "http://web:8000/file/blob/"
+      IMGPROXY_PATH_PREFIX: "/imgproxy"
+    links:
+      - web:web
 
   # ts:
   #   image: tailscale/tailscale:v1.76
