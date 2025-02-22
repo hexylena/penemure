@@ -15,7 +15,12 @@ from . import templates
 class Penemure(BaseModel):
     title: str = "PENEMURE"
     about: str = 'A project manager'
+
+    # Automatic
     private_key_path: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_PRIVATE_KEY', None))
+    auth_method: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_AUTH_METHOD', 'Local').lower())
+    imgproxy_host: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_IMGPROXY', None))
+
 
     overlayengine: OverlayEngine = None
     backends: list[GitJsonFilesBackend]

@@ -123,13 +123,9 @@ config = pen.get_config('/') # Serve at /
 path = config['Config']['ExportPrefix']
 # request.scope.get("root_path")
 
-
-AUTH_METHOD = os.environ.get('PENEMURE_AUTH_METHOD', 'Local').lower()
-IMGPROXY_ENABLE = os.environ.get('PENEMURE_IMGPROXY', 'false').lower() != 'false'
-
-if AUTH_METHOD == 'tailscale':
+if pen.auth_method == 'tailscale':
     security = TailscaleHeaderAuthentication()
-elif AUTH_METHOD == 'remoteuser':
+elif pen.auth_method == 'remoteuser':
     # TODO: expose headers?
     security = RemoteUserAuthentication()
 else:
@@ -596,17 +592,18 @@ def custom_404_handler(_, res):
 # http://image:8080/imgproxy/insecure/rs:fill:800:400/plain/c04331cd-b033-4ea8-9962-81c19c1e8d1e.png
 @app.get("/imgproxy/{path_params:path}")
 def imgproxy(request: Request, path_params: str = ""):
-    if not IMGPROXY_ENABLE:
+    if not pen.imgproxy_host:
         raise Exception("IMGPROXY not enabled")
 
     headers = {k: v for k, v in request.headers.items()}
     headers.pop('host')
     headers.pop('accept-encoding')
 
-    res = requests.get(f'http://image:8080/imgproxy/{path_params}', params=request.query_params, headers=headers, stream=True)
-
+    url = f'{pen.imgproxy_host}/{path_params}'
+    res = requests.get(url, params=request.query_params,
+                       headers=headers, stream=True)
     return StreamingResponse(
-        res.iter_lines(),
+        res.iter_content(chunk_size=4096),
         status_code=res.status_code,
         headers=headers,
     )
