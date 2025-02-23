@@ -106,13 +106,13 @@ class DataForm(Note):
             rs = ResultSet.build([], [], title='Form Data')
         return GroupedResultSet(groups=[rs])
 
-    def render_form(self, oe, path, parent):
+    def render_form(self, oe, path, parent, pen):
         results = ""
 
         for i, block in enumerate(self.get_contents()):
             if not block.type.startswith('form-'):
                 continue
-            results += block.render(oe, path, parent, form=True)
+            results += block.render(oe, path, parent, pen, form=True)
         return results
 
     def persist_results(self, oe, data):

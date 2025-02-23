@@ -19,7 +19,7 @@
 <form method="POST">
 
 {% if note.thing.data.contents %}
-{{ note.thing.data.render_form(oe, Config.ExportPrefix, note.thing) }}
+{{ note.thing.data.render_form(oe, Config.ExportPrefix, note.thing, penemure) }}
 {% endif %}
 
 	<button class="btn btn-primary">Submit</button>
