@@ -96,8 +96,8 @@ class Penemure(BaseModel):
             self.overlayengine.all_pathed_pages()}
         return kwargs
 
-    def export(self, path, format='html', prefix='project-management'):
-        config = self.get_config(path=prefix, serving=False)
+    def export(self, path, format='html'):
+        config = self.get_config(serving=False)
 
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
