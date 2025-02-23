@@ -687,16 +687,31 @@ def edit_get_nobe(urn: str, username: Annotated[UniformReference, Depends(get_cu
     note = oe.find_thing(u)
     return render_fixed('edit.html', note, rewrite=False, username=username)
 
+async def get_body(request: Request):
+    content_type = request.headers.get('Content-Type')
+    if content_type is None:
+        raise HTTPException(status_code=400, detail='No Content-Type provided!')
+    elif (content_type == 'application/x-www-form-urlencoded' or
+          content_type.startswith('multipart/form-data')):
+        try:
+            return await request.form()
+        except Exception:
+            raise HTTPException(status_code=400, detail='Invalid Form data')
+    else:
+        raise HTTPException(status_code=400, detail='Content-Type not supported!')
+
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-def post_form(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
+async def post_form(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)], body=Depends(get_body)):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
     except KeyError:
         raise HTTPException(status_code=404, detail="Form not found")
 
-    with request.form() as form:
+    #with request.form() as form:
+    form =body
+    if True:
         assert isinstance(note.thing.data, DataForm)
         blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend, username)
         # Save changes to the note itself.
