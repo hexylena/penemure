@@ -1085,4 +1085,8 @@ class OverlayEngine(BaseModel):
                         # print(f"{'  ' * _depth} RETZ: {lineage + [p_urn]}")
                         yield lineage + [note.thing.urn] + [p_urn]
 
-
+    def get_template(self, type):
+        res = self.search(type='template', title=type)
+        if len(res) > 0:
+            return res[0]
+        return None

@@ -80,7 +80,7 @@
 
 	{% for tag in note.thing.data.tags_v2 %}
 	<tr>
-		<td scope="row">{{ tag.html_icon }} {{ tag.render_key(note.get_template(oe)) }}</td>
+		<td scope="row">{{ tag.html_icon }} {{ tag.render_key(note.get_template(oe).thing.data.relevant_tag(tag.key)) }}</td>
 
 		{% if note.thing.data.type == 'template' %}
 		<td>{{ tag.render() }}</td>

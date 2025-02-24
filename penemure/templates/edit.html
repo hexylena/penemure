@@ -172,7 +172,7 @@
 								{% if note.thing.data.type == 'template' %}
 									<input type="text" name="tag_v2_val" placeholder="value" value="{{tag.val_safe | e}}"/>
 								{% else %}
-									{{ tag.render_input(note.get_template(oe)) }}
+									{{ tag.render_input(note.get_template(oe).thing.data.relevant_tag(tag.key)) }}
 								{% endif %}
 							</td>
 						</tr>

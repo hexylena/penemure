@@ -28,13 +28,17 @@ class BaseTemplateTag(BaseModel, ABC):
     # The rendered title
     title: str
     default: Any
-    typ: Literal['UnusedGenericTemplateTag']
+    typ: Literal['UnusedGenericTemplateTag'] = 'UnusedGenericTemplateTag'
+
+    @property
+    def typ_real(self):
+        return self.typ.replace('Template', '')
 
     def get_title(self):
         return self.title or self.key
 
     def render_key(self, *args, **kwargs):
-        return self.key
+        return self.title or self.key
 
     def render(self, *args, **kwargs):
         return f'<span class="template tag">{ellips(self)}</span>'
@@ -44,43 +48,23 @@ class BaseTemplateTag(BaseModel, ABC):
         return json.dumps(self.model_dump())
 
     def instantiate_data(self):
-        return {'typ': self.typ.replace('Template', ''),
+        return {'typ': self.typ_real,
                 'key': self.key,
                 'val': self.default}
 
     def render_input(self, current_value=None):
         raise NotImplementedError()
 
+    @classmethod
+    def parse_val(cls, val: Any):
+        """For 'complex' types that have different UI presentations, bring them back into our space"""
+        return val
 
-class BaseTag(BaseModel, ABC):
+
+class BaseTag(BaseModel):
     key: str
     val: Any
-    typ: Literal['UnusedGenericTag']
-
-    def render_key(self, *args, **kwargs):
-        return self.key
-
-    def render_input(self, template: BaseTemplateTag):
-        return template.render_input(current_value=self.val)
-
-
-class PastDatetimeTemplateTag(BaseTemplateTag):
-    val: dict
-    typ: Literal['PastDateTimeTemplate']
-
-    def render(self):
-        pass
-
-    def render_tag(self):
-        pass
-
-class PastDatetimeTag(BaseTag):
-    val: int # unix
-    typ: Literal['PastDatetime']
-
-    def render(self, template: PastDatetimeTemplateTag):
-        t = get_time(self.val)
-        return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
+    typ: Literal['UnusedGenericTag'] = 'UnusedGenericTag'
 
     # I have decided to ignore these errors for incompatible overriding of
     # method.
@@ -94,23 +78,46 @@ class PastDatetimeTag(BaseTag):
     # Mainly I just want sane behaviour on the parents (e.g. render_key,
     # render_tag working for the generic case) with the ability to special case
     # as-needed.
-    def render_key(self, template: PastDatetimeTemplateTag): # type:ignore
+    def render_key(self, template: BaseTemplateTag):
         return template.get_title()
 
-    def render_tag(self, template: PastDatetimeTemplateTag):
+    def render_input(self, template: BaseTemplateTag):
+        return template.render_input(current_value=self.val)
+
+class PastDateTimeTemplateTag(BaseTemplateTag):
+    typ: Literal['PastDateTimeTemplate'] = 'PastDateTimeTemplate'
+    default: float = 0
+
+    def parse_val(self, val: str):
+        # Seconds are not present in datetime-local
+        t = get_time(val + ":00Z")
+        return t.timestamp()
+
+
+class PastDateTimeTag(BaseTag):
+    val: float # unix
+    typ: Literal['PastDateTime'] = 'PastDateTime'
+
+    def render(self, template: PastDateTimeTemplateTag):
+        t = get_time(self.val)
+        return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
+
+    def render_tag(self, template: PastDateTimeTemplateTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
-    def render_input(self, current_value=None):
-        return '''
-            <input id="party"
+    def render_input(self, tpl: PastDateTimeTemplateTag):
+        t = get_time(self.val or tpl.default)
+        return f'''
+            <input
               type="datetime-local"
-              name="tag_val"
-              value="{current_value}" />'''
-
+              name="tag_v2_val"
+              value="{t.strftime("%Y-%m-%dT%H:%M:%S")}" /> UTC
+        '''
 
 class EnumTemplateTag(BaseTemplateTag):
     has_groups: bool = False
     values: list[tuple]
+    default: str = ''
 
     def get_icon(self, value):
         for (_, val, _, icon) in self.values:
@@ -119,8 +126,7 @@ class EnumTemplateTag(BaseTemplateTag):
         return '?'
 
     def render_input(self, current_value=None):
-        out = '<select name="tag_val">'
-        print(self)
+        out = '<select name="tag_v2_val">'
         if self.has_groups:
             for cat, vs in itertools.groupby(self.values, lambda x: x[0]):
                 out += f'<optgroup label="{cat}">'
@@ -143,16 +149,13 @@ class EnumTag(BaseTag):
     def render(self, template: EnumTemplateTag):
         return template.get_icon(self.val) +" " + self.val.title()
 
-    def render_key(self, template: EnumTemplateTag): # type:ignore
-        return template.get_title()
-
     def render_tag(self, template: EnumTemplateTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
 class StatusTemplateTag(EnumTemplateTag):
     key: str = 'status'
     title: str = 'Status'
-    typ: Literal['StatusTemplate']
+    typ: Literal['StatusTemplate'] = 'StatusTemplate'
     default: str = 'Backlog'
     # TODO: would be better to exclude this from load/restore.
     has_groups: bool = True
@@ -170,13 +173,13 @@ class StatusTemplateTag(EnumTemplateTag):
     ]
 
 class StatusTag(EnumTag):
-    typ: Literal['Status']
+    typ: Literal['Status'] = 'Status'
 
 class PriorityTemplateTag(EnumTemplateTag):
     key: str = 'priority'
     title: str = 'Priority'
-    typ: Literal['PriorityTemplate']
-    default: str = 'Backlog'
+    typ: Literal['PriorityTemplate'] = 'PriorityTemplate'
+    default: str = 'Medium'
     has_groups: bool = False
 
     values: list[tuple] = [
@@ -187,16 +190,37 @@ class PriorityTemplateTag(EnumTemplateTag):
     ]
 
 class PriorityTag(EnumTag):
-    typ: Literal['Priority']
+    typ: Literal['Priority'] = 'Priority'
 
+class TextTemplateTag(BaseTemplateTag):
+    typ: Literal['TextTemplate'] = 'TextTemplate'
+    default: str = ''
+
+    def render_tag(self):
+        pass
+
+class TextTag(BaseTag):
+    val: str
+    typ: Literal['Text'] = 'Text'
+
+    def render(self, template: TextTemplateTag):
+        return self.val
+
+    def render_tag(self, template: TextTemplateTag):
+        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
+
+    def render_input(self, tpl: BaseTemplateTag):
+        # TODO: escape
+        return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
 TagV2 = Annotated[
-    PastDatetimeTag | StatusTag | PriorityTag,
+    PastDateTimeTag | StatusTag | PriorityTag | TextTag,
     Field(discriminator="typ")]
 
 TemplateTagV2 = Annotated[
-    PastDatetimeTemplateTag | StatusTemplateTag | PriorityTemplateTag,
+    PastDateTimeTemplateTag | StatusTemplateTag | PriorityTemplateTag | TextTemplateTag,
     Field(discriminator="typ")]
+
 
 def realise_tag(t: TemplateTagV2):
     # Just in case...
@@ -204,13 +228,8 @@ def realise_tag(t: TemplateTagV2):
         return t
 
     cm = globals()[t.__class__.__name__.replace('Template', '')]
+    print(cm, t, t.instantiate_data())
     return cm.model_validate(t.instantiate_data())
-    # if isinstance(t, StatusTemplateTag):
-    #     d = t.instantiate_data()
-    #     return StatusTag.model_validate(d)
-    # elif isinstance(t, PriorityTemplateTag):
-    #     d = t.instantiate_data()
-    #     return PriorityTag.model_validate(d)
 
 
 
@@ -252,7 +271,8 @@ class TemplateValue(BaseModel):
 
     def get_tag_value(self, value):
         if self.type == 'unix_time':
-            return datetime.datetime.fromtimestamp(float(value), ZoneInfo('UTC'))
+            if value:
+                return datetime.datetime.fromtimestamp(float(value), ZoneInfo('UTC'))
         elif self.type == 'future_date':
             return datetime.datetime.strptime(value, "%Y-%m-%d")
         return value
@@ -400,8 +420,12 @@ class TemplateTag(BaseModel):
         elif self.val.type == 'future_date':
             return f'<span class="tag">{y}{get_time(value).strftime("%Y %b %d")}</span>'
         elif self.val.type == 'unix_time':
-            t = get_time(value)
-            return f'<span class="tag">{y}<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time></span>'
+            try:
+                t = get_time(value)
+                return f'<span class="tag">{y}<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time></span>'
+            except:
+                return f'<span class="tag">{y}{value}</span>'
+
         elif self.val.type == 'status':
             icon = {
                 'done': "✅",

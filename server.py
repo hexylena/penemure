@@ -335,9 +335,12 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
             })
 
     d['tags_v2'] = []
+    template = oe.get_template(data.type)
     for k, v in zip(data.tag_v2_key, data.tag_v2_val):
         if k == '' and v == '':
             continue
+
+        tpl_tag = template.thing.data.relevant_tag(k)
 
         if data.type == 'template':
             # This should be a BaseTemplateTag class
@@ -346,11 +349,14 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
             vv = json.loads(v)
             # Minus the key which is separated.
             vv['key'] = k
+            vv['typ'] = tpl_tag.typ_real
+            vv['val'] = tpl_tag.parse_val(vv['val'])
             d['tags_v2'].append(vv)
         else:
             d['tags_v2'].append({
                 'key': k,
-                'val': v
+                'val': tpl_tag.parse_val(v),
+                'typ': tpl_tag.typ_real,
             })
 
     del d['tag_key']
@@ -370,6 +376,7 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
         d['parents'] = [UniformReference.from_string(data.project)]
     elif data.project is not None:
         d['parents'] = [UniformReference.from_string(x) for x in data.project]
+
     del d['project']
 
     d['contents'] = extract_contents(data, username=username, original=None)
@@ -380,10 +387,11 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
     del d['content_uuid']
 
     # Only apply to Account, AccountGithub
-    d['username'] = '__none__'
-    d['namespace'] = '__none__'
+    d['username'] = None
+    d['namespace'] = None
 
     import pprint; pprint.pprint(d)
+    print(ModelFromAttr(d).model_validate(d))
     return ModelFromAttr(d).model_validate(d)
 
 
@@ -472,9 +480,8 @@ def get_new(username: Annotated[UniformReference, Depends(get_current_username)]
         # Then they're providing a note ref.
         u = UniformReference.from_string(template)
         tpl = oe.find(u)
-        assert isinstance(tpl.thing.data, Template)
         return render_fixed('new.html',
-                            note=tpl.thing.data.instantiate(),
+                            note=tpl,
                             note_template=tpl.thing.data, username=username)
 
     tpl = oe.search(type='template', title=template)
@@ -491,35 +498,8 @@ def get_new(username: Annotated[UniformReference, Depends(get_current_username)]
 @app.post("/new.html", tags=['mutate'])
 @app.post("/new", tags=['mutate'])
 def save_new(data: Annotated[BaseFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
-    dj = {
-        'title': data.title,
-        'type': data.type,
-        'contents': extract_contents(data, username, None)
-    }
-    if data.project is None:
-        dj['parents'] = []
-    elif isinstance(data.project, str):
-        dj['parents'] = [UniformReference.from_string(data.project)]
-    else:
-        dj['parents'] = [UniformReference.from_string(x) for x in data.project]
-
-    if data.type == 'template':
-        dj['tags'] = [
-                TemplateTag.model_validate({'key': k, 'val': json.loads(v)})
-                for (k, v) in zip(data.tag_key, data.tag_val)]
-    else:
-        dj['tags'] = [Tag(key=k, val=v) for (k, v) in zip(data.tag_key, data.tag_val)]
-
-    # raise Exception()
-
-    obj = ModelFromAttr(dj).model_validate(dj)
     be = oe.get_backend(data.backend)
-    for att in only_valid_attachments(data.attachments):
-        assert att.filename is not None
-        ext = guess_extension(att.headers['content-type'])
-        att_urn = be.store_blob(file_data=att.file.read(), ext=ext)
-        obj.attachments.append((att.filename, att_urn))
-
+    obj = NoteFromForm(data, be, username=username)
     res = pen.overlayengine.add(obj, backend=be)
     # TODO: figure out why note was missing from URL
     return RedirectResponse(os.path.join(path, res.thing.url), status_code=status.HTTP_302_FOUND)
