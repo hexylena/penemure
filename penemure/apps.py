@@ -30,8 +30,19 @@ class Template(Note):
             return t[0].val.get_tag_value(value)
         return value
 
+
+class RssFeed(Note):
+    type: str = 'rss'
+    _views = ['rss']
+
+    def view_mediatype(self, view):
+        return 'application/xml'
+        # return 'application/atom+xml'
+        # return 'application/rss+xml'
+
 class DataForm(Note):
     type: str = 'form'
+    _views = ['form']
 
     def form_submission(self, d, oe, be, account: UniformReference) -> UniformReference:
         columns = [None] * len(self.get_form_fields())
@@ -159,13 +170,17 @@ class AccountGithub(Account):
 
 
 def ModelFromAttr(data):
-    if data['type'] == 'account':
+    t = data.type if hasattr(data, 'type') else data['type']
+
+    if t == 'account':
         if data['namespace'] == 'gh':
             return AccountGithub
         return Account
-    elif data['type'] == 'template':
+    elif t == 'template':
         return Template
-    elif data['type'] == 'form':
+    elif t == 'rss':
+        return RssFeed
+    elif t == 'form':
         return DataForm
     else:
         return Note

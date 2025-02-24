@@ -268,6 +268,14 @@ class Note(ChangeDetectionMixin, BaseModel):
     type: str = 'note'
     attachments: list[Tuple[str, UniformReference]] = Field(default_factory=list)
 
+    # Available 'views'
+    _views = ['print']
+    def view_mediatype(self, view):
+        return 'text/html'
+
+    def view_ext(self, view) -> str:
+        return guess_extension(self.view_mediatype(view))
+
     # prefix_num: int = 0
     #
     # def __init__(self, *args, **kwargs):

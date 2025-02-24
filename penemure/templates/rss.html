@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <generator uri="https://github.com/hexylena/penemure" version="0">PENEMURE</generator>
+  <link href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}" rel="self" type="application/atom+xml"/>
+  <updated>2025-02-24T07:49:49+00:00</updated>
+  <id>{{ note.thing.urn.urn }}</id>
+  <title>{{ note.thing.data.title | e }}</title>
+  <subtitle>via {{ Config.Title | e }} | {{ Config.About | e }}</subtitle>
+  {% set query = note.thing.data.contents[0].contents %}
+  {% for group in oe.query(query, via=note.thing.urn).groups %}
+  {% for urn in group.rows %}
+  <entry>
+    {% set thing = oe.find_thing(urn[0]) %}
+    <title type="html">{{ thing.thing.data.title }}</title>
+    <link href="{{ Config.ExportPrefix}}{{ thing.thing.url }}" rel="alternate" type="text/html" title="{{ thing.thing.data.title }}"/>
+    <published>{{ thing.thing.data.created }}</published>
+    <updated>{{ thing.thing.data.updated }}</updated>
+    <id>{{ urn[0] }}</id>
+    <content type="markdown">
+    {%- if note.thing.data.contents -%}
+    {%- for b in note.thing.data.contents -%}
+    {{ b.render(oe, Config.ExportPrefix, note.thing, penemure) | e}}
+    {%- endfor -%}
+    {%- endif -%}
+    </content>
+    <author>
+      <name>
+      {%- for author in thing.thing.data.get_contributors(None) -%}
+        {{ author.urn }}#txt_title{% if not loop.last %}, {% endif %}
+      {%- endfor -%}
+      </name>
+    </author>
+    {% for tag in note.thing.data.get_tags('hashtags') %}
+    <category term="{{ tag.val }}"/>
+    {% endfor %}
+    <summary type="html">{{ thing.thing.data.blurb | e}}</summary>
+    {#
+    <media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://training.galaxyproject.org/training-material/topics/imaging/images/detection-of-mitoflashes/Workflow_mitoflash.png"/>
+    <media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" url="https://training.galaxyproject.org/training-material/topics/imaging/images/detection-of-mitoflashes/Workflow_mitoflash.png"/>
+    #}
+  </entry>
+  {% endfor %}
+  {% endfor %}
+</feed>

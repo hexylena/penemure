@@ -20,13 +20,17 @@ class Penemure(BaseModel):
     private_key_path: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_PRIVATE_KEY', None))
     auth_method: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_AUTH_METHOD', 'Local').lower())
     imgproxy_host: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_IMGPROXY', None))
-    path: str = Field(default_factory=lambda: ('/' + os.environ.get('PENEMURE_PREFIX', '/').lstrip('/').rstrip('/') + '/').replace('//', '/'))
+    path: str = Field(default_factory=lambda: os.environ.get('PENEMURE_PREFIX', '/'))
 
     # Hmm
     overlayengine: OverlayEngine = None
     backends: list[GitJsonFilesBackend]
 
     data: dict = Field(default_factory=dict)
+
+    @property
+    def real_path(self):
+        return ('/' + self.path.lstrip('/').rstrip('/') + '/').replace('//', '/')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -74,7 +78,7 @@ class Penemure(BaseModel):
         #     return f'<img width="{width}" src="{img_path}">'
 
         config = {
-            'ExportPrefix': self.path,
+            'ExportPrefix': self.real_path,
             'IsServing': serving,
             'Title': self.title,
             'About': self.about,
@@ -89,6 +93,7 @@ class Penemure(BaseModel):
 
         kwargs = {'penemure': self, 'oe': self.overlayengine, 'Config': config,
                   'blocktypes': BlockTypes, #'blob': blobify
+                  'hasattr': hasattr,
                   }
         kwargs['pathed_pages'] = {
             x.thing.data.get_tag('page_path').val: x
@@ -154,6 +159,20 @@ class Penemure(BaseModel):
                     os.makedirs(os.path.dirname(p), exist_ok=True)
                 shutil.copy(blob.full_path, p)
 
+            for view in st.thing.data._views:
+                requested_template = f"{view}.html"
+                template = env.get_template(requested_template)
+                page_content = template.render(note=st, **config)
+                page_content = UniformReference.rewrite_urns(page_content, self)
+
+                ext = st.thing.data.view_ext(view)
+                p = os.path.join(path, 'render', view, st.thing.urn.urn + ext)
+                if not os.path.exists(os.path.dirname(p)):
+                    os.makedirs(os.path.dirname(p), exist_ok=True)
+
+                with open(p, 'w') as handle:
+                    handle.write(page_content)
+
         # os.makedirs(os.path.join(path, 'assets'), exist_ok=True)
         # TODO: use env resolver to find the files?
         ASSET_DIR = os.path.join(
@@ -172,21 +191,27 @@ class Penemure(BaseModel):
                 return ref.thing.html_title # should it be html by default?
             except KeyError:
                 return urn_ref.urn
+        elif u.group(3) == "txt_title":
+            try:
+                ref = self.overlayengine.find(urn_ref)
+                return ref.thing.txt_title
+            except KeyError:
+                return urn_ref.urn
         elif u.group(3) == "url":
             try:
                 ref = self.overlayengine.find_thing_or_blob(urn_ref)
-                return os.path.join(self.path, ref.thing.url)
+                return os.path.join(self.real_path, ref.thing.url)
             except KeyError:
                 return urn_ref.urn
         elif u.group(3) == "link":
             try:
                 ref = self.overlayengine.find(urn_ref)
-                url = os.path.join(self.path, ref.thing.url)
+                url = os.path.join(self.real_path, ref.thing.url)
                 return f'<a href="{url}">{ref.thing.html_title}</a>' 
             except KeyError:
                 try:
                     ref = self.overlayengine.find_blob(urn_ref)
-                    url = os.path.join(self.path, ref.thing.url)
+                    url = os.path.join(self.real_path, ref.thing.url)
                     return f'<a href="{url}">{ref.thing.urn.urn}</a>' 
 
                 except KeyError:
@@ -194,13 +219,13 @@ class Penemure(BaseModel):
         elif u.group(3) == "embed":
             try:
                 ref = self.overlayengine.find_blob(urn_ref)
-                url = os.path.join(self.path, ref.thing.url)
+                url = os.path.join(self.real_path, ref.thing.url)
                 fix = self.image(url, args="rs:fill:800")
                 return f'<img src="{fix}" />'
             except KeyError:
                 try:
                     ref = self.overlayengine.find(urn_ref)
-                    url = os.path.join(self.path, ref.thing.url)
+                    url = os.path.join(self.real_path, ref.thing.url)
                     return f'<a href="{url}">{ref.thing.html_title}</a>' 
 
                 except KeyError:

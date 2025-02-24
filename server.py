@@ -194,7 +194,7 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=No
 
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
-def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None, username=None):
+def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None, username=None, media_type: str=None):
     a = time.time()
     use_template = 'note.html'
     if tag := st.thing.data.get_tag(key='template'):
@@ -205,7 +205,11 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None
     template = env.get_template(use_template)
     page_content = template.render(note=st, **pen.get_config(), username=username)
     page_content = UniformReference.rewrite_urns(page_content, pen)
-    return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
+
+    render_kw = {'headers': {'X-Response-Time': str(time.time() - a)}}
+    if media_type:
+        render_kw['media_type'] = media_type
+    return HTMLResponse(page_content, **render_kw)
 
 
 
@@ -843,11 +847,15 @@ def view_backend(backend: str, urn: str, username: Annotated[UniformReference, D
     note = oe.find_thing_from_backend(u, backend=be)
     return render_dynamic(note, username=username, requested_template='note.html')
 
-@app.get("/print/{urn}", response_class=HTMLResponse, tags=['print'])
-def print_ready(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+@app.get("/render/{view}/{urn}", response_class=HTMLResponse, tags=['print'])
+def render_specific_view(view: str, urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+    # Strip extensions
+    if '.' in urn:
+        urn = urn[:urn.rindex('.')]
+
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
-    return render_dynamic(note, username=username, requested_template='print.html')
+    return render_dynamic(note, username=username, requested_template=f'{view}.html', media_type=note.thing.data.view_mediatype(view))
 
 # Eww.
 @app.get("/{app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
