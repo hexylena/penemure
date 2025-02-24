@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('repo', type=str, nargs='+')
 parser.add_argument('-o', '--output', type=str, required=False, default='_build')
 parser.add_argument('-f', '--format', type=str, choices=['md', 'html'], default='html')
+parser.add_argument('-s', '--server', type=str, help='e.g. https://host:port, prefix will be concatenated afterwards.')
 parser.add_argument('-p', '--prefix', type=str, default='/project-management')
 
 parser.add_argument('-t', '--title', type=str, default='PENEMURE')
@@ -26,7 +27,8 @@ for k in glob.glob(ASSETS):
     with open(k, 'r') as handle:
         data[f] = json.load(handle)
 
-pen = Penemure(backends=backends, title=args.title, description=args.desc, data=data, path=args.prefix)
+pen = Penemure(backends=backends, title=args.title, description=args.desc,
+               data=data, path=args.prefix, server=args.server)
 oe = pen.overlayengine
 oe.load()
 pen.export(args.output, format=args.format)

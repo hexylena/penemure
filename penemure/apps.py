@@ -36,8 +36,8 @@ class RssFeed(Note):
     _views = ['rss']
 
     def view_mediatype(self, view):
-        return 'application/xml'
-        # return 'application/atom+xml'
+        return 'application/atom+xml'
+        # return 'application/xml'
         # return 'application/rss+xml'
 
 class DataForm(Note):

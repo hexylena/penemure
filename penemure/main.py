@@ -21,6 +21,7 @@ class Penemure(BaseModel):
     auth_method: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_AUTH_METHOD', 'Local').lower())
     imgproxy_host: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_IMGPROXY', None))
     path: str = Field(default_factory=lambda: os.environ.get('PENEMURE_PREFIX', '/'))
+    server: str | None = Field(default_factory=lambda: os.environ.get('PENEMURE_SERVER', None)) # e.g. http://localhost:9090 (to be concatenated with 'path')
 
     # Hmm
     overlayengine: OverlayEngine = None
@@ -91,10 +92,18 @@ class Penemure(BaseModel):
         if config['ExportPrefix'] == '//':
             config['ExportPrefix'] = '/'
 
-        kwargs = {'penemure': self, 'oe': self.overlayengine, 'Config': config,
-                  'blocktypes': BlockTypes, #'blob': blobify
-                  'hasattr': hasattr,
-                  }
+        # if the server is set, prepend.
+        if self.server:
+            config['ExportPrefix'] = self.server + config['ExportPrefix']
+
+        kwargs = {
+            'penemure': self,
+            'oe': self.overlayengine,
+            'Config': config,
+            'blocktypes': BlockTypes, #'blob': blobify
+            'hasattr': hasattr,
+            'now': local_now(),
+        }
         kwargs['pathed_pages'] = {
             x.thing.data.get_tag('page_path').val: x
             for x in

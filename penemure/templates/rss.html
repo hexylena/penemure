@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <generator uri="https://github.com/hexylena/penemure" version="0">PENEMURE</generator>
   <link href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}" rel="self" type="application/atom+xml"/>
-  <updated>2025-02-24T07:49:49+00:00</updated>
+  <updated>{{ now.strftime('%Y-%m-%dT%H:%M:%S%z')}}</updated>
   <id>{{ note.thing.urn.urn }}</id>
   <title>{{ note.thing.data.title | e }}</title>
   <subtitle>via {{ Config.Title | e }} | {{ Config.About | e }}</subtitle>
@@ -16,13 +16,6 @@
     <published>{{ thing.thing.data.created }}</published>
     <updated>{{ thing.thing.data.updated }}</updated>
     <id>{{ urn[0] }}</id>
-    <content type="markdown">
-    {%- if note.thing.data.contents -%}
-    {%- for b in note.thing.data.contents -%}
-    {{ b.render(oe, Config.ExportPrefix, note.thing, penemure) | e}}
-    {%- endfor -%}
-    {%- endif -%}
-    </content>
     <author>
       <name>
       {%- for author in thing.thing.data.get_contributors(None) -%}
@@ -33,7 +26,13 @@
     {% for tag in note.thing.data.get_tags('hashtags') %}
     <category term="{{ tag.val }}"/>
     {% endfor %}
-    <summary type="html">{{ thing.thing.data.blurb | e}}</summary>
+    <content type="html">
+    {%- if thing.thing.data.contents -%}
+    {%- for b in thing.thing.data.contents -%}
+    {{ b.render(oe, Config.ExportPrefix, thing.thing, penemure) | e}}
+    {%- endfor -%}
+    {%- endif -%}
+    </content>
     {#
     <media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://training.galaxyproject.org/training-material/topics/imaging/images/detection-of-mitoflashes/Workflow_mitoflash.png"/>
     <media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" url="https://training.galaxyproject.org/training-material/topics/imaging/images/detection-of-mitoflashes/Workflow_mitoflash.png"/>
