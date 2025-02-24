@@ -4,7 +4,7 @@
 
 {% block main %}
 	<hgroup>
-		<h1>Add a {% if template %}{{ template.title.title() }}{% else %}Note{% endif %}</h1>
+		<h1>Add a {% if note %}{{ note.title.title() }}{% else %}Note{% endif %}</h1>
 	</hgroup>
 
 	<form method="post" action="/new" enctype="multipart/form-data">
@@ -13,7 +13,7 @@
 
 			<label for="title">Title</label>
 			<input id="title" name="title" type="text" width="20" placeholder="What are you working on?" 
-				{% if template %}value="{{ template.title }}"{% endif %}>
+				{% if note %}value="{{ note.title }}"{% endif %}>
 
 			<label for="project">Parent(s)</label>
 			<select id="parent-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
@@ -43,7 +43,7 @@
 			<select id="type" name="type">
 				{% for app in penemure.apps() %}
 				<option value="{{ app }}"
-					{% if template %}{% if template.type == app %}selected{% endif %}
+					{% if note %}{% if note.type == app %}selected{% endif %}
 					{% elif app == 'note' %} selected
 					{% endif %}
 				>{{ app.title() }}</option>
@@ -52,8 +52,8 @@
 
 			<label for="notes">Contents</label>
 			<div id="notes" name='contents'>
-				{% if template %}
-				{% for block in template.contents %}
+				{% if note %}
+				{% for block in note.contents %}
 				<div class="block existing" style="display: flex">
 					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
 						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
@@ -131,8 +131,8 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% if template %}
-						{% for tag in template.tags %}
+						{% if note %}
+						{% for tag in note.tags %}
 						<tr class='tag existing'>
 							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
@@ -147,6 +147,42 @@
 							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td><input type="text" name="tag_key" placeholder="key"/></td>
 							<td><input type="text" name="tag_val" placeholder="value"/></td>
+						</tr>
+					</tbody>
+				</table>
+				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
+			</div>
+
+			<label for="tags">Tags v2</label>
+			<div id="tags_v2" name="tags_v2">
+				<table>
+					<thead>
+						<tr>
+							<th>Actions</th>
+							<th>Key</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% if note %}
+						{% for tag in note.tags_v2 %}
+						<tr class='tag existing'>
+							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
+							<td>
+								{% if template %}
+									{{ tag.render_input(template.relevant_tag(tag.key)) }}
+								{% else %}
+									<input type="text" name="tag_v2_val" placeholder="value" value="{{tag.val_safe | e}}"/>
+								{% endif %}
+							</td>
+						</tr>
+						{% endfor %}
+						{% endif %}
+						<tr id="default-tag2" class="tag">
+							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td><input type="text" name="tag_v2_key" placeholder="key"/></td>
+							<td><input type="text" name="tag_v2_val" placeholder="value"/></td>
 						</tr>
 					</tbody>
 				</table>
@@ -186,7 +222,9 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 	}
 
 	const templateTag = document.querySelector('#default-tag').outerHTML;
+	const templateTag2 = document.querySelector('#default-tag2').outerHTML;
 	document.querySelector('#default-tag').remove();
+	document.querySelector('#default-tag2').remove();
 	if (document.querySelectorAll('#tags .tag.existing').length > 0 ){
 	}
 

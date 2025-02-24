@@ -227,6 +227,21 @@ def api_sync(username: Annotated[UniformReference, Depends(get_current_username)
         for name, b, a in zip(oe.backends, prev, after)
     }
 
+
+@app.get("/api/view/{backend}/{urn}", tags=['api'])
+def view_backend(backend: str, urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+    u = UniformReference.from_string(urn)
+    if backend != '*':
+        be = oe.get_backend(backend)
+        note = oe.find_thing_from_backend(u, backend=be)
+    else:
+        note = oe.find_thing(u)
+    return note
+
+@app.get('/api/dump_db')
+def dump_db():
+    return pen.overlayengine.make_a_db()
+
 # @app.get("/list")
 # def list() -> list[StoredThing]:
 #     return oe.all_things()
@@ -288,9 +303,80 @@ class BaseFormData(BaseModel):
     content_author: List[str]
     tag_key: List[str] = Field(default_factory=list)
     tag_val: List[str] = Field(default_factory=list)
+    tag_v2_key: List[str] = Field(default_factory=list)
+    tag_v2_val: List[str] = Field(default_factory=list)
+
     backend: str
     # attachments: Annotated[UploadFile, File()]
     attachments: Optional[List[UploadFile]] = Field(default_factory=list)
+
+
+def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Note:
+    d = data.model_dump()
+
+    d['tags'] = []
+    for k, v in zip(data.tag_key, data.tag_val):
+        if k == '' and v == '':
+            continue
+
+        if data.type == 'template':
+            d['tags'].append({
+                'key': k,
+                'val': json.loads(v)
+            })
+        else:
+            d['tags'].append({
+                'key': k,
+                'val': v
+            })
+
+    d['tags_v2'] = []
+    for k, v in zip(data.tag_v2_key, data.tag_v2_val):
+        if k == '' and v == '':
+            continue
+
+        if data.type == 'template':
+            # This should be a BaseTemplateTag class
+            #
+            # So we expect the value field to have a json rep of that
+            vv = json.loads(v)
+            # Minus the key which is separated.
+            vv['key'] = k
+            d['tags_v2'].append(vv)
+        else:
+            d['tags_v2'].append({
+                'key': k,
+                'val': v
+            })
+
+    del d['tag_key']
+    del d['tag_val']
+    del d['tag_v2_key']
+    del d['tag_v2_val']
+
+    # We just don't handle attachments here at all.
+    d['attachments'] = []
+    for att in only_valid_attachments(data.attachments):
+        assert att.filename is not None
+        ext = guess_extension(att.headers['content-type'])
+        att_urn = backend.store_blob(file_data=att.file.read(), ext=ext)
+        d['attachments'].append((att.filename, att_urn))
+
+    if isinstance(data.project, str):
+        d['parents'] = [UniformReference.from_string(data.project)]
+    elif data.project is not None:
+        d['parents'] = [UniformReference.from_string(x) for x in data.project]
+    del d['project']
+
+    d['contents'] = extract_contents(data, username=username, original=None)
+
+    del d['content_author']
+    del d['content_note']
+    del d['content_type']
+    del d['content_uuid']
+
+    import pprint; pprint.pprint(d)
+    return ModelFromAttr(d).model_validate(d)
 
 
 class TimeFormData(BaseModel):
@@ -377,15 +463,20 @@ def get_new(username: Annotated[UniformReference, Depends(get_current_username)]
     if template.startswith('urn:penemure:'):
         # Then they're providing a note ref.
         u = UniformReference.from_string(template)
-        orig = oe.find(u)
-        return render_fixed('new.html', note_template=orig.thing.data, username=username)
+        tpl = oe.find(u)
+        assert isinstance(tpl.thing.data, Template)
+        return render_fixed('new.html',
+                            note=tpl.thing.data.instantiate(),
+                            note_template=tpl.thing.data, username=username)
 
     tpl = oe.search(type='template', title=template)
     if len(tpl) > 0:
         # TODO: how to select which template?
         tpl = tpl[0]
         assert isinstance(tpl.thing.data, Template)
-        return render_fixed('new.html', note_template=tpl.thing.data.instantiate(), username=username)
+        return render_fixed('new.html',
+                            note=tpl.thing.data.instantiate(),
+                            note_template=tpl.thing.data, username=username)
     else:
         return render_fixed('new.html', username=username)
 
@@ -459,37 +550,27 @@ def save_new_multi(data: NewMultiData):
 @app.post("/edit/{urn}", tags=['mutate'])
 def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart/form-data")],
               username: Annotated[UniformReference, Depends(get_current_username)]):
+    be = oe.get_backend(data.backend)
+    new_note = NoteFromForm(data, be, username=username)
 
     u = UniformReference.from_string(urn)
     orig = oe.find(u)
-    orig.thing.data.title = data.title
-    orig.thing.data.type = data.type
+    orig.thing.data.title = new_note.title
+    orig.thing.data.type = new_note.type
+    # We don't use new_note.contents because this is smarter.
     orig.thing.data.set_contents(extract_contents(data, username, orig.thing.data.contents))
 
-    if isinstance(data.project, str):
-        orig.thing.data.set_parents([UniformReference.from_string(data.project)])
-    elif data.project is not None:
-        orig.thing.data.set_parents([UniformReference.from_string(x) for x in data.project])
-
-    if data.type == 'template' or isinstance(orig.thing.data, Template):
-        orig.thing.data.tags = [
-                TemplateTag.model_validate({'key': k, 'val': json.loads(v)})
-                for (k, v) in zip(data.tag_key, data.tag_val)]
-    else:
-        orig.thing.data.tags = [Tag(key=k, val=v) for (k, v) in zip(data.tag_key, data.tag_val)]
-
-    be = oe.get_backend(data.backend)
-    for att in only_valid_attachments(data.attachments):
-        assert att.filename is not None
-        ext = guess_extension(att.headers['content-type'])
-        att_urn = be.store_blob(file_data=att.file.read(), ext=ext)
-        orig.thing.data.attachments.append((att.filename, att_urn))
+    orig.thing.data.set_parents(new_note.parents)
+    orig.thing.data.tags = new_note.tags
+    orig.thing.data.tags_v2 = new_note.tags_v2
+    orig.thing.data.attachments = new_note.attachments
 
     thing = oe.save_thing(orig, fsync=False)
     if be != orig.backend.name:
         oe.migrate_backend_thing(orig, be)
 
     orig.thing.data.touch()
+
     return RedirectResponse(os.path.join(path, thing.thing.url), status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])

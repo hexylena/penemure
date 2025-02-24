@@ -251,14 +251,14 @@ class MarkdownBlock(BaseModel):
             </article>
         '''
 
-
 # This describes the data stored in a StoredThing
 class Note(ChangeDetectionMixin, BaseModel):
     title: str
-    parents: Optional[list[UniformReference]] = Field(default_factory=lambda: list())
-    contents: Optional[list[MarkdownBlock]] = Field(default_factory=list)
+    parents: list[UniformReference] = Field(default_factory=list)
+    contents: list[MarkdownBlock] = Field(default_factory=list)
     # These must all be enumerated explicitly :|
     tags: list[Tag] = Field(default_factory=list)
+    tags_v2: list[TagV2] = Field(default_factory=list)
 
     version: Optional[int] = 2
     created_unix: float = Field(default_factory=lambda : time.time())
@@ -361,6 +361,11 @@ class Note(ChangeDetectionMixin, BaseModel):
 
     def has_tag(self, key: str):
         return len([tag for tag in self.tags if tag.key == key]) > 0
+
+    def relevant_tag(self, key):
+        for x in self.tags_v2:
+            if x.key == key:
+                return x
 
     def add_tag(self, tag: Tag, unique: bool = False):
         self.touch()

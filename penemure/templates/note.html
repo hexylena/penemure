@@ -78,6 +78,18 @@
 	</tr>
 	{% endfor %}
 
+	{% for tag in note.thing.data.tags_v2 %}
+	<tr>
+		<td scope="row">{{ tag.html_icon }} {{ tag.render_key(note.get_template(oe)) }}</td>
+
+		{% if note.thing.data.type == 'template' %}
+		<td>{{ tag.render() }}</td>
+		{% else %}
+		<td>{{ tag.render(note.get_template(oe)) }}</td>
+		{% endif %}
+	</tr>
+	{% endfor %}
+
 	<tr>
 		<td scope="row">📅 Created</td>
 		<td><time datetime="{{ note.thing.data.created }}">{{ note.thing.data.created }}</time></td>
@@ -98,12 +110,10 @@
 	<tr>
 		<td scope="row">Links</td>
 		<td>
-			<div class="btn-group" role="group" aria-label="Basic outlined example">
-				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}print/{{ note.thing.urn.urn }}">Print</a>
-				{% if note.thing.data.type == 'form' %}
-				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}form/{{ note.thing.urn.urn }}">Form</a>
-				<a class="btn btn-outline-secondary" href="{{ Config.ExportPrefix }}download/{{ note.thing.data.has_attachment('data').urn }}">Download</a>
-				{% endif %}
+			<div class="btn-group" role="group" aria-label="Views">
+				{% for view in note.thing.data._views %}
+				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}{{ note.thing.data.view_ext(view) }}">{{ view.title() }}</a>
+				{% endfor %}
 			</div>
 		</td>
 	</tr>
@@ -224,6 +234,7 @@
 
 <details>
 	<summary><h3>Queryable fields</h3></summary>
+	<a href="/api/view/{{ note.backend.name }}/{{ note.thing.urn.urn }}">View in API</a>
 	<table>
 		{% for k, v in note.clean_dict(oe).items() %}
 		<tr>

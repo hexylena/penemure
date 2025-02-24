@@ -329,7 +329,7 @@ class WrappedStoredThing(BaseModel):
         d['system'] = self.thing.data.type in ('template', )
         d['blurb'] = self.thing.data.blurb
 
-        for k in ('contents', 'attachments', 'tags'):
+        for k in ('contents', 'attachments', 'tags', 'tags_v2'):
             if k in d:
                 del d[k]
 
@@ -373,6 +373,11 @@ class WrappedStoredThing(BaseModel):
                 ancestors.append(thing.urn)
         d['ancestors'] = ' '.join(set(ancestors))
         d['final_ancestor_titles'] = ', '.join(set(d['final_ancestor_titles']))
+
+
+        for k, v in d.items():
+            if isinstance(v, list):
+                raise Exception(f"Could not parse {k} as it is {type(v)}: {v}. {self}")
         return d
 
 

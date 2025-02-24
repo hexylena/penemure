@@ -58,7 +58,7 @@
 						<div class="collapse navbar-collapse" id="navbarSupportedContent">
 							{% if Config.IsServing %}
 							<div class="navbar-nav">
-								{% if note %}
+								{% if note and hasattr(note, 'thing') %}
 									{% set params = "?parent=" + note.thing.urn.urn + "&backend=" + note.backend.name %}
 								{% else %}
 									{% set params = "" %}
@@ -75,7 +75,7 @@
 									{% endfor %}
 								</ul>
 
-								{% if note %}
+								{% if note and hasattr(note, 'thing') %}
 								<a class="nav-link" href="{{ Config.ExportPrefix }}edit/{{ note.backend.name }}/{{ note.thing.urn.urn }}" title="Edit">📝</a>
 								<a class="nav-link" href="{{ Config.ExportPrefix }}new/{{ note.thing.urn.urn }}" title="Duplicate">➿</a>
 								<a class="nav-link" href="{{ Config.ExportPrefix }}delete_question/{{ note.thing.urn.urn }}" title="Delete">❌</a>

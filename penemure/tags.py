@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, NaiveDatetime
+import itertools
 import hashlib
 import json
 from typing import Literal
@@ -8,8 +9,210 @@ import datetime
 from zoneinfo import ZoneInfo
 from .refs import *
 from .util import *
+from abc import ABC
 
 FIELD_SEP = chr(0x001E)
+
+# We have two primary places where tags need to be rendered:
+# 1. Arbitrarily detached from metadata (f.exs the search page, or, maybe we'll
+#    want to render a subset for an e.g. author line)
+# 2. With key/values separately, as in a metadata table.
+#
+# We want to use information from the 'template' tag, in order to render the
+# 'real' tag always. E.g. the colour/presentation/title should always be set at
+# the level of the template tag, and that applied across the real tags.
+
+
+class BaseTemplateTag(BaseModel, ABC):
+    key: str
+    # The rendered title
+    title: str
+    default: Any
+    typ: Literal['UnusedGenericTemplateTag']
+
+    def get_title(self):
+        return self.title or self.key
+
+    def render_key(self, *args, **kwargs):
+        return self.key
+
+    def render(self, *args, **kwargs):
+        return f'<span class="template tag">{ellips(self)}</span>'
+
+    @property
+    def val_safe(self):
+        return json.dumps(self.model_dump())
+
+    def instantiate_data(self):
+        return {'typ': self.typ.replace('Template', ''),
+                'key': self.key,
+                'val': self.default}
+
+    def render_input(self, current_value=None):
+        raise NotImplementedError()
+
+
+class BaseTag(BaseModel, ABC):
+    key: str
+    val: Any
+    typ: Literal['UnusedGenericTag']
+
+    def render_key(self, *args, **kwargs):
+        return self.key
+
+    def render_input(self, template: BaseTemplateTag):
+        return template.render_input(current_value=self.val)
+
+
+class PastDatetimeTemplateTag(BaseTemplateTag):
+    val: dict
+    typ: Literal['PastDateTimeTemplate']
+
+    def render(self):
+        pass
+
+    def render_tag(self):
+        pass
+
+class PastDatetimeTag(BaseTag):
+    val: int # unix
+    typ: Literal['PastDatetime']
+
+    def render(self, template: PastDatetimeTemplateTag):
+        t = get_time(self.val)
+        return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
+
+    # I have decided to ignore these errors for incompatible overriding of
+    # method.
+    #
+    # I understand why they're happening (the subclass is adding restrictions
+    # not present on the parent, and things cannot be substituted generically,
+    # violating the LSP)
+    #
+    # But I do not know how to fix that in python. Maybe I'm stupid.
+    # 
+    # Mainly I just want sane behaviour on the parents (e.g. render_key,
+    # render_tag working for the generic case) with the ability to special case
+    # as-needed.
+    def render_key(self, template: PastDatetimeTemplateTag): # type:ignore
+        return template.get_title()
+
+    def render_tag(self, template: PastDatetimeTemplateTag):
+        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
+
+    def render_input(self, current_value=None):
+        return '''
+            <input id="party"
+              type="datetime-local"
+              name="tag_val"
+              value="{current_value}" />'''
+
+
+class EnumTemplateTag(BaseTemplateTag):
+    has_groups: bool = False
+    values: list[tuple]
+
+    def get_icon(self, value):
+        for (_, val, _, icon) in self.values:
+            if val == value:
+                return icon
+        return '?'
+
+    def render_input(self, current_value=None):
+        out = '<select name="tag_val">'
+        print(self)
+        if self.has_groups:
+            for cat, vs in itertools.groupby(self.values, lambda x: x[0]):
+                out += f'<optgroup label="{cat}">'
+                for x in vs:
+                    (_, value, _, icon) = x
+                    selected = ' selected ' if value == current_value else ''
+                    out += f'<option value="{value}" {selected}>{icon} {value}</option>'
+                out += f'</optgroup>'
+        else:
+            for x in self.values:
+                (_, value, _, icon) = x
+                selected = ' selected ' if value == current_value else ''
+                out += f'<option value="{value}" {selected}>{icon} {value}</option>'
+
+        return out + '</select>'
+
+class EnumTag(BaseTag):
+    val: str
+
+    def render(self, template: EnumTemplateTag):
+        return template.get_icon(self.val) +" " + self.val.title()
+
+    def render_key(self, template: EnumTemplateTag): # type:ignore
+        return template.get_title()
+
+    def render_tag(self, template: EnumTemplateTag):
+        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
+
+class StatusTemplateTag(EnumTemplateTag):
+    key: str = 'status'
+    title: str = 'Status'
+    typ: Literal['StatusTemplate']
+    default: str = 'Backlog'
+    # TODO: would be better to exclude this from load/restore.
+    has_groups: bool = True
+
+    values: list[tuple] = [
+        # Category, Value, Color, Icon
+        ('To-do', 'Backlog', 'Gray', "🚧"),
+        #
+        ('In progress', 'Planning', 'Blue', "🚧"),
+        ('In progress', 'In-Progress', 'Yellow', "▶️"),
+        ('In progress', 'Paused', 'Purple', "⏸️"),
+        #
+        ('Done', 'Done', 'Green', "✅"),
+        ('Done', 'Cancelled', 'Red', '❌')
+    ]
+
+class StatusTag(EnumTag):
+    typ: Literal['Status']
+
+class PriorityTemplateTag(EnumTemplateTag):
+    key: str = 'priority'
+    title: str = 'Priority'
+    typ: Literal['PriorityTemplate']
+    default: str = 'Backlog'
+    has_groups: bool = False
+
+    values: list[tuple] = [
+        # Category, Value, Color, Icon
+        ('', 'Low', 'Yellow', ''),
+        ('', 'Medium', 'Orange', ''),
+        ('', 'High', 'Red', ''),
+    ]
+
+class PriorityTag(EnumTag):
+    typ: Literal['Priority']
+
+
+TagV2 = Annotated[
+    PastDatetimeTag | StatusTag | PriorityTag,
+    Field(discriminator="typ")]
+
+TemplateTagV2 = Annotated[
+    PastDatetimeTemplateTag | StatusTemplateTag | PriorityTemplateTag,
+    Field(discriminator="typ")]
+
+def realise_tag(t: TemplateTagV2):
+    # Just in case...
+    if 'Template' not in t.__class__.__name__:
+        return t
+
+    cm = globals()[t.__class__.__name__.replace('Template', '')]
+    return cm.model_validate(t.instantiate_data())
+    # if isinstance(t, StatusTemplateTag):
+    #     d = t.instantiate_data()
+    #     return StatusTag.model_validate(d)
+    # elif isinstance(t, PriorityTemplateTag):
+    #     d = t.instantiate_data()
+    #     return PriorityTag.model_validate(d)
+
+
 
 
 class TemplateValue(BaseModel):
