@@ -346,8 +346,18 @@ class Note(ChangeDetectionMixin, BaseModel):
 
     @property
     def icon(self):
-        # if t:= self.get_tag(key='icon'):
-        #     return t[0].value_icon()
+        if t:= self.get_tag(key='icon'):
+            if t.val.startswith('ph-'):
+                return f'<i class="ph {t.val}"></i>'
+            elif t.val.startswith('hi-'):
+                path = t.val[3:].replace('-', '/', 1)
+                # TODO: images are bad :(
+                return f'<img src="/assets/healthicons/svg/outline/{path}.svg" style="width: 1em" alt="avatar"/>'
+            elif t.val.startswith('https://'):
+                return f'<img src="{t.val}" style="width: 1em" alt="avatar"/>'
+            elif t.val.startswith('http://'):
+                return f'<img src="{t.val}" style="width: 1em" alt="avatar"/>'
+            return t.val
 
         if self.type == "project":
             return "📁"

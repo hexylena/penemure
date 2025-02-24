@@ -3,28 +3,28 @@
   "parents": [],
   "contents": [
     {
-      "contents": "The current list of blog posts can be found below, they’re all “children” of this “project” (urn:penemure:note:4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe#link)",
+      "contents": "The current list of blog posts can be found below, they’re all “children” of this “project” (urn:penemure:note:4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe#link)\r\n\r\nAn RSS Feed (urn:penemure:03722cae-47ff-40c8-b1ff-401c3dd0378d#link) is available",
       "author": {
-        "app": "x",
-        "namespace": null,
-        "ident": "hexylena"
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
       },
       "type": "markdown",
       "id": "a1ff96f6-4803-4425-80f5-f99b67189f84",
-      "created_unix": 1739353984.465984,
-      "updated_unix": 1739353984.4659846
+      "created_unix": 1740406553.0840888,
+      "updated_unix": 1740406553.0840893
     },
     {
-      "contents": "SQL SELECT\n  title,\n  created,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nORDER BY\n  created ASC",
+      "contents": "SQL SELECT\n  title,\n  created,\n  backend\nFROM __all__\nWHERE\n  parents LIKE '%SELF%' AND type <> 'rss'\nORDER BY\n  created ASC",
       "author": {
-        "app": "x",
-        "namespace": null,
-        "ident": "hexylena"
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
       },
       "type": "chart-table",
       "id": "367f5e1e-8deb-4688-a702-cb751ec75a46",
-      "created_unix": 1739353984.466623,
-      "updated_unix": 1739353984.4666233
+      "created_unix": 1740406553.0849876,
+      "updated_unix": 1740406553.0849884
     }
   ],
   "tags": [
@@ -33,6 +33,7 @@
       "val": "Listen to hexy yap"
     }
   ],
+  "tags_v2": [],
   "version": 2,
   "created_unix": 1737549343.534218,
   "updated_unix": 1738841074.139317,

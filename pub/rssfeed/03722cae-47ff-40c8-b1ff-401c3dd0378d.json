@@ -1,5 +1,5 @@
 {
-  "title": "New Posts (RSS Feed)",
+  "title": "Penemure Development Log",
   "parents": [
     {
       "app": "x",
@@ -33,7 +33,12 @@
       "updated_unix": 1740406021.0175507
     }
   ],
-  "tags": [],
+  "tags": [
+    {
+      "key": "icon",
+      "val": "ph-rss"
+    }
+  ],
   "tags_v2": [],
   "version": 2,
   "created_unix": 1740398064.007816,

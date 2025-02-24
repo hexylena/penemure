@@ -379,6 +379,10 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
     del d['content_type']
     del d['content_uuid']
 
+    # Only apply to Account, AccountGithub
+    d['username'] = '__none__'
+    d['namespace'] = '__none__'
+
     import pprint; pprint.pprint(d)
     return ModelFromAttr(d).model_validate(d)
 

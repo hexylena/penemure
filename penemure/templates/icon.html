@@ -35,7 +35,9 @@
 <div class="row">
 {% for icon in Config.data.healthicons.icons %}
 <div class="col" class="icon">
+	<div>
 	<img src="/assets/healthicons/svg/outline/{{ icon.path }}.svg" width="50" loading="lazy"/>
+	</div>
 	{% for x in icon['tags'] %}
 	{{ x }}
 	{% endfor %}

@@ -147,8 +147,7 @@ class Account(Note):
                 return f'<img src="/{attachment.id.url}" alt="avatar" style="width: 1em">'
 
         if t := self.get_tag(key='icon'):
-            # todo: how to handle normal values vs URLs vs URNs?
-            return f'<img src="{t.val}" alt="avatar" style="width: 1em">'
+            return super().icon
         return "👩‍🦰"
 
     def suggest_urn(self):
@@ -173,7 +172,8 @@ def ModelFromAttr(data):
     t = data.type if hasattr(data, 'type') else data['type']
 
     if t == 'account':
-        if data['namespace'] == 'gh':
+        ns = data.namespace if hasattr(data, 'namespace') else data.get('namespace',None)
+        if ns == 'gh':
             return AccountGithub
         return Account
     elif t == 'template':
