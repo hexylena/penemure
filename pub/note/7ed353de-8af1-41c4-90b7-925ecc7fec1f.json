@@ -9,16 +9,16 @@
   ],
   "contents": [
     {
-      "contents": "I am finally actively using this myself, namely to work on urn:penemure:5c6880ba-de38-485b-97a9-e78a85beaf88#link (see note). It is sufficiently useful for me which is an excellent state.\r\n\r\nThis of course is far, far short of General Utility. I'm not convinced that is a worthwhile goal for me though.\r\n\r\n<details><summary>Note</summary>\r\n\r\nAn itentionally dangling reference. Maybe someday I'll make that repo public, and then the issues from it will be included as part of deployment, and that link will become clickable.\r\n\r\n</details>",
+      "contents": "I am finally actively using this myself, namely to work on urn:penemure:5c6880ba-de38-485b-97a9-e78a85beaf88#link [^1]. It is sufficiently useful for me which is an excellent state.\r\n\r\nThis of course is far, far short of General Utility. I'm not convinced that is a worthwhile goal for me though.\r\n\r\n[^1]: An itentionally dangling reference. Maybe someday I'll make that repo public, and then the issues from it will be included as part of deployment, and that link will become clickable.",
       "author": {
-        "app": "x",
-        "namespace": "account",
-        "ident": "hexylena"
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
       },
       "type": "markdown",
       "id": "d584dbf7-a895-4b07-a5b1-13210b3b0541",
-      "created_unix": 1739342456.1637115,
-      "updated_unix": 1739342456.1637127
+      "created_unix": 1740402310.88105,
+      "updated_unix": 1740402310.8810506
     },
     {
       "contents": "## Innovations\r\n\r\nHere are some of the innovative aspects\r\n\r\n### Layering\r\n\r\nI'd argue the multi repo layering of resources is an innovation. Which naturally leads to \"why?\" It is reasonable:\r\n\r\n- most people don't have these needs (disparate set of issues scattered across organisations rather than a central store)\r\n- most folks need central Auth and ACLs\r\n\r\nWith a centralised server deployed, we can have both, as it were.\r\n\r\n### Storage \r\n\r\nInnovative is not the right word, storing the documents as folders of json files is in no way innovative. The original plan was to use git-bug which would have the additional benefit of tying change authorship to git identities, at the cost of making the data model significantly more complex and hard to see.\r\n\r\nI think I'd still like to have that, eventually. Or at minimum to hide the files and commits in the same low visibility way that git-bug does, in order to make it's use less intrusive.\r\n\r\n### Federation via Git\r\n\r\nThis project is a very, very different take on federated issues than, say, the efforts in forges to do ActivityPub based federation. I look forward to those being generally available. I wanted to actively avoid always online processes (I'm an old fashioned sysadmin after all), and instead to focus on alternative ideas.\r\n\r\nThis approach comes with some compromises, namely that within a repo, there is generally no way to have differing levels of access. \r\n\r\nThat has to either be done through \r\n\r\n- multiple repos, one per ACL role, and issues stored in their appropriate location, cross referencing each other everywhere\r\n- server side ACL where we implement a non-git based backend for notes, where the server can enforce ACLs, and all requests have to go through http APIs.",
@@ -30,7 +30,7 @@
       "type": "markdown",
       "id": "a3367b4d-f2f9-4571-9c30-b65c2e00fe6e",
       "created_unix": 1739342456.1637344,
-      "updated_unix": 1739342456.1637354
+      "updated_unix": 1740402298.3758302
     },
     {
       "contents": "## Non-Innovations\r\n\r\nsome choices were very standard\r\n\r\n### Notion's Data Model\r\n\r\nWe have essentially reimplemented something very Notion shaped, but I'd argue, poorly. Given how tied I was to the data format (json, on disk, in git repos) it means the resulting system isn't exactly fast. In fact one of our biggest optimisations was \"just shove it all in a sqlite for when you actually have to query\".\r\n\r\nA lot of the system could be significantly improved by sticking it in one single centralised database with a reasonable schema. Of course that defeats the \"federated\" ideas where a user can make up whatever subset of repos they like to produce a view customised for them. That could be achieved through a bunch of individual sqlite databases that are overlayed / queried in some fashion. [There are options that are only mildly horrifying](https://simonwillison.net/2021/Feb/21/cross-database-queries/).\r\n\r\nStorage is a question then, I still wanted the git repo aspect and blobs in git, conflict resolution... yea nah.\r\n\r\nSo we have a notion like model. At which point it became clear how much of notions usability is in it's UI and UX. It makes sense why it is so slow and JavaScript-filled, because if you want to be able to, within a note, dynamically add a new field to all of those notes via their (db/template), and then render a nice picker, it makes sense to move that UI calculation into a giant morass of JavaScript that needs to run constantly to render even one letter.",
@@ -42,7 +42,7 @@
       "type": "markdown",
       "id": "ce050c00-faf2-4b26-a817-13f6010160ca",
       "created_unix": 1739342456.163751,
-      "updated_unix": 1739342456.1637511
+      "updated_unix": 1740402298.375836
     },
     {
       "contents": "## Future Work\r\n\r\nat this point, I am not giving up on this, though I think there are a number of sharp edges to be resolved before anyone else uses it\r\n\r\n- most users probably don't want to write SQL, that needs to be hidden behind a better UX\r\n- The conflict resolution story should be better than \"then you go into git and fix it\"\r\n- Editable tables is pretty close to a \"must\"\r\n- Tracking mentions is mandatory and currently missing.\r\n- Integrations with external systems would be useful. At bare minimum, replacing URLs with some basic link preview information would be useful. Especially for Google docs, the notion behaviour of replacing a URL with a logo/document title is useful. We need the same for GitHub, also to fetch the open/close state of issues.",
@@ -54,7 +54,7 @@
       "type": "markdown",
       "id": "be6322aa-b4a4-4901-bbea-4a01e7d2ccaf",
       "created_unix": 1739342456.1637666,
-      "updated_unix": 1739342456.163767
+      "updated_unix": 1740402298.3758402
     }
   ],
   "tags": [
@@ -67,9 +67,10 @@
       "val": "UNCLASS"
     }
   ],
+  "tags_v2": [],
   "version": 2,
   "created_unix": 1739341254.03765,
-  "updated_unix": 1739342381.0979412,
+  "updated_unix": 1740402298.3757572,
   "namespace": null,
   "type": "note",
   "attachments": []

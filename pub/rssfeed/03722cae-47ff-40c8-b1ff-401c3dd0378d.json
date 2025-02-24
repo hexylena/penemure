@@ -1,0 +1,32 @@
+{
+  "title": "New Posts (RSS Feed)",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "SQL SELECT\n  urn\nFROM __all__\nWHERE\n  parents LIKE 'urn:penemure:71596cb9-e3f4-44b4-9b21-974fff7b5201'\n  AND type <> 'rss'\nORDER BY\n  created DESC",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "chart-table",
+      "id": "9c66275c-6e1c-418a-9919-58763047ef56",
+      "created_unix": 1740401555.8388934,
+      "updated_unix": 1740401555.8388941
+    }
+  ],
+  "tags": [],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1740398064.007816,
+  "updated_unix": 1740401544.9038935,
+  "namespace": null,
+  "type": "rss",
+  "attachments": []
+}

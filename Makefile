@@ -4,7 +4,7 @@ watch:
 watch-css:
 	./node_modules/.bin/sass --quiet --style compressed assets/index.scss assets/bootstrap.css --watch
 
-serve: assets/bootstrap.css assets/print-mono.css assets/data/phosphor.json assets/favicon@64.png assets/favicon@256.png assets/favicon@512.png assets/favicon@1024.png assets/data/healthicons.json
+serve: assets/bootstrap.css assets/print-mono.css assets/data/phosphor.json assets/favicon.ico assets/favicon@256.png assets/favicon@512.png assets/favicon@1024.png assets/data/healthicons.json
 	fastapi run server.py
 
 assets/bootstrap.css: assets/index.scss
@@ -20,7 +20,7 @@ assets/data/healthicons.json: node_modules/healthicons/public/icons/meta-data.js
 	cp -Rv assets/../node_modules/healthicons/public/icons/svg/ assets/healthicons/
 	cat node_modules/healthicons/public/icons/meta-data.json | jq '{"meta": {"name": "Healthicons"}, "icons": [.[] | {"id": .id, "category": .category, "tags": .tags}]  }' > assets/data/healthicons.json
 
-assets/favicon@64.png: penemure.png
+assets/favicon.ico: penemure.png
 	magick penemure.png -resize 64x assets/favicon.ico
 
 assets/favicon@256.png: penemure.png
