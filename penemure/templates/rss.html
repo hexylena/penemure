@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <generator uri="https://github.com/hexylena/penemure" version="0">PENEMURE</generator>
-  <link href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}" rel="self" type="application/atom+xml"/>
+  <link href="{{ Config.ExportPrefix }}render/rss/{{ note.thing.urn.urn }}" rel="self" type="application/atom+xml"/>
   <updated>{{ now.strftime('%Y-%m-%dT%H:%M:%S%z')}}</updated>
   <id>{{ note.thing.urn.urn }}</id>
   <title>{{ note.thing.data.title | e }}</title>

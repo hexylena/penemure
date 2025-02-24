@@ -7,17 +7,34 @@
       "ident": "d486ec0f-35f1-4ea4-b69a-47ae8987a3bd"
     }
   ],
-  "contents": [],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "15dad55a-8588-4fb5-b719-e6eeea936e21",
+      "created_unix": 1740405972.1498444,
+      "updated_unix": 1740405972.149959
+    }
+  ],
   "tags": [
     {
       "key": "start_date",
-      "val": "1740398270.9659173"
+      "val": "1740398270.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1740405970.0"
     }
   ],
   "tags_v2": [],
   "version": 2,
   "created_unix": 1740398270.96621,
-  "updated_unix": 1740398270.9723601,
+  "updated_unix": 1740405972.149949,
   "namespace": null,
   "type": "log",
   "attachments": []

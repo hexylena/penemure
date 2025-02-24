@@ -9,16 +9,28 @@
   ],
   "contents": [
     {
-      "contents": "SQL SELECT\n  urn\nFROM __all__\nWHERE\n  parents LIKE 'urn:penemure:71596cb9-e3f4-44b4-9b21-974fff7b5201'\n  AND type <> 'rss'\nORDER BY\n  created DESC",
+      "contents": "SELECT\r\n  urn\r\nFROM __all__\r\nWHERE\r\n  parents LIKE 'urn:penemure:71596cb9-e3f4-44b4-9b21-974fff7b5201'\r\n  AND type <> 'rss'\r\nORDER BY\r\n  created DESC",
       "author": {
         "app": "account",
         "namespace": "projects",
         "ident": "user"
       },
-      "type": "chart-table",
+      "type": "markdown",
       "id": "9c66275c-6e1c-418a-9919-58763047ef56",
-      "created_unix": 1740401555.8388934,
-      "updated_unix": 1740401555.8388941
+      "created_unix": 1740406021.0175407,
+      "updated_unix": 1740406021.0175414
+    },
+    {
+      "contents": "(The above URNs will be turned into a blog.)",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "6a7b16d4-b1cf-4866-962c-3516a142a589",
+      "created_unix": 1740406021.01755,
+      "updated_unix": 1740406021.0175507
     }
   ],
   "tags": [],
