@@ -46,7 +46,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Export example site
-        run: python scripts/export.py pub -f html -p penemure
+        run: python scripts/export.py pub -f html -p penemure -s https://hexylena.galaxians.org
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
