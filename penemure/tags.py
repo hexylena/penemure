@@ -196,15 +196,9 @@ class TextTemplateTag(BaseTemplateTag):
     typ: Literal['TextTemplate'] = 'TextTemplate'
     default: str = ''
 
-    def render_tag(self):
-        pass
-
 class TextTag(BaseTag):
     val: str
     typ: Literal['Text'] = 'Text'
-
-    def render(self, template: TextTemplateTag):
-        return self.val
 
     def render_tag(self, template: TextTemplateTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
@@ -212,6 +206,9 @@ class TextTag(BaseTag):
     def render_input(self, tpl: BaseTemplateTag):
         # TODO: escape
         return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
+
+
+
 
 TagV2 = Annotated[
     PastDateTimeTag | StatusTag | PriorityTag | TextTag,
