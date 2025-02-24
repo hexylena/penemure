@@ -17,7 +17,9 @@ assets/data/phosphor.json: node_modules/@phosphor-icons/web/src/regular/selectio
 	cat node_modules/@phosphor-icons/web/src/regular/selection.json | jq '{"meta": .metadata, "icons": [.icons[] | {"id": (.properties.name | split(", "))[0], "tags": (.properties.name | split(", "))}]}' > assets/data/phosphor.json
 
 assets/data/healthicons.json: node_modules/healthicons/public/icons/meta-data.json
-	cp -Rv assets/../node_modules/healthicons/public/icons/svg/ assets/healthicons/
+	mkdir -p assets/healthicons/
+	rsync -avr assets/../node_modules/healthicons/public/icons/svg/outline/ assets/healthicons/outline/
+	rsync -avr assets/../node_modules/healthicons/public/icons/svg/filled/ assets/healthicons/filled/
 	cat node_modules/healthicons/public/icons/meta-data.json | jq '{"meta": {"name": "Healthicons"}, "icons": [.[] | {"id": .id, "category": .category, "tags": .tags, "path": .path}]  }' > assets/data/healthicons.json
 
 assets/favicon.ico: penemure.png
