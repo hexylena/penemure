@@ -1,0 +1,40 @@
+{
+  "title": "Reworking tags again",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "7348525e-f231-4dda-bf6a-f0dc3309dadc"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "doing a v2, though migration will indubitably be annoying, and probably somewhat manual in this case. Maybe I can just rewrite all tags as tagsv2, and except for templates it'll work?\r\n\r\nmigrations are... a thing. should consider that.\r\n\r\ngoing back to class based tags, this has to be cleaner.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "49c874c1-9324-403f-93df-1f85a4da27cd",
+      "created_unix": 1740397383.7510424,
+      "updated_unix": 1740397401.380298
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1740385800.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1740397380.0"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1740397246.8034074,
+  "updated_unix": 1740397401.3802788,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}

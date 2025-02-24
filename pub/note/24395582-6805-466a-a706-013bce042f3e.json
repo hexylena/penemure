@@ -2,14 +2,19 @@
   "title": "Thoughts on \"Separation of Concerns\"",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    },
+    {
+      "app": "x",
       "namespace": null,
       "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
     },
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
-      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+      "ident": "ea7881f4-b93f-40dc-8a24-f2bd269afea5"
     }
   ],
   "contents": [

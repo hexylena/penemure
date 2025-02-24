@@ -1,0 +1,74 @@
+{
+  "title": "select tasks which changed from any State to completed within a specific time period",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "f8e37283-5731-4ec6-8b76-9fd2572fb809"
+    },
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "db428879-f0ef-431b-ba96-9d6cdd8cca06"
+    },
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "ba261586-817e-42a8-a279-946b74f35af4"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## User Stories\r\n\r\n- I want to be able to keep a monthly journal that is automatically updated with what got done in that time period\r\n- I want reporting to be easier\r\n- I want to be able to do burndowns of tasks, when they were created, when they were closed.\r\n\r\nThis really feels like all tasks need a \"closed on\" date where they went to a terminal state. Maybe that's easier than I thought, but it absolutely requires urn:penemure:ba261586-817e-42a8-a279-946b74f35af4#link ",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1740314093.2551177,
+      "updated_unix": 1740314093.255119
+    },
+    {
+      "contents": "## Work on this Issue\r\n\r\n(todo, make this a gantt in the template, and add 'self')",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "c17d038f-6aa1-44da-9332-1d1a3bfad6eb",
+      "created_unix": 1740313914.354982,
+      "updated_unix": 1740313959.1461794
+    },
+    {
+      "contents": "SQL SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
+      "created_unix": 1740313914.3555534,
+      "updated_unix": 1740313959.1461878
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1740313914.3555903,
+  "updated_unix": 1740313959.1461158,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

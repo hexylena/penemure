@@ -1,0 +1,52 @@
+{
+  "title": "RSS",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## Description\r\n\r\nnotes should be allowed to generate an rss feed\r\n\r\nby default just direct children? or descendants as well?\r\n\r\ndoes it need to be tagged/in metadata or is it automatic?\r\n\r\nshould also be generated for static sites.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1740257907.983688,
+      "updated_unix": 1740257907.9836895
+    },
+    {
+      "contents": "SQL SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
+      "created_unix": 1740257907.984797,
+      "updated_unix": 1740257907.9847977
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1740257907.9848635,
+  "updated_unix": 1740257907.9848645,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

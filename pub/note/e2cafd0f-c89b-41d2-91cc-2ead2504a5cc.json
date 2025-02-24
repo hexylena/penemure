@@ -1,0 +1,31 @@
+{
+  "title": "Asana",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "ea7881f4-b93f-40dc-8a24-f2bd269afea5"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "This was the single system I have been the happiest with. Especially for allowing issues to be associated with multiple projects",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "81c374a5-41f0-4d9a-86d9-dc445e9f5b47",
+      "created_unix": 1740318575.4648716,
+      "updated_unix": 1740318575.4648733
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1740318575.4649463,
+  "updated_unix": 1740318575.4649472,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}

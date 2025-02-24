@@ -1,0 +1,37 @@
+{
+  "title": "Project Management Blog",
+  "parents": [],
+  "contents": [
+    {
+      "contents": "I've separated out development entries into X but I'll start a second blog to analyse what exactly I want and need, and my thoughts on each tool I try.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "e57bbdf2-866a-4c85-ab31-4f93df3b91bc",
+      "created_unix": 1740316058.2500572,
+      "updated_unix": 1740316058.2500575
+    },
+    {
+      "contents": "GROUP SELECT\n  urn,\n  title_plain AS title,\n  SUBSTRING(blurb, 1, 40) AS blurb,\n  type\nFROM __all__\nWHERE\n  parents LIKE '%SELF%'\nGROUP BY\n  type\nORDER BY\n  type DESC,\n  title_plain ASC",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "query-cards",
+      "id": "cf16ace8-f9c9-4b43-bc83-fcf9fb1276ba",
+      "created_unix": 1740316058.2508712,
+      "updated_unix": 1740316058.250872
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1740316058.2508893,
+  "updated_unix": 1740316058.2508898,
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}

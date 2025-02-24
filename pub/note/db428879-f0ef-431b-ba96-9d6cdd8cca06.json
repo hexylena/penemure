@@ -1,0 +1,67 @@
+{
+  "title": "End Feb Update",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "I continue to make progress, this is as much a learning activity as it is a useful tool development activity. That is partially a reason it hasn't fully consumed me, yet. Because I keep telling myself the point isn't to build something functional, it is to develop as a programmer on a small to mid size codebase.\r\n\r\nThis is inherently a useful goal.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "97c24445-0e5c-4ab9-b42a-fa135de6d9d5",
+      "created_unix": 1740313704.7009811,
+      "updated_unix": 1740313909.6850204
+    },
+    {
+      "contents": "As it stands I do not think I've built anything special, certainly nothing that cannot be as easily accomplished with obsidian and friends. Any tool that lets you do markdown, I don't think there's anything unique here\r\n\r\nurn:penemure:9da05f42-b883-4584-bb36-302eb983cb5b#link  being an obvious exception, and the urn:penemure:56495dc2-6b1c-4300-b3e5-68bc4bd726e4#link as well. That said, anyone who wants to do serious things should probably use one of those.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "04ea528a-08af-4358-a615-39e784958049",
+      "created_unix": 1740313730.757529,
+      "updated_unix": 1740313909.685035
+    },
+    {
+      "contents": "I plan to keep working on this adding features, here and there. It is a nice feeling to build something, although usually that feeling is more mixed as I encounter a bug or missing feature that would be available in another product. But this of course is the complement of using another tool, one where I would butt up against missing features and struggle if it was something I felt I could add easily.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "47a7b504-3f6d-4333-97d8-e28cc88d5bb0",
+      "created_unix": 1740313704.701008,
+      "updated_unix": 1740313909.6850426
+    },
+    {
+      "contents": "## Major Improvements\r\n\r\n- urn:penemure:5ed982ec-804b-48d5-b3c6-d243db39739d#link are mostly working\r\n- urn:penemure:c994628f-b5a3-4b51-99d0-7337a3b8da4c#link are closer to working\r\n\r\nIt sure would be nice if we could urn:penemure:a9d4275a-656d-4265-b886-dcc5dcb9f8cd#link ",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "74d7a3ce-e451-4e07-9c90-a114f355f267",
+      "created_unix": 1740313991.557826,
+      "updated_unix": 1740313991.5578272
+    }
+  ],
+  "tags": [],
+  "version": 2,
+  "created_unix": 1740313704.7010865,
+  "updated_unix": 1740313909.684972,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
