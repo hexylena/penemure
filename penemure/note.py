@@ -16,6 +16,8 @@ from .tags import *
 from .refs import *
 from .table import *
 from .util import *
+
+from . import store, main # forward refs
 from enum import Enum
 
 
@@ -104,14 +106,14 @@ class MarkdownBlock(BaseModel):
         d['updated'] = self.updated
         return d
 
-    def render(self, oe, path, parent, pen, format='html', form=False):
+    def render(self, oe: 'store.OverlayEngine', path, parent, pen: 'main.Penemure', format='html', form=False):
         import traceback
         try:
             return self._render(oe, path, parent, pen, format=format, form=form)
         except Exception as e:
             return f'Error: {e} <details><summary>Traceback</summary><pre>{traceback.format_exc()}</pre></details>'
 
-    def _render(self, oe, path, parent, pen, format='html', form=False):
+    def _render(self, oe: 'store.OverlayEngine', path, parent, pen: 'main.Penemure', format='html', form=False):
         if format == 'md':
             if self.type == BlockTypes.markdown.value:
                 page_content = self.contents + '\n'
@@ -332,7 +334,7 @@ class Note(ChangeDetectionMixin, BaseModel):
     def get_parents(self) -> list[UniformReference]:
         return self.parents or []
 
-    def get_children(self, own_urn, oe) -> list[UniformReference]:
+    def get_children(self, own_urn, oe: 'store.OverlayEngine') -> list[UniformReference]:
         # semi-equivalent to oe.query("select id from __all__ where parents like '%own_urn%'")
         kids = []
         for note in oe.search():
@@ -341,7 +343,7 @@ class Note(ChangeDetectionMixin, BaseModel):
 
         return kids
 
-    def resolve_parents(self, oe):
+    def resolve_parents(self, oe: 'store.OverlayEngine'):
         return [oe.find(parent) for parent in self.get_parents()]
 
     @property
@@ -420,7 +422,7 @@ class Note(ChangeDetectionMixin, BaseModel):
         return [x for x in self.get_contents() 
                 if x.type.startswith('form-') and x.type != "form-markdown"]
 
-    def get_contributors(self, _oe):
+    def get_contributors(self, oe: 'store.OverlayEngine'):
         c = []
         for b in self.get_contents():
             c.append(b.author)
@@ -471,7 +473,7 @@ class Note(ChangeDetectionMixin, BaseModel):
 
         return not(s is not None and e is not None)
 
-    def cover_image(self, prefix, oe):
+    def cover_image(self, prefix, oe: 'store.OverlayEngine'):
         if t := self.get_tag(key='cover'):
             ref = oe.find_blob(t.val)
             return os.path.join(prefix, ref.thing.url)

@@ -171,7 +171,7 @@
 							<td><input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>
 								{% if template %}
-									{{ tag.render_input(template.relevant_tag(tag.key)) }}
+									{{ tag.render_input(template.relevant_tag(tag.key), oe) }}
 								{% else %}
 									<input type="text" name="tag_v2_val" placeholder="value" value="{{tag.val_safe | e}}"/>
 								{% endif %}

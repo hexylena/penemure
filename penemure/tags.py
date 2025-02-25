@@ -9,6 +9,7 @@ import datetime
 from zoneinfo import ZoneInfo
 from .refs import *
 from .util import *
+from . import store # for forward refs.
 from abc import ABC
 
 FIELD_SEP = chr(0x001E)
@@ -23,7 +24,7 @@ FIELD_SEP = chr(0x001E)
 # the level of the template tag, and that applied across the real tags.
 
 
-class BaseTemplateTag(BaseModel, ABC):
+class BaseTemplateTag(BaseModel):
     key: str
     # The rendered title
     title: str
@@ -78,10 +79,12 @@ class BaseTag(BaseModel):
     # Mainly I just want sane behaviour on the parents (e.g. render_key,
     # render_tag working for the generic case) with the ability to special case
     # as-needed.
-    def render_key(self, template: BaseTemplateTag):
-        return template.get_title()
+    def render_key(self, note, oe: 'store.OverlayEngine'):
+        template = note.get_template(oe)
+        template_tag = template.thing.data.relevant_tag(self.key)
+        return template_tag.get_title()
 
-    def render_input(self, template: BaseTemplateTag):
+    def render_input(self, template: BaseTemplateTag, oe: 'store.OverlayEngine'):
         return template.render_input(current_value=self.val)
 
 class PastDateTimeTemplateTag(BaseTemplateTag):
@@ -105,7 +108,7 @@ class PastDateTimeTag(BaseTag):
     def render_tag(self, template: PastDateTimeTemplateTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
-    def render_input(self, tpl: PastDateTimeTemplateTag):
+    def render_input(self, tpl: PastDateTimeTemplateTag, oe: 'store.OverlayEngine'):
         t = get_time(self.val or tpl.default)
         return f'''
             <input
@@ -203,7 +206,7 @@ class TextTag(BaseTag):
     def render_tag(self, template: TextTemplateTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
-    def render_input(self, tpl: BaseTemplateTag):
+    def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
         # TODO: escape
         return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 

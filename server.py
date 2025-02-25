@@ -335,12 +335,16 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
             })
 
     d['tags_v2'] = []
+    print(data)
     template = oe.get_template(data.type)
     for k, v in zip(data.tag_v2_key, data.tag_v2_val):
         if k == '' and v == '':
             continue
 
-        tpl_tag = template.thing.data.relevant_tag(k)
+        if template:
+            tpl_tag = template.thing.data.relevant_tag(k)
+        else:
+            tpl_tag = None
 
         if data.type == 'template':
             # This should be a BaseTemplateTag class

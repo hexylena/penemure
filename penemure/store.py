@@ -951,7 +951,7 @@ class OverlayEngine(BaseModel):
         # print('fmt query', qtype, qselect)
         return qtype + ' ' +transpile(qselect, pretty=True)[0]
 
-    def query(self, query, via=None, sql=False) -> GroupedResultSet:
+    def query(self, query: str, via=None, sql=False) -> GroupedResultSet:
         # Allow overriding with keywords
         qtype, qselect = self.query_type(query)
         if qtype == 'GROUP':
@@ -967,7 +967,7 @@ class OverlayEngine(BaseModel):
             query = query.replace('SELF', via.ident)
 
         res = parse_one(query)
-        # print(res.sql())
+        print(res.sql())
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
         selects = [x.this.this for x in list(res.find_all(exp.Column))]
