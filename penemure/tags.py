@@ -211,16 +211,46 @@ class TextTag(BaseTag):
         return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
 
+class ReferenceTemplateTag(BaseTemplateTag):
+    typ: Literal['ReferenceTemplate'] = 'ReferenceTemplate'
+    default: str = ''
+    filter: str = ''
+    # min? max?
+
+class ReferenceTag(BaseTag):
+    val: str
+    typ: Literal['Reference'] = 'Reference'
+
+    def render_tag(self, template: ReferenceTemplateTag):
+        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
+
+    def render_input(self, template: BaseTemplateTag, oe: 'store.OverlayEngine'):
+        urns = oe.query(template.filter)
+        out = '<select name="tag_v2_val">'
+        for group in urns.groups:
+            out += f'<optgroup label="{group.title}">'
+            for row in group.rows:
+                urn = row[0]
+                # selected = ' selected ' if value == current_value else ''
+                selected = ''
+                out += f'<option value="{urn}" {selected}>{urn}#title</option>'
+            out += f'</optgroup>'
+
+        return out + '</select>'
+
+    def render(self, template: PastDateTimeTemplateTag):
+        return self.val + '#link'
+
 
 
 TagV2 = Annotated[
-    PastDateTimeTag | StatusTag | PriorityTag | TextTag,
+    PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag | ReferenceTag,
     Field(discriminator="typ")]
+
 
 TemplateTagV2 = Annotated[
-    PastDateTimeTemplateTag | StatusTemplateTag | PriorityTemplateTag | TextTemplateTag,
+    PastDateTimeTemplateTag | EnumTemplateTag | StatusTemplateTag | PriorityTemplateTag | TextTemplateTag | ReferenceTemplateTag,
     Field(discriminator="typ")]
-
 
 def realise_tag(t: TemplateTagV2):
     # Just in case...
@@ -228,7 +258,7 @@ def realise_tag(t: TemplateTagV2):
         return t
 
     cm = globals()[t.__class__.__name__.replace('Template', '')]
-    print(cm, t, t.instantiate_data())
+    # print(cm, t, t.instantiate_data())
     return cm.model_validate(t.instantiate_data())
 
 
