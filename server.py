@@ -353,15 +353,17 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
             vv = json.loads(v)
             # Minus the key which is separated.
             vv['key'] = k
-            vv['typ'] = tpl_tag.typ_real
-            vv['val'] = tpl_tag.parse_val(vv['val'])
+            if tpl_tag:
+                vv['typ'] = tpl_tag.typ_real
+                vv['val'] = tpl_tag.parse_val(vv['val'])
             d['tags_v2'].append(vv)
         else:
-            d['tags_v2'].append({
-                'key': k,
-                'val': tpl_tag.parse_val(v),
-                'typ': tpl_tag.typ_real,
-            })
+            vv = {'key': k}
+            if tpl_tag:
+                vv['typ'] = tpl_tag.typ_real
+                vv['val'] = tpl_tag.parse_val(v)
+
+            d['tags_v2'].append(vv)
 
     del d['tag_key']
     del d['tag_val']
