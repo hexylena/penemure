@@ -118,6 +118,9 @@
 				{% for view in note.thing.data._views %}
 				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}{{ note.thing.data.view_ext(view) }}">{{ view.title() }}</a>
 				{% endfor %}
+				{% if note.thing.data.type == 'log' %}
+				<a class="btn btn-outline-secondary" href="#" onclick="alert('implement this dummy')">Continue</a>
+				{% endif %}
 			</div>
 		</td>
 	</tr>

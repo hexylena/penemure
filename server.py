@@ -601,13 +601,21 @@ class PatchTimeFormData(BaseModel):
 def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
-    log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
-    log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
+    try:
+        log.thing.data.ensure_tag(key='start_date', value=str(float(data.start_unix)))
+    except:
+        pass
+
+    try:
+        log.thing.data.ensure_tag(key='end_date', value=str(float(data.end_unix)))
+    except:
+        pass
+
     oe.save_thing(log, fsync=False)
     return log
 
 @app.post("/time/continue", tags=['mutate'])
-def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
+def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
 
