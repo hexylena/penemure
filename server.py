@@ -711,8 +711,8 @@ def index(username: Annotated[UniformReference, Depends(get_current_username)], 
 
     # try and find an index page
     config = pen.get_config()
-    if 'index' in config['pathed_pages']:
-        return render_dynamic(config['pathed_pages']['index'], username=username)
+    if page in config['pathed_pages']:
+        return render_dynamic(config['pathed_pages'][page], username=username)
     raise HTTPException(status_code=404, detail="Item not found")
 
 class PatchNoteAttachments(BaseModel):

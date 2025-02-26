@@ -1,0 +1,53 @@
+{
+  "title": "Recent",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "index"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "# Recently edited pages",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "a985fd0e-be55-4522-a0d8-6aad6ce4ac9f",
+      "created_unix": 1740574617.7339797,
+      "updated_unix": 1740574617.7339802
+    },
+    {
+      "contents": "SQL SELECT\n  title,\n  updated\nFROM __all__\nORDER BY\n  updated DESC\nLIMIT 20",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "chart-table",
+      "id": "b6e16210-7242-446a-9355-f98f356bad4c",
+      "created_unix": 1740574483.2671294,
+      "updated_unix": 1740574611.0256014
+    }
+  ],
+  "tags": [
+    {
+      "key": "page_path",
+      "val": "recent"
+    },
+    {
+      "key": "template",
+      "val": "plain.html"
+    }
+  ],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1740574483.2676024,
+  "updated_unix": 1740574611.0255377,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
