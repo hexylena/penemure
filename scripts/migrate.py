@@ -11,6 +11,9 @@ backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
 bos = Penemure(backends=backends)
 bos.load()
 
+# for x in bos.overlayengine.all_blobs():
+#     print(x)
+
 for x in bos.overlayengine.all_things():
     # No tags originally, can just continue on.
     if len(x.thing.data.tags) == 0:
@@ -35,10 +38,16 @@ for x in bos.overlayengine.all_things():
             milestone = bos.overlayengine.search(type='milestone', title=tag.val)
             if len(milestone) == 0:
                 raise Exception(f"Could not find milestone {tag.val}")
+            milestone = milestone[0]
             new_tags.append(ReferenceTag(key=tag.key, val=milestone.thing.urn.urn))
+        elif tag.key == 'cover':
+            # find the associated milestone
+            new_tags.append(ReferenceTag(key=tag.key, val=tag.val))
         elif tag.key == 'priority':
             new_tags.append(PriorityTag(key=tag.key, val=tag.val))
-        elif tag.key in ('page_path', 'template', 'locale', 'icon', 'description', 'url'):
+        elif tag.key == 'tags':
+            new_tags.append(HashtagsTag(key=tag.key, val=HashtagsTemplateTag.parse_val(tag.val)))
+        elif tag.key in ('page_path', 'template', 'locale', 'icon', 'description'):
             new_tags.append(TextTag(key=tag.key, val=tag.val))
         else:
             raise Exception(f"Unsupported {tag}")

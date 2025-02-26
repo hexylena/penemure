@@ -225,7 +225,7 @@ class ReferenceTemplateTag(BaseTemplateTag):
     # min? max?
 
 class ReferenceTag(BaseTag):
-    val: UniformReference
+    val: str # UniformReference.urn
     typ: Literal['Reference'] = 'Reference'
 
     def render_tag(self, template: ReferenceTemplateTag):
@@ -256,7 +256,8 @@ class HashtagsTemplateTag(BaseTemplateTag):
 
     def parse_val(self, val: Any):
         """For 'complex' types that have different UI presentations, bring them back into our space"""
-        return ['#' + x.strip() for x in val.split('#') if x.strip() != '']
+        return [x.strip() for x in val.split() if x.strip() != '']
+        # return ['#' + x.strip() for x in val.split('#') if x.strip() != '']
 
 
 class HashtagsTag(BaseTag):
