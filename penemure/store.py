@@ -731,6 +731,12 @@ class OverlayEngine(BaseModel):
             backend.save(fsync=fsync)
 
     def search(self, **kwargs) -> list[WrappedStoredThing]:
+        """
+        e.g. 
+
+            self.search(type='template', title=type)
+
+        """
         results = []
         custom = None
         if 'custom' in kwargs:

@@ -225,7 +225,7 @@ class ReferenceTemplateTag(BaseTemplateTag):
     # min? max?
 
 class ReferenceTag(BaseTag):
-    val: str
+    val: UniformReference
     typ: Literal['Reference'] = 'Reference'
 
     def render_tag(self, template: ReferenceTemplateTag):

@@ -1,19 +1,46 @@
-from penemure.store import GitJsonFilesBackend
-from penemure.main import *
+from penemure.store import GitJsonFilesBackend, OverlayEngine, StoredThing
+from penemure.note import Note, MarkdownBlock
+from penemure.refs import UniformReference, UnresolvedReference
 from penemure.apps import *
-from penemure.note import *
-from penemure.tags import *
-import sys
+from penemure.main import *
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
-REPOS = os.environ.get('REPOS', './sec').split(':')
-REPOS = './sec'.split(':')
+REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-bos = Penemure(backends=backends, private_key_path='./key.txt')
+bos = Penemure(backends=backends)
 bos.load()
 
-# n = Note(title="Testing")
-# print(bos.overlayengine.add(n))
-# bos.save()
+for x in bos.overlayengine.all_things():
+    # No tags originally, can just continue on.
+    if len(x.thing.data.tags) == 0:
+        continue
 
-for n in bos.overlayengine.all():
-    print(n.thing.urn.urn, n.thing.relative_path, n.thing.data.title)
+    # Not migrating templates
+    if x.thing.data.type == 'template':
+        continue
+
+    print('## ' + x.thing.urn.urn)
+
+    new_tags = []
+    for tag in x.thing.data.tags:
+        if tag.key == 'status':
+            new_tags.append(StatusTag(key=tag.key, val=tag.val))
+        elif tag.key == 'start_date':
+            new_tags.append(PastDateTimeTag(key=tag.key, val=tag.val))
+        elif tag.key == 'end_date':
+            new_tags.append(PastDateTimeTag(key=tag.key, val=tag.val))
+        elif tag.key == 'milestone':
+            # find the associated milestone
+            milestone = bos.overlayengine.search(type='milestone', title=tag.val)
+            if len(milestone) == 0:
+                raise Exception(f"Could not find milestone {tag.val}")
+            new_tags.append(ReferenceTag(key=tag.key, val=milestone.thing.urn.urn))
+        elif tag.key == 'priority':
+            new_tags.append(PriorityTag(key=tag.key, val=tag.val))
+        elif tag.key in ('page_path', 'template', 'locale', 'icon', 'description', 'url'):
+            new_tags.append(TextTag(key=tag.key, val=tag.val))
+        else:
+            raise Exception(f"Unsupported {tag}")
+
+    x.thing.data.tags_v2 = new_tags

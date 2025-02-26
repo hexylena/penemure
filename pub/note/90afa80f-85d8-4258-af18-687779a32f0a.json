@@ -1,0 +1,44 @@
+{
+  "title": "3.0",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## Project Milestone\r\n\r\nAssociated notes:",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "685eaf9a-6de2-44bf-b2e6-2849ce03e473",
+      "created_unix": 1740577185.620568,
+      "updated_unix": 1740577185.6205697
+    },
+    {
+      "contents": "SQL SELECT\n  title,\n  created,\n  updated,\n  milestone\nFROM __all__\nWHERE\n  ancestors LIKE '%self%'",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "query-table",
+      "id": "a5eebfb2-3f23-43be-a056-05395a14dad3",
+      "created_unix": 1740577185.6259882,
+      "updated_unix": 1740577185.62599
+    }
+  ],
+  "tags": [],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1740577185.6360707,
+  "updated_unix": 1740577185.6360712,
+  "namespace": null,
+  "type": "milestone",
+  "attachments": []
+}
