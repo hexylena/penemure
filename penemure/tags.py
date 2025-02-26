@@ -60,8 +60,8 @@ class BaseTemplateTag(BaseModel):
                 'key': self.key,
                 'val': self.default}
 
-    def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
-        return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
+    def render_input(self, current_val: Any, oe: 'store.OverlayEngine'):
+        return f'<input type="text" name="tag_v2_val" value="{current_val or self.default}" />'
 
     @classmethod
     def parse_val(cls, val: Any):
@@ -97,8 +97,11 @@ class BaseTag(BaseModel):
         return f'<span class="tag">{self.render_key(template)}={self.render_val(template)}</span>'
 
     # is OE necessary? Yes, yes it is for ref tags.
-    def render_input(self, template: BaseTemplateTag, oe: 'store.OverlayEngine'):
-        return template.render_input(current_value=self.val)
+    def render_input(self, template: BaseTemplateTag | None, oe: 'store.OverlayEngine'):
+        if template:
+            return template.render_input(self.val, oe)
+
+        return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
 class PastDateTimeTemplateTag(BaseTemplateTag):
     typ: Literal['PastDateTimeTemplate'] = 'PastDateTimeTemplate'

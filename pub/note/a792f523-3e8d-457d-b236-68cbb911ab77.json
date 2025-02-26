@@ -1,0 +1,41 @@
+{
+  "title": "migration to v2",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "7348525e-f231-4dda-bf6a-f0dc3309dadc"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "fe9a1955-085c-4f67-a71e-93ff2c98d870",
+      "created_unix": 1740578290.0517118,
+      "updated_unix": 1740578290.0518072
+    }
+  ],
+  "tags": [
+    {
+      "key": "start_date",
+      "val": "1740571200.0"
+    },
+    {
+      "key": "end_date",
+      "val": "1740578289.0"
+    }
+  ],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1740578285.3016005,
+  "updated_unix": 1740578290.0517988,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}
