@@ -79,11 +79,10 @@ class BaseTag(BaseModel):
     # Mainly I just want sane behaviour on the parents (e.g. render_key,
     # render_tag working for the generic case) with the ability to special case
     # as-needed.
-    def render_key(self, note, oe: 'store.OverlayEngine'):
-        template = note.get_template(oe)
-        template_tag = template.thing.data.relevant_tag(self.key)
-        return template_tag.get_title()
+    def render_key(self, template: BaseTemplateTag):
+        return template.get_title()
 
+    # is OE necessary? Yes, yes it is for ref tags.
     def render_input(self, template: BaseTemplateTag, oe: 'store.OverlayEngine'):
         return template.render_input(current_value=self.val)
 
@@ -224,7 +223,7 @@ class ReferenceTag(BaseTag):
     def render_tag(self, template: ReferenceTemplateTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
-    def render_input(self, template: BaseTemplateTag, oe: 'store.OverlayEngine'):
+    def render_input(self, template: ReferenceTemplateTag, oe: 'store.OverlayEngine'):
         urns = oe.query(template.filter)
         out = '<select name="tag_v2_val">'
         for group in urns.groups:
@@ -238,18 +237,48 @@ class ReferenceTag(BaseTag):
 
         return out + '</select>'
 
-    def render(self, template: PastDateTimeTemplateTag):
+    def render(self, template: ReferenceTemplateTag):
         return self.val + '#link'
 
 
+class HashtagsTemplateTag(BaseTemplateTag):
+    typ: Literal['HashtagsTemplate'] = 'HashtagsTemplate'
+    default: list[str] = Field(default_factory=list)
+    # min? max?
+
+
+class HashtagsTag(BaseTag):
+    val: list[str]
+    typ: Literal['Hashtags'] = 'Hashtags'
+
+    def render_tag(self, template: HashtagsTemplateTag):
+        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
+
+    def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
+        # TODO: escape
+        return f'<input type="text" name="tag_v2_val" value="{" ".join(self.val or tpl.default)}" />'
+
+    def render(self, template: HashtagsTemplateTag):
+        return ' '.join([
+            f'<span class="tag">{v}</span>' 
+            for v in self.val
+        ])
+
+    @classmethod
+    def parse_val(cls, val: Any):
+        """For 'complex' types that have different UI presentations, bring them back into our space"""
+        return val.split(' ')
+
 
 TagV2 = Annotated[
-    PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag | ReferenceTag,
+    PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag | ReferenceTag | HashtagsTag,
     Field(discriminator="typ")]
 
 
 TemplateTagV2 = Annotated[
-    PastDateTimeTemplateTag | EnumTemplateTag | StatusTemplateTag | PriorityTemplateTag | TextTemplateTag | ReferenceTemplateTag,
+    PastDateTimeTemplateTag | EnumTemplateTag | StatusTemplateTag |
+    PriorityTemplateTag | TextTemplateTag | ReferenceTemplateTag |
+    HashtagsTemplateTag,
     Field(discriminator="typ")]
 
 def realise_tag(t: TemplateTagV2):
