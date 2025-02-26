@@ -31,6 +31,18 @@
       "val": "high"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "backlog",
+      "typ": "Status"
+    },
+    {
+      "key": "priority",
+      "val": "high",
+      "typ": "Priority"
+    }
+  ],
   "version": 2,
   "created_unix": 1739196063.620274,
   "updated_unix": 1739196063.620276,

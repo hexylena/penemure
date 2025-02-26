@@ -67,7 +67,18 @@
       "val": "UNCLASS"
     }
   ],
-  "tags_v2": [],
+  "tags_v2": [
+    {
+      "key": "yap level",
+      "val": "HIGH",
+      "typ": "Text"
+    },
+    {
+      "key": "CLASSIFICATION",
+      "val": "UNCLASS",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1739341254.03765,
   "updated_unix": 1740402298.3757572,

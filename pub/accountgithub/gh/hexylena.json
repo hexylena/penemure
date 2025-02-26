@@ -16,6 +16,23 @@
       "val": "nl"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "icon",
+      "val": "https://avatars.githubusercontent.com/u/458683?v=4",
+      "typ": "Text"
+    },
+    {
+      "key": "description",
+      "val": "(Experiencing reduced availability, feel free to ping, expect delayed responses.)\r\n\r\nSystems Witch ✨ Casting the spell to make the servers work 🧙‍",
+      "typ": "Text"
+    },
+    {
+      "key": "locale",
+      "val": "nl",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1739535063.096267,
   "updated_unix": 1739535063.353813,

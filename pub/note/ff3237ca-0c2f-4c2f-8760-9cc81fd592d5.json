@@ -27,6 +27,13 @@
       "val": "backlog"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "backlog",
+      "typ": "Status"
+    }
+  ],
   "version": 2,
   "created_unix": 1738578759.1561618,
   "updated_unix": 1739192040.2966444,

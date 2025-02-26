@@ -55,6 +55,18 @@
       "val": "low"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "done",
+      "typ": "Status"
+    },
+    {
+      "key": "priority",
+      "val": "low",
+      "typ": "Priority"
+    }
+  ],
   "version": 2,
   "created_unix": 1737990334.0114808,
   "updated_unix": 1739191981.382413,

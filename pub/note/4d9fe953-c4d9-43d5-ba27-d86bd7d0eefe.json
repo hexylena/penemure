@@ -145,6 +145,18 @@
       "val": "urn:penemure:file:blob:bd386f34-9357-4a55-9c04-47fe2d484408.jpg"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "description",
+      "val": "Perhaps the worst project management system invented, besides the rest",
+      "typ": "Text"
+    },
+    {
+      "key": "cover",
+      "val": "urn:penemure:file:blob:bd386f34-9357-4a55-9c04-47fe2d484408.jpg",
+      "typ": "Reference"
+    }
+  ],
   "version": 2,
   "created_unix": 1736507101.876954,
   "updated_unix": 1739378310.2133534,

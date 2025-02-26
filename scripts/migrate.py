@@ -30,9 +30,14 @@ for x in bos.overlayengine.all_things():
         if tag.key == 'status':
             new_tags.append(StatusTag(key=tag.key, val=tag.val))
         elif tag.key == 'start_date':
-            new_tags.append(PastDateTimeTag(key=tag.key, val=tag.val))
+            v = PastDateTimeTemplateTag.parse_val(tag.val)
+            new_tags.append(PastDateTimeTag(key=tag.key, val=v))
         elif tag.key == 'end_date':
-            new_tags.append(PastDateTimeTag(key=tag.key, val=tag.val))
+            v = PastDateTimeTemplateTag.parse_val(tag.val)
+            new_tags.append(PastDateTimeTag(key=tag.key, val=v))
+        elif tag.key == 'defense_date':
+            v = PastDateTimeTemplateTag.parse_val(tag.val)
+            new_tags.append(PastDateTimeTag(key=tag.key, val=v))
         elif tag.key == 'milestone':
             # find the associated milestone
             milestone = bos.overlayengine.search(type='milestone', title=tag.val)
@@ -47,9 +52,12 @@ for x in bos.overlayengine.all_things():
             new_tags.append(PriorityTag(key=tag.key, val=tag.val))
         elif tag.key == 'tags':
             new_tags.append(HashtagsTag(key=tag.key, val=HashtagsTemplateTag.parse_val(tag.val)))
-        elif tag.key in ('page_path', 'template', 'locale', 'icon', 'description'):
+        elif tag.key in ('page_path', 'template', 'locale', 'icon', 'description', 'url', 'yap level', 'CLASSIFICATION'):
             new_tags.append(TextTag(key=tag.key, val=tag.val))
+        elif tag.key == 'progress':
+            continue
         else:
             raise Exception(f"Unsupported {tag}")
 
     x.thing.data.tags_v2 = new_tags
+    x.save()

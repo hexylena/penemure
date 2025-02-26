@@ -39,6 +39,13 @@
       "val": "done"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "done",
+      "typ": "Status"
+    }
+  ],
   "version": 2,
   "created_unix": 1737555801.332066,
   "updated_unix": 1739192204.6621344,

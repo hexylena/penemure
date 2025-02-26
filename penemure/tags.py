@@ -63,9 +63,10 @@ class BaseTemplateTag(BaseModel):
     def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
         return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
-    def parse_val(self, val: Any):
+    @classmethod
+    def parse_val(cls, val: Any):
         """For 'complex' types that have different UI presentations, bring them back into our space"""
-        print('parse_val', self, val)
+        print('parse_val', cls, val)
         return val
 
 
@@ -103,9 +104,13 @@ class PastDateTimeTemplateTag(BaseTemplateTag):
     typ: Literal['PastDateTimeTemplate'] = 'PastDateTimeTemplate'
     default: float = 0
 
-    def parse_val(self, val: str):
-        # Seconds are not present in datetime-local
-        t = get_time(val + ":00Z")
+    @classmethod
+    def parse_val(cls, val: str):
+        if val.count(':') == 1:
+            # Seconds are not present in datetime-local
+            t = get_time(val + ":00Z")
+        else:
+            t = get_time(val)
         return t.timestamp()
 
 
@@ -254,7 +259,8 @@ class HashtagsTemplateTag(BaseTemplateTag):
     default: list[str] = Field(default_factory=list)
     # min? max?
 
-    def parse_val(self, val: Any):
+    @classmethod
+    def parse_val(cls, val: Any):
         """For 'complex' types that have different UI presentations, bring them back into our space"""
         return [x.strip() for x in val.split() if x.strip() != '']
         # return ['#' + x.strip() for x in val.split('#') if x.strip() != '']

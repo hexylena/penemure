@@ -52,10 +52,10 @@ def ellips(val, l=20):
 
 
 TRY_FORMATS = [
-    '%Y-%m-%d %H:%M:%S.%f%z', 
+    '%Y-%m-%d %H:%M:%S.%f%z',
     '%Y-%m-%d %H:%M:%S%z',
     '%Y-%m-%d %H:%M:%S',
-    '%Y-%m-%dT%H:%M:%S.%f%z', 
+    '%Y-%m-%dT%H:%M:%S.%f%z',
     '%Y-%m-%dT%H:%M:%S%z',
     '%Y-%m-%dT%H:%M:%S',
     '%Y-%m-%d'
@@ -65,6 +65,17 @@ def get_time(t):
         return datetime.datetime.fromtimestamp(float(t), tz=zoneinfo.ZoneInfo('UTC'))
     except ValueError:
         pass
+
+    # If we've got a [Europe/Amsterdam] in there (or similar)
+    if '[' in t:
+        tz = t[t.index('[') +  1:t.index(']')]
+        t = t[:t.index('[')]
+        for fmt in TRY_FORMATS:
+            try:
+                return datetime.datetime.strptime(t, fmt).replace(tzinfo=zoneinfo.ZoneInfo(tz))
+            except ValueError:
+                continue
+
     for fmt in TRY_FORMATS:
         try:
             return datetime.datetime.strptime(t, fmt)

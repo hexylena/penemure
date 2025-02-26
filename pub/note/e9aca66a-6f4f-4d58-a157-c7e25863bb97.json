@@ -31,6 +31,18 @@
       "val": "medium"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "done",
+      "typ": "Status"
+    },
+    {
+      "key": "priority",
+      "val": "medium",
+      "typ": "Priority"
+    }
+  ],
   "version": 2,
   "created_unix": 1739034286.7575953,
   "updated_unix": 1739195898.0907285,

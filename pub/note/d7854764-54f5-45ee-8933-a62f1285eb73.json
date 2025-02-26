@@ -55,6 +55,18 @@
       "val": "medium"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "backlog",
+      "typ": "Status"
+    },
+    {
+      "key": "priority",
+      "val": "medium",
+      "typ": "Priority"
+    }
+  ],
   "version": 2,
   "created_unix": 1739874181.125207,
   "updated_unix": 1739874181.125208,

@@ -31,6 +31,18 @@
       "val": "1738575197.0"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "start_date",
+      "val": 1738568581.0,
+      "typ": "PastDateTime"
+    },
+    {
+      "key": "end_date",
+      "val": 1738575197.0,
+      "typ": "PastDateTime"
+    }
+  ],
   "version": 2,
   "created_unix": 1738568581.3217833,
   "updated_unix": 1739192049.4370408,

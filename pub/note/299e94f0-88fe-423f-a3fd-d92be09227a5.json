@@ -27,6 +27,13 @@
       "val": "in-progress"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "in-progress",
+      "typ": "Status"
+    }
+  ],
   "version": 2,
   "created_unix": 1738919138.5859585,
   "updated_unix": 1739192008.0643163,

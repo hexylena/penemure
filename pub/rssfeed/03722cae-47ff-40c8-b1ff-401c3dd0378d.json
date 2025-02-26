@@ -39,7 +39,13 @@
       "val": "ph-rss"
     }
   ],
-  "tags_v2": [],
+  "tags_v2": [
+    {
+      "key": "icon",
+      "val": "ph-rss",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1740398064.007816,
   "updated_unix": 1740401544.9038935,

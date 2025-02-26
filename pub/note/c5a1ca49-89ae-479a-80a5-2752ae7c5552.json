@@ -31,6 +31,21 @@
       "val": "#time #todo"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "milestone",
+      "val": "urn:penemure:ede92e3f-06f4-40b7-91b0-5fc559982fe4",
+      "typ": "Reference"
+    },
+    {
+      "key": "tags",
+      "val": [
+        "#time",
+        "#todo"
+      ],
+      "typ": "Hashtags"
+    }
+  ],
   "version": 2,
   "created_unix": 1738575870.7855408,
   "updated_unix": 1738575870.7855413,

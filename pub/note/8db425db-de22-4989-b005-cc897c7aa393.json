@@ -125,6 +125,23 @@
       "val": "line must go down"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "page_path",
+      "val": "stats",
+      "typ": "Text"
+    },
+    {
+      "key": "template",
+      "val": "plain.html",
+      "typ": "Text"
+    },
+    {
+      "key": "description",
+      "val": "line must go down",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1738945535.8183742,
   "updated_unix": 1739736748.8777344,

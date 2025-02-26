@@ -27,6 +27,13 @@
       "val": "3.0"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "milestone",
+      "val": "urn:penemure:90afa80f-85d8-4258-af18-687779a32f0a",
+      "typ": "Reference"
+    }
+  ],
   "version": 2,
   "created_unix": 1740233376.5114818,
   "updated_unix": 1740233376.511483,

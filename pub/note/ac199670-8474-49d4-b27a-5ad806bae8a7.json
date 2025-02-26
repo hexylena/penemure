@@ -43,7 +43,18 @@
       "val": "plain.html"
     }
   ],
-  "tags_v2": [],
+  "tags_v2": [
+    {
+      "key": "page_path",
+      "val": "recent",
+      "typ": "Text"
+    },
+    {
+      "key": "template",
+      "val": "plain.html",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1740574483.2676024,
   "updated_unix": 1740574611.0255377,

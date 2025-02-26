@@ -33,7 +33,13 @@
       "val": "Listen to hexy yap"
     }
   ],
-  "tags_v2": [],
+  "tags_v2": [
+    {
+      "key": "description",
+      "val": "Listen to hexy yap",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1737549343.534218,
   "updated_unix": 1738841074.139317,

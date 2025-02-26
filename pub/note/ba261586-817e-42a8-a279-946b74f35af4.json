@@ -47,6 +47,20 @@
       "val": "#log"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "milestone",
+      "val": "urn:penemure:812c9278-578d-4d5f-92f7-a22dfcc644dc",
+      "typ": "Reference"
+    },
+    {
+      "key": "tags",
+      "val": [
+        "#log"
+      ],
+      "typ": "Hashtags"
+    }
+  ],
   "version": 2,
   "created_unix": 1739034135.291993,
   "updated_unix": 1739034135.2919936,
