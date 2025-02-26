@@ -23,6 +23,13 @@ FIELD_SEP = chr(0x001E)
 # 'real' tag always. E.g. the colour/presentation/title should always be set at
 # the level of the template tag, and that applied across the real tags.
 
+def hashed_colour(val):
+    m = hashlib.sha256()
+    m.update(val.encode('utf-8'))
+    m.digest()
+    d = int.from_bytes(m.digest()[0:2]) % 360
+    x = int.from_bytes(m.digest()[3:5]) % 30
+    return f'hsl({d}deg 75% {65 + x}%) !important'
 
 class BaseTemplateTag(BaseModel):
     key: str
@@ -53,12 +60,12 @@ class BaseTemplateTag(BaseModel):
                 'key': self.key,
                 'val': self.default}
 
-    def render_input(self, current_value=None):
-        raise NotImplementedError()
+    def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
+        return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
-    @classmethod
-    def parse_val(cls, val: Any):
+    def parse_val(self, val: Any):
         """For 'complex' types that have different UI presentations, bring them back into our space"""
+        print('parse_val', self, val)
         return val
 
 
@@ -81,6 +88,12 @@ class BaseTag(BaseModel):
     # as-needed.
     def render_key(self, template: BaseTemplateTag):
         return template.get_title()
+
+    def render_val(self, template: BaseTemplateTag):
+        return self.val
+
+    def render_tag(self, template: TextTemplateTag):
+        return f'<span class="tag">{self.render_key(template)}={self.render_val(template)}</span>'
 
     # is OE necessary? Yes, yes it is for ref tags.
     def render_input(self, template: BaseTemplateTag, oe: 'store.OverlayEngine'):
@@ -194,20 +207,15 @@ class PriorityTemplateTag(EnumTemplateTag):
 class PriorityTag(EnumTag):
     typ: Literal['Priority'] = 'Priority'
 
+
 class TextTemplateTag(BaseTemplateTag):
     typ: Literal['TextTemplate'] = 'TextTemplate'
     default: str = ''
 
+
 class TextTag(BaseTag):
     val: str
     typ: Literal['Text'] = 'Text'
-
-    def render_tag(self, template: TextTemplateTag):
-        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
-
-    def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
-        # TODO: escape
-        return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
 
 class ReferenceTemplateTag(BaseTemplateTag):
@@ -246,28 +254,31 @@ class HashtagsTemplateTag(BaseTemplateTag):
     default: list[str] = Field(default_factory=list)
     # min? max?
 
+    def parse_val(self, val: Any):
+        """For 'complex' types that have different UI presentations, bring them back into our space"""
+        return ['#' + x.strip() for x in val.split('#') if x.strip() != '']
+
 
 class HashtagsTag(BaseTag):
     val: list[str]
     typ: Literal['Hashtags'] = 'Hashtags'
 
     def render_tag(self, template: HashtagsTemplateTag):
-        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
+        return self.render_val(template)
 
     def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
         # TODO: escape
         return f'<input type="text" name="tag_v2_val" value="{" ".join(self.val or tpl.default)}" />'
 
-    def render(self, template: HashtagsTemplateTag):
+    def render_val(self, template: HashtagsTemplateTag):
         return ' '.join([
-            f'<span class="tag">{v}</span>' 
+            f'''
+                <span class="tag" style="background: {hashed_colour(v[1:])}">
+                {v}
+                </span>
+            '''
             for v in self.val
         ])
-
-    @classmethod
-    def parse_val(cls, val: Any):
-        """For 'complex' types that have different UI presentations, bring them back into our space"""
-        return val.split(' ')
 
 
 TagV2 = Annotated[
