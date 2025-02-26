@@ -120,12 +120,13 @@
 				</div>
 			</div>
 
-			<label for="tags">Tags v2</label>
+			<label for="tags">Tags</label>
 			<div id="tags_v2" name="tags_v2">
 				<table>
 					<thead>
 						<tr>
 							<th>Actions</th>
+							<th>Type</th>
 							<th>Key</th>
 							<th>Value</th>
 						</tr>
@@ -135,6 +136,13 @@
 						{% for tag in note.tags_v2 %}
 						<tr class='tag existing'>
 							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td>
+								<select name="tag_v2_typ" disabled>
+									{% for typ in Config.TagTypes %}
+									<option value="{{ typ }}" {% if tag.typ_real == typ %}selected{% endif %}>{{ typ }}</option>
+									{% endfor %}
+								</select>
+							</td>
 							<td><input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>
 								{% if template %}
@@ -148,6 +156,13 @@
 						{% endif %}
 						<tr id="default-tag2" class="tag">
 							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td>
+								<select name="tag_v2_typ">
+									{% for typ in Config.TagTypes %}
+									<option value="{{ typ }}">{{ typ }}</option>
+									{% endfor %}
+								</select>
+							</td>
 							<td><input type="text" name="tag_v2_key" placeholder="key"/></td>
 							<td><input type="text" name="tag_v2_val" placeholder="value"/></td>
 						</tr>
@@ -177,9 +192,6 @@
 	</form>
 
 	<script>
-document.querySelector('input#title').addEventListener('change', e => {
-	document.querySelector('head title').innerText = `New: ${e.target.value}`
-})
 
 // automatically resize textareas
 document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', autoResize, false));
@@ -188,11 +200,9 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 		document.querySelector('#default-block').remove();
 	}
 
-	const templateTag = document.querySelector('#default-tag').outerHTML;
 	const templateTag2 = document.querySelector('#default-tag2').outerHTML;
-	document.querySelector('#default-tag').remove();
 	document.querySelector('#default-tag2').remove();
-	if (document.querySelectorAll('#tags .tag.existing').length > 0 ){
+	if (document.querySelectorAll('#tags_v2 .tag.existing').length > 0 ){
 	}
 
 	function insertbefore(e){
@@ -212,7 +222,7 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 	function removetag(e){
 		let tag = e.parentElement.parentElement;
 		if (document.querySelectorAll('#notes .tag').length == 1){
-			tag.insertAdjacentHTML('beforebegin', templateTag.replaceAll('REPLACEME', uuid()))
+			tag.insertAdjacentHTML('beforebegin', templateTag2.replaceAll('REPLACEME', uuid()))
 		}
 
 		tag.remove();
@@ -224,9 +234,38 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 	}
 
 	function appendtag(e){
-		document.querySelector('#tags table tbody').insertAdjacentHTML('beforeend', templateTag);
+		document.querySelector('#tags_v2 table tbody').insertAdjacentHTML('beforeend', templateTag2);
 	}
 
+var tribute = new Tribute({
+  values: [
+	{% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
+	{% for (id, title) in group.rows %}
+	{ key: "{{ title | e}}", value: "{{ id }}#link" },
+	{% endfor %}
+	{% endfor %}
 
+	{% for group in oe.query('group select id, urn, parent_title from __attachments__ order by id asc').groups %}
+	{% for (id, urn, parent_title) in group.rows %}
+	{ key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}#url" },
+	{% endfor %}
+	{% endfor %}
+
+	{% set att_res = oe.query('select distinct id, urn from __blobs__ where urn not in (select urn from __attachments__) order by id asc') %}
+	{% if not att_res.is_empty() %}
+	{% for (id, urn) in att_res.groups[0].rows %}
+	{ key: "📎 {{ id | e }} (unattached)", value: "{{ urn }}#embed" },
+	{% endfor %}
+	{% endif %}
+  ],
+  selectTemplate: function (item) {
+    return item.original.value;
+  },
+});
+tribute.attach(document.querySelectorAll("textarea"));
+
+document.querySelector('input#title').addEventListener('change', e => {
+	document.querySelector('head title').innerText = `New: ${e.target.value}`
+})
 </script>
 {% endblock %}

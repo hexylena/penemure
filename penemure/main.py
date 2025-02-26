@@ -88,6 +88,9 @@ class Penemure(BaseModel):
             'System': UniformReference.from_string('urn:penemure:account:system'),
             'VcsRev': 'deadbeefcafe',
             'data': self.data,
+            # Gross.
+            'TagTypes': sorted([x.replace('penemure.tags.', '')[:-3] 
+                                for x in str(TagV2.__args__[0]).split(' | ')])
         }
         if config['ExportPrefix'] == '//':
             config['ExportPrefix'] = '/'

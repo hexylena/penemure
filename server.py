@@ -306,8 +306,9 @@ class BaseFormData(BaseModel):
     content_uuid: List[str]
     content_note: List[str]
     content_author: List[str]
-    tag_key: List[str] = Field(default_factory=list)
-    tag_val: List[str] = Field(default_factory=list)
+    # tag_key: List[str] = Field(default_factory=list)
+    # tag_val: List[str] = Field(default_factory=list)
+    tag_v2_typ: List[str] = Field(default_factory=list)
     tag_v2_key: List[str] = Field(default_factory=list)
     tag_v2_val: List[str] = Field(default_factory=list)
 
@@ -319,33 +320,38 @@ class BaseFormData(BaseModel):
 def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Note:
     d = data.model_dump()
 
-    d['tags'] = []
-    for k, v in zip(data.tag_key, data.tag_val):
-        if k == '' and v == '':
-            continue
-
-        if data.type == 'template':
-            d['tags'].append({
-                'key': k,
-                'val': json.loads(v)
-            })
-        else:
-            d['tags'].append({
-                'key': k,
-                'val': v
-            })
+    # d['tags'] = []
+    # for k, v in zip(data.tag_key, data.tag_val):
+    #     if k == '' and v == '':
+    #         continue
+    #
+    #     if data.type == 'template':
+    #         d['tags'].append({
+    #             'key': k,
+    #             'val': json.loads(v)
+    #         })
+    #     else:
+    #         d['tags'].append({
+    #             'key': k,
+    #             'val': v
+    #         })
 
     d['tags_v2'] = []
     print(data)
     template = oe.get_template(data.type)
-    for k, v in zip(data.tag_v2_key, data.tag_v2_val):
+    for k, v, t in zip(data.tag_v2_key, data.tag_v2_val, data.tag_v2_typ):
+        print(k, v, t)
         if k == '' and v == '':
             continue
 
+        tpl_tag = None
         if template:
             tpl_tag = template.thing.data.relevant_tag(k)
-        else:
-            tpl_tag = None
+
+        if not tpl_tag:
+            # TODO: not this.
+            tpl_tag = eval(t + 'TemplateTag')
+        print(tpl_tag)
 
         if data.type == 'template':
             # This should be a BaseTemplateTag class
@@ -355,21 +361,22 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
             # Minus the key which is separated.
             vv['key'] = k
             if tpl_tag:
-                vv['typ'] = tpl_tag.typ_real
+                vv['typ'] = t
                 vv['val'] = tpl_tag.parse_val(vv['val'])
             d['tags_v2'].append(vv)
         else:
             vv = {'key': k}
             if tpl_tag:
-                vv['typ'] = tpl_tag.typ_real
+                vv['typ'] = t
                 vv['val'] = tpl_tag.parse_val(v)
 
             d['tags_v2'].append(vv)
 
-    del d['tag_key']
-    del d['tag_val']
+    # del d['tag_key']
+    # del d['tag_val']
     del d['tag_v2_key']
     del d['tag_v2_val']
+    del d['tag_v2_typ']
 
     # We just don't handle attachments here at all.
     d['attachments'] = []
@@ -483,19 +490,27 @@ def get_new(username: Annotated[UniformReference, Depends(get_current_username)]
     if template is None:
         return render_fixed('new.html', username=username)
 
+    # Duplicating
     if template.startswith('urn:penemure:'):
-        # Then they're providing a note ref.
         u = UniformReference.from_string(template)
         tpl = oe.find(u)
+        # We could pre-duplicate this? But then it doesn't behave like 'new',
+        # it behaves like copy+edit which may violate expectations.
+        print('note', tpl.thing.data)
+        print('note_template', tpl.thing.data)
         return render_fixed('new.html',
-                            note=tpl,
+                            note=tpl.thing.data,
                             note_template=tpl.thing.data, username=username)
 
+    # From a proper template
     tpl = oe.search(type='template', title=template)
     if len(tpl) > 0:
         # TODO: how to select which template?
         tpl = tpl[0]
         assert isinstance(tpl.thing.data, Template)
+
+        print('note', tpl.thing.data.instantiate())
+        print('note_template', tpl.thing.data)
         return render_fixed('new.html',
                             note=tpl.thing.data.instantiate(),
                             note_template=tpl.thing.data, username=username)

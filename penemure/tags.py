@@ -49,6 +49,9 @@ class BaseTemplateTag(BaseModel):
         return self.title or self.key
 
     def render(self, *args, **kwargs):
+        return f'<span class="template tag">{self.render_key()}={ellips(self)}</span>'
+
+    def render_val(self):
         return f'<span class="template tag">{ellips(self)}</span>'
 
     @property
@@ -87,8 +90,10 @@ class BaseTag(BaseModel):
     # Mainly I just want sane behaviour on the parents (e.g. render_key,
     # render_tag working for the generic case) with the ability to special case
     # as-needed.
-    def render_key(self, template: BaseTemplateTag):
-        return template.get_title()
+    def render_key(self, template: None | BaseTemplateTag):
+        if template:
+            return template.get_title()
+        return self.key.title()
 
     def render_val(self, template: BaseTemplateTag):
         return self.val
@@ -98,8 +103,14 @@ class BaseTag(BaseModel):
 
     # is OE necessary? Yes, yes it is for ref tags.
     def render_input(self, template: BaseTemplateTag | None, oe: 'store.OverlayEngine'):
-        if template:
+        print(template, type(template))
+        if isinstance(template, BaseTemplateTag):
             return template.render_input(self.val, oe)
+        elif isinstance(template, BaseTag):
+            return template.render_input(None, oe)
+
+        # if template:
+        #     return template.render_input(self.val, oe)
 
         return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
@@ -241,7 +252,7 @@ class TextTag(BaseTag):
 class ReferenceTemplateTag(BaseTemplateTag):
     typ: Literal['ReferenceTemplate'] = 'ReferenceTemplate'
     default: str = ''
-    filter: str = ''
+    filter: str = 'select urn from __all__ group by type'
     # min? max?
 
 class ReferenceTag(BaseTag):
@@ -252,15 +263,19 @@ class ReferenceTag(BaseTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
     def render_input(self, template: ReferenceTemplateTag, oe: 'store.OverlayEngine'):
-        urns = oe.query(template.filter)
-        out = '<select name="tag_v2_val">'
+        if template and template.filter:
+            urns = oe.query(template.filter)
+        else:
+            urns = oe.query('group select urn, title, type from __all__ group by type')
+
+        out = '<select name="tag_v2_val" multiple>'
         for group in urns.groups:
             out += f'<optgroup label="{group.title}">'
             for row in group.rows:
                 urn = row[0]
                 # selected = ' selected ' if value == current_value else ''
                 selected = ''
-                out += f'<option value="{urn}" {selected}>{urn}#title</option>'
+                out += f'<option value="{urn}" {selected}>\n{row[1]}\n</option>\n'
             out += f'</optgroup>'
 
         return out + '</select>'
