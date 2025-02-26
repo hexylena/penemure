@@ -13,6 +13,7 @@ from penemure.refs import UniformReference
 from penemure.apps import *
 from penemure.errr import *
 from penemure.util import *
+from penemure.tags import *
 from penemure.main import *
 from typing import List, Dict
 import os
@@ -194,10 +195,11 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=No
 
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
-def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None, username=None, media_type: str=None):
+def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None, username=None, media_type: Optional[str]=None):
     a = time.time()
     use_template = 'note.html'
     if tag := st.thing.data.get_tag(key='template'):
+        assert isinstance(tag, TextTag)
         use_template = tag.val
     elif requested_template is not None:
         use_template = requested_template
@@ -207,10 +209,9 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None
     page_content = UniformReference.rewrite_urns(page_content, pen)
 
     render_kw = {'headers': {'X-Response-Time': str(time.time() - a)}}
-    if media_type:
+    if media_type is not None:
         render_kw['media_type'] = media_type
     return HTMLResponse(page_content, **render_kw)
-
 
 
 @app.get("/reload", tags=['system'])
@@ -233,7 +234,7 @@ def api_sync(username: Annotated[UniformReference, Depends(get_current_username)
 
 
 @app.get("/api/view/{backend}/{urn}", tags=['api'])
-def view_backend(backend: str, urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+def api_view_backend(backend: str, urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     if backend != '*':
         be = oe.get_backend(backend)
@@ -602,12 +603,12 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[U
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
     try:
-        log.thing.data.ensure_tag(key='start_date', value=str(float(data.start_unix)))
+        log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=float(data.start_unix)))
     except:
         pass
 
     try:
-        log.thing.data.ensure_tag(key='end_date', value=str(float(data.end_unix)))
+        log.thing.data.ensure_tag(PastDateTimeTag(key='end_date', val=float(data.end_unix)))
     except:
         pass
 
@@ -623,7 +624,7 @@ def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotate
     new_log = Note(title=log.thing.data.title, type='log')
     new_log = pen.overlayengine.add(new_log, backend=log.backend)
     new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
-    new_log.thing.data.ensure_tag(key='start_date', value=str(time.time()))
+    new_log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=time.time()))
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 
@@ -653,12 +654,12 @@ def save_time(data: Annotated[TimeFormData, Form()],
 
     log.thing.data.touch()
     log.thing.data.set_contents(extract_contents(data, username, log.thing.data.contents))
-    log.thing.data.ensure_tag(key='start_date', value=str(data.start_unix))
+    log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=data.start_unix))
     new_parents = (data.project or [])
     if new_parents:
         log.thing.data.set_parents([UniformReference.from_string(p) for p in new_parents])
     if data.end_unix:
-        log.thing.data.ensure_tag(key='end_date', value=str(data.end_unix))
+        log.thing.data.ensure_tag(PastDateTimeTag(key='end_date', val=data.end_unix))
     pen.overlayengine.save_thing(log)
 
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
@@ -785,7 +786,7 @@ async def get_body(request: Request):
 
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-async def post_form(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)], body=Depends(get_body)):
+async def post_form(urn: str, username: Annotated[UniformReference, Depends(get_current_username)], body=Depends(get_body)):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)

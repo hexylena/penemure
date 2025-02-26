@@ -103,6 +103,14 @@ class BaseTag(BaseModel):
 
         return f'<input type="text" name="tag_v2_val" value="{self.val or tpl.default}" />'
 
+    @classmethod
+    def parse_val(cls, val: Any):
+        return val
+
+    @property
+    def typ_real(self):
+        return self.typ
+
 class PastDateTimeTemplateTag(BaseTemplateTag):
     typ: Literal['PastDateTimeTemplate'] = 'PastDateTimeTemplate'
     default: float = 0
@@ -136,6 +144,10 @@ class PastDateTimeTag(BaseTag):
               name="tag_v2_val"
               value="{t.strftime("%Y-%m-%dT%H:%M:%S")}" /> UTC
         '''
+
+    @property
+    def datetime(self):
+        return datetime.datetime.fromtimestamp(self.val, ZoneInfo("UTC"))
 
 class EnumTemplateTag(BaseTemplateTag):
     has_groups: bool = False

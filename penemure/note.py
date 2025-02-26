@@ -298,10 +298,10 @@ class Note(ChangeDetectionMixin, BaseModel):
             self.model_set_changed("contents", original=self.contents)
             self.contents = contents
 
-    def set_tags(self, tags: list[Tag]):
-        if tags != self.tags:
-            self.model_set_changed("tags", original=self.tags)
-            self.tags = tags
+    def set_tags(self, tags: list[TagV2]):
+        if tags != self.tags_v2:
+            self.model_set_changed("tags", original=self.tags_v2)
+            self.tags_v2 = tags
 
     @property
     def created(self):
@@ -379,24 +379,24 @@ class Note(ChangeDetectionMixin, BaseModel):
             return "?"
 
 
-    def has_tag(self, key: str):
-        return len([tag for tag in self.tags if tag.key == key]) > 0
+    def has_tag(self, key: str) -> bool:
+        return len([tag for tag in self.tags_v2 if tag.key == key]) > 0
 
-    def relevant_tag(self, key):
+    def relevant_tag(self, key) -> Optional[TagV2]:
         for x in self.tags_v2:
             if x.key == key:
                 return x
 
-    def add_tag(self, tag: Tag, unique: bool = False):
+    def add_tag(self, tag: TagV2, unique: bool = False):
         self.touch()
-        self.model_set_changed("tags", original=self.tags)
+        self.model_set_changed("tags_v2", original=self.tags)
         if unique:
             # Remove any other values of this
-            self.tags = [t for t in self.tags if t.key != tag.key]
+            self.tags_v2 = [t for t in self.tags_v2 if t.key != tag.key]
 
-        self.tags.append(tag)
+        self.tags_v2.append(tag)
 
-    def get_tag(self, key: Optional[str] = None, enforce_unique: bool = False) -> Optional[Tag]:
+    def get_tag(self, key: Optional[str] = None, enforce_unique: bool = False) -> Optional[TagV2]:
         t = self.get_tags(key)
         if enforce_unique and len(t) > 1:
             raise Exception(f"Non-unique tags for key={key}")
@@ -405,9 +405,9 @@ class Note(ChangeDetectionMixin, BaseModel):
 
         return t[0]
 
-    def get_tags(self, key: Optional[str] = None, val: Optional[str] = None):
+    def get_tags(self, key: Optional[str] = None, val: Optional[str] = None) -> list[TagV2]:
         tags = []
-        for t in self.tags:
+        for t in self.tags_v2:
             if key is not None and t.key != key:
                 continue
             if val is not None and t.val != val:
@@ -428,43 +428,35 @@ class Note(ChangeDetectionMixin, BaseModel):
             c.append(b.author)
         return set(c)
 
-    def ensure_tag(self, key: str, value: str):
+    def ensure_tag(self, tag: TagV2) -> None:
         """
         Simimlar to add_tag, except ensures there cannot be duplicates and
         overwrites when there are. Great for adding an icon tag or a Start Time
         (or similar) where there should only be one.
         """
         self.touch()
-        self.model_set_changed("tags", original=self.tags)
+        self.model_set_changed("tags_v2", original=self.tags_v2)
         # find a matching tag, generally there should only be ONE with that key.
-        t = self.get_tags(key=key)
-        if len(t) == 0:
-            new_tag = Tag(key=key, val=value)
-            self.tags.append(new_tag)
-        elif len(t) == 1:
-            old_tag = t[0]
-            old_tag.val = value
-        else:
-            raise Exception("Too many tags")
+        self.tags_v2 = [x for x in self.tags_v2 if x.key != tag.key] + [tag]
 
-    def _fmt_datetime(self, t: Tag, a: Literal['date'] | Literal['time'] | Literal['unix']):
+    def _fmt_datetime(self, t: PastDateTimeTag, a: Literal['date'] | Literal['time'] | Literal['unix']):
         if a == 'unix':
-            return float(str(t.val))
-
-        d = datetime.datetime.fromtimestamp(float(str(t.val)), ZoneInfo("UTC"))
-        if a == 'date':
-            return d.date()
+            return t.val
+        elif a == 'date':
+            return t.datetime.date()
         elif a == 'time':
-            return d.time()
+            return t.datetime.time()
 
     def start(self, a: Literal['date'] | Literal['time'] | Literal['unix'] = 'date'):
         t = self.get_tag(key='start_date')
         if t is not None:
+            assert isinstance(t, PastDateTimeTag)
             return self._fmt_datetime(t, a)
 
     def end(self, a: Literal['date'] | Literal['time'] | Literal['unix'] = 'date'):
         t = self.get_tag(key='end_date')
         if t is not None:
+            assert isinstance(t, PastDateTimeTag)
             return self._fmt_datetime(t, a)
 
     def log_is_closed(self):
