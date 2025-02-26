@@ -120,39 +120,6 @@
 				</div>
 			</div>
 
-			<label for="tags">Tags</label>
-			<div id="tags" name="tags">
-				<table>
-					<thead>
-						<tr>
-							<th>Actions</th>
-							<th>Key</th>
-							<th>Value</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% if note %}
-						{% for tag in note.tags %}
-						<tr class='tag existing'>
-							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
-							<td><input type="text" name="tag_key" placeholder="key" value="{{ tag.key }}"/></td>
-							<td>
-								{{ tag.val_html }}
-								<input type="text" name="tag_val" placeholder="value" value="{{ tag.val_safe | escape }}"/>
-							</td>
-						</tr>
-						{% endfor %}
-						{% endif %}
-						<tr id="default-tag" class="tag">
-							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
-							<td><input type="text" name="tag_key" placeholder="key"/></td>
-							<td><input type="text" name="tag_val" placeholder="value"/></td>
-						</tr>
-					</tbody>
-				</table>
-				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
-			</div>
-
 			<label for="tags">Tags v2</label>
 			<div id="tags_v2" name="tags_v2">
 				<table>
