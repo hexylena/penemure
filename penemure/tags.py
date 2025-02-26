@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel, Field, NaiveDatetime
 import itertools
 import hashlib
@@ -9,7 +10,6 @@ import datetime
 from zoneinfo import ZoneInfo
 from .refs import *
 from .util import *
-from . import store # for forward refs.
 from abc import ABC
 
 FIELD_SEP = chr(0x001E)
@@ -302,7 +302,7 @@ class TemplateValue(BaseModel):
     def get_tag_value(self, value):
         if self.type == 'unix_time':
             if value:
-                return datetime.datetime.fromtimestamp(float(value), ZoneInfo('UTC'))
+                get_time(value)
         elif self.type == 'future_date':
             return datetime.datetime.strptime(value, "%Y-%m-%d")
         return value

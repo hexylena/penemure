@@ -1,3 +1,4 @@
+from __future__ import annotations
 import hashlib
 import magic
 import requests
@@ -17,7 +18,6 @@ from .refs import *
 from .table import *
 from .util import *
 
-from . import store, main # forward refs
 from enum import Enum
 
 
