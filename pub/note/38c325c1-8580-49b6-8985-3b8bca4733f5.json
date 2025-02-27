@@ -1,0 +1,43 @@
+{
+  "title": "Fixing tags further",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "33a2c542-359d-4f9f-ac9b-5e7bfbe8272b",
+      "created_unix": 1740648787.6796439,
+      "updated_unix": 1740648787.6798594
+    }
+  ],
+  "tags": [],
+  "tags_v2": [
+    {
+      "key": "start_date",
+      "val": 1740641400.0,
+      "typ": "PastDateTime"
+    },
+    {
+      "key": "end_date",
+      "val": 1740648786.0,
+      "typ": "PastDateTime"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1740648783.4158053,
+  "updated_unix": 1740648787.6798487,
+  "namespace": null,
+  "type": "log",
+  "attachments": []
+}
