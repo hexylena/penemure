@@ -1,0 +1,32 @@
+{
+  "title": "separate template tags and regular ones",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "should never have let them be merged.",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1740647607.6827025,
+      "updated_unix": 1740647607.6827042
+    }
+  ],
+  "tags": [],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1740647607.6848958,
+  "updated_unix": 1740647607.6848962,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

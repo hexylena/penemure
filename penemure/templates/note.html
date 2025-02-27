@@ -81,9 +81,11 @@
 	{% set note_tpl = note.get_template(oe) %}
 	{% for tag in note.thing.data.tags_v2 %}
 	<tr>
+		{% if note_tpl %}
+			{% set tpl_tag = note_tpl.thing.data.relevant_tag(tag.key) %}
+		{% endif %}
 		<td scope="row">{{ tag.html_icon }}
 			{% if tpl_tag %}
-				{% set tpl_tag = note_tpl.thing.data.relevant_tag(tag.key) %}
 				{{ tag.render_key(tpl_tag) }}
 			{% else %}
 				{{ tag.render_key(None) }}
@@ -91,11 +93,7 @@
 
 		</td>
 
-		{% if note.thing.data.type == 'template' %}
-		<td>{{ tag.render_val() }}</td>
-		{% else %}
 		<td>{{ tag.render_val(tpl_tag) }}</td>
-		{% endif %}
 	</tr>
 	{% endfor %}
 

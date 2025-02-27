@@ -437,7 +437,9 @@ class Note(ChangeDetectionMixin, BaseModel):
         self.touch()
         self.model_set_changed("tags_v2", original=self.tags_v2)
         # find a matching tag, generally there should only be ONE with that key.
+        print(self.tags_v2)
         self.tags_v2 = [x for x in self.tags_v2 if x.key != tag.key] + [tag]
+        print(self.tags_v2)
 
     def _fmt_datetime(self, t: PastDateTimeTag, a: Literal['date'] | Literal['time'] | Literal['unix']):
         if a == 'unix':

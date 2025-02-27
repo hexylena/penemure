@@ -241,20 +241,20 @@ var tribute = new Tribute({
   values: [
 	{% for group in oe.query('group select urn, title_plain from __all__ order by type desc, title_plain asc').groups %}
 	{% for (id, title) in group.rows %}
-	{ key: "{{ title | e}}", value: "{{ id }}#link" },
+	{ key: "{{ title | e}}", value: "{{ id }}" },
 	{% endfor %}
 	{% endfor %}
 
 	{% for group in oe.query('group select id, urn, parent_title from __attachments__ order by id asc').groups %}
 	{% for (id, urn, parent_title) in group.rows %}
-	{ key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}#url" },
+	{ key: "📎 {{ id | e }} ({{ parent_title | e }})", value: "{{ urn }}" },
 	{% endfor %}
 	{% endfor %}
 
 	{% set att_res = oe.query('select distinct id, urn from __blobs__ where urn not in (select urn from __attachments__) order by id asc') %}
 	{% if not att_res.is_empty() %}
 	{% for (id, urn) in att_res.groups[0].rows %}
-	{ key: "📎 {{ id | e }} (unattached)", value: "{{ urn }}#embed" },
+	{ key: "📎 {{ id | e }} (unattached)", value: "{{ urn }}" },
 	{% endfor %}
 	{% endif %}
   ],

@@ -51,7 +51,7 @@ class BaseTemplateTag(BaseModel):
     def render(self, *args, **kwargs):
         return f'<span class="template tag">{self.render_key()}={ellips(self)}</span>'
 
-    def render_val(self):
+    def render_val(self, *args):
         return f'<span class="template tag">{ellips(self)}</span>'
 
     @property
@@ -103,7 +103,7 @@ class BaseTag(BaseModel):
 
     # is OE necessary? Yes, yes it is for ref tags.
     def render_input(self, template: BaseTemplateTag | None, oe: 'store.OverlayEngine'):
-        print(template, type(template))
+        print('render_input', type(template))
         if isinstance(template, BaseTemplateTag):
             return template.render_input(self.val, oe)
         elif isinstance(template, BaseTag):
@@ -144,6 +144,10 @@ class PastDateTimeTag(BaseTag):
         t = get_time(self.val)
         return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
 
+    def render_val(self):
+        t = get_time(self.val)
+        return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
+
     def render_tag(self, template: PastDateTimeTemplateTag):
         return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
@@ -171,7 +175,7 @@ class EnumTemplateTag(BaseTemplateTag):
                 return icon
         return '?'
 
-    def render_input(self, current_value=None):
+    def render_input(self, current_value, oe):
         out = '<select name="tag_v2_val">'
         if self.has_groups:
             for cat, vs in itertools.groupby(self.values, lambda x: x[0]):

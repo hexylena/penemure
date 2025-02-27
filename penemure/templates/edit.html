@@ -153,9 +153,18 @@
 							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td>
 								<select name="tag_v2_typ">
+									{% if note.thing.data.type == 'template' %}
+										<optgroup label="Template Tags">
+										{% for typ in Config.TagTypes %}
+										<option value="{{ typ }}">{{ typ }}Template</option>
+										{% endfor %}
+										</optgroup>
+									{% endif %}
+
 									{% for typ in Config.TagTypes %}
 									<option value="{{ typ }}">{{ typ }}</option>
 									{% endfor %}
+
 								</select>
 							</td>
 							<td><input type="text" name="tag_v2_key" placeholder="key"/></td>

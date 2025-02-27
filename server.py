@@ -640,6 +640,9 @@ def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotate
     new_log = pen.overlayengine.add(new_log, backend=log.backend)
     new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
     new_log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=time.time()))
+    # Right, have to save after adding tags...
+    new_log.save()
+
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 
