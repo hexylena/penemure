@@ -42,17 +42,24 @@ class BaseTemplateTag(BaseModel):
     def typ_real(self):
         return self.typ.replace('Template', '')
 
+    @property
+    def is_template(self):
+        return True
+
     def get_title(self):
         return self.title or self.key
 
     def render_key(self, *args, **kwargs):
         return self.title or self.key
 
-    def render(self, *args, **kwargs):
-        return f'<span class="template tag">{self.render_key()}={ellips(self)}</span>'
+    # def render(self, *args, **kwargs):
+    #     return f'<span class="template tag">{self.render_key()}={ellips(self)}</span>'
 
     def render_val(self, *args):
-        return f'<span class="template tag">{ellips(self)}</span>'
+        return f'{ellips(self)}'
+
+    def render_tag(self, template: TextTemplateTag):
+        return f'<span class="tag">{self.render_key(template)}={self.render_val(template)}</span>'
 
     @property
     def val_safe(self):
@@ -78,6 +85,10 @@ class BaseTag(BaseModel):
     val: Any
     typ: Literal['UnusedGenericTag'] = 'UnusedGenericTag'
 
+    @property
+    def is_template(self):
+        return False
+
     # I have decided to ignore these errors for incompatible overriding of
     # method.
     #
@@ -91,7 +102,7 @@ class BaseTag(BaseModel):
     # render_tag working for the generic case) with the ability to special case
     # as-needed.
     def render_key(self, template: None | BaseTemplateTag):
-        if template:
+        if template and isinstance(template, BaseTemplateTag): # At one point being provided a wrappedstoredhting? bad.
             return template.get_title()
         return self.key.title()
 
@@ -140,16 +151,13 @@ class PastDateTimeTag(BaseTag):
     val: float # unix
     typ: Literal['PastDateTime'] = 'PastDateTime'
 
-    def render(self, template: PastDateTimeTemplateTag):
-        t = get_time(self.val)
-        return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
+    # def render(self, template: PastDateTimeTemplateTag):
+    #     t = get_time(self.val)
+    #     return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
 
     def render_val(self, *args):
         t = get_time(self.val)
         return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
-
-    def render_tag(self, template: PastDateTimeTemplateTag):
-        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
     def render_input(self, tpl: PastDateTimeTemplateTag, oe: 'store.OverlayEngine'):
         t = get_time(self.val or tpl.default)
@@ -196,11 +204,6 @@ class EnumTemplateTag(BaseTemplateTag):
 class EnumTag(BaseTag):
     val: str
 
-    def render(self, template: EnumTemplateTag):
-        return template.get_icon(self.val) +" " + self.val.title()
-
-    def render_tag(self, template: EnumTemplateTag):
-        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
 class StatusTemplateTag(EnumTemplateTag):
     key: str = 'status'
@@ -263,8 +266,6 @@ class ReferenceTag(BaseTag):
     val: str # UniformReference.urn
     typ: Literal['Reference'] = 'Reference'
 
-    def render_tag(self, template: ReferenceTemplateTag):
-        return f'<span class="tag">{self.render_key(template)}={self.render(template)}</span>'
 
     def render_input(self, template: ReferenceTemplateTag, oe: 'store.OverlayEngine'):
         if template and template.filter:
@@ -284,9 +285,6 @@ class ReferenceTag(BaseTag):
 
         return out + '</select>'
 
-    def render(self, template: ReferenceTemplateTag):
-        return self.val + '#link'
-
 
 class HashtagsTemplateTag(BaseTemplateTag):
     typ: Literal['HashtagsTemplate'] = 'HashtagsTemplate'
@@ -304,8 +302,6 @@ class HashtagsTag(BaseTag):
     val: list[str]
     typ: Literal['Hashtags'] = 'Hashtags'
 
-    def render_tag(self, template: HashtagsTemplateTag):
-        return self.render_val(template)
 
     def render_input(self, tpl: BaseTemplateTag, oe: 'store.OverlayEngine'):
         # TODO: escape

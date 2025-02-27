@@ -44,12 +44,12 @@
 	<tr>
 		<td><a class="urn" href="{{ note.thing.url }}">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
 		<td>{{ note.thing.data.type }}</td>
-		<td>{% if note.thing.data.has_tag('status') %}{{ note.thing.data.get_tag('status').render(note.get_template(oe)) }}{% endif %}</td>
+		<td>{% if note.thing.data.has_tag('status') %}{{ note.thing.data.get_tag('status').render_tag(note.get_template(oe)) }}{% endif %}</td>
 		<td>
 			<div class="pills">
-			{% for tag in note.thing.data.tags %}
-				{% if tag.key != 'status' %}
-				{{ tag.render(note.get_template(oe), standalone=True) }}
+			{% for tag in note.thing.data.tags_v2 %}
+				{% if tag.key != 'status' and not tag.is_template and note.get_template(oe) %}
+				{{ tag.render_tag(note.get_template(oe).thing.data.relevant_tag(tag.key)) }}
 				{% endif %}
 			{% endfor %}
 			</div>
