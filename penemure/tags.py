@@ -144,7 +144,7 @@ class PastDateTimeTag(BaseTag):
         t = get_time(self.val)
         return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
 
-    def render_val(self):
+    def render_val(self, *args):
         t = get_time(self.val)
         return f'<time datetime="{t.strftime("%Y-%m-%dT%H:%M:%S%z")}">{t.strftime("%Y %b %d %H:%M")}</time>'
 

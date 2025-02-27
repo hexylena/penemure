@@ -135,6 +135,13 @@
 						{% for tag in note.thing.data.tags_v2 %}
 						<tr class='tag existing'>
 							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td>
+								<select name="tag_v2_typ" disabled>
+									{% for typ in Config.TagTypes %}
+									<option value="{{ typ }}" {% if tag.typ_real == typ %}selected{% endif %}>{{ typ }}</option>
+									{% endfor %}
+								</select>
+							</td>
 							<td><input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>
 								{% if note.thing.data.type == 'template' %}
