@@ -130,7 +130,7 @@ class MarkdownBlock(BaseModel):
                 # page_content += res
 
         elif self.type == BlockTypes.markdown.value:
-            page_content = md(self.contents)
+            page_content = pen.md(self.contents)
         elif self.type == BlockTypes.transclude.value:
             # Just allow one, right?
             note_ref, block_ref = self.contents.strip().split('#', 1)
@@ -141,7 +141,7 @@ class MarkdownBlock(BaseModel):
             block = block[0]
             page_content = f'''
               <div class="transcluded">
-                {md(block.contents)}
+                {pen.md(block.contents)}
               </div>
               <a href="/{note.thing.url}#{block.id}"><small>Source</small></a>
             '''
@@ -186,7 +186,7 @@ class MarkdownBlock(BaseModel):
             if not form:
                 page_content = f'<details><summary>Form Field: {title} ({self.type})</summary><pre>{self.contents}</pre></details>'
             elif self.type == BlockTypes.formMarkdown.value:
-                page_content = md(self.contents)
+                page_content = pen.md(self.contents)
             else:
                 frontmatter = "<div class=\"row question\">"
                 frontmatter += f'<label class="col-sm-2" for="block-{self.id}">{title}</label>'

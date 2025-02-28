@@ -136,11 +136,13 @@
 						<tr class='tag existing'>
 							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td>
-								<select name="tag_v2_typ" disabled>
+								<select disabled>
 									{% for typ in Config.TagTypes %}
 									<option value="{{ typ }}" {% if tag.typ_real == typ %}selected{% endif %}>{{ typ }}</option>
 									{% endfor %}
 								</select>
+								{# the hidden input is needed as disabled inputs aren't sent in forms. #}
+								<input type="hidden" name="tag_v2_typ" value="{{ tag.typ_real }}">
 							</td>
 							<td><input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>

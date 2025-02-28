@@ -28,13 +28,7 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-data = {}
-for k in glob.glob('assets/data/*.json'):
-    f = os.path.basename(k).replace('.json', '')
-    with open(k, 'r') as handle:
-        data[f] = json.load(handle)
-
-pen = Penemure(backends=backends, data=data)
+pen = Penemure(backends=backends)
 oe = pen.overlayengine
 oe.load()
 
@@ -565,6 +559,9 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
 
     u = UniformReference.from_string(urn)
     orig = oe.find(u)
+    # print('orig', orig.thing.data.tags_v2)
+    # print('new ', new_note.tags_v2)
+    # 1/0
     orig.thing.data.title = new_note.title
     orig.thing.data.type = new_note.type
     # We don't use new_note.contents because this is smarter.

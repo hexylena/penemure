@@ -20,7 +20,7 @@ assets/data/healthicons.json: node_modules/healthicons/public/icons/meta-data.js
 	mkdir -p assets/healthicons/
 	rsync -avr assets/../node_modules/healthicons/public/icons/svg/outline/ assets/healthicons/outline/
 	rsync -avr assets/../node_modules/healthicons/public/icons/svg/filled/ assets/healthicons/filled/
-	cat node_modules/healthicons/public/icons/meta-data.json | jq '{"meta": {"name": "Healthicons"}, "icons": [.[] | {"id": .id, "category": .category, "tags": .tags, "path": .path}]  }' > assets/data/healthicons.json
+	cat node_modules/healthicons/public/icons/meta-data.json | jq '{"meta": {"name": "Healthicons", "prefix": "hi"}, "icons": [.[] | {"id": (.path | sub("/"; "-")), "category": .category, "tags": .tags, "path": .path}]  }' > assets/data/healthicons.json
 
 assets/favicon.ico: penemure.png
 	magick penemure.png -resize 64x assets/favicon.ico

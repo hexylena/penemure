@@ -69,3 +69,6 @@ for x in bos.overlayengine.all_things():
 # oe.load()
 # for f in oe.all():
 #     print(repr(f))
+
+
+print(bos.md('hello :hi-vehicles-war: :+1: :thumbs-up:'))

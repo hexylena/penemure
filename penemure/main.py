@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from functools import cache
 import glob
 import shutil
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -43,6 +44,23 @@ class Penemure(BaseModel):
                 if b.pubkeys is not None:
                     b._private_key_path = pk
         self.overlayengine = OverlayEngine(backends=be)
+        data = {}
+        for k in glob.glob('assets/data/*.json'):
+            f = os.path.basename(k).replace('.json', '')
+            with open(k, 'r') as handle:
+                data[f] = json.load(handle)
+        self.data.update(data)
+
+        # Calculate our emoji
+        self._emoji = {}
+        for k, v in self.data.items():
+            prefix = v['meta']['prefix']
+            for icon in v['icons']:
+                key = f':{prefix}-{icon["id"]}:'
+                self._emoji[key] = {
+                    "name": icon['id'].replace('_', ' '),
+                    "category": icon.get('category', 'general')
+                }
 
     # TODO: all assets.
     def pkg_file(self, path: str):
@@ -244,3 +262,71 @@ class Penemure(BaseModel):
                     return f'<a href="#">Couldn\'t find {urn_ref.urn}</a>' 
         else:
             return urn_ref.urn
+
+    def _emoji_index(self, *args):
+        return {
+            "name": "pene",
+            "aliases": {},
+            "emoji": self._emoji,
+            # "aliases": {
+            #     # Key is the alias.
+            #     # Value is the short name it maps to in the
+            #     # previously defined 'emoji' key.
+            #     ":+1:": ":thumbsup:"
+            # }
+        }
+
+    def md(self, c):
+        extension_configs = {
+            # "custom_fences": [
+            #     {
+            #         'name': 'mermaid',
+            #         'class': 'mermaid',
+            #         'format': pymdownx.superfences.fence_div_format
+            #     }
+            # ]
+            "pymdownx.emoji": {
+                'emoji_generator': emoji_generator,
+                'emoji_index':  self._emoji_index
+            }
+        }
+
+        return markdown.markdown(
+            c,
+            extension_configs=extension_configs,
+            extensions=[
+                'attr_list',
+                'codehilite',
+                'footnotes', 
+                'markdown_checklist.extension',
+                'md_in_html',
+                'pymdownx.blocks.details',
+                'pymdownx.highlight',
+                'pymdownx.magiclink',
+                'pymdownx.superfences',
+                'pymdownx.tilde',
+                'pymdownx.emoji',
+                'sane_lists',
+                'smarty',
+                'tables',
+            ]
+        )
+
+import xml.etree.ElementTree as etree
+def emoji_generator(index, shortname, alias, uc, alt, title, category, options, md):
+    # emoji_generator ('pene', ':hi-vehicles-war:', None, None, ':hi-vehicles-war:', ':hi-vehicles-war:', 'vehicles', {}, <markdown.core.Markdown object at 0x788b846f0980>)
+    if shortname.startswith(':hi-'):
+        path = shortname.replace(':hi-', '').replace(':', '')
+        # f = f'<img src="" style="width: 1em;" loading="lazy"/>'
+        attr = {'src': f'/assets/healthicons/outline/{path.replace("-", "/", 1)}.svg', 'loading':
+                'lazy', 'style': 'width: 1em', 'alt': 'icon ' + path.replace('-', ' ')}
+        return etree.Element("img", attr)
+    elif shortname.startswith(':ph-'):
+        path = shortname.replace(':ph-', '').replace(':', '')
+        return etree.Element("i", {'class': f"ph ph-{path}"})
+
+    return shortname
+
+
+import pymdownx.emoji
+pymdownx.emoji.to_png

@@ -61,6 +61,7 @@ TRY_FORMATS = [
     '%Y-%m-%d'
 ]
 def get_time(t):
+    # print("PARSING TIME", t)
     try:
         return datetime.datetime.fromtimestamp(float(t), tz=zoneinfo.ZoneInfo('UTC'))
     except ValueError:
@@ -78,41 +79,11 @@ def get_time(t):
 
     for fmt in TRY_FORMATS:
         try:
-            return datetime.datetime.strptime(t, fmt)
+            # We assume UTC for all unspecified datetimes provided.
+            return datetime.datetime.strptime(t, fmt).replace(tzinfo=zoneinfo.ZoneInfo('UTC'))
         except ValueError:
             continue
     raise ValueError(f"Unparseable time: {t}")
-
-def md(c):
-    extension_configs = {
-        # "custom_fences": [
-        #     {
-        #         'name': 'mermaid',
-        #         'class': 'mermaid',
-        #         'format': pymdownx.superfences.fence_div_format
-        #     }
-        # ]
-    }
-
-    return markdown.markdown(
-        c,
-        extension_configs=extension_configs,
-        extensions=[
-            'attr_list',
-            'codehilite',
-            'footnotes', 
-            'markdown_checklist.extension',
-            'md_in_html',
-            'pymdownx.blocks.details',
-            'pymdownx.highlight',
-            'pymdownx.magiclink',
-            'pymdownx.superfences',
-            'pymdownx.tilde',
-            'sane_lists',
-            'smarty',
-            'tables',
-        ]
-    )
 
 
 def guess_extension(content_type_header):
