@@ -16,7 +16,7 @@ from .refs import UniformReference
 from .sqlish import GroupedResultSet, ResultSet, extract_groups
 from .note import Note
 from .refs import UniformReference
-from .apps import ModelFromAttr, Account
+from .apps import *
 from .util import *
 from .errr import *
 from pydantic import BaseModel
@@ -342,6 +342,12 @@ class WrappedStoredThing(BaseModel):
                 d[tag.key] = vv.strftime('%Y-%m-%dT%H:%M:%S')
             else:
                 d[tag.key] = vv
+
+        if isinstance(self.thing.data, Template):
+            del d['template_tags_v2']
+        #     for tag in self.thing.data.template_tags_v2:
+        #         vv = tag.model_dump()
+        #         d[tag.key] = vv
 
         # TODO: web+penemure: also works as a prefix instead of #url as a suffix.
         d['title'] = f'<a href="{self.thing.urn.urn}#url">{self.thing.html_title}</a>'

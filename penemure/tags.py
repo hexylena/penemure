@@ -40,7 +40,7 @@ class BaseTemplateTag(BaseModel):
 
     @property
     def typ_real(self):
-        return self.typ.replace('Template', '')
+        return self.typ
 
     @property
     def is_template(self):

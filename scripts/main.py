@@ -22,7 +22,10 @@ bos.load()
 
 
 for x in bos.overlayengine.all_things():
+    if x.thing.data.type != 'template':
+        continue
     print(x.thing.urn.urn)
+    print(x.thing.data.template_tags_v2)
 
 # account = Account(username='hexylena', title='Helena')
 # account = oe.add(account)

@@ -11,15 +11,14 @@ import re
 
 class Template(Note):
     type: str = 'template'
-    tags: list[TemplateTag] = Field(default_factory=list)
-    tags_v2: list[TemplateTagV2] = Field(default_factory=list)
+    template_tags_v2: list[TemplateTagV2] = Field(default_factory=list)
 
     def instantiate(self) -> Note:
         data = self.model_dump()
         # TODO: rewrite tags
         # TODO: rewrite author from blocks?
-        data['tags'] = [t.instantiate() for t in self.tags]
-        data['tags_v2'] = [realise_tag(t) for t in self.tags_v2]
+        # data['tags'] = [t.instantiate() for t in self.tags]
+        data['tags_v2'] = [realise_tag(t) for t in self.template_tags_v2]
         data['type'] = self.title # TODO: validation
         obj = Note.model_validate(data)
         return obj

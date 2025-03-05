@@ -146,14 +146,10 @@
 							</td>
 							<td><input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
 							<td>
-								{% if note.thing.data.type == 'template' %}
-									<input type="text" name="tag_v2_val" placeholder="value" value="{{tag.val_safe | e}}"/>
-								{% else %}
-									{% if note_tpl and note_tpl.thing.data.relevant_tag(tag.key) %}
+								{% if note_tpl and note_tpl.thing.data.relevant_tag(tag.key) %}
 									{{ tag.render_input(note_tpl.thing.data.relevant_tag(tag.key), oe) }}
-									{% else %}
+								{% else %}
 									{{ tag.render_input(None, oe) }}
-									{% endif %}
 								{% endif %}
 							</td>
 						</tr>
@@ -162,14 +158,6 @@
 							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td>
 								<select name="tag_v2_typ">
-									{% if note.thing.data.type == 'template' %}
-										<optgroup label="Template Tags">
-										{% for typ in Config.TagTypes %}
-										<option value="{{ typ }}">{{ typ }}Template</option>
-										{% endfor %}
-										</optgroup>
-									{% endif %}
-
 									{% for typ in Config.TagTypes %}
 									<option value="{{ typ }}">{{ typ }}</option>
 									{% endfor %}
@@ -178,6 +166,57 @@
 							</td>
 							<td><input type="text" name="tag_v2_key" placeholder="key"/></td>
 							<td><input type="text" name="tag_v2_val" placeholder="value"/></td>
+						</tr>
+					</tbody>
+				</table>
+				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
+			</div>
+
+			<label for="tags">Template Tags</label>
+			<div id="tags_v2" name="tags_v2">
+				<table>
+					<thead>
+						<tr>
+							<th>Actions</th>
+							<th>Type</th>
+							<th>Key</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% set note_tpl = note.get_template(oe) %}
+						{% for tag in note.thing.data.template_tags_v2 %}
+						<tr class='tag existing'>
+							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td>
+								<select disabled>
+									{% for typ in Config.TagTypes %}
+									<option value="{{ typ }}Template" {% if tag.typ_real == typ + "Template" %}selected{% endif %}>{{ typ }}</option>
+									{% endfor %}
+								</select>
+								{# the hidden input is needed as disabled inputs aren't sent in forms. #}
+								<input type="hidden" name="template_tag_v2_typ" value="{{ tag.typ_real }}">
+							</td>
+							<td><input type="text" name="template_tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
+							<td>
+								<input type="text" name="template_tag_v2_val" placeholder="value" value="{{tag.val_safe | e}}"/>
+							</td>
+						</tr>
+						{% endfor %}
+						<tr id="default-tag2" class="tag">
+							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
+							<td>
+								<select name="template_tag_v2_typ">
+									<optgroup label="Template Tags">
+										{% for typ in Config.TagTypes %}
+										<option value="{{ typ }}">{{ typ }}</option>
+										{% endfor %}
+									</optgroup>
+
+								</select>
+							</td>
+							<td><input type="text" name="template_tag_v2_key" placeholder="key"/></td>
+							<td><input type="text" name="template_tag_v2_val" placeholder="value"/></td>
 						</tr>
 					</tbody>
 				</table>
