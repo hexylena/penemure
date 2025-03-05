@@ -332,10 +332,10 @@ TemplateTagV2 = Annotated[
     HashtagsTemplateTag,
     Field(discriminator="typ")]
 
-def realise_tag(t: TemplateTagV2):
+def realise_tag(t: TemplateTagV2) -> TagV2:
     # Just in case...
-    if 'Template' not in t.__class__.__name__:
-        return t
+    # if 'Template' not in t.__class__.__name__:
+    #     return t
 
     cm = globals()[t.__class__.__name__.replace('Template', '')]
     # print(cm, t, t.instantiate_data())
