@@ -30,7 +30,7 @@
 	<thead>
 	<tr>
 		<th>Title</th>
-		<th>Type</th>
+		<th>Date</th>
 		<th>Status</th>
 		<th>Author</th>
 		<th>Backend</th>
@@ -38,11 +38,14 @@
 	</tr>
 	</thead>
 	<tbody>
-	{% for note in oe.all_things() %}
+	{% for note in oe.all_things('-updated') %}
 	{% for block in note.thing.data.get_contents() %}
 	<tr>
 		<td><a class="urn" href="{{ note.thing.url }}#{{ block.id }}">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
-		<td>{{ block.type }}</td>
+		<!-- <td>{{ block.type }}</td> -->
+		<td>
+			<time class="relative" title="{{ note.thing.data.updated }}" datetime="{{ note.thing.data.updated }}">{{ note.thing.data.updated }}</time>
+		</td>
 		<td>{{ block.contents }}</td>
 		<td>{{ block.author.urn }}#link</td>
 		<td>{{ note.backend.name }}</td>
