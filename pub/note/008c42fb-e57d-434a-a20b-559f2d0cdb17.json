@@ -1,0 +1,36 @@
+{
+  "title": "External System Integration",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "The whole point of this system is not forcing anyone else to use it, but allowing me to be incredibly organised. I'll tolerate certain types of pain (e.g. backend specific tag fields) to just have everything in one system where I can keep a good view of it.\r\n\r\n`git-bug` does something like this, representing your github issues in an offline format. every comment every tag every thing about an issue is recorded. \r\n\r\nI would like to have 'adapters' that you can configure, and, maybe run on cron to sync changes to these external systems. Maybe it hooks into the 'sync' system and identifies changes that will go out when you click the button.\r\n\r\n## JIRA\r\n\r\nI suspect we'll want to represent a number of attributes like users as well in our system, so we'll have to:\r\n\r\n- create accounts in the jira namespace\r\n- create projects/issues in the jira namespace\r\n- sync attributes\r\n\r\nMaybe we choose a subset of attributes to sync, but, we'd need to do some. (e.g. status). That means running `sync` also manages the appropriate template, probably creating a `jira_issue` and `jira_project` type template.\r\n\r\nComments are a thing, how do we want to sync those? We need a data model for that, which currently doesn't exist. And we'd need them to be marked as read-only for external ones that are not owned by our user. So we need to know who our jira user access is done via.\r\n\r\n## GitHub\r\n\r\nWe'll of course want to do github as well like git-bug does. So that means\r\n\r\n- configure a specific repository to sync\r\n- any noticed users will get registered under acct:github\r\n- we'll sync all issues\r\n- and make sure we update them, all the same as jira.\r\n\r\n## Conclusion\r\n\r\nI guess what I'm aiming for is the `libpurple` of project management systems.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "e57bbdf2-866a-4c85-ab31-4f93df3b91bc",
+      "created_unix": 1741198657.4441376,
+      "updated_unix": 1741198657.4441388
+    }
+  ],
+  "tags": [
+    {
+      "key": "description",
+      "val": "insanity distilled"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1741198657.4442303,
+  "updated_unix": 1741198657.4442317,
+  "namespace": null,
+  "type": "project",
+  "attachments": []
+}

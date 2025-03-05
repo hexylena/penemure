@@ -1,0 +1,40 @@
+{
+  "title": "metadata for file uploads?",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "it could be nice to e.g. have alt text that's deployed everywhere, or remember a source url / device / user",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1741198222.7988787,
+      "updated_unix": 1741198222.7988794
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "low"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1741198222.7989233,
+  "updated_unix": 1741198222.7989235,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
