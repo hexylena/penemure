@@ -138,6 +138,7 @@ class BaseBackend(BaseModel):
     icon: str = '💿'
     prefix: str = Field(default_factory=lambda: ''.join(random.choices(string.ascii_uppercase, k=2)))
     pubkeys: List[str] | None = None
+    lfs: bool = True
     _private_key_path: str | None = None
 
     def read(self, path, mode: str = 'r'):
@@ -212,14 +213,15 @@ class BaseBackend(BaseModel):
         cls = cls.model_validate(data)
         cls.persist_meta()
 
-        gitmeta = os.path.join(path, '.gitattributes')
-        if not os.path.exists(gitmeta):
-            with open(gitmeta, 'w') as handle:
-                handle.write("*.png filter=lfs diff=lfs merge=lfs -text\n")
-                handle.write("*.jpg filter=lfs diff=lfs merge=lfs -text\n")
-                handle.write("*.jpeg filter=lfs diff=lfs merge=lfs -text\n")
-                handle.write("*.webp filter=lfs diff=lfs merge=lfs -text\n")
-                subprocess.check_call(['git', 'add', '.gitattributes'], cwd=path)
+        if cls.lfs:
+            gitmeta = os.path.join(path, '.gitattributes')
+            if not os.path.exists(gitmeta):
+                with open(gitmeta, 'w') as handle:
+                    handle.write("*.png filter=lfs diff=lfs merge=lfs -text\n")
+                    handle.write("*.jpg filter=lfs diff=lfs merge=lfs -text\n")
+                    handle.write("*.jpeg filter=lfs diff=lfs merge=lfs -text\n")
+                    handle.write("*.webp filter=lfs diff=lfs merge=lfs -text\n")
+                    subprocess.check_call(['git', 'add', '.gitattributes'], cwd=path)
         return cls
 
     @classmethod
