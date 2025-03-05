@@ -47,11 +47,11 @@
 			<time class="relative" title="{{ note.thing.data.updated }}" datetime="{{ note.thing.data.updated }}">{{ note.thing.data.updated }}</time>
 		</td>
 		{% set status_tag = note.thing.data.get_tag('status') %}
-		<td>{% if status_tag and not status_tag.is_template %}{{ status_tag.render_val(note.get_template(oe).thing.data.relevant_tag('status')) }}{% endif %}</td>
+		<td>{% if status_tag %}{{ status_tag.render_val(note.get_template(oe).thing.data.relevant_tag('status')) }}{% endif %}</td>
 		<td>
 			<div class="pills">
 			{% for tag in note.thing.data.tags_v2 %}
-				{% if tag.key != 'status' and not tag.is_template and note.get_template(oe) %}
+				{% if tag.key != 'status' and note.get_template(oe) %}
 				{{ tag.render_tag(note.get_template(oe).thing.data.relevant_tag(tag.key)) }}
 				{% endif %}
 			{% endfor %}

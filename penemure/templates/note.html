@@ -92,6 +92,16 @@
 	</tr>
 	{% endfor %}
 
+	{% for tag in note.thing.data.template_tags_v2 %}
+	<tr>
+		<td scope="row">
+			(T) {{ tag.html_icon }} {{ tag.render_key(tpl_tag) }}
+		</td>
+
+		<td>{{ tag.render_val(tpl_tag) }}</td>
+	</tr>
+	{% endfor %}
+
 	<tr>
 		<td scope="row">📅 Created</td>
 		<td><time datetime="{{ note.thing.data.created }}">{{ note.thing.data.created }}</time></td>

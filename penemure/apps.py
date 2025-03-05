@@ -29,6 +29,11 @@ class Template(Note):
             return t[0].val.get_tag_value(value)
         return value
 
+    def relevant_tag(self, key) -> Optional[TemplateTagV2]:
+        for x in self.template_tags_v2:
+            if x.key == key:
+                return x
+
 
 class RssFeed(Note):
     type: str = 'rss'
