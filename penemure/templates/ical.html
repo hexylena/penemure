@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PENEMURE//{{ Config.Title | e }}//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+{% set query = note.thing.data.contents[0].contents -%}
+{%- for group in oe.query(query, via=note.thing.urn).groups -%}
+{%- for urn in group.rows -%}
+{%- set thing = oe.find_thing(urn[0]) -%}
+BEGIN:VEVENT
+SUMMARY:{{ thing.thing.data.title }}
+UID:{{ thing.thing.urn.ident }}
+SEQUENCE:0
+STATUS:CONFIRMED
+DTSTART:{{thing.thing.data.created.strftime('%Y%m%dT%H%M%S') }}Z
+DTSTART:{{thing.thing.data.get_tag('start_date').datetime.strftime('%Y%m%dT%H%M%S') }}Z
+DTEND:{{thing.thing.data.get_tag('end_date').datetime.strftime('%Y%m%dT%H%M%S') }}Z
+DESCRIPTION: {{ thing.thing.data.blurb }}
+URL:{{ Config.ExportPrefix}}{{thing.thing.url }}
+END:VEVENT
+{% endfor -%}
+{%- endfor -%}
+END:VCALENDAR

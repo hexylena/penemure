@@ -44,6 +44,15 @@ class RssFeed(Note):
         # return 'application/xml'
         # return 'application/rss+xml'
 
+
+class IcalFeed(Note):
+    type: str = 'ical'
+    _views = ['ical']
+
+    def view_mediatype(self, view):
+        return 'text/calendar'
+
+
 class DataForm(Note):
     type: str = 'form'
     _views = ['form']
@@ -184,6 +193,8 @@ def ModelFromAttr(data):
         return Template
     elif t == 'rss':
         return RssFeed
+    elif t == 'ical':
+        return IcalFeed
     elif t == 'form':
         return DataForm
     else:
