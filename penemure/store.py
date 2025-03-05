@@ -662,12 +662,18 @@ class OverlayEngine(BaseModel):
                 pass
         raise KeyError(f"Cannot find {ident}")
 
-    def all(self) -> list[WrappedStoredThing]:
+    def all(self, ordering=None) -> list[WrappedStoredThing]:
         t = [self.find(k) for k in self.keys()]
+        if ordering is not None:
+            if ordering.startswith('-'):
+                t = sorted(t, key=lambda x: getattr(x.thing.data, ordering[1:]))
+                t = t[::-1]
+            else:
+                t = sorted(t, key=lambda x: getattr(x.thing.data, ordering))
         return t
 
-    def all_things(self) -> list[WrappedStoredThing]:
-        return [x for x in self.all()]
+    def all_things(self, ordering=None) -> list[WrappedStoredThing]:
+        return [x for x in self.all(ordering=ordering)]
 
     def all_pathed_pages(self) -> list[WrappedStoredThing]:
         return [x for x in self.all()

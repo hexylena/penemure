@@ -40,11 +40,14 @@
 	</tr>
 	</thead>
 	<tbody>
-	{% for note in oe.all_things() %}
+	{% for note in oe.all_things(ordering='-updated') %}
 	<tr>
 		<td><a class="urn" href="{{ note.thing.url }}">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
-		<td>{{ note.thing.data.type }}</td>
-		<td>{% if note.thing.data.has_tag('status') %}{{ note.thing.data.get_tag('status').render_tag(note.get_template(oe)) }}{% endif %}</td>
+		<td>
+			<time class="relative" title="{{ note.thing.data.updated }}" datetime="{{ note.thing.data.updated }}">{{ note.thing.data.updated }}</time>
+		</td>
+		{% set status_tag = note.thing.data.get_tag('status') %}
+		<td>{% if status_tag and not status_tag.is_template %}{{ status_tag.render_val(note.get_template(oe).thing.data.relevant_tag('status')) }}{% endif %}</td>
 		<td>
 			<div class="pills">
 			{% for tag in note.thing.data.tags_v2 %}

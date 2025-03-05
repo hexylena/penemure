@@ -23,6 +23,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		let iso_time = time.attributes.datetime.value.replace(' ', 'T'),
 		    lux_time = luxon.DateTime.fromISO(iso_time);
 
-		time.innerText = lux_time.toLocaleString(luxon.DateTime.DATETIME_FULL);
+		if (time.classList.contains('relative')){
+			time.innerText = lux_time.toRelative();
+		}else {
+			time.innerText = lux_time.toLocaleString(luxon.DateTime.DATETIME_FULL);
+		}
 	});
 });
