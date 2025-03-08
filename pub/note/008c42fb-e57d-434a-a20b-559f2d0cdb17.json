@@ -27,6 +27,13 @@
       "val": "insanity distilled"
     }
   ],
+  "tags_v2": [
+    {
+      "key": "description",
+      "val": "insanity distilled",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1741198657.4442303,
   "updated_unix": 1741198657.4442317,

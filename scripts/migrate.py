@@ -18,6 +18,8 @@ for x in bos.overlayengine.all_things():
     # No tags originally, can just continue on.
     if len(x.thing.data.tags) == 0:
         continue
+    if len(x.thing.data.tags_v2) != 0:
+        continue
 
     # Not migrating templates
     if x.thing.data.type == 'template':
