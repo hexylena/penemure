@@ -173,7 +173,7 @@
 			</div>
 
 			<label for="tags">Template Tags</label>
-			<div id="tags_v2" name="tags_v2">
+			<div id="template_tags_v2" name="template_tags_v2">
 				<table>
 					<thead>
 						<tr>
@@ -203,7 +203,7 @@
 							</td>
 						</tr>
 						{% endfor %}
-						<tr id="default-tag2" class="tag">
+						<tr id="default-template-tag2" class="tag">
 							<td><button class="btn btn-outline-danger" type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td>
 								<select name="template_tag_v2_typ">
@@ -220,7 +220,7 @@
 						</tr>
 					</tbody>
 				</table>
-				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
+				<button class="btn btn-outline-success" type="button" onclick="appendtag2()">+</button>
 			</div>
 
 			<label for="attachments">Attachments</label>
@@ -250,6 +250,9 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 	document.querySelector('#default-tag2').remove();
 	if (document.querySelectorAll('#tags_v2 .tag.existing').length > 0 ){
 	}
+
+	const tplTemplateTag2 = document.querySelector('#default-template-tag2').outerHTML;
+	document.querySelector('#default-template-tag2').remove();
 
 	function insertbefore(e){
 		let block = e.parentElement.parentElement;
@@ -281,6 +284,9 @@ document.querySelectorAll("textarea").forEach(t => t.addEventListener('input', a
 
 	function appendtag(e){
 		document.querySelector('#tags_v2 table tbody').insertAdjacentHTML('beforeend', templateTag2);
+	}
+	function appendtag2(e){
+		document.querySelector('#template_tags_v2 table tbody').insertAdjacentHTML('beforeend', tplTemplateTag2);
 	}
 
 var tribute = new Tribute({
