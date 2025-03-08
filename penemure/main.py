@@ -182,6 +182,7 @@ class Penemure(BaseModel):
 
             if st.thing.data.has_tag('page_path'):
                 t = st.thing.data.get_tag('page_path')
+                # print(st.thing.data.title, t)
                 if t:
                     p = os.path.join(path, str(t.val) + '.' + format)
                     with open(p, 'w') as handle:

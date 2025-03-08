@@ -123,16 +123,19 @@
       "updated_unix": 1739394773.9503837
     }
   ],
-  "tags": [
+  "tags_v2": [
     {
+      "typ": "Text",
       "key": "template",
       "val": "plain.html"
     },
     {
+      "typ": "Text",
       "key": "page_path",
       "val": "index"
     },
     {
+      "typ": "Text",
       "key": "description",
       "val": "you are here"
     }

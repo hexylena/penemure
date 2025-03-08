@@ -1012,7 +1012,7 @@ class OverlayEngine(BaseModel):
             query = query.replace('SELF', via.ident)
 
         res = parse_one(query)
-        print(res.sql())
+        # print(res.sql())
 
         # Not strictly correct, since e.g. where's might be included but. acceptable.
         selects = [x.this.this for x in list(res.find_all(exp.Column))]
