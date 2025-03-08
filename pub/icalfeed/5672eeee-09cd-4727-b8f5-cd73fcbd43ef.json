@@ -19,22 +19,16 @@
       "id": "fa2905a3-7bd5-4514-8dd7-068e2b9b996b",
       "created_unix": 1741205857.3582656,
       "updated_unix": 1741205857.3582668
-    },
-    {
-      "contents": "## About\r\n\r\nClicking on the `ical` link above will download a history of all the work done on penemure as an ics file. Why would you want this? Unclear!\r\n\r\nAt some point futuredates will be implemented, and this'll be more useful.",
-      "author": {
-        "app": "account",
-        "namespace": "projects",
-        "ident": "user"
-      },
-      "type": "markdown",
-      "id": "7dcb793e-81ee-4dc0-a4ba-13f223bcac1a",
-      "created_unix": 1741444159.137714,
-      "updated_unix": 1741444159.1377144
     }
   ],
   "tags": [],
-  "tags_v2": [],
+  "tags_v2": [
+    {
+      "key": "icon",
+      "val": "ph-calendar",
+      "typ": "Text"
+    }
+  ],
   "version": 2,
   "created_unix": 1741205857.3626192,
   "updated_unix": 1741205857.3626194,
