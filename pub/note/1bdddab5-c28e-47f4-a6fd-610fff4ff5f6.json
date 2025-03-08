@@ -1,0 +1,64 @@
+{
+  "title": "Link backend to the backend's \"home\" if it exists, in note metadata",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "## Description\r\n\r\ntodo",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1741363723.750803,
+      "updated_unix": 1741363723.7508042
+    },
+    {
+      "contents": "## Work on this Issue\r\n\r\n(todo, make this a gantt in the template, and add 'self')",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "c17d038f-6aa1-44da-9332-1d1a3bfad6eb",
+      "created_unix": 1741363723.750821,
+      "updated_unix": 1741363723.7508216
+    },
+    {
+      "contents": "SQL SELECT\n  title,\n  CAST(created AS DATE),\n  updated - created AS duration\nFROM log\nWHERE\n  parents LIKE '%SELF%'",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "query-table",
+      "id": "b86161ea-58d6-4cd3-a4ca-fb53f6e9046a",
+      "created_unix": 1741363723.7523599,
+      "updated_unix": 1741363723.7523608
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1741363723.7524354,
+  "updated_unix": 1741363723.7524364,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}

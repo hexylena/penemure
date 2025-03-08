@@ -1,0 +1,40 @@
+{
+  "title": "Starting time logging from a page, default to that as the title.",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "9ee70a28-614e-4c42-a8ae-544e7b06f792",
+      "created_unix": 1741363817.6592352,
+      "updated_unix": 1741363817.6592362
+    }
+  ],
+  "tags": [
+    {
+      "key": "status",
+      "val": "backlog"
+    },
+    {
+      "key": "priority",
+      "val": "medium"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1741363817.659273,
+  "updated_unix": 1741363817.6592734,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
