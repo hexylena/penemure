@@ -12,7 +12,7 @@ SUMMARY:{{ thing.thing.data.title }}
 UID:{{ thing.thing.urn.ident }}
 SEQUENCE:0
 STATUS:CONFIRMED
-DTSTART:{{thing.thing.data.created.strftime('%Y%m%dT%H%M%S') }}Z
+DTSTAMP:{{thing.thing.data.created.strftime('%Y%m%dT%H%M%S') }}Z
 DTSTART:{{thing.thing.data.get_tag('start_date').datetime.strftime('%Y%m%dT%H%M%S') }}Z
 DTEND:{{thing.thing.data.get_tag('end_date').datetime.strftime('%Y%m%dT%H%M%S') }}Z
 DESCRIPTION: {{ thing.thing.data.blurb }}
