@@ -125,10 +125,15 @@ class Penemure(BaseModel):
             'hasattr': hasattr,
             'now': local_now(),
         }
-        kwargs['pathed_pages'] = {
-            x.thing.data.get_tag('page_path').val: x
-            for x in
-            self.overlayengine.all_pathed_pages()}
+        kwargs['pathed_pages'] = {}
+        for x in self.overlayengine.all_pathed_pages():
+            t = x.thing.data.get_tag('page_path').val
+            # We go in order of the overlay, so, skip ones that we've already
+            # seen so e.g. the 'index' page correctly resolves to the first backend
+            # with an index.
+            if t not in kwargs['pathed_pages']:
+                kwargs['pathed_pages'][t] = x
+
         return kwargs
 
     def export(self, path, format='html'):

@@ -406,6 +406,9 @@ class GitJsonFilesBackend(BaseBackend):
         data.last_update = datetime.datetime.fromtimestamp(int(commitdate))
         return data
 
+    def all_things(self) -> list[WrappedStoredThing]:
+        return self.data.values()
+
     def sync(self):
         if self.last_update is not None:
             pass # todo logic to not push/pull too frequently
@@ -521,6 +524,18 @@ class GitJsonFilesBackend(BaseBackend):
 
     def has(self, identifier: UniformReference):
         return identifier in self.data
+
+    def pathed(self, path=None):
+        possible = []
+        for x in self.all_things():
+            if x.thing.data.has_tag('page_path'):
+                possible.append(x)
+
+        print([x.thing.data.get_tag('page_path') for x in possible])
+        if path:
+            possible = [x for x  in possible
+                        if x.thing.data.get_tag('page_path').val == path]
+        return possible
 
     def resolve(self, ref: UniformReference) -> WrappedStoredThing:
         return self.find(ref)
@@ -684,9 +699,12 @@ class OverlayEngine(BaseModel):
         return [x for x in self.all(ordering=ordering)]
 
     def all_pathed_pages(self) -> list[WrappedStoredThing]:
-        return [x for x in self.all()
-                if x.thing.data.type in ('page', 'note')
-                and x.thing.data.has_tag('page_path')]
+        r = []
+        for b in self.backends:
+            for x in b.all_things():
+                if x.thing.data.has_tag('page_path'):
+                    r.append(x)
+        return r
 
     def all_modified(self) -> list[WrappedStoredThing]:
         return [x for x in self.all() if x.state != MutatedEnum.untouched]
@@ -914,18 +932,25 @@ class OverlayEngine(BaseModel):
             if app not in tables:
                 tables[app] = []
 
-        tables['__backend__'] = [
-            {
+        tables['__backend__'] = []
+        for b in self.backends:
+            home = b.pathed(path='index')
+            if len(home) > 0:
+                home = home[0]
+                title = f'<a href="{home.thing.urn.urn}#url">{b.name}</a>'
+            else:
+                title = b.name
+
+            tables['__backend__'].append({
                 'id': b.name,
                 'name': b.name,
+                'title': title,
                 'icon': b.icon,
                 'description': b.description,
                 'path': b.path,
                 'last_commit': b.latest_commit,
                 'last_update': b.last_update,
-            }
-            for b in self.backends
-        ]
+            })
 
         def fix_tags(items, ensure=[]):
             # ensure that every item has every key.
