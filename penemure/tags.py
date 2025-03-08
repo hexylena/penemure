@@ -205,7 +205,10 @@ class EnumTag(BaseTag):
     val: str
 
     def render_val(self, template: EnumTemplateTag):
-        return (template.get_icon(self.val) + " " + self.val).strip()
+        if template:
+            return (template.get_icon(self.val) + " " + self.val).strip()
+        else:
+            return self.val
 
 
 class StatusTemplateTag(EnumTemplateTag):

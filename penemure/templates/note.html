@@ -88,7 +88,13 @@
 
 		</td>
 
-		<td>{{ tag.render_val(tpl_tag) }}</td>
+		<td>
+		{% if tpl_tag %}
+			{{ tag.render_val(tpl_tag) }}
+		{% else %}
+			{{ tag.render_val(None) }}
+		{% endif %}
+		</td>
 	</tr>
 	{% endfor %}
 
