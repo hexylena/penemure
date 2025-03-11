@@ -266,7 +266,7 @@ class Note(ChangeDetectionMixin, BaseModel):
     created_unix: float = Field(default_factory=lambda : time.time())
     updated_unix: float = Field(default_factory=lambda : time.time())
 
-    namespace: Union[str, None] = None
+    namespace: str | None = None
     type: str = 'note'
     attachments: list[Tuple[str, UniformReference]] = Field(default_factory=list)
 
