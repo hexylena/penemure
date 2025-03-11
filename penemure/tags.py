@@ -66,7 +66,7 @@ class BaseTemplateTag(BaseModel):
         return json.dumps(self.model_dump())
 
     def instantiate_data(self):
-        return {'typ': self.typ_real,
+        return {'typ': self.typ_real.replace('Template', ''),
                 'key': self.key,
                 'val': self.default}
 
