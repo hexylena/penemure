@@ -14,15 +14,16 @@ assets/print-mono.css: assets/print-mono.scss
 	./node_modules/.bin/sass --quiet --style compressed assets/print-mono.scss assets/print-mono.css
 
 assets/data/phosphor.json: node_modules/@phosphor-icons/web/src/regular/selection.json
+	mkdir -p assets/data/
 	cat node_modules/@phosphor-icons/web/src/regular/selection.json | jq '{"meta": .metadata, "icons": [.icons[] | {"id": (.properties.name | split(", "))[0], "tags": (.properties.name | split(", "))}]}' > assets/data/phosphor.json
 
 assets/data/healthicons.json: node_modules/healthicons/public/icons/meta-data.json
-	mkdir -p assets/healthicons/
+	mkdir -p assets/healthicons/ assets/data
 	rsync -avr assets/../node_modules/healthicons/public/icons/svg/outline/ assets/healthicons/outline/
 	rsync -avr assets/../node_modules/healthicons/public/icons/svg/filled/ assets/healthicons/filled/
 	cat node_modules/healthicons/public/icons/meta-data.json | jq '{"meta": {"name": "Healthicons", "prefix": "hi"}, "icons": [.[] | {"id": (.path | sub("/"; "-")), "category": .category, "tags": .tags, "path": .path}]  }' > assets/data/healthicons.json
 
-assets/favicon.ico: penemure.png
+assets/favicon@64.png: penemure.png
 	magick penemure.png -resize 64x assets/favicon.ico
 
 assets/favicon@256.png: penemure.png
