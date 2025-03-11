@@ -141,6 +141,9 @@ class BaseBackend(BaseModel):
     lfs: bool = True
     _private_key_path: str | None = None
 
+    data: Dict[UniformReference, 'WrappedStoredThing'] = Field(default_factory=dict)
+    blob: Dict[UniformReference, 'WrappedStoredBlob'] = Field(default_factory=dict)
+
     def read(self, path, mode: str = 'r'):
         if self.pubkeys is None:
             with open(path, mode) as handle:
@@ -174,8 +177,27 @@ class BaseBackend(BaseModel):
                 subprocess_check_call(args)
                 os.unlink(fp.name)
 
+    def all_things(self) -> list['WrappedStoredThing']:
+        return self.data.values()
+
+    def pathed(self, path=None):
+        possible = []
+        for x in self.all_things():
+            if x.thing.data.has_tag('page_path'):
+                possible.append(x)
+
+        print([x.thing.data.get_tag('page_path') for x in possible])
+        if path:
+            possible = [x for x  in possible
+                        if x.thing.data.get_tag('page_path').val == path]
+        return possible
+
     @property
     def html_title(self):
+        home = self.pathed(path='index')
+        if len(home) > 0:
+            home = home[0]
+            return f'<a href="{home.thing.urn.urn}#url">{self.icon} {self.name}: {self.description}</a>'
         return f'{self.icon} {self.name}: {self.description}'
 
     @property
@@ -393,8 +415,6 @@ class WrappedStoredThing(BaseModel):
 
 
 class GitJsonFilesBackend(BaseBackend):
-    data: Dict[UniformReference, WrappedStoredThing] = Field(default_factory=dict)
-    blob: Dict[UniformReference, WrappedStoredBlob] = Field(default_factory=dict)
     last_update: Optional[PastDatetime] = None
     latest_commit: Optional[str] = None
 
@@ -407,9 +427,6 @@ class GitJsonFilesBackend(BaseBackend):
         data.latest_commit = commit
         data.last_update = datetime.datetime.fromtimestamp(int(commitdate))
         return data
-
-    def all_things(self) -> list[WrappedStoredThing]:
-        return self.data.values()
 
     def sync(self):
         if self.last_update is not None:
@@ -526,18 +543,6 @@ class GitJsonFilesBackend(BaseBackend):
 
     def has(self, identifier: UniformReference):
         return identifier in self.data
-
-    def pathed(self, path=None):
-        possible = []
-        for x in self.all_things():
-            if x.thing.data.has_tag('page_path'):
-                possible.append(x)
-
-        print([x.thing.data.get_tag('page_path') for x in possible])
-        if path:
-            possible = [x for x  in possible
-                        if x.thing.data.get_tag('page_path').val == path]
-        return possible
 
     def resolve(self, ref: UniformReference) -> WrappedStoredThing:
         return self.find(ref)
@@ -936,17 +941,10 @@ class OverlayEngine(BaseModel):
 
         tables['__backend__'] = []
         for b in self.backends:
-            home = b.pathed(path='index')
-            if len(home) > 0:
-                home = home[0]
-                title = f'<a href="{home.thing.urn.urn}#url">{b.name}</a>'
-            else:
-                title = b.name
-
             tables['__backend__'].append({
                 'id': b.name,
                 'name': b.name,
-                'title': title,
+                'title': b.html_title,
                 'icon': b.icon,
                 'description': b.description,
                 'path': b.path,
