@@ -336,10 +336,12 @@ class WrappedStoredThing(BaseModel):
                 del d[k]
 
         # TODO: shadowing?
-        for tag in self.thing.data.tags:
-            vv = tag.value(template)
+        for tag in self.thing.data.get_tags():
+            vv = tag.val
             if isinstance(vv, datetime.datetime):
                 d[tag.key] = vv.strftime('%Y-%m-%dT%H:%M:%S')
+            elif isinstance(vv, list):
+                d[tag.key] = ', '.join(map(str, vv))
             else:
                 d[tag.key] = vv
 
