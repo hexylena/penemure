@@ -256,8 +256,14 @@ class Penemure(BaseModel):
             try:
                 ref = self.overlayengine.find_blob(urn_ref)
                 url = os.path.join(self.real_path, ref.thing.url)
-                fix = self.image(url, args="rs:fill:800")
-                return f'<img src="{fix}" />'
+
+                if ref.ext in ('png', 'jpg', 'jpeg', 'webp'):
+                    fix = self.image(url, args="rs:fill:800")
+                    return f'<img src="{fix}" />'
+                elif ref.ext in ('pdf', ):
+                    return f'<iframe src="{url}" width="100%" height="400px">Embedded PDF</iframe>'
+                else:
+                    return f'<a href="{url}">{ref.thing.html_title}</a>'
             except KeyError:
                 try:
                     ref = self.overlayengine.find(urn_ref)

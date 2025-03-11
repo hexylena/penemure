@@ -307,6 +307,13 @@ class WrappedStoredBlob(BaseModel):
 
     @computed_field
     @property
+    def ext(self) -> str:
+        if '.' in self.thing.urn.path:
+            return self.thing.urn.path[self.thing.urn.path.rindex('.') + 1:].lower()
+        return 'dat'
+
+    @computed_field
+    @property
     def full_path(self) -> str:
         return os.path.join(self.backend.path, self.thing.urn.path)
 
