@@ -1,0 +1,32 @@
+{
+  "title": "On Data Structures",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "71596cb9-e3f4-44b4-9b21-974fff7b5201"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "haven't written anything about the project manager in a hot minute.\r\n\r\nmy custom written nonsense continues to function. i continue to add scope that means in retrospect i made bad decisions earlier.\r\n\r\ne.g. wanting to know *when* something changed isn't possible (well, technically it could be scrounging through the git history but that's unattractive.) storing as json in git wasn't the optimal choice. (also conflict resolution also would mandate a UI and manually coded resolution for common scenarios because can't expect anyone doing academic project management to be a git expert. either way, sub-optimal. but i will be riding that \"it's a task to keep my coding skills fresh while i move into a role that requires significantly less coding\")\r\n\r\ni should've chosen something else to track these changes, probably, i fear, a log structured merge tree. and thus not storing a dict, but, the dict flattened into a KV somehow.\r\n\r\nand tracking changes to the object through diffs, turned into LSM Tree key update/deletes.\r\n\r\nprobably this wll open up other issues, especially if lists are involved, you wouldn't want to `set a.b.1 = 1` and have that be applied to a yet non-existent list, would it result in `{a: {b: [null, 1]}}` or just error? \r\n\r\noutright ban lists? hashes only, and if you need ordering, store a comma separated string of the correct indexing? (i guess that transformation could be automatic. `{\"k\": ['a', 'b', 'c']}` could easily become `{\"k\": {\"order\": \"de,ad,be\", \"de\": \"a\", \"ad\": \"b\", \"be\": \"c\"}`)\r\n\r\nor is it an [xy problem](https://meta.stackexchange.com/questions/66377/what-is-the-xy-problem) and i've got a hammer (LSM Tree) that i'm using by default when really there's some magical solution out there to \"I want a time travel dictionary\" where I don't actually care about the time travel aspect except to figure out when specific values changed and report them in a nice way for the end user.\r\n\r\ni wonder how git-mergeable two LSM-shaped tabular files are. that's. a question. with each line timestamped, surely we won't get conflicts. surely\r\n\r\nprobably a thing to attach the account that did the action as well.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "fea6feb0-ecb4-4ad9-b776-6ceb1421e2e9",
+      "created_unix": 1741769199.1661499,
+      "updated_unix": 1741769199.1661518
+    }
+  ],
+  "tags": [],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1741769199.1667998,
+  "updated_unix": 1741769199.1668007,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
