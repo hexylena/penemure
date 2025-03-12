@@ -271,9 +271,9 @@ class Note(ChangeDetectionMixin, BaseModel):
     attachments: list[Tuple[str, UniformReference]] = Field(default_factory=list)
 
     # Available 'views'
-    _views = ['print']
+    _views = ['print', 'markdown']
     def view_mediatype(self, view):
-        return 'text/html'
+        return {'print': 'text/html', 'markdown': 'text/plain'}.get(view, 'text/html')
 
     def view_ext(self, view) -> str:
         return guess_extension(self.view_mediatype(view))
