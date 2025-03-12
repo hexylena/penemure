@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import Optional, Annotated
 
 
+# 2025-03-11
 # structures:
 # set key, value pair
 #
@@ -27,6 +28,14 @@ from typing import Optional, Annotated
 # 9   key   del    None    # {"a": {"b": "val"}, "l": [0]}
 #
 # 10  a     new    {}      # {"key": "val", "a": {"b": "val"}, "l": [0], "a": {}}
+
+# 2025-03-12
+# Ideas:
+# - diff objects rather than tracking
+# - automatically transform lists like [1,2,3] into {"order": "de,ad,be", "de": 1, "ad": 2, "be": 3} which can be more safely manipulated.
+#   The hashes could even be from the contents of the value, just, hash the
+#   content and we can more safely just re-set every one of them, and remove
+#   all that aren't expected.
 
 
 class SetLog(BaseModel):
