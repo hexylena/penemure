@@ -1,4 +1,6 @@
 from penemure.apps import *
+import hashlib
+import copy
 from penemure.main import *
 from pydantic_changedetect import ChangeDetectionMixin
 from pydantic import BaseModel
@@ -38,6 +40,28 @@ from typing import Optional, Annotated
 #   all that aren't expected.
 # See: web+penemure://urn:penemure:d1a8175b-e3f1-4937-8d0c-eab495479c78
 
+a = {"z": "z", "key": "val", "d": {"b": "val"}, "l": [3], "a": {}}
+b = {"z": "z", "key": "baz", "c": {"b": "val"}, "l": [0, 3, 1], "a": {}}
+
+# a = {"l": [1,2,3], "a": {}}
+# b = {"l": [3,2,1], "a": {}}
+# l {insert: [(1, 2), (2, 1)], delete: [1, 0]}
+# this looks too complicated to handle safely...
+
+# Neither of these were sufficient
+# import recursive_diff
+# for x in recursive_diff.recursive_diff(a, b):
+#     print(x)
+#
+# import deep
+# diff = deep.diff(a, b)
+# if diff:
+#     diff.print_full()
+
+# But this is
+import jsondiff
+for k, v in jsondiff.diff(a, b).items():
+    print(k, v)
 
 class SetLog(BaseModel):
     ts: int | float
@@ -63,6 +87,7 @@ class SetLog(BaseModel):
         return d
 
 
+# DEPRECATE
 class InsLog(BaseModel):
     ts: int | float
     k: list[str | int]
@@ -140,10 +165,12 @@ class NewLog(BaseModel):
         return d
 
 LogEntry = Annotated[
-    SetLog | InsLog | DelLog | NewLog,
+    SetLog | DelLog | NewLog | InsLog,
     Field(discriminator="a")
 ]
 
+class TimeTravelSafeDict(BaseModel):
+    pass
 
 class TimeTravelDict(BaseModel):
     data: dict = Field(default_factory=dict)
@@ -168,8 +195,66 @@ class TimeTravelDict(BaseModel):
             d = op.apply(d)
             print(f"{str(d):40s} | {op}")
         m.data = d
-
         return m
 
+def safe(data):
+    c = copy.copy(data)
+
+    # de-dupe. but duplicated items is extremely, extremely unlikely.
+    def kf(i, k, v):
+        ib = json.dumps(v, sort_keys=True).encode('utf-8')
+        h = hashlib.md5(ib).digest()
+        return base64.b64encode(h).decode('utf-8')[0:8]
+
+    # doesn't get us de-duplication.
+    # also may generate uglier diffs when we rearrange things
+    # def kf(i, k, v):
+    #     return str(i)
+
+    def rewrite(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if isinstance(v, list):
+                    x[k] = {}
+                    o = []
+                    for i, vv in enumerate(v):
+                        hk = kf(i, k, vv)
+                        x[k][hk] = vv
+                        o.append(hk)
+                    x[k]['__order'] = '|'.join(o)
+                else:
+                    rewrite(v)
+        else:
+            pass
+
+    rewrite(c)
+    return c
+
+def unsafe(data):
+    c = copy.copy(data)
+
+    def rewrite(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if '__order' in v:
+                    ks = x[k]['__order'].split('|')
+                    x[k] = [
+                        x[k][zz]
+                        for zz in ks
+                    ]
+                else:
+                    rewrite(v)
+        else:
+            pass
+
+    rewrite(c)
+    return c
+
 t = TimeTravelDict.reconstruct()
-print(t)
+print(t.data)
+
+print('------')
+q = safe(t.data)
+print(q)
+u = unsafe(q)
+print(u)
