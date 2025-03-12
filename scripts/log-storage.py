@@ -36,6 +36,7 @@ from typing import Optional, Annotated
 #   The hashes could even be from the contents of the value, just, hash the
 #   content and we can more safely just re-set every one of them, and remove
 #   all that aren't expected.
+# See: web+penemure://urn:penemure:d1a8175b-e3f1-4937-8d0c-eab495479c78
 
 
 class SetLog(BaseModel):
