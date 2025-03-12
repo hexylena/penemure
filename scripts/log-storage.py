@@ -134,10 +134,6 @@ LogEntry = Annotated[
     Field(discriminator="a")
 ]
 
-class TrackedDict(dict):
-    def __setattr__(self, name, value):
-        self[name] = value
-
 
 class TimeTravelDict(BaseModel):
     data: dict = Field(default_factory=dict)
