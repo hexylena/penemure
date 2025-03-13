@@ -1,5 +1,5 @@
 {
-  "title": "On Data Structures",
+  "title": "Event Sourcing & Data Structures",
   "parents": [
     {
       "app": "x",
@@ -9,23 +9,59 @@
   ],
   "contents": [
     {
-      "contents": "haven't written anything about the project manager in a hot minute.\r\n\r\nmy custom written nonsense continues to function. i continue to add scope that means in retrospect i made bad decisions earlier.\r\n\r\ne.g. wanting to know *when* something changed isn't possible (well, technically it could be scrounging through the git history but that's unattractive.) storing as json in git wasn't the optimal choice. (also conflict resolution also would mandate a UI and manually coded resolution for common scenarios because can't expect anyone doing academic project management to be a git expert. either way, sub-optimal. but i will be riding that \"it's a task to keep my coding skills fresh while i move into a role that requires significantly less coding\")\r\n\r\ni should've chosen something else to track these changes, probably, i fear, a log structured merge tree. and thus not storing a dict, but, the dict flattened into a KV somehow.\r\n\r\nand tracking changes to the object through diffs, turned into LSM Tree key update/deletes.\r\n\r\nprobably this wll open up other issues, especially if lists are involved, you wouldn't want to `set a.b.1 = 1` and have that be applied to a yet non-existent list, would it result in `{a: {b: [null, 1]}}` or just error? \r\n\r\noutright ban lists? hashes only, and if you need ordering, store a comma separated string of the correct indexing? (i guess that transformation could be automatic. `{\"k\": ['a', 'b', 'c']}` could easily become `{\"k\": {\"order\": \"de,ad,be\", \"de\": \"a\", \"ad\": \"b\", \"be\": \"c\"}`)\r\n\r\nor is it an [xy problem](https://meta.stackexchange.com/questions/66377/what-is-the-xy-problem) and i've got a hammer (LSM Tree) that i'm using by default when really there's some magical solution out there to \"I want a time travel dictionary\" where I don't actually care about the time travel aspect except to figure out when specific values changed and report them in a nice way for the end user.\r\n\r\ni wonder how git-mergeable two LSM-shaped tabular files are. that's. a question. with each line timestamped, surely we won't get conflicts. surely\r\n\r\nprobably a thing to attach the account that did the action as well.",
+      "contents": "haven't written anything about the project manager in a hot minute.\r\n\r\n## Data Structures\r\n\r\nmy custom written nonsense continues to function. i continue to add scope that means in retrospect i made bad decisions earlier.\r\n\r\ne.g. wanting to know *when* something changed isn't possible (well, technically it could be scrounging through the git history but that's unattractive.) storing as json in git wasn't the optimal choice. (also conflict resolution also would mandate a UI and manually coded resolution for common scenarios because can't expect anyone doing academic project management to be a git expert. either way, sub-optimal. but i will be riding that \"it's a task to keep my coding skills fresh while i move into a role that requires significantly less coding\")\r\n\r\ni should've chosen something else to track these changes, probably, i fear, a log structured merge tree. and thus not storing a dict, but, the dict flattened into a KV somehow.\r\n\r\nand tracking changes to the object through diffs, turned into LSM Tree key update/deletes.\r\n\r\nprobably this wll open up other issues, especially if lists are involved, you wouldn't want to `set a.b.1 = 1` and have that be applied to a yet non-existent list, would it result in `{a: {b: [null, 1]}}` or just error? \r\n\r\noutright ban lists? hashes only, and if you need ordering, store a comma separated string of the correct indexing? (i guess that transformation could be automatic. `{\"k\": ['a', 'b', 'c']}` could easily become `{\"k\": {\"order\": \"de,ad,be\", \"de\": \"a\", \"ad\": \"b\", \"be\": \"c\"}`)\r\n\r\nor is it an [xy problem](https://meta.stackexchange.com/questions/66377/what-is-the-xy-problem) and i've got a hammer (LSM Tree) that i'm using by default when really there's some magical solution out there to \"I want a time travel dictionary\" where I don't actually care about the time travel aspect except to figure out when specific values changed and report them in a nice way for the end user.\r\n\r\ni wonder how git-mergeable two LSM-shaped tabular files are. that's. a question. with each line timestamped, surely we won't get conflicts. surely\r\n\r\nprobably a thing to attach the account that did the action as well.\r\n",
       "author": {
-        "app": "accountgithub",
-        "namespace": "gh",
-        "ident": "hexylena"
+        "app": "account",
+        "namespace": "w-lumc",
+        "ident": "user"
       },
       "type": "markdown",
       "id": "fea6feb0-ecb4-4ad9-b776-6ceb1421e2e9",
-      "created_unix": 1741769199.1661499,
-      "updated_unix": 1741769199.1661518
+      "created_unix": 1741880646.5644348,
+      "updated_unix": 1741880721.6836581
+    },
+    {
+      "contents": "## Event Sourcing\r\n\r\nthat's what it's called. I knew i wanted a log but, there's lotsa shapes of log. event sourcing is the thing i want.\r\n\r\nrefs:\r\n\r\n- https://www.geeksforgeeks.org/event-sourcing-pattern/\r\n- https://medium.com/ssense-tech/event-sourcing-a-practical-guide-to-actually-getting-it-done-27d23d81de04\r\n- [pyeventsourcing](https://github.com/pyeventsourcing/eventsourcing/tree/9.4?tab=readme-ov-file) seems like the recommendation but that requires a *lot* of annotations and I have uhhhh no interest in that\r\n\r\n(dog meme, no tracking, only event sourcing!!!)\r\n\r\ni want to reconstruct the object without this annoying process.\r\n\r\ni guess this is equivalent to \"event sourcing but the event is `updateObject(obj-goes-here)`\" as ugly as that is. And, yes, no interest in that precisely, that's .. my least favourite place to stick it in the api. (it makes *sense* I guessss but, it's just ugly since the api interface is so ugly. maybe that's a sign that should be fixed instead. maybe i should continue down my insane paths.)\r\n",
+      "author": {
+        "app": "account",
+        "namespace": "w-lumc",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "117b76e5-2d7b-4bb8-b98d-19b3882313ef",
+      "created_unix": 1741880721.677358,
+      "updated_unix": 1741880721.683668
+    },
+    {
+      "contents": "## Automatic Event Sourcing?\r\n\r\nCan we be lazier? it is always my goal in life, can we make it completely automatic, as a set of changes to a dictionary? Given a log that looks something like\r\n\r\n \r\ntimestamp | key | action | value | object\r\n---       | --- | ---   | ---    | ---\r\n1  | key  | set |  val      | {\"key\": \"val\"}\r\n2  | a.b  | set |  val      | {\"key\": \"val\", \"a\": {\"b\": \"val\"}}\r\n3  | l    | ins |   [0]     | {\"key\": \"val\", \"a\": {\"b\": \"val\"}, \"l\": []}\r\n4  | l    | ins |   [0, 1]  | {\"key\": \"val\", \"a\": {\"b\": \"val\"}, \"l\": [1]}\r\n5  | l    | ins |   [0, 2]  | {\"key\": \"val\", \"a\": {\"b\": \"val\"}, \"l\": [2,1]}\r\n6  | l    | ins |   [1, 3]  | {\"key\": \"val\", \"a\": {\"b\": \"val\"}, \"l\": [2,3,1]}\r\n7  | l    | del |   1       | {\"key\": \"val\", \"a\": {\"b\": \"val\"}, \"l\": [2,1]}\r\n8  | l    | set |   [0]     | {\"key\": \"val\", \"a\": {\"b\": \"val\"}, \"l\": [0]}\r\n9  | key  | del |   None    | {\"a\": {\"b\": \"val\"}, \"l\": [0]}\r\n10 | a    | new |   {}      | {\"key\": \"val\", \"a\": {\"b\": \"val\"}, \"l\": [0], \"a\": {}}\r\n\r\n\r\ncan we reconstruct an object out of that? (Spoilers: python says yes.)\r\n\r\nthe key point to make this potentially automatic is:  \r\n\r\n- diff objects rather than tracking \r\n- automatically transform lists like [1,2,3] into {\"order\": \"de,ad,be\", \"de\": 1, \"ad\": 2, \"be\": 3} which can be more safely manipulated.\r\n\r\n[`jsondiff`](https://github.com/xlwings/jsondiff) produces sufficiently useful diffs that we could perhaps generate a set of events from that, and emit them.\r\n\r\nTesting will be ... a thing. hypothesis will be necessary.",
+      "author": {
+        "app": "account",
+        "namespace": "w-lumc",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "520ac586-3ffc-48b4-98d4-814fa903474b",
+      "created_unix": 1741880721.6773632,
+      "updated_unix": 1741880721.683673
+    },
+    {
+      "contents": "## Lists\r\n\r\nThese... lists, yeah. I have fears. subtle fears that say trying to resolve a series of 'insert x at position y' will be absolutely dreadful. so converting it to/from a dict based representation maaaaybe makes more sense. we can add an `order` key and then hash our values. dedupe for free (unlikely to be a benefit.)\r\n\r\n```\r\n{'l': {'7MvIfktc': 3, 'z80ghJXV': 0, '__order': '7MvIfktc|z80ghJXV|7MvIfktc'}, 'a': {'b': {'7MvIfktc': 3, '__order': '7MvIfktc'}}}\r\n{'l': [3, 0, 3], 'a': {'b': [3]}}\r\n```",
+      "author": {
+        "app": "account",
+        "namespace": "w-lumc",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "7fb9c9e9-4bba-4718-a3d6-0b324fa64ecb",
+      "created_unix": 1741880973.5492823,
+      "updated_unix": 1741880973.5492828
     }
   ],
   "tags": [],
   "tags_v2": [],
   "version": 2,
   "created_unix": 1741769199.1667998,
-  "updated_unix": 1741769199.1668007,
+  "updated_unix": 1741880721.6836188,
   "namespace": null,
   "type": "note",
   "attachments": []

@@ -2,7 +2,7 @@
   "title": "Prevent circular parenting",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
@@ -21,16 +21,11 @@
       "updated_unix": 1737991165.592347
     }
   ],
-  "tags": [
-    {
-      "key": "status",
-      "val": "backlog"
-    }
-  ],
+  "tags": [],
   "tags_v2": [
     {
       "key": "status",
-      "val": "backlog",
+      "val": "Done",
       "typ": "Status"
     }
   ],
