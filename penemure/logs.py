@@ -41,6 +41,7 @@ class DelLog(BaseLog):
     def apply(self, d: dict) -> dict:
         value = d
         for key in self.key[:-1]:
+            print('del', key, value.keys())
             if isinstance(value, dict):
                 value = value[key]
                 continue
@@ -77,8 +78,8 @@ class TimeTravelDict(BaseModel):
     logs: list[LogEntry] = Field(default_factory=list)
 
     @classmethod
-    def reconstruct_from_file(cls, ts=0):
-        with open('scripts/log.txt', 'r') as handle:
+    def reconstruct_from_file(cls, path, ts=0):
+        with open(path, 'r') as handle:
             logs = []
             for line in handle.readlines():
                 if line.startswith('#'): continue
@@ -92,6 +93,8 @@ class TimeTravelDict(BaseModel):
         m = cls.model_validate({"logs": logs})
         d = {}
         for op in m.logs:
+            print(op)
+            import pprint; pprint.pprint(d)
             d = op.apply(d)
             # print(f"{str(d):40s} | {op}")
         m.data = d
@@ -150,11 +153,14 @@ def unsafe(data):
         if isinstance(x, dict):
             for k, v in x.items():
                 if isinstance(v, dict) and '__order' in v:
-                    ks = x[k]['__order'].split('|')
-                    x[k] = [
-                        x[k][zz]
-                        for zz in ks
-                    ]
+                    if x[k]['__order']:
+                        ks = x[k]['__order'].split('|')
+                        x[k] = [
+                            x[k][zz]
+                            for zz in ks
+                        ]
+                    else:
+                        x[k] = []
                 else:
                     rewrite(v)
         else:
@@ -163,13 +169,13 @@ def unsafe(data):
     rewrite(c)
     return c['root']
 
-
 def rec(d, path=None):
     # print(f'rec {path}')
     if path is None:
         path = []
 
     for k, v in d.items():
+        print(k, v)
         if isinstance(k, jsondiff.symbols.Symbol):
             if k.label == 'replace':
                 if path == []:
@@ -191,7 +197,6 @@ def rec(d, path=None):
         else:
             yield (path + [k], 'set', v)
 
-
 # I think this is the API we want.
 def emit(after: dict, before: dict = {}) -> list[LogEntry]:
     # Our life is easier if modifications are not made at the top level.
@@ -202,6 +207,13 @@ def emit(after: dict, before: dict = {}) -> list[LogEntry]:
         for x in rec({k: v}):
             res.append(x)
 
+    def ordering(path, action, _):
+        if '__order' in path:
+            return 1
+        elif action == 'del':
+            return 2
+        return 0
+
     # Ordering is important here, `__order` changes should come last.
-    res = sorted(res, key=lambda path: '__order' in path[0])
+    res = sorted(res, key=lambda path: ordering(*path))
     return res

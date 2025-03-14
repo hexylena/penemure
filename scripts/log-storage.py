@@ -56,7 +56,7 @@ for k, v in jsondiff.diff(a, b).items():
 
 
 
-t = TimeTravelDict.reconstruct_from_file()
+t = TimeTravelDict.reconstruct_from_file('scripts/log.real.txt')
 print(t.data)
 
 print('------')

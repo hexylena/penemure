@@ -17,7 +17,7 @@ EXAMPLE = {
     ]
 }
 
-class TestAddFction(unittest.TestCase):
+class TestUnSafeFunction(unittest.TestCase):
     def test_safe(self):
         o = {
             'a': 'b',
