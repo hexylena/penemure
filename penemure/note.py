@@ -262,7 +262,7 @@ class Note(ChangeDetectionMixin, BaseModel):
     tags: list[Tag] = Field(default_factory=list)
     tags_v2: list[TagV2] = Field(default_factory=list)
 
-    version: Optional[int] = 2
+    version: int = 2
     created_unix: float = Field(default_factory=lambda : time.time())
     updated_unix: float = Field(default_factory=lambda : time.time())
 

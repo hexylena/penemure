@@ -44,7 +44,7 @@ class DelLog(BaseLog):
     def apply(self, d: dict) -> dict:
         value = d
         for key in self.key[:-1]:
-            print('del', key, value.keys())
+            # print('del', key, value.keys())
             if isinstance(value, dict):
                 value = value[key]
                 continue
@@ -81,8 +81,8 @@ class TimeTravelDict(BaseModel):
     logs: list[LogEntry] = Field(default_factory=list)
 
     @property
-    def data_safe(self):
-        return self.data
+    def parsed_data(self):
+        return unsafe(self.data)
 
     @classmethod
     def reconstruct_from_file(cls, path, ts=0):
@@ -100,8 +100,8 @@ class TimeTravelDict(BaseModel):
         m = cls.model_validate({"logs": logs})
         d = {}
         for op in m.logs:
-            print(op)
-            import pprint; pprint.pprint(d)
+            # print(op)
+            # import pprint; pprint.pprint(d)
             d = op.apply(d)
             # print(f"{str(d):40s} | {op}")
         m.data = d
@@ -115,7 +115,7 @@ class TimeTravelDict(BaseModel):
             if ts > 0 and op.timestamp > ts:
                 break
             d = op.apply(d)
-            print(f"{op}")
+            # print(f"{op}")
         m.data = d
         return m
 
@@ -124,8 +124,10 @@ def safe(data):
 
     # de-dupe. but duplicated items is extremely, extremely unlikely.
     def kf(i, k, v):
-        if 'id' in v and v['id'].count('-') > 3:
+        if 'id' in v and v['id'].count('-') == 4:
             return v['id']
+        if 'ident' in v and v['ident'].count('-') == 4:
+            return v['ident']
 
         ib = json.dumps(v, sort_keys=True).encode('utf-8')
         h = hashlib.md5(ib).digest()
@@ -184,7 +186,7 @@ def rec(d, path=None):
         path = []
 
     for k, v in d.items():
-        print(k, v)
+        # print(k, v)
         if isinstance(k, jsondiff.symbols.Symbol):
             if k.label == 'replace':
                 if path == []:
@@ -199,7 +201,7 @@ def rec(d, path=None):
                 else:
                     yield (path, 'del', v)
             else:
-                print(k, v)
+                # print(k, v)
                 raise Exception(f'Unsupported action: {k}')
         elif isinstance(v, dict):
             yield from rec(v, path + [k])
