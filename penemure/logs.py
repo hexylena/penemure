@@ -7,6 +7,9 @@ from pydantic import BaseModel, Field
 from typing import Annotated, Any, Literal
 
 
+SEPARATOR = ' | '
+
+
 class BaseLog(BaseModel):
     timestamp: int | float = Field(alias="ts")
     actor: str             = Field(alias="u")
@@ -77,6 +80,10 @@ class TimeTravelDict(BaseModel):
     data: dict = Field(default_factory=dict)
     logs: list[LogEntry] = Field(default_factory=list)
 
+    @property
+    def data_safe(self):
+        return self.data
+
     @classmethod
     def reconstruct_from_file(cls, path, ts=0):
         with open(path, 'r') as handle:
@@ -109,8 +116,7 @@ class TimeTravelDict(BaseModel):
                 break
             d = op.apply(d)
             print(f"{op}")
-            # print(f"{d}")
-        m.data = unsafe(d)
+        m.data = d
         return m
 
 def safe(data):
@@ -140,7 +146,7 @@ def safe(data):
                         hk = kf(i, k, vv)
                         x[k][hk] = vv
                         o.append(hk)
-                    x[k]['__order'] = '|'.join(o)
+                    x[k]['__order'] = SEPARATOR.join(o)
                 else:
                     rewrite(v)
         else:
@@ -157,7 +163,7 @@ def unsafe(data):
             for k, v in x.items():
                 if isinstance(v, dict) and '__order' in v:
                     if x[k]['__order']:
-                        ks = x[k]['__order'].split('|')
+                        ks = x[k]['__order'].split(SEPARATOR)
                         x[k] = [
                             x[k][zz]
                             for zz in ks
