@@ -118,6 +118,9 @@ def safe(data):
 
     # de-dupe. but duplicated items is extremely, extremely unlikely.
     def kf(i, k, v):
+        if 'id' in v and v['id'].count('-') > 3:
+            return v['id']
+
         ib = json.dumps(v, sort_keys=True).encode('utf-8')
         h = hashlib.md5(ib).digest()
         return base64.b64encode(h).decode('utf-8')[0:8]
