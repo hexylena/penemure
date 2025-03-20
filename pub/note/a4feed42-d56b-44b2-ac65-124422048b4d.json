@@ -2,7 +2,7 @@
   "title": "Fix encoding of values into form",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
       "ident": "24395582-6805-466a-a706-013bce042f3e"
     }
@@ -21,16 +21,11 @@
       "updated_unix": 1738340099.4687643
     }
   ],
-  "tags": [
-    {
-      "key": "status",
-      "val": "done"
-    }
-  ],
+  "tags": [],
   "tags_v2": [
     {
       "key": "status",
-      "val": "done",
+      "val": "Done",
       "typ": "Status"
     }
   ],

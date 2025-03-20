@@ -1,0 +1,32 @@
+{
+  "title": "log time should order by end time not update time",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "",
+      "author": {
+        "app": "account",
+        "namespace": "2023-1094",
+        "ident": "user"
+      },
+      "type": "markdown",
+      "id": "185171c6-6839-4031-88c8-75948ff734a9",
+      "created_unix": 1742213350.395212,
+      "updated_unix": 1742213350.3952134
+    }
+  ],
+  "tags": [],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1742213350.3954742,
+  "updated_unix": 1742213350.3954744,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
