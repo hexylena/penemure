@@ -18,14 +18,20 @@
       "type": "markdown",
       "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
       "created_unix": 1740647607.6827025,
-      "updated_unix": 1740647607.6827042
+      "updated_unix": 1744901545.4997852
     }
   ],
   "tags": [],
-  "tags_v2": [],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "Backlog",
+      "typ": "Status"
+    }
+  ],
   "version": 2,
   "created_unix": 1740647607.6848958,
-  "updated_unix": 1740647607.6848962,
+  "updated_unix": 1744901545.4997373,
   "namespace": null,
   "type": "task",
   "attachments": []
