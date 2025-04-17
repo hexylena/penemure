@@ -137,6 +137,7 @@
 						<tr class='tag existing'>
 							<td><button type="button" style="flex-grow: 1" onclick="removetag(this)">❌</button></td>
 							<td>
+								<input type="hidden" name="tag_v2_typ" value="{{ tag.typ_real }}" />
 								<select name="tag_v2_typ" disabled>
 									{% for typ in Config.TagTypes %}
 									<option value="{{ typ }}" {% if tag.typ_real == typ %}selected{% endif %}>{{ typ }}</option>
