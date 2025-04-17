@@ -441,13 +441,15 @@ class Note(ChangeDetectionMixin, BaseModel):
         self.tags_v2 = [x for x in self.tags_v2 if x.key != tag.key] + [tag]
         print(self.tags_v2)
 
-    def _fmt_datetime(self, t: PastDateTimeTag, a: Literal['date'] | Literal['time'] | Literal['unix']):
+    def _fmt_datetime(self, t: PastDateTimeTag, a: Literal['date'] | Literal['time'] | Literal['unix'] | Literal['datetime']):
         if a == 'unix':
             return t.val
         elif a == 'date':
             return t.datetime.date()
         elif a == 'time':
             return t.datetime.time()
+        elif a == 'datetime':
+            return t.datetime
 
     def start(self, a: Literal['date'] | Literal['time'] | Literal['unix'] = 'date'):
         t = self.get_tag(key='start_date')
@@ -460,6 +462,17 @@ class Note(ChangeDetectionMixin, BaseModel):
         if t is not None:
             assert isinstance(t, PastDateTimeTag)
             return self._fmt_datetime(t, a)
+
+    def duration(self):
+        s = self._fmt_datetime(self.get_tag(key='start_date'), 'datetime')
+        e = self._fmt_datetime(self.get_tag(key='end_date'), 'datetime')
+        if s and e:
+            return e - s
+        else:
+            return datetime.timedelta(seconds=0)
+
+
+        return not(s is not None and e is not None)
 
     def log_is_closed(self):
         s = self.get_tag(key='start_date')

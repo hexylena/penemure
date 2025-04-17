@@ -183,9 +183,9 @@
 		<thead>
 		</thead>
 		<tbody>
-			{% for (date, logs) in oe.group_by(oe.search(type='log', custom='not-open'), 'day') %}
+			{% for (date, logs) in oe.summarise_groups(oe.group_by(oe.search(type='log', custom='not-open'), 'day'), 'duration') %}
 			<tr>
-				<td colspan="4" class="header">{{ date }}</td>
+				<td colspan="4" class="header">{{ date.title }} — {{ date.calc }}</td>
 			</tr>
 			{% for log in logs %}
 			{% set u = log.thing.urn.urn %}

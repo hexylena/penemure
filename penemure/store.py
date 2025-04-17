@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
 from sqlglot import parse_one, exp, transpile
 from sqlglot.executor import execute
-from typing import Dict, Generator, List
+from typing import Dict, Iterator, List, Tuple
 from typing import Optional, Union
 from .refs import *
 
@@ -805,6 +805,7 @@ class OverlayEngine(BaseModel):
             results = [x for x in results if x.thing.data.log_is_closed()]
         elif custom == 'not-open':
             results = [x for x in results if not x.thing.data.log_is_closed()]
+            results = sorted(results, key=lambda x: x.thing.data.start())
 
         return results
 
@@ -825,20 +826,27 @@ class OverlayEngine(BaseModel):
         return sorted(res)
 
     @classmethod
-    def group_by(cls, data: list[WrappedStoredThing], key):
+    def group_by(cls, data: list[WrappedStoredThing], key) -> list[tuple[str, list[WrappedStoredThing]]]:
         # not really a class method more of a utility? MOVE?
 
         def get_created_date(s: WrappedStoredThing) -> str:
-            return str(s.thing.data.created.date())
+            return str(s.thing.data.start('date'))
 
         groups = []
-        data = sorted(data, key=lambda x: x.thing.data.created)[::-1]
+        data = sorted(data, key=lambda x: x.thing.data.start('unix'))[::-1]
         if key == 'day':
             groups = [(x, list(y)) for (x, y) in itertools.groupby(data, get_created_date)]
         else:
             raise Exception('unimplemented')
 
         return groups
+
+    @classmethod
+    def summarise_groups(cls, data: list[tuple[str, list[WrappedStoredThing]]], method: str) -> Iterator[tuple[dict, list[WrappedStoredThing]]]:
+        for key, group in data:
+            if method == 'duration':
+                calc = sum([x.thing.data.duration().seconds for x in group])
+                yield ({"title": key, "calc": datetime.timedelta(seconds=calc)}, group)
 
     _cache = None
     _cache_sqlite = None
