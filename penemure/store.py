@@ -338,6 +338,9 @@ class WrappedStoredThing(BaseModel):
     def get_template(self, oe):
         res = oe.search(type='template', title=self.thing.data.type)
         if len(res) > 0:
+            for r in res:
+                if r.backend == self.backend:
+                    return r
             return res[0]
         return None
 
