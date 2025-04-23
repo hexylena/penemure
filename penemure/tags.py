@@ -290,6 +290,18 @@ class TextTag(BaseTag):
     val: str
     typ: Literal['Text'] = 'Text'
 
+class URLTemplateTag(BaseTemplateTag):
+    typ: Literal['URLTemplate'] = 'URLTemplate'
+    default: str = ''
+
+
+class URLTag(BaseTag):
+    val: str
+    typ: Literal['URL'] = 'URL'
+
+    def render_val(self, *args, **kwargs):
+        return '<a href="{self.val}">{self.val}</a>'
+
 
 class ReferenceTemplateTag(BaseTemplateTag):
     typ: Literal['ReferenceTemplate'] = 'ReferenceTemplate'
@@ -354,15 +366,18 @@ class HashtagsTag(BaseTag):
 
 
 TagV2 = Annotated[
-    PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag | ReferenceTag | HashtagsTag | TRLTag,
-    Field(discriminator="typ")]
+    PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag |
+    ReferenceTag | HashtagsTag | TRLTag | URLTag,
+    Field(discriminator="typ")
+]
 
 
 TemplateTagV2 = Annotated[
     PastDateTimeTemplateTag | EnumTemplateTag | StatusTemplateTag |
     PriorityTemplateTag | TextTemplateTag | ReferenceTemplateTag |
-    HashtagsTemplateTag | TRLTemplateTag,
-    Field(discriminator="typ")]
+    HashtagsTemplateTag | TRLTemplateTag | URLTemplateTag,
+    Field(discriminator="typ")
+]
 
 def realise_tag(t: TemplateTagV2) -> TagV2:
     # Just in case...
