@@ -36,7 +36,7 @@ class BaseTemplateTag(BaseModel):
     # The rendered title
     title: str
     default: Any
-    typ: Literal['UnusedGenericTemplateTag'] = 'UnusedGenericTemplateTag'
+    typ: Literal['UnusedGenericTemplate'] = 'UnusedGenericTemplate'
 
     @property
     def typ_real(self):
@@ -83,7 +83,7 @@ class BaseTemplateTag(BaseModel):
 class BaseTag(BaseModel):
     key: str
     val: Any
-    typ: Literal['UnusedGenericTag'] = 'UnusedGenericTag'
+    typ: Literal['UnusedGeneric'] = 'UnusedGeneric'
 
     @property
     def is_template(self):
@@ -175,6 +175,7 @@ class PastDateTimeTag(BaseTag):
 class EnumTemplateTag(BaseTemplateTag):
     has_groups: bool = False
     values: list[tuple]
+    typ: Literal['EnumTemplate'] = 'EnumTemplate'
     default: str = ''
 
     def get_icon(self, value):
@@ -203,6 +204,7 @@ class EnumTemplateTag(BaseTemplateTag):
 
 class EnumTag(BaseTag):
     val: str
+    typ: Literal['Enum'] = 'Enum'
 
     def render_val(self, template: EnumTemplateTag):
         if template:
@@ -250,6 +252,33 @@ class PriorityTemplateTag(EnumTemplateTag):
 
 class PriorityTag(EnumTag):
     typ: Literal['Priority'] = 'Priority'
+
+
+class TRLTemplateTag(EnumTemplateTag):
+    key: str = 'trl'
+    title: str = 'Readiness'
+    typ: Literal['TRLTemplate'] = 'TRLTemplate'
+    default: str = 'TRL-1'
+    has_groups: bool = True
+
+    values: list[tuple] = [
+        # Category, Value, Color, Icon
+        ( "Initial", "TRL-0 Not Started", "Gray", "")
+        ( "Initial", "TRL-1 Basic principles observed", "Gray", "🚧"),
+        ( "Initial", "TRL-2 Technology concept formulated", "Gray", "🚧"),
+        ( "Initial", "TRL-3 Experimental proof of concept ", "Gray", "🚧"),
+        ( "Validation", "TRL-4 Technology validated in lab", "Yellow", "🏗"),
+        ( "Validation", "TRL-5 Technology validated in relevant environment", "Yellow", "🏗"),
+        ( "Validation", "TRL-6 Technology demonstrated in relevant environment", "Yellow", "🏗"),
+        ( "Production", "TRL-7 System prototype demonstration in operational environment", "Yellow", "▶️"),
+        ( "Production", "TRL-8 System complete and qualified", "Yellow", "▶️"),
+        ( "Production", "TRL-9 Actual system proven in operational environment", "Yellow", "▶️"),
+        ( "Done", "TRL-X Cancelled", "Red", "❌")
+    ]
+
+class TRLTag(EnumTag):
+    val: str
+    typ: Literal['TRL'] = 'TRL'
 
 
 class TextTemplateTag(BaseTemplateTag):
@@ -325,14 +354,14 @@ class HashtagsTag(BaseTag):
 
 
 TagV2 = Annotated[
-    PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag | ReferenceTag | HashtagsTag,
+    PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag | ReferenceTag | HashtagsTag | TRLTag,
     Field(discriminator="typ")]
 
 
 TemplateTagV2 = Annotated[
     PastDateTimeTemplateTag | EnumTemplateTag | StatusTemplateTag |
     PriorityTemplateTag | TextTemplateTag | ReferenceTemplateTag |
-    HashtagsTemplateTag,
+    HashtagsTemplateTag | TRLTemplateTag,
     Field(discriminator="typ")]
 
 def realise_tag(t: TemplateTagV2) -> TagV2:
