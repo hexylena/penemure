@@ -263,17 +263,17 @@ class TRLTemplateTag(EnumTemplateTag):
 
     values: list[tuple] = [
         # Category, Value, Color, Icon
-        ( "Initial", "TRL-0 Not Started", "Gray", "")
-        ( "Initial", "TRL-1 Basic principles observed", "Gray", "🚧"),
-        ( "Initial", "TRL-2 Technology concept formulated", "Gray", "🚧"),
-        ( "Initial", "TRL-3 Experimental proof of concept ", "Gray", "🚧"),
-        ( "Validation", "TRL-4 Technology validated in lab", "Yellow", "🏗"),
-        ( "Validation", "TRL-5 Technology validated in relevant environment", "Yellow", "🏗"),
-        ( "Validation", "TRL-6 Technology demonstrated in relevant environment", "Yellow", "🏗"),
-        ( "Production", "TRL-7 System prototype demonstration in operational environment", "Yellow", "▶️"),
-        ( "Production", "TRL-8 System complete and qualified", "Yellow", "▶️"),
-        ( "Production", "TRL-9 Actual system proven in operational environment", "Yellow", "▶️"),
-        ( "Done", "TRL-X Cancelled", "Red", "❌")
+        ("Initial", "TRL-0 Not Started", "Gray", "❔"),
+        ("Initial", "TRL-1 Basic principles observed", "Gray", "🚧"),
+        ("Initial", "TRL-2 Technology concept formulated", "Gray", "🚧"),
+        ("Initial", "TRL-3 Experimental proof of concept ", "Gray", "🚧"),
+        ("Validation", "TRL-4 Technology validated in lab", "Yellow", "🏗"),
+        ("Validation", "TRL-5 Technology validated in relevant environment", "Yellow", "🏗"),
+        ("Validation", "TRL-6 Technology demonstrated in relevant environment", "Yellow", "🏗"),
+        ("Production", "TRL-7 System prototype demonstration in operational environment", "Yellow", "▶️"),
+        ("Production", "TRL-8 System complete and qualified", "Yellow", "▶️"),
+        ("Production", "TRL-9 Actual system proven in operational environment", "Yellow", "▶️"),
+        ("Done", "TRL-X Cancelled", "Red", "❌")
     ]
 
 class TRLTag(EnumTag):
