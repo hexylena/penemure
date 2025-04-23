@@ -300,7 +300,7 @@ class URLTag(BaseTag):
     typ: Literal['URL'] = 'URL'
 
     def render_val(self, *args, **kwargs):
-        return '<a href="{self.val}">{self.val}</a>'
+        return f'<a href="{self.val}">{self.val}</a>'
 
 
 class ReferenceTemplateTag(BaseTemplateTag):
