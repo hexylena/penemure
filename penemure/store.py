@@ -812,7 +812,7 @@ class OverlayEngine(BaseModel):
         elif custom == 'not-open-recent':
             results = [x for x in results if not x.thing.data.log_is_closed()]
             results = sorted(results, key=lambda x: x.thing.data.start())
-            results = results[0:100]
+            results = results[-100:]
 
         return results
 

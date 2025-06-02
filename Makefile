@@ -26,6 +26,9 @@ assets/data/healthicons.json: node_modules/healthicons/public/icons/meta-data.js
 assets/favicon@64.png: penemure.png
 	magick penemure.png -resize 64x assets/favicon.ico
 
+assets/favicon.ico: penemure.png
+	magick penemure.png -resize 256x assets/favicon.ico
+
 assets/favicon@256.png: penemure.png
 	magick penemure.png -resize 256x assets/favicon@256.png
 
