@@ -183,7 +183,7 @@
 		<thead>
 		</thead>
 		<tbody>
-			{% for (date, logs) in oe.summarise_groups(oe.group_by(oe.search(type='log', custom='not-open'), 'day'), 'duration') %}
+			{% for (date, logs) in oe.summarise_groups(oe.group_by(oe.search(type='log', custom='not-open-recent'), 'day'), 'duration') %}
 			<tr>
 				<td colspan="4" class="header">{{ date.title }} — {{ date.calc }}</td>
 			</tr>
