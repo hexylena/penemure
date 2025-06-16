@@ -243,8 +243,39 @@ fieldset {
 	border: 1px solid $primary;
 }
 hgroup, h1 {
-	@extend .mb-3;
+	@extend .mb-1;
 	@extend .mt-4;
+}
+
+h1 {
+	@extend .mt-5;
+}
+h2 {
+	@extend .mt-4;
+}
+h3 {
+	@extend .mt-3;
+}
+h4 {
+	@extend .mt-2;
+}
+h5 {
+	@extend .mt-1;
+}
+
+article {
+	@extend .mb-2;
+}
+
+main > article {
+	@extend .mt-5;
+}
+
+.pillish {
+	// background: var(--bs-primary-bg-subtle);
+	padding: 0.3rem;
+	border-radius: var(--bs-border-radius-sm);
+        margin: 0.1rem;
 }
 
 .spin {
@@ -285,6 +316,7 @@ blockquote {
 }
 
 details {
+	width: fit-content;
 	border: var(--bs-border-width) solid var(--bs-border-color);
 
 	summary {

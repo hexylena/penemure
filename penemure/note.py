@@ -331,6 +331,9 @@ class Note(ChangeDetectionMixin, BaseModel):
         return any([UniformReference.match_string(x.urn, urn)
                     for x in self.get_parents()])
 
+    def has_parents(self) -> bool:
+        return len(self.parents) > 0
+
     def get_parents(self) -> list[UniformReference]:
         return self.parents or []
 

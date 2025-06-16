@@ -9,140 +9,48 @@
 	<img src="{{ penemure.image(cover, args="rs:fill:1400:300:1:1") }}" class="cover">
 </div>
 {% endif %}
+
+{% set note_tpl = note.get_template(oe) %}
+
 <hgroup>
 	<h1>
 		{{ note.thing.data.icon }}
 		{{ note.thing.data.title }}
 	</h1>
-</hgroup>
-
-<details style="width: fit-content"><summary>Metadata</summary>
-<table id="metadata">
-	<caption>Metadata</caption>
-	<thead>
-		<tr>
-			<th scope="col">Key</th>
-			<th scope="col">Value</th>
-		</tr>
-	</thead>
-
-	<tbody>
-
-	<tr>
-		<td scope="row">ID</td>
-		<td>{{ note.backend.prefix }}-{{ note.thing.urn.a_ident(164) }}</td>
-	</tr>
-
-	<tr>
-		<td scope="row">URN</td>
-		<td>{{ note.thing.urn.urn }}</td>
-	</tr>
-
-	<tr>
-		<td scope="row">Backend</td>
-		<td>{{ note.backend.html_title }}</td>
-	</tr>
-
-	<!--
-	{% if note.thing.data.parents %}
-	<tr>
-		<td scope="row">Parents</td>
-		<td>{% for parent in note.thing.data.get_parents() %}
-			<a href="{{ parent.urn }}#url">{{ parent.urn }}#title</a>
-		{% endfor %}</td>
-	</tr>
-	{% endif %}
-	-->
-
-	<tr>
-		<td scope="row">Ancestors</td>
-		<td>{% for chain in oe.get_lineage(note) %}
-			<nav aria-label="breadcrumb">
-				<ol class="breadcrumb">
-					{% for p in chain %}
-					<li class="breadcrumb-item"><a href="{{ p.urn }}#url">{{ p.urn }}#title</a></li>
-					{% endfor %}
-				</ol>
-			</nav>
-		{% endfor %}</td>
-	</tr>
-
-	{% for tag in note.thing.data.tags %}
-	<tr>
-		<td scope="row">{{ tag.key}} (💀)</td>
-		<td>{{ tag.val }}</td>
-	</tr>
-	{% endfor %}
-
-	{% set note_tpl = note.get_template(oe) %}
-	{% for tag in note.thing.data.tags_v2 %}
-	<tr>
-		{% if note_tpl %}
-			{% set tpl_tag = note_tpl.thing.data.relevant_tag(tag.key) %}
-		{% endif %}
-		<td scope="row">{{ tag.html_icon }}
-			{% if tpl_tag %}
-				{{ tag.render_key(tpl_tag) }}
-			{% else %}
-				{{ tag.render_key(None) }}
-			{% endif %}
-
-		</td>
-
-		<td>
-		{% if tpl_tag %}
-			{{ tag.render_val(tpl_tag) }}
-		{% else %}
-			{{ tag.render_val(None) }}
-		{% endif %}
-		</td>
-	</tr>
-	{% endfor %}
-
-	{% for tag in note.thing.data.template_tags_v2 %}
-	<tr>
-		<td scope="row">
-			(T) {{ tag.html_icon }} {{ tag.render_key(tpl_tag) }}
-		</td>
-
-		<td>{{ tag.render_val(tpl_tag) }}</td>
-	</tr>
-	{% endfor %}
-
-	<tr>
-		<td scope="row">📅 Created</td>
-		<td><time datetime="{{ note.thing.data.created }}">{{ note.thing.data.created }}</time></td>
-	</tr>
-
-	<tr>
-		<td scope="row">📅 Updated</td>
-		<td><time datetime="{{ note.thing.data.updated }}">{{ note.thing.data.updated }}</time></td>
-	</tr>
+	<div style="line-height: 1;font-size: 94%;padding: 0;margin: 0;">
 
 	{% if note.get_template(oe) %}
-	<tr>
-		<td scope="row"> Template</td>
-		<td>{{ note.get_template(oe).thing.urn.urn }}#link</td>
-	</tr>
+		{{ note.get_template(oe).thing.urn.urn }}#link
+		&nbsp;|&nbsp;
+	{% endif %}
+	{{ note.backend.html_title }}
+
+	{% if note.thing.data.has_tag('tags') %}
+		{% if note_tpl %}
+			{% set tpl_tag = note_tpl.thing.data.relevant_tag('tags') %}
+			&nbsp;|&nbsp;
+			{{ note.thing.data.get_tags('tags')[0].render_val(tpl_tag) }}
+		{% else %}
+			&nbsp;|&nbsp;
+			{{ note.thing.data.get_tags('tags')[0].render_val(None) }}
+		{% endif %}
 	{% endif %}
 
-	<tr>
-		<td scope="row">Links</td>
-		<td>
-			<div class="btn-group" role="group" aria-label="Views">
-				{% for view in note.thing.data._views %}
-				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}{{ note.thing.data.view_ext(view) }}">{{ view.title() }}</a>
-				{% endfor %}
-				{% if note.thing.data.type == 'log' %}
-				<a class="btn btn-outline-secondary" href="#" onclick="alert('implement this dummy')">Continue</a>
-				{% endif %}
-			</div>
-		</td>
-	</tr>
+	{% if note.thing.data.has_parents() %}
+	&nbsp;|&nbsp;
+	{% for chain in oe.get_lineage(note) %}
+		<nav aria-label="breadcrumb" style="display: inline-flex">
+			<ol class="breadcrumb pillish">
+				<li class="breadcrumb-item"><a href="{{ chain[0].urn }}#url">{{ chain[0].urn }}#title</a></li>
+			</ol>
+		</nav>
+	{% endfor %}
+	{% endif %}
+	</div>
+</hgroup>
+<hr/>
 
-	</tbody>
-</table>
-</details>
+
 
 {% if note.thing.data.contents %}
 {% for b in note.thing.data.contents %}
@@ -153,7 +61,7 @@
 
 
 
-<hr/>
+<hr class="mt-5"/>
 
 {% if note.thing.data.type == 'form' %}
 <details><summary><h3>Form Responses</h3></summary>
@@ -246,6 +154,135 @@
 </table>
 </details>
 {% endif %}
+
+
+
+<details><summary>Metadata</summary>
+<table id="metadata">
+	<caption>Metadata</caption>
+	<thead>
+		<tr>
+			<th scope="col">Key</th>
+			<th scope="col">Value</th>
+		</tr>
+	</thead>
+
+	<tbody>
+
+	<tr>
+		<td scope="row">ID</td>
+		<td>{{ note.backend.prefix }}-{{ note.thing.urn.a_ident(164) }}</td>
+	</tr>
+
+	<tr>
+		<td scope="row">URN</td>
+		<td>{{ note.thing.urn.urn }}</td>
+	</tr>
+
+	<tr>
+		<td scope="row">Backend</td>
+		<td>{{ note.backend.html_title }}</td>
+	</tr>
+
+	<!--
+	{% if note.thing.data.parents %}
+	<tr>
+		<td scope="row">Parents</td>
+		<td>{% for parent in note.thing.data.get_parents() %}
+			<a href="{{ parent.urn }}#url">{{ parent.urn }}#title</a>
+		{% endfor %}</td>
+	</tr>
+	{% endif %}
+	-->
+
+	<tr>
+		<td scope="row">Ancestors</td>
+		<td>{% for chain in oe.get_lineage(note) %}
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb">
+					{% for p in chain %}
+					<li class="breadcrumb-item"><a href="{{ p.urn }}#url">{{ p.urn }}#title</a></li>
+					{% endfor %}
+				</ol>
+			</nav>
+		{% endfor %}</td>
+	</tr>
+
+	{% for tag in note.thing.data.tags %}
+	<tr>
+		<td scope="row">{{ tag.key}} (💀)</td>
+		<td>{{ tag.val }}</td>
+	</tr>
+	{% endfor %}
+
+	{% for tag in note.thing.data.tags_v2 %}
+	<tr>
+		{% if note_tpl %}
+			{% set tpl_tag = note_tpl.thing.data.relevant_tag(tag.key) %}
+		{% endif %}
+		<td scope="row">{{ tag.html_icon }}
+			{% if tpl_tag %}
+				{{ tag.render_key(tpl_tag) }}
+			{% else %}
+				{{ tag.render_key(None) }}
+			{% endif %}
+
+		</td>
+
+		<td>
+		{% if tpl_tag %}
+			{{ tag.render_val(tpl_tag) }}
+		{% else %}
+			{{ tag.render_val(None) }}
+		{% endif %}
+		</td>
+	</tr>
+	{% endfor %}
+
+	{% for tag in note.thing.data.template_tags_v2 %}
+	<tr>
+		<td scope="row">
+			(T) {{ tag.html_icon }} {{ tag.render_key(tpl_tag) }}
+		</td>
+
+		<td>{{ tag.render_val(tpl_tag) }}</td>
+	</tr>
+	{% endfor %}
+
+	<tr>
+		<td scope="row">📅 Created</td>
+		<td><time datetime="{{ note.thing.data.created }}">{{ note.thing.data.created }}</time></td>
+	</tr>
+
+	<tr>
+		<td scope="row">📅 Updated</td>
+		<td><time datetime="{{ note.thing.data.updated }}">{{ note.thing.data.updated }}</time></td>
+	</tr>
+
+	{% if note.get_template(oe) %}
+	<tr>
+		<td scope="row"> Template</td>
+		<td>{{ note.get_template(oe).thing.urn.urn }}#link</td>
+	</tr>
+	{% endif %}
+
+	<tr>
+		<td scope="row">Links</td>
+		<td>
+			<div class="btn-group" role="group" aria-label="Views">
+				{% for view in note.thing.data._views %}
+				<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}{{ note.thing.data.view_ext(view) }}">{{ view.title() }}</a>
+				{% endfor %}
+				{% if note.thing.data.type == 'log' %}
+				<a class="btn btn-outline-secondary" href="#" onclick="alert('implement this dummy')">Continue</a>
+				{% endif %}
+			</div>
+		</td>
+	</tr>
+
+	</tbody>
+</table>
+</details>
 
 
 
