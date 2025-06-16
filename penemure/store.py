@@ -854,7 +854,7 @@ class OverlayEngine(BaseModel):
             if method == 'duration':
                 calc = sum([x.thing.data.duration().seconds for x in group])
                 m0 = min([x.thing.data.start('datetime') for x in group])
-                m1 = max([x.thing.data.start('datetime') for x in group])
+                m1 = max([x.thing.data.end('datetime') for x in group])
                 yield ({
                     "title": key,
                     "calc": datetime.timedelta(seconds=calc),
