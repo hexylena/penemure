@@ -659,6 +659,28 @@ def redir(urn: str):
 @app.post("/time", tags=['mutate'])
 def save_time(data: Annotated[TimeFormData, Form()],
               username: Annotated[UniformReference, Depends(get_current_username)]):
+    return _save_time(data, username)
+
+
+@app.post("/time-since", tags=['mutate'])
+def save_time_since(data: Annotated[TimeFormData, Form()],
+                    username: Annotated[UniformReference, Depends(get_current_username)]):
+    logs = oe.search(type='log')
+    max_end_date = max((log.thing.data.end('unix') for log in logs if log.thing.data.end('unix')))
+    return _save_time(data, username, start_override = max_end_date)
+
+
+@app.post("/time-end", tags=['mutate'])
+def save_time_since(data: Annotated[TimeFormData, Form()],
+                    username: Annotated[UniformReference, Depends(get_current_username)]):
+    logs = oe.search(type='log')
+    max_end_date = max((log.thing.data.end('unix') for log in logs if log.thing.data.end('unix')))
+    return _save_time(data, username, start_override=max_end_date, end_override=int(time.time()))
+
+def _save_time(data: Annotated[TimeFormData, Form()],
+              username: Annotated[UniformReference, Depends(get_current_username)],
+              start_override: Optional[int] = None,
+              end_override: Optional[int] = None):
     if data.urn:
         u = UniformReference.from_string(data.urn)
         log = oe.find(u)
@@ -669,7 +691,12 @@ def save_time(data: Annotated[TimeFormData, Form()],
 
     log.thing.data.touch()
     log.thing.data.set_contents(extract_contents(data, username, log.thing.data.contents))
-    log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=data.start_unix))
+
+    log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', 
+                                              val=start_override if start_override else data.start_unix))
+    if end_override:
+        log.thing.data.ensure_tag(PastDateTimeTag(key='end_date', 
+                                                  val=end_override))
     new_parents = (data.project or [])
     if new_parents:
         log.thing.data.set_parents([UniformReference.from_string(p) for p in new_parents])
@@ -678,6 +705,7 @@ def save_time(data: Annotated[TimeFormData, Form()],
     pen.overlayengine.save_thing(log)
 
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
+
 
 @app.exception_handler(404)
 def custom_404_handler(_, res):
