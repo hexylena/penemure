@@ -853,7 +853,13 @@ class OverlayEngine(BaseModel):
         for key, group in data:
             if method == 'duration':
                 calc = sum([x.thing.data.duration().seconds for x in group])
-                yield ({"title": key, "calc": datetime.timedelta(seconds=calc)}, group)
+                m0 = min([x.thing.data.start('datetime') for x in group])
+                m1 = max([x.thing.data.start('datetime') for x in group])
+                yield ({
+                    "title": key,
+                    "calc": datetime.timedelta(seconds=calc),
+                    "bound": m1-m0,
+                }, group)
 
     _cache = None
     _cache_sqlite = None
