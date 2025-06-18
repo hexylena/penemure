@@ -39,8 +39,8 @@ $border-radius: 0px;
     src: url(NationalPark-VariableVF.woff2) format(woff2);
 }
 
-$font-family-sans-serif: "Gorton", "NationalPark";
-$font-family-monospace: "Gorton", "NationalPark";
+$font-family-sans-serif: "Gorton",  "Recursive", "NationalPark";
+$font-family-monospace: "Gorton", "Recursive", "NationalPark";
 
 body {
 	font-variation-settings: "MONO" 0, "CASL" 1, "CRSV" 0;
