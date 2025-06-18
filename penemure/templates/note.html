@@ -50,7 +50,7 @@
 	{% if note.thing.data._views %}
 	&nbsp;|&nbsp;
 	{% for view in note.thing.data._views %}
-	<a class="btn btn-outline-primary" href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}{{ note.thing.data.view_ext(view) }}">{{ view.title() }}</a>
+	<a href="{{ Config.ExportPrefix }}render/{{ view }}/{{ note.thing.urn.urn }}{{ note.thing.data.view_ext(view) }}">{{ view.title() }}</a>
 	{% endfor %}
 	{% endif %}
 
