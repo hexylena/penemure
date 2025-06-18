@@ -12,7 +12,7 @@
   <entry>
     {% set thing = oe.find_thing(urn[0]) %}
     <title type="html">{{ thing.thing.data.title | e }}</title>
-    <link href="{{ Config.ExportPrefix}}{{ thing.thing.url }}" rel="alternate" type="text/html" title="{{ thing.thing.data.title }}"/>
+    <link href="{{ Config.ExportPrefix}}{{ thing.thing.url }}" rel="alternate" type="text/html" title="{{ thing.thing.data.title | e}}"/>
     <published>{{ thing.thing.data.created }}</published>
     <updated>{{ thing.thing.data.updated }}</updated>
     <id>{{ urn[0] }}</id>
