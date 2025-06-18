@@ -11,7 +11,7 @@
   {% for urn in group.rows %}
   <entry>
     {% set thing = oe.find_thing(urn[0]) %}
-    <title type="html">{{ thing.thing.data.title }}</title>
+    <title type="html">{{ thing.thing.data.title | e }}</title>
     <link href="{{ Config.ExportPrefix}}{{ thing.thing.url }}" rel="alternate" type="text/html" title="{{ thing.thing.data.title }}"/>
     <published>{{ thing.thing.data.created }}</published>
     <updated>{{ thing.thing.data.updated }}</updated>
