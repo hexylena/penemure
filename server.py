@@ -690,6 +690,7 @@ def _save_time(data: Annotated[TimeFormData, Form()],
         log = pen.overlayengine.add(log, backend=be)
 
     log.thing.data.touch()
+    log.thing.data.title = data.title
     log.thing.data.set_contents(extract_contents(data, username, log.thing.data.contents))
 
     log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', 
