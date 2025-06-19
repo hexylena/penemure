@@ -46,19 +46,9 @@
 		<td>
 			<time class="relative" title="{{ note.thing.data.updated }}" datetime="{{ note.thing.data.updated }}">{{ note.thing.data.updated }}</time>
 		</td>
-		{% set status_tag = note.thing.data.get_tag('status') %}
-		{% set tpl_tag = note.get_template(oe) %}
-		<td>{% if status_tag and tpl_tag %}{{ status_tag.render_val(tpl_tag.thing.data.relevant_tag('status')) }}{% endif %}</td>
-		<td>
-			<div class="pills">
-			{% for tag in note.thing.data.tags_v2 %}
-				{% if tag.key != 'status' and note.get_template(oe) %}
-				{{ tag.render_tag(note.get_template(oe).thing.data.relevant_tag(tag.key)) }}
-				{% endif %}
-			{% endfor %}
-			</div>
-		</td>
-		<td>{% for c in note.thing.data.get_contributors(oe) %}<a class="urn" href="{{ c.urn }}#url">{{ c.urn }}#title</a>{% endfor %}</td>
+		<td></td>
+		<td></td>
+		<td></td>
 		<td>{{ note.backend.name }}</td>
 		<td>
 			{% if note.thing.data.parents %}
