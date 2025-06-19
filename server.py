@@ -627,6 +627,30 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[U
     oe.save_thing(log, fsync=False)
     return log
 
+
+def _last_end():
+    logs = oe.search(type='log')
+    max_end_date = max((
+        log.thing.data.end('unix') 
+        for log in logs if log.thing.data.end('unix')
+    ))
+    return max_end_date
+
+@app.post("/time/continue/since", tags=['mutate'])
+def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
+    u = UniformReference.from_string(data.urn)
+    log = oe.find(u)
+
+    # Copy title, parents only
+    new_log = Note(title=log.thing.data.title, type='log')
+    new_log = pen.overlayengine.add(new_log, backend=log.backend)
+    new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
+    new_log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=_last_end()))
+    # Right, have to save after adding tags...
+    new_log.save()
+
+    return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
+
 @app.post("/time/continue", tags=['mutate'])
 def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
@@ -665,17 +689,13 @@ def save_time(data: Annotated[TimeFormData, Form()],
 @app.post("/time-since", tags=['mutate'])
 def save_time_since(data: Annotated[TimeFormData, Form()],
                     username: Annotated[UniformReference, Depends(get_current_username)]):
-    logs = oe.search(type='log')
-    max_end_date = max((log.thing.data.end('unix') for log in logs if log.thing.data.end('unix')))
-    return _save_time(data, username, start_override = max_end_date)
+    return _save_time(data, username, start_override=_last_end())
 
 
 @app.post("/time-end", tags=['mutate'])
 def save_time_since(data: Annotated[TimeFormData, Form()],
                     username: Annotated[UniformReference, Depends(get_current_username)]):
-    logs = oe.search(type='log')
-    max_end_date = max((log.thing.data.end('unix') for log in logs if log.thing.data.end('unix')))
-    return _save_time(data, username, start_override=max_end_date, end_override=int(time.time()))
+    return _save_time(data, username, start_override=_last_end(), end_override=int(time.time()))
 
 def _save_time(data: Annotated[TimeFormData, Form()],
               username: Annotated[UniformReference, Depends(get_current_username)],

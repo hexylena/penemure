@@ -207,9 +207,7 @@
 					<div style="display: flex">
 						<input data-urn="{{u}}" id="{{u}}-sd" name="start_date" class="patch" type="date">
 						<input data-urn="{{u}}" id="{{u}}-st" name="start_time" class="patch time" type="text">
-					</div>
-					<div style="display: flex">
-						<input data-urn="{{u}}" id="{{u}}-ed" name="end_date" class="patch" type="date">
+						<input data-urn="{{u}}" id="{{u}}-ed" name="end_date" class="patch visually-hidden" type="date">
 						<input data-urn="{{u}}" id="{{u}}-et" name="end_time" class="patch time" type="text">
 					</div>
 					<script>
@@ -221,16 +219,17 @@
 						document.getElementById("{{u}}-ed").value = etd
 						document.getElementById("{{u}}-et").value = ett
 					</script>
-				</td>
-				<td>
+					<div style="display: flex">
 					<form method="post" action="/time/continue" data-urn="{{ u }}">
 						<input name="start_unix" type="hidden" value="{{ log.thing.data.start('unix') }}">
 						<input name="end_unix" type="hidden" value="{{ log.thing.data.end('unix') }}">
 						<input type="hidden" name="urn" value="{{ log.thing.urn.urn }}">
 						<input type="hidden" name="action" value="start">
 						<button name="submit" type="submit">Continue</button>
+						<button name="submit" type="submit" formaction="/time/continue/since">Since</button>
 						<button name="delete" type="button">Delete</button>
 					</form>
+					</div>
 				</td>
 			</tr>
 			{% endfor %}
