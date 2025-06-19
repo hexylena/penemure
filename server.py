@@ -627,6 +627,30 @@ def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[U
     oe.save_thing(log, fsync=False)
     return log
 
+class PatchNoteContentsData(BaseModel):
+    urn: str
+    block: str
+    contents: str
+
+@app.patch("/patch/block", tags=['patch'])
+def patch_note(data: Annotated[PatchNoteContentsData, Form()], username: Annotated[UniformReference, Depends(get_current_username)]):
+    u = UniformReference.from_string(data.urn)
+    log = oe.find(u)
+    print(u)
+    found = False
+    for block in log.thing.data.contents:
+        if str(block.id) == data.block:
+            block.contents = data.contents
+            block.author = username
+            found = True
+            print(block)
+
+    if not found:
+        raise Exception("Couldn't find a matching block")
+    log.thing.data.touch(blocks=False)
+    oe.save_thing(log, fsync=False)
+    return log.thing.data
+
 
 def _last_end():
     logs = oe.search(type='log')
@@ -646,6 +670,7 @@ def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotate
     new_log = pen.overlayengine.add(new_log, backend=log.backend)
     new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
     new_log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=_last_end()))
+    new_log.thing.data.add_empty_markdown_if_empty(author=username)
     # Right, have to save after adding tags...
     new_log.save()
 
@@ -661,6 +686,7 @@ def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotate
     new_log = pen.overlayengine.add(new_log, backend=log.backend)
     new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
     new_log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=time.time()))
+    new_log.thing.data.add_empty_markdown_if_empty(author=username)
     # Right, have to save after adding tags...
     new_log.save()
 
@@ -712,6 +738,7 @@ def _save_time(data: Annotated[TimeFormData, Form()],
     log.thing.data.touch()
     log.thing.data.title = data.title
     log.thing.data.set_contents(extract_contents(data, username, log.thing.data.contents))
+    log.thing.data.add_empty_markdown_if_empty(author=username)
 
     log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', 
                                               val=start_override if start_override else data.start_unix))

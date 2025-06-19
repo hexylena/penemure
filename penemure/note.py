@@ -282,6 +282,9 @@ class Note(ChangeDetectionMixin, BaseModel):
     #
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
+    def add_empty_markdown_if_empty(self, author: UniformReference):
+        if len(self.contents) == 0:
+            self.contents.append(MarkdownBlock(contents="", author=author))
 
     def has_attachment(self, identifier) -> Optional[UniformReference]:
         r = [x for (i, x) in self.attachments if i == identifier]
@@ -322,10 +325,11 @@ class Note(ChangeDetectionMixin, BaseModel):
                 return text[0:120]
         return text.replace('\n', ' ').replace('\r', ' ')
 
-    def touch(self):
+    def touch(self, blocks=True):
         self.updated_unix = time.time()
-        for c in (self.contents or []):
-            c.updated_unix = time.time()
+        if blocks:
+            for c in (self.contents or []):
+                c.updated_unix = time.time()
 
     def has_parent(self, urn) -> bool:
         return any([UniformReference.match_string(x.urn, urn)
