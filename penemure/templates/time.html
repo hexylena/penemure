@@ -132,42 +132,17 @@
 			<div name='contents'>
 				{% for block in open_log.thing.data.get_contents() %}
 				<div class="block existing" style="display: flex">
-					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
-						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
-						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
-						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
-					</div>
 					<div style="display: flex; flex-direction: column; flex-grow: 7">
-						<select name="content_type">
-							{% for bt in blocktypes %}
-							<option value="{{ bt.value }}" {% if bt.value == block.type %}selected{% endif %}>{{ bt.pretty() }}</option>
-							{% endfor %}
-						</select>
+						<input type="hidden" name="content_type" value="markdown">
 						<input type="hidden" name="content_uuid" value="{{ block.id }}">
-						<textarea name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents | e }}</textarea>
+						<textarea data-urn="{{ open_log.thing.urn.urn }}" data-block="{{ block.id }}" 
+							class="patch" name="content_note" placeholder="jrnl goes here" rows="10">{{ block.contents | e }}</textarea>
 						<input type="hidden" name="content_author" value="{{ block.author.urn }}">
 					</div>
 				</div>
 				{% endfor %}
-
-				<div id='default-block' class="block" style="display: flex">
-					<div style="display: flex; flex-direction: column; flex-grow: 1; padding-right: 0.5em">
-						<button type="button" style="flex-grow: 1" onclick="insertbefore(this)">+⬆️</button>
-						<button type="button" style="flex-grow: 1" onclick="remove(this)">❌</button>
-						<button type="button" style="flex-grow: 1" onclick="insertafter(this)">+⬇️</button>
-					</div>
-					<div style="display: flex; flex-direction: column; flex-grow: 7">
-						<select name="content_type">
-							{% for bt in blocktypes %}
-							<option value="{{ bt.value }}">{{ bt.pretty() }}</option>
-							{% endfor %}
-						</select>
-						<input type="hidden" name="content_uuid" value="REPLACEME">
-						<input type="hidden" name="content_author" value="urn:penemure:account:hexylena"> <!-- TODO -->
-						<textarea name="content_note" placeholder="jrnl goes here" rows="10"></textarea>
-					</div>
-				</div>
 			</div>
+
 
 			<label for="backend">Backend</label>
 			<select name="backend">
@@ -250,32 +225,6 @@ input {min-width: 5em;}
 // https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
 function uuid() {
 	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => { return (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16) });
-}
-
-if (document.querySelector('#default-block')){
-	const template = document.querySelector('#default-block').outerHTML;
-	if (document.querySelectorAll('#notes .block.existing').length > 0 ){
-		document.querySelector('#default-block').remove();
-	}
-
-	function insertbefore(e){
-		let block = e.parentElement.parentElement;
-		block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
-	}
-
-	function remove(e){
-		let block = e.parentElement.parentElement;
-		if (document.querySelectorAll('#notes .block').length == 1){
-			block.insertAdjacentHTML('beforebegin', template.replaceAll('REPLACEME', uuid()))
-		}
-
-		block.remove();
-	}
-
-	function insertafter(e){
-		let block = e.parentElement.parentElement;
-		block.insertAdjacentHTML('afterend', template.replaceAll('REPLACEME', uuid()))
-	}
 }
 
 
@@ -378,6 +327,42 @@ var tribute = new Tribute({
   },
 });
 tribute.attach(document.querySelectorAll("textarea"));
+
+
+function PatchContents(urn, block, contents){
+	console.log(`patchContents ${urn} ${block}`);
+	const data = new URLSearchParams();
+	data.append('urn', urn);
+	data.append('block', block);
+	data.append('contents', contents);
+
+	fetch("/patch/block", {
+		method: "PATCH",
+		body: data
+	});
+	/* TODO: handle errors */
+}
+
+// Patching in notes.
+[...document.querySelectorAll("textarea.patch")].forEach(i => i.addEventListener('keyup', debounce(() => {
+	console.log("PatchContents")
+	PatchContents(i.dataset.urn, i.dataset.block, i.value)
+})));
+
+function debounce(func, timeout = 1000){
+	console.log("debounce")
+	let timer;
+	return (...args) => {
+		clearTimeout(timer);
+		timer = setTimeout(() => { func.apply(this, args); }, timeout);
+	};
+}
+function saveInput(){
+	console.log("SaveInput")
+	Patch(i.dataset.urn)
+}
+const processChange = debounce(() => saveInput());
+
 
 </script>
 
