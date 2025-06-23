@@ -1,0 +1,48 @@
+{
+  "title": "What I'm doing automation",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    },
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "f2929c20-6e87-442b-a0a1-2db57b9e6108"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "it would be neat to have a `/api/me/currently` endpoint that returns the current task(s) that are being worked on.\r\n\r\nThen when I commit, I could (automatically via git) use trailers/notes/another method to identify that commit as being part of the currently worked on thing\r\n\r\nAnd then whenever penemure discovers that repo, it can ingest all of those trailers and associate them to the relevant entries.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d7ff3b2a-d3b5-4d3f-a7fc-7e5a29fc5d63",
+      "created_unix": 1750327259.1068344,
+      "updated_unix": 1750327259.1068351
+    }
+  ],
+  "tags": [],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "Backlog",
+      "typ": "Status"
+    },
+    {
+      "key": "priority",
+      "val": "Low",
+      "typ": "Priority"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1750327259.1071293,
+  "updated_unix": 1750327259.1071296,
+  "namespace": null,
+  "type": "task",
+  "attachments": []
+}
