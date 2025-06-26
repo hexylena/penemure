@@ -959,6 +959,10 @@ def whoami(username: Annotated[UniformReference, Depends(get_current_username)])
 def whatamidoing(username: Annotated[UniformReference, Depends(get_current_username)]) -> List[str]:
     return [x.thing.urn.urn for x in oe.search(type='log', custom='open')]
 
+@app.get("/me/currently/trailer", response_class=HTMLResponse, tags=['self'])
+def whatamidoing(username: Annotated[UniformReference, Depends(get_current_username)]) -> str:
+    return "\n".join(f"Penemeure: {x.thing.urn.urn}" for x in oe.search(type='log', custom='open'))
+
 # Eww.
 @app.get("/{app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/{app}/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
