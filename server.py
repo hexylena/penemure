@@ -26,6 +26,13 @@ import requests
 import fastapi
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
+LOGS = []
+STARTED = time.time()
+
+def log(logger, message, **kwargs):
+    LOGS.append({'time': datetime.datetime.now(), 
+                 'logger': logger, 'message': message, 'kwargs': kwargs})
+
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
 pen = Penemure(backends=backends)
@@ -172,7 +179,7 @@ def read_current_user(username: Annotated[UniformReference, Depends(get_current_
     return {"username": username}
 
 
-def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=None):
+def render_fixed(fixed: str, request: Request, note=None, rewrite=True, note_template=None, username=None, **kwargs2):
     a = time.time()
     template = env.get_template(fixed)
 
@@ -183,10 +190,14 @@ def render_fixed(fixed, note=None, rewrite=True, note_template=None, username=No
     if note_template is not None:
         kwargs['template'] = note_template
 
+    for k, v in kwargs2.items():
+        kwargs[k] = v
+
     page_content = template.render(**kwargs, username=username)
     if rewrite:
         page_content = UniformReference.rewrite_urns(page_content, pen)
 
+    log('render_fixed', f'Rendered {fixed} in {time.time() - a} for {request.client.host}')
     return HTMLResponse(page_content, headers={'X-Response-Time': str(time.time() - a)})
 
 def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None, username=None, media_type: Optional[str]=None):
@@ -205,6 +216,8 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None
     render_kw = {'headers': {'X-Response-Time': str(time.time() - a)}}
     if media_type is not None:
         render_kw['media_type'] = media_type
+
+    log('render_dynamic', f'Rendered {st.thing.urn.urn}#link in {time.time() - a}')
     return HTMLResponse(page_content, **render_kw)
 
 
@@ -218,8 +231,10 @@ def api_sync(username: Annotated[UniformReference, Depends(get_current_username)
     prev = [len(b.data.keys()) for b in oe.backends]
     pen.save()
     for b in oe.backends:
-        b.sync()
+        for line in b.sync(log):
+            log('git.sync', line)
     pen.load()
+    log('system.reload', line)
     after = [len(b.data.keys()) for b in oe.backends]
     return {
         name.name: {'before': b, 'after': a}
@@ -480,9 +495,9 @@ def download_ident(ident: str):
 
 @app.get("/new/{template}", response_class=HTMLResponse, tags=['mutate'])
 @app.get("/new", response_class=HTMLResponse, tags=['mutate'])
-def get_new(username: Annotated[UniformReference, Depends(get_current_username)], template: Optional[str] = None):
+def get_new(request: Request, username: Annotated[UniformReference, Depends(get_current_username)], template: Optional[str] = None):
     if template is None:
-        return render_fixed('new.html', username=username)
+        return render_fixed('new.html', request, username=username)
 
     # Duplicating
     if template.startswith('urn:penemure:'):
@@ -492,7 +507,7 @@ def get_new(username: Annotated[UniformReference, Depends(get_current_username)]
         # it behaves like copy+edit which may violate expectations.
         print('note', tpl.thing.data)
         print('note_template', tpl.thing.data)
-        return render_fixed('new.html',
+        return render_fixed('new.html', request,
                             note=tpl.thing.data,
                             note_template=tpl.thing.data, username=username)
 
@@ -505,11 +520,11 @@ def get_new(username: Annotated[UniformReference, Depends(get_current_username)]
 
         print('note', tpl.thing.data.instantiate())
         print('note_template', tpl.thing.data)
-        return render_fixed('new.html',
+        return render_fixed('new.html', request,
                             note=tpl.thing.data.instantiate(),
                             note_template=tpl.thing.data, username=username)
     else:
-        return render_fixed('new.html', username=username)
+        return render_fixed('new.html', request, username=username)
 
 @app.post("/new.html", tags=['mutate'])
 @app.post("/new", tags=['mutate'])
@@ -581,7 +596,7 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
     return RedirectResponse(os.path.join(path, thing.thing.url), status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
-def delete_question(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+def delete_question(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
     a = time.time()
     u = UniformReference.from_string(urn)
     try:
@@ -589,7 +604,7 @@ def delete_question(urn: str, username: Annotated[UniformReference, Depends(get_
     except KeyError:
         return RedirectResponse(f"/", status_code=status.HTTP_302_FOUND)
 
-    return render_fixed('delete.html', username=username, note=thing)
+    return render_fixed('delete.html', request, username=username, note=thing)
 
 
 @app.get("/delete/{urn}", tags=['mutate'])
@@ -796,7 +811,7 @@ def imgproxy(request: Request, path_params: str = ""):
 @app.get("/review", response_class=HTMLResponse, tags=['view'])
 def fixed_page_list(request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
     page = request.url.path.lstrip('/').replace('.html', '')
-    return render_fixed(page + '.html', username=username)
+    return render_fixed(page + '.html', request, username=username)
 
 @app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/{page}", response_class=HTMLResponse, tags=['view'])
@@ -850,17 +865,17 @@ def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()],
 
 
 @app.get("/edit/{backend}/{urn}", response_class=HTMLResponse, tags=['mutate'])
-def edit_get(backend: str, urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+def edit_get(backend: str, urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     be = oe.get_backend(backend)
     note = oe.find_thing_from_backend(u, be)
-    return render_fixed('edit.html', note, rewrite=False, username=username)
+    return render_fixed('edit.html', request, note, rewrite=False, username=username)
 
 @app.get("/edit/{urn}", response_class=HTMLResponse, tags=['mutate'])
-def edit_get_nobe(urn: str, username: Annotated[UniformReference, Depends(get_current_username)]):
+def edit_get_nobe(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
-    return render_fixed('edit.html', note, rewrite=False, username=username)
+    return render_fixed('edit.html', request, note, rewrite=False, username=username)
 
 async def get_body(request: Request):
     content_type = request.headers.get('Content-Type')
@@ -877,7 +892,7 @@ async def get_body(request: Request):
 
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-async def post_form(urn: str, username: Annotated[UniformReference, Depends(get_current_username)], body=Depends(get_body)):
+async def post_form(urn: str, request: Request, username: Annotated[UniformReference, Depends(get_current_username)], body=Depends(get_body)):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
@@ -893,7 +908,7 @@ async def post_form(urn: str, username: Annotated[UniformReference, Depends(get_
         blob = oe.find_blob(blob_id)
         blob.save(fsync=False)
         note.save(fsync=False)
-        return render_fixed('thanks.html', note=note, username=username)
+        return render_fixed('thanks.html', request,note=note, username=username)
 
 
 @app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
@@ -962,6 +977,17 @@ def whatamidoing(username: Annotated[UniformReference, Depends(get_current_usern
 @app.get("/me/currently/trailer", response_class=HTMLResponse, tags=['self'])
 def whatamidoing(username: Annotated[UniformReference, Depends(get_current_username)]) -> str:
     return "\n".join(f"Penemeure: {x.thing.urn.urn}" for x in oe.search(type='log', custom='open'))
+
+
+@app.get("/server/currently/json", tags=['self'])
+def whatamidoing_json():
+    return LOGS[-200:]
+
+@app.get("/server/currently", response_class=HTMLResponse, tags=['self'])
+def whatamidoing(request: Request, username: Annotated[UniformReference, Depends(get_current_username)]):
+    # Last 200
+    return render_fixed('server.html', request, username=username,
+                        logs=LOGS[-200:], uptime=time.time() - STARTED)
 
 # Eww.
 @app.get("/{app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])

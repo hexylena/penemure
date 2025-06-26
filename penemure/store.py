@@ -438,20 +438,24 @@ class GitJsonFilesBackend(BaseBackend):
         data.last_update = datetime.datetime.fromtimestamp(int(commitdate))
         return data
 
-    def sync(self):
+    def sync(self, log_fn):
         if self.last_update is not None:
             pass # todo logic to not push/pull too frequently
 
         # TODO: replace with git status -s ?
         mods = self.get_backend_modifications().values()
         if any([m.staged for m in mods]):
-            subprocess_check_call(['git', 'commit', '-m', f'automatic {self.name}'], cwd=self.path)
+            log_fn(f'git.sync.{self.name}', f'git commit -m "automatic {self.name}" cwd={self.path}"')
+            yield from subprocess_check_output(['git', 'commit', '-m', f'automatic {self.name}'], cwd=self.path).decode('utf-8').split('\n')
+            
 
-        subprocess_check_call(['git', 'pull', '--rebase'], cwd=self.path)
+        log_fn(f'git.sync.{self.name}', f'git pull --rebase cwd={self.path}"')
+        yield from subprocess_check_output(['git', 'pull', '--rebase'], cwd=self.path).decode('utf-8').split('\n')
 
         # no point in pushing if nothing's changed.
         if any([m.staged for m in mods]):
-            subprocess_check_call(['git', 'push'], cwd=self.path)
+            log_fn(f'git.sync.{self.name}', f'git push cwd={self.path}"')
+            yield from subprocess_check_output(['git', 'push'], cwd=self.path).decode('utf-8').split('\n')
 
     def save_item(self, stored_thing: StoredThing, fsync=True):
         """Save updates to an existing file."""
