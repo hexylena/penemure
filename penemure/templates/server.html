@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Server Logs | {{ Config.Title | e }}{% endblock %}
+
+{% block main %}
+<hgroup>
+	<h1>
+		Server Status
+	</h1>
+	<p>Up for {{ uptime }} seconds</p>
+</hgroup>
+
+
+<table>
+	{% for log in logs %}
+	<tr>
+		<td><time class="relative" datetime="{{ log.time }}">{{ log.time }}</time></td>
+		<td>{{ log.logger }}</td>
+		<td>
+			<pre>{{ log.message }}</pre>
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+
+
+{% endblock %}
