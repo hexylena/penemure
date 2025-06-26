@@ -947,6 +947,18 @@ def render_specific_view(view: str, urn: str, username: Annotated[UniformReferen
     note = oe.find_thing(u)
     return render_dynamic(note, username=username, requested_template=f'{view}.html', media_type=note.thing.data.view_mediatype(view))
 
+
+@app.get("/me/whoami", tags=['self'])
+def whoami(username: Annotated[UniformReference, Depends(get_current_username)]):
+    return {
+        'u': username,
+        'urn': username.urn,
+    }
+
+@app.get("/me/currently", tags=['self'])
+def whatamidoing(username: Annotated[UniformReference, Depends(get_current_username)]) -> List[str]:
+    return [x.thing.urn.urn for x in oe.search(type='log', custom='open')]
+
 # Eww.
 @app.get("/{app}/{b}/{c}/{d}/{e}.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/{app}/{b}/{c}/{d}.html", response_class=HTMLResponse, tags=['view'])
