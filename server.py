@@ -585,7 +585,10 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
     orig.thing.data.set_parents(new_note.parents)
     orig.thing.data.tags = new_note.tags
     orig.thing.data.tags_v2 = new_note.tags_v2
-    orig.thing.data.attachments = new_note.attachments
+    # union.
+    merged_atts = orig.thing.data.attachments + new_note.attachments
+    ma = {v: (k, v) for (k, v) in merged_atts}
+    orig.thing.data.attachments = list(ma.values())
 
     thing = oe.save_thing(orig, fsync=False)
     if be != orig.backend.name:
