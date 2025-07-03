@@ -17,6 +17,7 @@
 		}
 	</script>
 
+	{% set possible_parents = oe.query('group select urn, title_plain, type from __all__ group by type where type != "log"').groups %}
 	<form method="post">
 		<fieldset>
 			<legend>What are you working on?</legend>
@@ -26,7 +27,7 @@
 
 			<label for="project">Parent(s)</label>
 			<select id="new-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
-				{% for group in oe.query('group select urn, title_plain, type from __all__ group by type').groups %}
+				{% for group in possible_parents %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
 					<option data-urn="{{id}}" value="{{ id }}">
@@ -77,7 +78,7 @@
 
 			<label for="project">Parent(s)</label>
 			<select id="{{ open_log.thing.urn.urn.replace(':', '-') }}-select" class="select-project" multiple data-placeholder="Parent(s)" name="project">
-				{% for group in oe.query('group select urn, title_plain, type from __all__ group by type').groups %}
+				{% for group in possible_parents %}
 				<optgroup label="{{ group.title }}">
 					{% for (id, title, type) in group.rows %}
 					<option value="{{ id }}" {% if open_log.thing.data.has_parent(id) %}selected{% endif %}>
