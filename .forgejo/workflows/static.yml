@@ -3,10 +3,6 @@ name: Forgejo deploy
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
   setup:
@@ -14,7 +10,7 @@ jobs:
     container:
        image: catthehacker/ubuntu:act-latest
     steps:
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           lfs: 'true'
 
