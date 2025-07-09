@@ -22,8 +22,8 @@ jobs:
 
       - name: Deps
         run: |
-        pip install -r requirements.txt
-        pip install awscli
+          pip install -r requirements.txt
+          pip install awscli
       # END Dependencies
 
       - name: Export example site
