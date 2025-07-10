@@ -11,11 +11,11 @@
       },
       "type": "markdown",
       "id": "96156b11-4548-4ac5-848f-cce15e8551d2",
-      "created_unix": 1739540887.5312753,
-      "updated_unix": 1739540887.5312765
+      "created_unix": 1751628411.0583472,
+      "updated_unix": 1751628411.0583477
     },
     {
-      "contents": "GROUP SELECT\n  title,\n  description,\n  backend,\n  type\nFROM __all__\nWHERE\n  (\n    parents IS NULL OR parents LIKE '%SELF%'\n  )\n  AND system IS FALSE\n  AND type <> 'account'\nGROUP BY\n  type\nORDER BY\n  type DESC,\n  title ASC",
+      "contents": "GROUP SELECT\n  title,\n  description,\n  backend,\n  type\nFROM __all__\nWHERE\n  (\n    parents IS NULL OR parents LIKE '%SELF%'\n  )\n  AND system IS FALSE\n  AND type <> 'account'\n  AND type <> 'log'\nGROUP BY\n  type\nORDER BY\n  type DESC,\n  title ASC",
       "author": {
         "app": "accountgithub",
         "namespace": "gh",
@@ -23,8 +23,8 @@
       },
       "type": "query-table",
       "id": "61f8fbdb-50e0-4bb0-a2d4-1d94bb3b21d0",
-      "created_unix": 1739540887.5328875,
-      "updated_unix": 1739540887.5328882
+      "created_unix": 1751628411.0592866,
+      "updated_unix": 1751628411.0592868
     },
     {
       "contents": "## Current issue progress",
@@ -123,21 +123,22 @@
       "updated_unix": 1739394773.9503837
     }
   ],
+  "tags": [],
   "tags_v2": [
     {
-      "typ": "Text",
       "key": "template",
-      "val": "plain.html"
+      "val": "plain.html",
+      "typ": "Text"
     },
     {
-      "typ": "Text",
       "key": "page_path",
-      "val": "index"
+      "val": "index",
+      "typ": "Text"
     },
     {
-      "typ": "Text",
       "key": "description",
-      "val": "you are here"
+      "val": "you are here",
+      "typ": "Text"
     }
   ],
   "version": 2,
