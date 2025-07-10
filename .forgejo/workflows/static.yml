@@ -31,7 +31,7 @@ jobs:
 
       - name: Export site
         run: |
-          aws s3 cp --recursive _build/* s3://penemure/
+          aws s3 cp --recursive _build/ s3://penemure/
         env:
           URL: ${{ secrets.URL }}
           TOKEN: ${{ secrets.TOKEN }}
