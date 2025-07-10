@@ -10,11 +10,20 @@ jobs:
     container:
        image: catthehacker/ubuntu:act-latest
     steps:
+      - run: |
+          git lfs env
+          env | sort
+
       - uses: actions/checkout@v4
-        # with:
-        #   lfs: 'true'
+        with:
+          lfs: 'true'
+        env:
+          GIT_CONFIG_COUNT: 1
+          GIT_CONFIG_KEY_0: lfs.url
+          GIT_CONFIG_VALUE_0: http://192.168.2.12:3033/hexylena/penemure.git/info/lfs
 
       - run: |
+          git lfs env 
           env | sort
 
       # BEGIN Dependencies
