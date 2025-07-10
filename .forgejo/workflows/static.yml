@@ -10,11 +10,12 @@ jobs:
     container:
        image: catthehacker/ubuntu:act-latest
     steps:
+      - uses: actions/checkout@v4
+        # with:
+        #   lfs: 'true'
+
       - run: |
           env | sort
-      - uses: actions/checkout@v4
-        with:
-          lfs: 'true'
 
       # BEGIN Dependencies
       - uses: actions/setup-python@v5
