@@ -20,7 +20,7 @@ jobs:
         env:
           GIT_CONFIG_COUNT: 1
           GIT_CONFIG_KEY_0: lfs.url
-          GIT_CONFIG_VALUE_0: http://192.168.2.12:3033/hexylena/penemure.git/info/lfs
+          GIT_CONFIG_VALUE_0: http://192.168.2.12:3033/Helena/penemure.git/info/lfs
 
       - run: |
           git lfs env 
