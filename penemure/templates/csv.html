@@ -1,0 +1,8 @@
+{% set query = note.thing.data.contents[0].contents -%}
+{%- set groups = oe.query(query, via=note.thing.urn).groups -%}
+{% for k in groups[0].header %}{{ k }}	{% endfor %}
+{% for group in groups -%}
+{%- for row in group.rows -%}
+{% for col in row %}{{ col }}	{% endfor %}
+{% endfor -%}
+{%- endfor -%}
