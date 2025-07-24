@@ -53,6 +53,14 @@ class IcalFeed(Note):
         return 'text/calendar'
 
 
+class DataFeed(Note):
+    type: str = 'data'
+    _views = ['csv']
+
+    def view_mediatype(self, view):
+        return 'text/csv'
+
+
 class DataForm(Note):
     type: str = 'form'
     _views = ['form']
@@ -197,5 +205,7 @@ def ModelFromAttr(data):
         return IcalFeed
     elif t == 'form':
         return DataForm
+    elif t == 'data':
+        return DataFeed
     else:
         return Note
