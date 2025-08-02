@@ -274,6 +274,16 @@ def manifest():
         "icons":            ICONS,
         "start_url":        '/', # TODO
         "theme_color":      "#f80000",
+        "share_target": {
+          "action": "/save",
+          "method": "POST",
+          "enctype": "multipart/form-data",
+          "params": {
+              "title": "title",
+              "text": "text",
+              "url": "link"
+          }
+        },
         "shortcuts": [
           {
             "description": "search all notes",
