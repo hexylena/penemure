@@ -1055,3 +1055,28 @@ def search():
     """
     # <Url type="application/x-suggestions+json" template="[suggestionURL]"/>
     return Response(content=data, media_type="application/opensearchdescription+xml")
+
+
+class AndroidShareIntent(BaseModel):
+    title: Optional[str] = None
+    text: Optional[str] = None
+    url: Optional[str] = None
+
+@app.post("/save", tags=['android'])
+def android_share(data: Annotated[AndroidShareIntent, Form(media_type="multipart/form-data")],
+                  username: Annotated[UniformReference, Depends(get_current_username)]):
+
+    new_note = Note(
+        title=data.title or "Untitled",
+        tags_v2=[
+            TextTag(key="status", val="Uncategorised"),
+        ]
+    )
+    new_note.contents.append(MarkdownBlock(contents=(data.text or ""),
+                                           author=username))
+
+    if data.url:
+        new_note.tags_v2.append(URLTag(key="status", val=data.url))
+
+    thing = oe.add(new_note, fsync=False)
+    return RedirectResponse(os.path.join(path, thing.thing.url), status_code=status.HTTP_302_FOUND)
