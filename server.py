@@ -1079,5 +1079,5 @@ def android_share(data: Annotated[AndroidShareIntent, Form(media_type="multipart
         new_note.tags_v2.append(URLTag(key="status", val=data.url))
 
     thing = oe.add(new_note, fsync=False)
-    edit_url = f'/edit/{thing.thing.urn}'
+    edit_url = f'/edit/{thing.thing.urn.urn}'
     return RedirectResponse(edit_url, status_code=status.HTTP_302_FOUND)
