@@ -1102,8 +1102,10 @@ def android_share(data: Annotated[AndroidShareIntent, Form(media_type="multipart
             TextTag(key="status", val="Uncategorised"),
         ]
     )
+    if username is None:
+        raise HTTPException(status_code=403, detail="Unauthenticated")
     new_note.contents.append(MarkdownBlock(contents=(data.text or ""),
-                                           author=username))
+                                           author=username.thing.urn))
 
     if data.url:
         new_note.tags_v2.append(URLTag(key="status", val=data.url))
