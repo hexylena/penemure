@@ -141,6 +141,7 @@ class BaseBackend(BaseModel):
     pubkeys: List[str] | None = None
     lfs: bool = True
     _private_key_path: str | None = None
+    writable: bool = True
 
     data: Dict[str, 'WrappedStoredThing'] = Field(default_factory=dict)
     blob: Dict[str, 'WrappedStoredBlob'] = Field(default_factory=dict)
@@ -159,6 +160,9 @@ class BaseBackend(BaseModel):
             ])
 
     def write(self, full_path: str, data: str | bytes, mode: str = 'w'):
+        if not self.writable:
+            raise Exception("Read-only store")
+
         if 'a' in mode:
             raise NotImplementedError()
 
@@ -210,6 +214,9 @@ class BaseBackend(BaseModel):
         return self.discover_meta(self.path)
 
     def persist_meta(self):
+        if not self.writable:
+            raise Exception("Read-only store")
+
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
