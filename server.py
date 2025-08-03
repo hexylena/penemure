@@ -149,14 +149,14 @@ def locate_account(username: str, name: str, namespace: str):
             acc = AccountGithub(title=name, username=user)
             # Fetch profile pic/status/etc.
             acc.update(oe.backends[0])
-            return oe.add(acc)
+            return oe.add(acc, urn=acc.suggest_urn())
     else:
         acc = oe.search(type='account', namespace=namespace, username=username)
         if len(acc) >= 1:
             return acc[0]
         else:
             acc = Account(title=name, username=username, namespace=namespace)
-            return oe.add(acc)
+            return oe.add(acc, urn=acc.suggest_urn())
 
 
 def get_current_username(credentials: Annotated[PenemureCredentials, Depends(security)],) -> UniformReference:

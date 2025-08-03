@@ -741,8 +741,9 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             yield from backend.data.values()
 
-    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None, fsync=False) -> WrappedStoredThing:
-        urn = UniformReference(app=note.type, namespace=note.namespace)
+    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None, fsync=False, urn=None) -> WrappedStoredThing:
+        if urn is None:
+            urn = UniformReference(app=note.type, namespace=note.namespace)
         st = StoredThing(data=note, urn=urn)
         be = self.save_item(st, backend=backend, fsync=fsync)
         return WrappedStoredThing(thing=st, backend=be)
@@ -789,6 +790,7 @@ class OverlayEngine(BaseModel):
             self.search(type='template', title=type)
 
         """
+        return []
         results = []
         custom = None
         if 'custom' in kwargs:
