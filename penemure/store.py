@@ -141,6 +141,8 @@ class BaseBackend(BaseModel):
     pubkeys: List[str] | None = None
     _private_key_path: str | None = None
     writable: bool = True
+    last_update: Optional[PastDatetime] = None
+    latest_commit: Optional[str] = None
 
     data: Dict[str, 'WrappedStoredThing'] = Field(default_factory=dict)
     blob: Dict[str, 'WrappedStoredBlob'] = Field(default_factory=dict)
@@ -511,8 +513,6 @@ class WrappedStoredThing(BaseModel):
 
 
 class GitJsonFilesBackend(BaseBackend):
-    last_update: Optional[PastDatetime] = None
-    latest_commit: Optional[str] = None
     lfs: bool = True
 
     @classmethod
@@ -639,6 +639,9 @@ class StaticFilesBackend(BaseBackend):
         data = cls.discover_meta(path)
         return data
 
+    def persist_meta(self):
+        return # This seems to be called automatically on loading.
+
     def sync(self, *args):
         return # Not an error
 
@@ -650,7 +653,7 @@ class StaticFilesBackend(BaseBackend):
 
 
 class OverlayEngine(BaseModel):
-    backends: list[GitJsonFilesBackend]
+    backends: list[BaseBackend]
 
     def load(self):
         for backend in self.backends:
@@ -668,11 +671,11 @@ class OverlayEngine(BaseModel):
         print(f"Wow, really could not find {identifier}")
         raise KeyError(f"Cannot find {identifier}")
 
-    def migrate_backend(self, identifier: (UniformReference | str), backend: GitJsonFilesBackend) -> None:
+    def migrate_backend(self, identifier: (UniformReference | str), backend: BaseBackend) -> None:
         ws = self.find(identifier)
         return self.migrate_backend_thing(ws=ws, backend=backend)
 
-    def migrate_backend_thing(self, ws: WrappedStoredThing, backend: GitJsonFilesBackend) -> None:
+    def migrate_backend_thing(self, ws: WrappedStoredThing, backend: BaseBackend) -> None:
         if ws.backend == backend:
             # Already in the right place
             return
@@ -711,7 +714,7 @@ class OverlayEngine(BaseModel):
         except KeyError:
             return self.find_blob(identifier=identifier)
 
-    def find_thing_from_backend(self, identifier: UniformReference, backend: GitJsonFilesBackend) -> WrappedStoredThing:
+    def find_thing_from_backend(self, identifier: UniformReference, backend: BaseBackend) -> WrappedStoredThing:
         return backend.find(identifier)
 
     def get_path(self, st: Union[StoredThing, WrappedStoredThing]) -> str:
@@ -767,7 +770,7 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             yield from backend.data.values()
 
-    def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None, fsync=False, urn=None) -> WrappedStoredThing:
+    def add(self, note: Note, backend: Optional[BaseBackend]=None, fsync=False, urn=None) -> WrappedStoredThing:
         if urn is None:
             urn = UniformReference(app=note.type, namespace=note.namespace)
         st = StoredThing(data=note, urn=urn)
@@ -778,7 +781,7 @@ class OverlayEngine(BaseModel):
         ws.backend.save_item(ws.thing, fsync=fsync)
         return ws
 
-    def save_item(self, stored_thing: StoredThing, backend: Optional[GitJsonFilesBackend]=None, fsync=False) -> GitJsonFilesBackend:
+    def save_item(self, stored_thing: StoredThing, backend: Optional[BaseBackend]=None, fsync=False) -> BaseBackend:
         if isinstance(backend, str):
             raise Exception("Backend was declared as a backend, not a string")
         b = None
@@ -1148,7 +1151,7 @@ class OverlayEngine(BaseModel):
     def get_id(self):
         return UniformReference(app='none').ident
 
-    def get_backend(self, name: str) -> GitJsonFilesBackend:
+    def get_backend(self, name: str) -> BaseBackend:
         for b in self.backends:
             if b.name == name:
                 return b

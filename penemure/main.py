@@ -3,7 +3,7 @@ import glob
 import shutil
 from jinja2 import Environment, PackageLoader, select_autoescape
 import os
-from .store import GitJsonFilesBackend, OverlayEngine, StaticFilesBackend
+from .store import GitJsonFilesBackend, OverlayEngine, StaticFilesBackend, BaseBackend
 from .note import *
 from .refs import UniformReference
 
@@ -24,7 +24,7 @@ class Penemure(BaseModel):
 
     # Hmm
     overlayengine: OverlayEngine = None
-    backends: list[GitJsonFilesBackend]
+    backends: list[BaseBackend]
 
     data: dict = Field(default_factory=dict)
 
