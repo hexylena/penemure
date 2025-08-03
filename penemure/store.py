@@ -695,11 +695,11 @@ class OverlayEngine(BaseModel):
         print(f"Wow, really could not find {identifier}")
         raise KeyError(f"Cannot find {identifier}")
 
-    def migrate_backend(self, identifier: (UniformReference | str), backend: BaseBackend) -> None:
+    def migrate_backend(self, identifier: (UniformReference | str), backend: BaseBackend) -> WrappedStoredThing:
         ws = self.find(identifier)
         return self.migrate_backend_thing(ws=ws, backend=backend)
 
-    def migrate_backend_thing(self, ws: WrappedStoredThing, backend: BaseBackend) -> None:
+    def migrate_backend_thing(self, ws: WrappedStoredThing, backend: BaseBackend) -> WrappedStoredThing:
         if ws.backend == backend:
             # Already in the right place
             return
@@ -712,6 +712,8 @@ class OverlayEngine(BaseModel):
 
         # Remove from old backend
         ws.backend.remove_item(ws.thing, fsync=False)
+        ws.backend = backend
+        return ws
 
     def find_blob(self, identifier: (UniformReference | str)) -> WrappedStoredBlob:
         for backend in self.backends:

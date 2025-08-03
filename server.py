@@ -618,11 +618,10 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
 
     thing = oe.save_thing(orig, fsync=False)
     if be != orig.backend.name:
-        oe.migrate_backend_thing(orig, be)
+        orig = oe.migrate_backend_thing(orig, be)
 
     orig.thing.data.touch()
-
-    return RedirectResponse(os.path.join(path, orig.view_url), status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, thing.view_url), status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
 def delete_question(urn: str, request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
