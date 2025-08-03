@@ -171,9 +171,6 @@ class Account(Note):
             return super().icon
         return "👩‍🦰"
 
-    def suggest_urn(self):
-        return UniformReference(app=self.type, namespace=self.namespace, ident=self.username)
-
 class AccountGithub(Account):
     namespace: Optional[str] = 'gh'
 
