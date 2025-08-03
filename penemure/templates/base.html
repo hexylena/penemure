@@ -43,13 +43,11 @@
 						<a class="navbar-brand" href="{{ Config.ExportPrefix }}index.html">{{ Config.Title }}</a>
 
 						{% if username %}
-						<span>
-							{% if username.thing.url %}<a href="/{{ username.thing.url }}">{% endif %}
-								{{ username.thing.data.username }}
-							{% if username.thing.url %}</a>{% endif %}
-						</span>
+							<span>
+							{{ username.thing.urn.urn }}#link
+							</span>
 						{% else %}
-						<span>ANON</span>
+							<span>ANON</span>
 						{% endif %}
 
 						<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
