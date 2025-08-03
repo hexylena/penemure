@@ -1019,7 +1019,7 @@ def whatamidoing(request: Request, username: Annotated[WrappedStoredThing | None
 @app.get("/{app}/{b}", response_class=HTMLResponse, tags=['view'])
 def read_items(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)], 
                app, b, c=None, d=None, e=None):
-    raise NotImplementedError()
+    raise HTTPException(status_code=404, detail=f"Route being deprecated")
 
     # _app is intentionally ignored.
     # but why is everything else? I had some good reason for this. escapes me now.
