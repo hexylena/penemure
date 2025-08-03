@@ -16,8 +16,6 @@ parser.add_argument('-t', '--title', type=str, default='PENEMURE')
 parser.add_argument('-d', '--desc', type=str, default='The public example static site generated from notes and issues stored within the penemure system.')
 args = parser.parse_args()
 
-backends = [GitJsonFilesBackend.discover(x) for x in args.repo]
-
 ASSETS = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     '..', 'assets', 'data', '*.json')
@@ -27,7 +25,7 @@ for k in glob.glob(ASSETS):
     with open(k, 'r') as handle:
         data[f] = json.load(handle)
 
-pen = Penemure(backends=backends, title=args.title, description=args.desc,
+pen = Penemure.discover(args.repo, title=args.title, description=args.desc,
                data=data, path=args.prefix, server=args.server)
 oe = pen.overlayengine
 oe.load()

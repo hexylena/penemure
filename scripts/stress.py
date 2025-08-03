@@ -22,7 +22,7 @@ subprocess.check_call(['git', 'add', 'meta.json'], cwd=args.folder)
 subprocess.check_call(['git', 'commit', '-m', 'init'], cwd=args.folder)
 
 be = GitJsonFilesBackend.discover(args.folder)
-pen = Penemure(backends=[be])
+pen = Penemure.discover(args.folder)
 
 from faker import Faker
 faker = Faker(['nl_NL', 'en_US', 'zh_CN'])

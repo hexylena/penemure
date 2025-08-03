@@ -10,8 +10,7 @@ import sqlglot
 import sys
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
-backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-bos = Penemure(backends=backends)
+bos = Penemure.discover(REPOS)
 bos.load()
 
 for b in bos.backends:

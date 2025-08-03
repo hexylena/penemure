@@ -8,8 +8,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub').split(':')
-backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-pen = Penemure(backends=backends)
+pen = Penemure.discover(REPOS)
 pen.load()
 oe = pen.overlayengine
 
