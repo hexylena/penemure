@@ -790,7 +790,6 @@ class OverlayEngine(BaseModel):
             self.search(type='template', title=type)
 
         """
-        return []
         results = []
         custom = None
         if 'custom' in kwargs:
