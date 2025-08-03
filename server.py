@@ -212,6 +212,19 @@ def render_dynamic(st: WrappedStoredThing, requested_template: str | None = None
     log('render_dynamic', f'Rendered {st.thing.urn.urn}#link in {time.time() - a}')
     return HTMLResponse(page_content, **render_kw)
 
+def render_object(thing, template: str, username=None, media_type: Optional[str]=None):
+    a = time.time()
+    t = env.get_template(template)
+    page_content = t.render(thing=thing, **pen.get_config(), username=username)
+    page_content = UniformReference.rewrite_urns(page_content, pen)
+
+    render_kw = {'headers': {'X-Response-Time': str(time.time() - a)}}
+    if media_type is not None:
+        render_kw['media_type'] = media_type
+
+    log('render_object', f'Rendered {thing} in {time.time() - a}')
+    return HTMLResponse(page_content, **render_kw)
+
 
 @app.get("/reload", tags=['system'])
 def reload(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
@@ -224,7 +237,7 @@ def api_sync(username: Annotated[WrappedStoredThing | None, Depends(get_current_
     pen.save()
     for b in oe.backends:
         for line in b.sync(log):
-            log('git.sync', line)
+            log('sync', line)
     pen.load()
     log('system.reload', line)
     after = [len(b.data.keys()) for b in oe.backends]
@@ -236,13 +249,13 @@ def api_sync(username: Annotated[WrappedStoredThing | None, Depends(get_current_
 
 @app.get("/api/view/{backend}/{urn}", tags=['api'])
 def api_view_backend(backend: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
-    u = UniformReference.from_string(urn)
+    u = UniformReference.from_string(urn.replace('.html', ''))
     if backend != '*':
         be = oe.get_backend(backend)
         note = oe.find_thing_from_backend(u, backend=be)
     else:
         note = oe.find_thing(u)
-    return note
+    return note.thing
 
 @app.get('/api/dump_db')
 def dump_db():
@@ -965,11 +978,17 @@ def form_manifest(urn):
 
 
 @app.get("/view/{backend}/{urn}.html", response_class=HTMLResponse, tags=['print'])
-def view_backend(backend: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def view_note(backend: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
     be = oe.get_backend(backend)
     u = UniformReference.from_string(urn)
     note = oe.find_thing_from_backend(u, backend=be)
     return render_dynamic(note, username=username, requested_template='note.html')
+
+@app.get("/view/{backend}", response_class=HTMLResponse, tags=['print'])
+@app.get("/view/{backend}.html", response_class=HTMLResponse, tags=['print'])
+def view_backend(backend: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+    be = oe.get_backend(backend)
+    return render_object(be, 'backend.html', username=username)
 
 @app.get("/render/{view}/{urn}", response_class=HTMLResponse, tags=['print'])
 def render_specific_view(view: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):

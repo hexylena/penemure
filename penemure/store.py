@@ -266,7 +266,10 @@ class BaseBackend(BaseModel):
         return self.__repr__()
 
     def __repr__(self):
-        return f'Backend(name={self.name}, description={self.description}, path={self.path})'
+        return f'{self.__class__.__name__}(name={self.name}, description={self.description}, path={self.path}, items={len(self.data)})'
+
+    def backend_type(self):
+        return self.__class__.__name__
 
     def sync(self, log_fn):
         raise NotImplementedError()
@@ -353,6 +356,22 @@ class BaseBackend(BaseModel):
                     self.data[st.identifier.ident] = WrappedStoredThing(thing=st, backend=self, state=status)
                 except ValueError as ve:
                     print(f"Error loading: {path} {ve}")
+
+    def report_metadata(self):
+        data = [
+            ('Path', self.path, 'code'),
+            ('Name', self.name, 'str'),
+            ('Description', self.description, 'str'),
+            ('Prefix', self.prefix, 'str'),
+            ('Registered Public Keys', self.pubkeys, 'list'),
+            ('Writable', self.writable, 'bool'),
+            ('Last Update', self.last_update, 'datetime'),
+            ('Last Commit', self.latest_commit, 'code'),
+            ('Item Count', len(self.data), 'int'),
+            ('Blob Count', len(self.blob), 'int'),
+        ]
+        return data
+
 
 
 class WrappedStoredBlob(BaseModel):
@@ -643,7 +662,7 @@ class StaticFilesBackend(BaseBackend):
         return # This seems to be called automatically on loading.
 
     def sync(self, *args):
-        return # Not an error
+        return "n/a" # Not an error
 
     def save(self, fsync=True):
         return
