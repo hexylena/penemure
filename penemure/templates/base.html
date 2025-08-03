@@ -74,12 +74,12 @@
 								</ul>
 
 								{% if note and hasattr(note, 'thing') %}
-								<a class="nav-link" href="{{ Config.ExportPrefix }}edit/{{ note.backend.name }}/{{ note.thing.urn.urn }}" title="Edit">📝</a>
-								<a class="nav-link" href="{{ Config.ExportPrefix }}new/{{ note.thing.urn.urn }}" title="Duplicate">➿</a>
-								<a class="nav-link" href="{{ Config.ExportPrefix }}delete_question/{{ note.thing.urn.urn }}" title="Delete">❌</a>
+								<a class="nav-link" href="{{ Config.ExportPrefix }}edit/{{ note.backend.name }}/{{ note.thing.urn.urn }}" title="Edit">Edit 📝</a>
+								<a class="nav-link" href="{{ Config.ExportPrefix }}new/{{ note.thing.urn.urn }}" title="Duplicate">Duplicate ➿</a>
+								<a class="nav-link" href="{{ Config.ExportPrefix }}delete_question/{{ note.thing.urn.urn }}" title="Delete">Delete ❌</a>
 								{% endif %}
-								<a class="nav-link" href="{{ Config.ExportPrefix }}sync" title="Sync">💫</a>
-								<a class="nav-link" href="{{ Config.ExportPrefix }}time{{ params }}" title="Log Time">⏰</a> &nbsp;
+								<a class="nav-link" href="{{ Config.ExportPrefix }}sync" title="Sync">Sync 💫</a>
+								<a class="nav-link" href="{{ Config.ExportPrefix }}time{{ params }}" title="Log Time">Time ⏰</a> &nbsp;
 							</div>
 							{% endif %}
 
