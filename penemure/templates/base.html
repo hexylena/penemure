@@ -44,9 +44,9 @@
 
 						{% if username %}
 						<span>
-							{% if username._url %}<a href="/{{ username._url }}">{% endif %}
-								{{ username.ident }}
-							{% if username._url %}</a>{% endif %}
+							{% if username.thing.url %}<a href="/{{ username.thing.url }}">{% endif %}
+								{{ username.thing.data.username }}
+							{% if username.thing.url %}</a>{% endif %}
 						</span>
 						{% else %}
 						<span>ANON</span>
