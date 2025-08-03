@@ -987,7 +987,10 @@ def view_note(backend: str, urn: str, username: Annotated[WrappedStoredThing | N
 @app.get("/view/{backend}", response_class=HTMLResponse, tags=['print'])
 @app.get("/view/{backend}.html", response_class=HTMLResponse, tags=['print'])
 def view_backend(backend: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
-    be = oe.get_backend(backend)
+    try:
+        be = oe.get_backend(backend)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Backend not found")
     return render_object(be, 'backend.html', username=username)
 
 @app.get("/render/{view}/{urn}", response_class=HTMLResponse, tags=['print'])

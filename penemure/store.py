@@ -359,11 +359,12 @@ class BaseBackend(BaseModel):
 
     def report_metadata(self):
         data = [
+            ('Type', self.__class__.__name__, 'str'),
             ('Path', self.path, 'code'),
             ('Name', self.name, 'str'),
             ('Description', self.description, 'str'),
             ('Prefix', self.prefix, 'str'),
-            ('Registered Public Keys', self.pubkeys, 'list'),
+            ('Registered Public Keys', self.pubkeys or [], 'list'),
             ('Writable', self.writable, 'bool'),
             ('Last Update', self.last_update, 'datetime'),
             ('Last Commit', self.latest_commit, 'code'),

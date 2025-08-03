@@ -42,7 +42,7 @@
 	<tbody>
 	{% for note in oe.all_things(ordering='-updated') %}
 	<tr>
-		<td><a class="urn" href="{{ note.thing.url }}">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
+		<td><a class="urn" href="{{ note.thing.urn.urn }}#url">{{ note.thing.data.icon }} {{ note.thing.data.title | e }}</a></td>
 		<td>
 			<time class="relative" title="{{ note.thing.data.updated }}" datetime="{{ note.thing.data.updated }}">{{ note.thing.data.updated }}</time>
 		</td>
