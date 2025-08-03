@@ -964,7 +964,7 @@ def form_manifest(urn):
     return man
 
 
-@app.get("/view/{backend}/{urn}", response_class=HTMLResponse, tags=['print'])
+@app.get("/view/{backend}/{urn}.html", response_class=HTMLResponse, tags=['print'])
 def view_backend(backend: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
     be = oe.get_backend(backend)
     u = UniformReference.from_string(urn)
@@ -1019,6 +1019,7 @@ def whatamidoing(request: Request, username: Annotated[WrappedStoredThing | None
 @app.get("/{app}/{b}", response_class=HTMLResponse, tags=['view'])
 def read_items(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)], 
                app, b, c=None, d=None, e=None):
+    raise NotImplementedError()
 
     # _app is intentionally ignored.
     # but why is everything else? I had some good reason for this. escapes me now.

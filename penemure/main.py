@@ -178,7 +178,10 @@ class Penemure(BaseModel):
         # print(env.list_templates())
         # print(env.join_path('assets/main'))
         for st in things:
-            p = os.path.join(path, st.thing.url.replace('.html', '.' + format))
+            # p = os.path.join(path, st.thing.url.replace('.html', '.' + format))
+            p = os.path.join(path, self.urn_to_url_c(st.thing.urn, 'path'))
+            p.replace('.html', '.' + format)
+            print(p, )
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
 
@@ -233,39 +236,47 @@ class Penemure(BaseModel):
         urn_ref = UniformReference.from_string(u.group(1))
         if urn_ref.urn != u.group(1):
             raise Exception(f"Maybe mis-parsed URN, {urn_ref.urn} != {u.group(1)}")
+        return self.urn_to_url_c(urn_ref, u.group(3))
 
-        if u.group(3) == "title":
+    def urn_to_url_c(self, urn_ref: UniformReference, format='title'):
+        if format == "title":
             try:
                 ref = self.overlayengine.find(urn_ref)
                 return ref.thing.html_title # should it be html by default?
             except KeyError:
                 return urn_ref.urn
-        elif u.group(3) == "txt_title":
+        elif format == "txt_title":
             try:
                 ref = self.overlayengine.find(urn_ref)
                 return ref.thing.txt_title
             except KeyError:
                 return urn_ref.urn
-        elif u.group(3) == "url":
+        elif format == "url":
             try:
                 ref = self.overlayengine.find_thing_or_blob(urn_ref)
-                return os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
+                return os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn) + '.html'
             except KeyError:
                 return urn_ref.urn
-        elif u.group(3) == "link":
+        elif format == "path":
+            try:
+                ref = self.overlayengine.find_thing_or_blob(urn_ref)
+                return os.path.join('view', ref.backend.name, ref.thing.urn.urn) + '.html'
+            except KeyError:
+                return urn_ref.urn
+        elif format == "link":
             try:
                 ref = self.overlayengine.find(urn_ref)
                 url = os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
-                return f'<a href="{url}">{ref.thing.html_title}</a>' 
+                return f'<a href="{url}.html">{ref.thing.html_title}</a>'
             except KeyError:
                 try:
                     ref = self.overlayengine.find_blob(urn_ref)
                     url = os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
-                    return f'<a href="{url}">{ref.thing.urn.urn}</a>' 
+                    return f'<a href="{url}.html">{ref.thing.urn.urn}</a>'
 
                 except KeyError:
                     return f'<a href="#">{urn_ref.urn}</a>' 
-        elif u.group(3) == "embed":
+        elif format == "embed":
             try:
                 ref = self.overlayengine.find_blob(urn_ref)
                 url = os.path.join(self.real_path, ref.thing.url)
