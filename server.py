@@ -576,6 +576,7 @@ def save_new_multi(data: NewMultiData):
         res.append(r.thing.urn.urn)
     return res
 
+
 @app.post("/edit/{urn}", tags=['mutate'])
 def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart/form-data")],
               username: Annotated[UniformReference, Depends(get_current_username)]):
@@ -1015,11 +1016,12 @@ def read_items(username: Annotated[UniformReference, Depends(get_current_usernam
                app, b, c=None, d=None, e=None):
 
     # _app is intentionally ignored.
+    # but why is everything else? I had some good reason for this. escapes me now.
     if app not in ('account', 'accountgithub'):
         app = 'note'
 
     p2 = '/'.join([x for x in (c, d, e) if x is not None and x != ''])
-    p = ['urn', 'penemure', app, b, p2]
+    p = ['urn', 'penemure', b, p2]
     p = [x for x in p if x is not None and x != '']
     u = ':'.join(p)
     if u.endswith('.html'):
@@ -1028,7 +1030,7 @@ def read_items(username: Annotated[UniformReference, Depends(get_current_usernam
     try:
         note = oe.find_thing(u)
         if note is None:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Item not found.")
         return render_dynamic(note, username=username)
     except OnlyNonBlobs:
         blob = oe.find(u)

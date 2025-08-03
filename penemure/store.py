@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field, computed_field, PastDatetime
 from pydantic_core import to_json, from_json
 from sqlglot import parse_one, exp, transpile
 from sqlglot.executor import execute
-from typing import Dict, Iterator, List, Tuple
+from typing import Dict, Iterator, List, Tuple, Iterable
 from typing import Optional, Union
 from .refs import *
 
@@ -141,8 +141,8 @@ class BaseBackend(BaseModel):
     lfs: bool = True
     _private_key_path: str | None = None
 
-    data: Dict[UniformReference, 'WrappedStoredThing'] = Field(default_factory=dict)
-    blob: Dict[UniformReference, 'WrappedStoredBlob'] = Field(default_factory=dict)
+    data: Dict[str, 'WrappedStoredThing'] = Field(default_factory=dict)
+    blob: Dict[str, 'WrappedStoredBlob'] = Field(default_factory=dict)
 
     def read(self, path, mode: str = 'r'):
         if self.pubkeys is None:
@@ -177,8 +177,8 @@ class BaseBackend(BaseModel):
                 subprocess_check_call(args)
                 os.unlink(fp.name)
 
-    def all_things(self) -> list['WrappedStoredThing']:
-        return self.data.values()
+    def all_things(self) -> Iterable['WrappedStoredThing']:
+        yield from self.data.values()
 
     def pathed(self, path=None):
         possible = []
@@ -352,7 +352,7 @@ class WrappedStoredThing(BaseModel):
     def full_path(self) -> str:
         return os.path.join(self.backend.path, self.thing.relative_path)
 
-    def clean_dict(self, oe, template=None):
+    def clean_dict(self, oe: 'OverlayEngine', template=None):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.ident
         d['urn'] = self.thing.urn.urn
@@ -463,7 +463,7 @@ class GitJsonFilesBackend(BaseBackend):
             state = MutatedEnum.added
         else:
             state = MutatedEnum.modified
-        self.data[stored_thing.identifier] = WrappedStoredThing(thing=stored_thing, backend=self, state=state)
+        self.data[stored_thing.identifier.ident] = WrappedStoredThing(thing=stored_thing, backend=self, state=state)
 
 
         full_path = os.path.join(self.path, stored_thing.relative_path)
@@ -480,16 +480,13 @@ class GitJsonFilesBackend(BaseBackend):
 
         subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
 
-        if fsync:
-            self.sync()
-
     def save_blob(self, stored_blob: StoredBlob, fsync=True, data: Optional[bytes]=None):
         """Save updates to an existing file."""
         if stored_blob.identifier not in self.data:
             state = MutatedEnum.added
         else:
             state = MutatedEnum.modified
-        self.blob[stored_blob.identifier] = WrappedStoredBlob(thing=stored_blob, backend=self, state=state)
+        self.blob[stored_blob.identifier.ident] = WrappedStoredBlob(thing=stored_blob, backend=self, state=state)
 
         full_path = os.path.join(self.path, stored_blob.relative_path)
         if not os.path.exists(os.path.dirname(full_path)):
@@ -506,17 +503,13 @@ class GitJsonFilesBackend(BaseBackend):
         stored_blob.refresh_meta(full_path)
         subprocess_check_call(['git', 'add', rebase_path(full_path, self.path)], cwd=self.path)
 
-        if fsync:
-            self.sync()
-        return self.blob[stored_blob.identifier]
+        return self.blob[stored_blob.identifier.ident]
 
     def remove_item(self, stored_thing: StoredThing, fsync=False):
-        del self.data[stored_thing.identifier]
+        del self.data[stored_thing.identifier.ident]
         full_path = os.path.join(self.path, stored_thing.relative_path)
         os.unlink(full_path)
         subprocess_check_call(['git', 'rm', rebase_path(full_path, self.path)], cwd=self.path)
-        if fsync:
-            self.sync()
 
     def save(self, fsync=True):
         for v in self.data.values():
@@ -526,26 +519,27 @@ class GitJsonFilesBackend(BaseBackend):
                 self.save_blob(v, fsync=fsync)
 
     def find(self, identifier: UniformReference) -> WrappedStoredThing:
-        if identifier in self.data:
-            return self.data[identifier]
+        # import inspect
+        # for frame in inspect.stack():
+        #     print(f'      {frame.filename}:{frame.lineno}:{frame.function}')
 
-        for ident, ref in self.data.items():
-            if ident.ident == identifier.ident:
-                return ref
-        raise KeyError(f"Could not find {identifier.ident}")
+        if identifier.ident in self.data:
+            return self.data[identifier.ident]
+
+        raise KeyError(f"[Note] Could not find {identifier.ident}")
 
     def find_s(self, identifier: str) -> WrappedStoredThing:
         ufr = UniformReference.from_string(identifier)
         return self.find(ufr)
 
     def find_blob(self, identifier: UniformReference) -> WrappedStoredBlob:
-        if identifier in self.blob:
-            return self.blob[identifier]
+        if identifier.ident in self.blob:
+            return self.blob[identifier.ident]
 
-        for ident, ref in self.blob.items():
-            if ident.ident == identifier.ident:
-                return ref
-        raise KeyError(f"Could not find {identifier.ident}")
+        # for ident, ref in self.blob.items():
+        #     if ident.ident == identifier.ident:
+        #         return ref
+        raise KeyError(f"[Blob] Could not find {identifier.ident}")
 
     def find_blob_s(self, identifier: str) -> WrappedStoredBlob:
         ufr = UniformReference.from_string(identifier)
@@ -616,14 +610,14 @@ class GitJsonFilesBackend(BaseBackend):
             if 'file/blob/' in path:
                 try:
                     st = StoredBlob.realise_from_path(self.path, path)
-                    self.blob[st.identifier] = WrappedStoredBlob(thing=st, backend=self, state=status)
+                    self.blob[st.identifier.ident] = WrappedStoredBlob(thing=st, backend=self, state=status)
                 except ValueError as ve:
                     print(f"Error loading: {path} {ve}")
             else:
                 try:
                     json_data = self.read(path)
                     st = StoredThing.realise_from_str(self.path, path, json_data)
-                    self.data[st.identifier] = WrappedStoredThing(thing=st, backend=self, state=status)
+                    self.data[st.identifier.ident] = WrappedStoredThing(thing=st, backend=self, state=status)
                 except ValueError as ve:
                     print(f"Error loading: {path} {ve}")
 
@@ -645,6 +639,7 @@ class OverlayEngine(BaseModel):
                 return backend.find(identifier)
             except KeyError:
                 pass
+        print(f"Wow, really could not find {identifier}")
         raise KeyError(f"Cannot find {identifier}")
 
     def migrate_backend(self, identifier: (UniformReference | str), backend: GitJsonFilesBackend) -> None:
@@ -706,8 +701,9 @@ class OverlayEngine(BaseModel):
                 pass
         raise KeyError(f"Cannot find {ident}")
 
-    def all(self, ordering=None) -> list[WrappedStoredThing]:
-        t = [self.find(k) for k in self.keys()]
+    def all(self, ordering=None) -> list[WrappedStoredThing] | Iterable[WrappedStoredThing]:
+        # t = [self.find(k) for k in self.keys()]
+        t = self.values()
         if ordering is not None:
             if ordering.startswith('-'):
                 t = sorted(t, key=lambda x: getattr(x.thing.data, ordering[1:]))
@@ -740,6 +736,10 @@ class OverlayEngine(BaseModel):
         for backend in self.backends:
             all_keys.update(backend.data.keys())
         return all_keys
+
+    def values(self) -> Iterable[WrappedStoredThing]:
+        for backend in self.backends:
+            yield from backend.data.values()
 
     def add(self, note: Note, backend: Optional[GitJsonFilesBackend]=None, fsync=False, urn=None) -> WrappedStoredThing:
         if urn is None:
@@ -790,6 +790,7 @@ class OverlayEngine(BaseModel):
             self.search(type='template', title=type)
 
         """
+        return []
         results = []
         custom = None
         if 'custom' in kwargs:
@@ -1128,7 +1129,7 @@ class OverlayEngine(BaseModel):
                 return b
         raise KeyError(f"Could not find {name}")
 
-    def get_lineage(self, note: WrappedStoredThing, lineage=None): # -> Generator[list[WrappedStoredThing]]:
+    def get_lineage(self, note: WrappedStoredThing): # -> Generator[list[WrappedStoredThing]]:
         res = []
         for x in self._get_lineage(note):
             if x == []:
