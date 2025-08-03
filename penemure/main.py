@@ -1,13 +1,11 @@
 from pydantic import BaseModel
-from functools import cache
 import glob
 import shutil
 from jinja2 import Environment, PackageLoader, select_autoescape
 import os
-from typing import Optional
-from .store import GitJsonFilesBackend, OverlayEngine, WrappedStoredThing
+from .store import GitJsonFilesBackend, OverlayEngine, StaticFilesBackend
 from .note import *
-from .refs import BlobReference, ExternalReference, UnresolvedReference, UniformReference
+from .refs import UniformReference
 
 from importlib import resources as impresources
 from . import templates
@@ -29,6 +27,21 @@ class Penemure(BaseModel):
     backends: list[GitJsonFilesBackend]
 
     data: dict = Field(default_factory=dict)
+
+    @classmethod
+    def discover(cls, paths):
+        backends = []
+        for path in paths:
+            if path.startswith('http'):
+                raise NotImplementedError()
+            else:
+                try:
+                    backends.append(GitJsonFilesBackend.discover(path))
+                except:
+                    backends.append(StaticFilesBackend.discover(path))
+
+        return cls(backends=backends)
+
 
     @property
     def real_path(self):

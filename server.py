@@ -34,8 +34,7 @@ def log(logger, message, **kwargs):
                  'logger': logger, 'message': message, 'kwargs': kwargs})
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
-backends = [GitJsonFilesBackend.discover(x) for x in REPOS]
-pen = Penemure(backends=backends)
+pen = Penemure.discover(REPOS)
 oe = pen.overlayengine
 oe.load()
 
