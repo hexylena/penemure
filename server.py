@@ -329,8 +329,9 @@ class BaseFormData(BaseModel):
     attachments: Optional[List[UploadFile]] = Field(default_factory=list)
 
 
-def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Note:
+def NoteFromForm(data: BaseFormData, backend, username: Optional[WrappedStoredThing], source=None) -> Note:
     d = data.model_dump()
+
 
     # d['tags'] = []
     # for k, v in zip(data.tag_key, data.tag_val):
@@ -349,7 +350,6 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
     #         })
 
     d['tags_v2'] = []
-    print(data)
     template = oe.get_template(data.type)
     for k, v, t in zip(data.tag_v2_key, data.tag_v2_val, data.tag_v2_typ):
         print(k, v, t)
@@ -412,12 +412,21 @@ def NoteFromForm(data: BaseFormData, backend, username: UniformReference) -> Not
     del d['content_type']
     del d['content_uuid']
 
-    # Only apply to Account, AccountGithub
-    d['username'] = None
-    d['namespace'] = None
+    if source:
+        s = source.model_dump()
 
-    import pprint; pprint.pprint(d)
-    print(ModelFromAttr(d).model_validate(d))
+        # Overwrite with our new items.
+        for k, v in d.items():
+            s[k] = v
+        return ModelFromAttr(s).model_validate(s)
+    else:
+        if 'account' not in d['type']:
+            # Only apply to Account, AccountGithub
+            d['username'] = None
+            d['namespace'] = None
+        else:
+            raise Exception("Creating a new account via UI not supported")
+
     return ModelFromAttr(d).model_validate(d)
 
 
@@ -437,7 +446,7 @@ class TimeFormData(BaseModel):
 
 
 def extract_contents(data: BaseFormData | TimeFormData, 
-                     username: WrappedStoredThing,
+                     username: Optional[WrappedStoredThing],
                      original: List[MarkdownBlock] | None=None):
     res = []
     orig = {}
@@ -462,15 +471,9 @@ def extract_contents(data: BaseFormData | TimeFormData,
         if u in orig and orig[u].contents == n and orig[u].type == t:
             res.append(orig[u])
         else:
-            print({
-                'contents': n,
-                'author': username.thing.urn,
-                'type': BlockTypes.from_str(t),
-                'id': u
-            })
             res.append(MarkdownBlock.model_validate({
                 'contents': n,
-                'author': username.thing.urn,
+                'author': username.thing.urn if username else UniformReference(app='account'),
                 'type': BlockTypes.from_str(t),
                 'id': u
             }))
@@ -580,10 +583,11 @@ def save_new_multi(data: NewMultiData):
 def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart/form-data")],
               username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
     be = oe.get_backend(data.backend)
-    new_note = NoteFromForm(data, be, username=username)
-
     u = UniformReference.from_string(urn)
     orig = oe.find(u)
+
+    new_note = NoteFromForm(data, be, username=username, source=orig.thing.data)
+
     # print('orig', orig.thing.data.tags_v2)
     # print('new ', new_note.tags_v2)
     # 1/0
