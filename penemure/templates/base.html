@@ -44,7 +44,9 @@
 
 						{% if username %}
 							<span>
-							{{ username.thing.urn.urn }}#link
+								<a href="{{ username.view_url }}">
+								{{ username.thing.data.username }}
+								</a>
 							</span>
 						{% else %}
 							<span>ANON</span>

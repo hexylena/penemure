@@ -232,14 +232,15 @@ def reload(username: Annotated[WrappedStoredThing, Depends(get_current_username)
 
 @app.post("/api/sync", tags=['system', 'api'])
 def api_sync(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
+    log('system.sync', f'{username.thing.urn.urn} requested a sync')
     prev = [len(b.data.keys()) for b in oe.backends]
     pen.save()
     for b in oe.backends:
         for line in b.sync(log):
-            log('sync', line)
+            log('system.sync', line)
     pen.load()
-    log('system.reload', line)
     after = [len(b.data.keys()) for b in oe.backends]
+    log('system.sync', f'Sync complete')
     return {
         name.name: {'before': b, 'after': a}
         for name, b, a in zip(oe.backends, prev, after)
@@ -340,7 +341,7 @@ class BaseFormData(BaseModel):
     attachments: Optional[List[UploadFile]] = Field(default_factory=list)
 
 
-def NoteFromForm(data: BaseFormData, backend, username: Optional[WrappedStoredThing], source=None) -> Note:
+def NoteFromForm(data: BaseFormData, backend, username: WrappedStoredThing, source=None) -> Note:
     d = data.model_dump()
 
 
@@ -457,7 +458,7 @@ class TimeFormData(BaseModel):
 
 
 def extract_contents(data: BaseFormData | TimeFormData, 
-                     username: Optional[WrappedStoredThing],
+                     username: WrappedStoredThing,
                      original: List[MarkdownBlock] | None=None):
     res = []
     orig = {}
@@ -696,11 +697,11 @@ def patch_note(data: Annotated[PatchNoteContentsData, Form()], username: Annotat
 
 def _last_end():
     logs = oe.search(type='log')
-    max_end_date = max((
-        log.thing.data.end('unix') 
+    times = [
+        log.thing.data.end('unix')
         for log in logs if log.thing.data.end('unix')
-    ))
-    return max_end_date
+    ]
+    return max(times)
 
 @app.post("/time/continue/since", tags=['mutate'])
 def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
@@ -755,7 +756,7 @@ def save_time(data: Annotated[TimeFormData, Form()],
 
 
 @app.post("/time-since", tags=['mutate'])
-def save_time_since(data: Annotated[TimeFormData, Form()],
+def save_time_since2(data: Annotated[TimeFormData, Form()],
                     username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     return _save_time(data, username, start_override=_last_end())
 
@@ -766,7 +767,7 @@ def save_time_since(data: Annotated[TimeFormData, Form()],
     return _save_time(data, username, start_override=_last_end(), end_override=int(time.time()))
 
 def _save_time(data: Annotated[TimeFormData, Form()],
-              username: Annotated[WrappedStoredThing, Depends(get_current_username)],
+              username: WrappedStoredThing,
               start_override: Optional[int] = None,
               end_override: Optional[int] = None):
     if data.urn:
@@ -780,7 +781,7 @@ def _save_time(data: Annotated[TimeFormData, Form()],
     log.thing.data.touch()
     log.thing.data.title = data.title
     log.thing.data.set_contents(extract_contents(data, username, log.thing.data.contents))
-    log.thing.data.add_empty_markdown_if_empty(author=username)
+    log.thing.data.add_empty_markdown_if_empty(author=username.thing.urn)
 
     log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', 
                                               val=start_override if start_override else data.start_unix))
@@ -1003,8 +1004,8 @@ def render_specific_view(view: str, urn: str, username: Annotated[WrappedStoredT
 @app.get("/me/whoami", tags=['self'])
 def whoami(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     return {
-        'u': username,
-        'urn': username.urn,
+        'u': username.thing.data.username,
+        'urn': username.thing.urn.urn,
     }
 
 @app.get("/me/currently", tags=['self'])
@@ -1012,16 +1013,16 @@ def whatamidoing(username: Annotated[WrappedStoredThing, Depends(get_current_use
     return [x.thing.urn.urn for x in oe.search(type='log', custom='open')]
 
 @app.get("/me/currently/trailer", response_class=HTMLResponse, tags=['self'])
-def whatamidoing(username: Annotated[WrappedStoredThing, Depends(get_current_username)]) -> str:
+def git_trailer(username: Annotated[WrappedStoredThing, Depends(get_current_username)]) -> str:
     return "\n".join(f"Penemeure: {x.thing.urn.urn}" for x in oe.search(type='log', custom='open'))
 
 
 @app.get("/server/currently/json", tags=['self'])
-def whatamidoing_json():
+def whatarewedoing_json():
     return LOGS[-200:]
 
 @app.get("/server/currently", response_class=HTMLResponse, tags=['self'])
-def whatamidoing(request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
+def whatarewedoing(request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     # Last 200
     return render_fixed('server.html', request, username=username,
                         logs=LOGS[-200:], uptime=time.time() - STARTED)
