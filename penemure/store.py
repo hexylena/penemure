@@ -120,6 +120,7 @@ class StoredThing(StoredBlob):
             raise ValueError(f"Error reading {full_path}: {ve}")
 
         if res.namespace != urn.namespace:
+            print(base, full_path, res, urn)
             print(f"Odd, {urn.namespace} != {res.namespace} (end={end})")
 
         return cls(
