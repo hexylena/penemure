@@ -30,9 +30,9 @@
 {% endblock %}
 	</head>
 	<body>
-		{% if username and username._prop and username._prop.locale %}
+		{% if username and username.thing.data.prefs and username.thing.data.prefs.locale %}
 		<script>
-			luxon.Settings.defaultLocale = "{{ username._prop.locale }}";
+			luxon.Settings.defaultLocale = "{{ username.thing.data.prefs.locale }}";
 		</script>
 		{% endif %}
 		<header class="container-xl">

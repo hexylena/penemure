@@ -171,6 +171,13 @@ class Account(Note):
             return super().icon
         return "👩‍🦰"
 
+    @property
+    def prefs(self):
+        t = {}
+        for tag in self.tags_v2:
+            t[tag.key] = tag.val
+        return t
+
     def suggest_urn(self):
         return UniformReference(app=self.type, namespace=self.namespace)
 

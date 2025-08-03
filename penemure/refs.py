@@ -13,13 +13,6 @@ class UniformReference(BaseModel, frozen=True):
     namespace: Optional[str] = None
     ident: str = Field(default_factory=lambda : str(uuid.uuid4()))
 
-    # Some private attributes to smuggle useful things around.
-    # Is this gross? Quite!
-    # A more sane system would be able to turn URNs into real URLs itself.
-    # But this isn't that.
-    _url: str | None = PrivateAttr(default=None)
-    _prefs: dict = PrivateAttr(default_factory=dict)
-
     def __repr__(self):
         return self.urn
 
