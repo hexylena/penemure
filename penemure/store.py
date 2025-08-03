@@ -702,7 +702,7 @@ class OverlayEngine(BaseModel):
     def migrate_backend_thing(self, ws: WrappedStoredThing, backend: BaseBackend) -> WrappedStoredThing:
         if ws.backend == backend:
             # Already in the right place
-            return
+            return ws
 
         # Save to new backend
         if not isinstance(ws.thing, StoredThing):
