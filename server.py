@@ -915,11 +915,14 @@ async def post_form(urn: str, request: Request, username: Annotated[WrappedStore
     except KeyError:
         raise HTTPException(status_code=404, detail="Form not found")
 
+    if username is None:
+        raise HTTPException(status_code=403, detail="Authentication required")
+
     #with request.form() as form:
     form =body
     if True:
         assert isinstance(note.thing.data, DataForm)
-        blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend, username)
+        blob_id = note.thing.data.form_submission(form.multi_items(), oe, note.backend, username.thing.urn)
         # Save changes to the note itself.
         blob = oe.find_blob(blob_id)
         blob.save(fsync=False)

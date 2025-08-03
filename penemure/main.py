@@ -29,7 +29,7 @@ class Penemure(BaseModel):
     data: dict = Field(default_factory=dict)
 
     @classmethod
-    def discover(cls, paths):
+    def discover(cls, paths, **kwargs):
         backends = []
         for path in paths:
             if path.startswith('http'):
@@ -40,7 +40,7 @@ class Penemure(BaseModel):
                 except:
                     backends.append(StaticFilesBackend.discover(path))
 
-        return cls(backends=backends)
+        return cls(backends=backends, **kwargs)
 
 
     @property
