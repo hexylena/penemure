@@ -236,18 +236,18 @@ class Penemure(BaseModel):
         elif u.group(3) == "url":
             try:
                 ref = self.overlayengine.find_thing_or_blob(urn_ref)
-                return os.path.join(self.real_path, ref.thing.url)
+                return os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
             except KeyError:
                 return urn_ref.urn
         elif u.group(3) == "link":
             try:
                 ref = self.overlayengine.find(urn_ref)
-                url = os.path.join(self.real_path, ref.thing.url)
+                url = os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
                 return f'<a href="{url}">{ref.thing.html_title}</a>' 
             except KeyError:
                 try:
                     ref = self.overlayengine.find_blob(urn_ref)
-                    url = os.path.join(self.real_path, ref.thing.url)
+                    url = os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
                     return f'<a href="{url}">{ref.thing.urn.urn}</a>' 
 
                 except KeyError:
