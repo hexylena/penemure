@@ -162,12 +162,11 @@ def get_current_username(credentials: Annotated[PenemureCredentials, Depends(sec
     if credentials and credentials.username:
         acc = locate_account(credentials.username, credentials.name, credentials.namespace)
         return acc
-    else:
-        return None
 
+    raise HTTPException(status_code=403, detail="Unauthenticated")
 
 @app.get("/users/me")
-def read_current_user(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def read_current_user(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     return {"username": username}
 
 
@@ -227,12 +226,12 @@ def render_object(thing, template: str, username=None, media_type: Optional[str]
 
 
 @app.get("/reload", tags=['system'])
-def reload(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def reload(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     pen.load()
     return [len(b.data.keys()) for b in oe.backends]
 
 @app.post("/api/sync", tags=['system', 'api'])
-def api_sync(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def api_sync(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     prev = [len(b.data.keys()) for b in oe.backends]
     pen.save()
     for b in oe.backends:
@@ -248,7 +247,7 @@ def api_sync(username: Annotated[WrappedStoredThing | None, Depends(get_current_
 
 
 @app.get("/api/view/{backend}/{urn}", tags=['api'])
-def api_view_backend(backend: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def api_view_backend(backend: str, urn: str, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(urn.replace('.html', ''))
     if backend != '*':
         be = oe.get_backend(backend)
@@ -485,7 +484,7 @@ def extract_contents(data: BaseFormData | TimeFormData,
         else:
             res.append(MarkdownBlock.model_validate({
                 'contents': n,
-                'author': username.thing.urn if username else UniformReference(app='account'),
+                'author': username.thing.urn,
                 'type': BlockTypes.from_str(t),
                 'id': u
             }))
@@ -519,7 +518,7 @@ def download_ident(ident: str):
 
 @app.get("/new/{template}", response_class=HTMLResponse, tags=['mutate'])
 @app.get("/new", response_class=HTMLResponse, tags=['mutate'])
-def get_new(request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)], template: Optional[str] = None):
+def get_new(request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)], template: Optional[str] = None):
     if template is None:
         return render_fixed('new.html', request, username=username)
 
@@ -552,7 +551,7 @@ def get_new(request: Request, username: Annotated[WrappedStoredThing | None, Dep
 
 @app.post("/new.html", tags=['mutate'])
 @app.post("/new", tags=['mutate'])
-def save_new(data: Annotated[BaseFormData, Form()], username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def save_new(data: Annotated[BaseFormData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     be = oe.get_backend(data.backend)
     obj = NoteFromForm(data, be, username=username)
     res = pen.overlayengine.add(obj, backend=be)
@@ -593,7 +592,7 @@ def save_new_multi(data: NewMultiData):
 
 @app.post("/edit/{urn}", tags=['mutate'])
 def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart/form-data")],
-              username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+              username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     be = oe.get_backend(data.backend)
     u = UniformReference.from_string(urn)
     orig = oe.find(u)
@@ -624,7 +623,7 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
     return RedirectResponse(os.path.join(path, thing.view_url), status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
-def delete_question(urn: str, request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def delete_question(urn: str, request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     a = time.time()
     u = UniformReference.from_string(urn)
     try:
@@ -636,7 +635,7 @@ def delete_question(urn: str, request: Request, username: Annotated[WrappedStore
 
 
 @app.get("/delete/{urn}", tags=['mutate'])
-def delete(urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def delete(urn: str, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     try:
         thing = oe.find(u)
@@ -654,7 +653,7 @@ class PatchTimeFormData(BaseModel):
     end_unix: float
 
 @app.patch("/time", tags=['mutate'])
-def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def patch_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
     try:
@@ -676,7 +675,7 @@ class PatchNoteContentsData(BaseModel):
     contents: str
 
 @app.patch("/patch/block", tags=['patch'])
-def patch_note(data: Annotated[PatchNoteContentsData, Form()], username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def patch_note(data: Annotated[PatchNoteContentsData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
     print(u)
@@ -704,7 +703,7 @@ def _last_end():
     return max_end_date
 
 @app.post("/time/continue/since", tags=['mutate'])
-def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
 
@@ -720,7 +719,7 @@ def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotate
     return RedirectResponse(f"/time", status_code=status.HTTP_302_FOUND)
 
 @app.post("/time/continue", tags=['mutate'])
-def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
 
@@ -751,23 +750,23 @@ def redir(urn: str):
 @app.post("/time.html", tags=['mutate'])
 @app.post("/time", tags=['mutate'])
 def save_time(data: Annotated[TimeFormData, Form()],
-              username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+              username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     return _save_time(data, username)
 
 
 @app.post("/time-since", tags=['mutate'])
 def save_time_since(data: Annotated[TimeFormData, Form()],
-                    username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+                    username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     return _save_time(data, username, start_override=_last_end())
 
 
 @app.post("/time-end", tags=['mutate'])
 def save_time_since(data: Annotated[TimeFormData, Form()],
-                    username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+                    username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     return _save_time(data, username, start_override=_last_end(), end_override=int(time.time()))
 
 def _save_time(data: Annotated[TimeFormData, Form()],
-              username: Annotated[WrappedStoredThing | None, Depends(get_current_username)],
+              username: Annotated[WrappedStoredThing, Depends(get_current_username)],
               start_override: Optional[int] = None,
               end_override: Optional[int] = None):
     if data.urn:
@@ -837,14 +836,14 @@ def imgproxy(request: Request, path_params: str = ""):
 @app.get("/time", response_class=HTMLResponse, tags=['view'])
 @app.get("/sync", response_class=HTMLResponse, tags=['view'])
 @app.get("/review", response_class=HTMLResponse, tags=['view'])
-def fixed_page_list(request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def fixed_page_list(request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     page = request.url.path.lstrip('/').replace('.html', '')
     return render_fixed(page + '.html', request, username=username)
 
 @app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/{page}", response_class=HTMLResponse, tags=['view'])
 @app.get("/", response_class=HTMLResponse, tags=['view'])
-def index(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)], page=None):
+def index(username: Annotated[WrappedStoredThing, Depends(get_current_username)], page=None):
     if page is None:
         page = 'index'
 
@@ -867,7 +866,7 @@ class PatchNoteAttachments(BaseModel):
 
 @app.patch("/note/atts", tags=['mutate'])
 def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()],
-                    username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+                    username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     note = oe.find(UniformReference.from_string(data.note))
     atts = UniformReference.from_string(data.atts)
 
@@ -893,14 +892,14 @@ def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()],
 
 
 @app.get("/edit/{backend}/{urn}", response_class=HTMLResponse, tags=['mutate'])
-def edit_get(backend: str, urn: str, request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def edit_get(backend: str, urn: str, request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     be = oe.get_backend(backend)
     note = oe.find_thing_from_backend(u, be)
     return render_fixed('edit.html', request, note, rewrite=False, username=username)
 
 @app.get("/edit/{urn}", response_class=HTMLResponse, tags=['mutate'])
-def edit_get_nobe(urn: str, request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def edit_get_nobe(urn: str, request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
     return render_fixed('edit.html', request, note, rewrite=False, username=username)
@@ -920,15 +919,12 @@ async def get_body(request: Request):
 
 
 @app.post("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-async def post_form(urn: str, request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)], body=Depends(get_body)):
+async def post_form(urn: str, request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)], body=Depends(get_body)):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
     except KeyError:
         raise HTTPException(status_code=404, detail="Form not found")
-
-    if username is None:
-        raise HTTPException(status_code=403, detail="Authentication required")
 
     #with request.form() as form:
     form =body
@@ -943,7 +939,7 @@ async def post_form(urn: str, request: Request, username: Annotated[WrappedStore
 
 
 @app.get("/form/{urn}", response_class=HTMLResponse, tags=['form'])
-def get_form(urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def get_form(urn: str, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(urn)
     try:
         note = oe.find_thing(u)
@@ -978,7 +974,7 @@ def form_manifest(urn):
 
 @app.get("/view/{backend}/{urn}", response_class=HTMLResponse, tags=['print'])
 @app.get("/view/{backend}/{urn}.html", response_class=HTMLResponse, tags=['print'])
-def view_note(backend: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def view_note(backend: str, urn: str, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     be = oe.get_backend(backend)
     u = UniformReference.from_string(urn)
     note = oe.find_thing_from_backend(u, backend=be)
@@ -986,7 +982,7 @@ def view_note(backend: str, urn: str, username: Annotated[WrappedStoredThing | N
 
 @app.get("/view/{backend}", response_class=HTMLResponse, tags=['print'])
 @app.get("/view/{backend}.html", response_class=HTMLResponse, tags=['print'])
-def view_backend(backend: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def view_backend(backend: str, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     try:
         be = oe.get_backend(backend)
     except KeyError:
@@ -994,7 +990,7 @@ def view_backend(backend: str, username: Annotated[WrappedStoredThing | None, De
     return render_object(be, 'backend.html', username=username)
 
 @app.get("/render/{view}/{urn}", response_class=HTMLResponse, tags=['print'])
-def render_specific_view(view: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def render_specific_view(view: str, urn: str, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     # Strip extensions
     if '.' in urn:
         urn = urn[:urn.rindex('.')]
@@ -1005,18 +1001,18 @@ def render_specific_view(view: str, urn: str, username: Annotated[WrappedStoredT
 
 
 @app.get("/me/whoami", tags=['self'])
-def whoami(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def whoami(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     return {
         'u': username,
         'urn': username.urn,
     }
 
 @app.get("/me/currently", tags=['self'])
-def whatamidoing(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]) -> List[str]:
+def whatamidoing(username: Annotated[WrappedStoredThing, Depends(get_current_username)]) -> List[str]:
     return [x.thing.urn.urn for x in oe.search(type='log', custom='open')]
 
 @app.get("/me/currently/trailer", response_class=HTMLResponse, tags=['self'])
-def whatamidoing(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]) -> str:
+def whatamidoing(username: Annotated[WrappedStoredThing, Depends(get_current_username)]) -> str:
     return "\n".join(f"Penemeure: {x.thing.urn.urn}" for x in oe.search(type='log', custom='open'))
 
 
@@ -1025,7 +1021,7 @@ def whatamidoing_json():
     return LOGS[-200:]
 
 @app.get("/server/currently", response_class=HTMLResponse, tags=['self'])
-def whatamidoing(request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+def whatamidoing(request: Request, username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     # Last 200
     return render_fixed('server.html', request, username=username,
                         logs=LOGS[-200:], uptime=time.time() - STARTED)
@@ -1039,7 +1035,7 @@ def whatamidoing(request: Request, username: Annotated[WrappedStoredThing | None
 @app.get("/{app}/{b}/{c}/{d}", response_class=HTMLResponse, tags=['view'])
 @app.get("/{app}/{b}/{c}", response_class=HTMLResponse, tags=['view'])
 @app.get("/{app}/{b}", response_class=HTMLResponse, tags=['view'])
-def read_items(username: Annotated[WrappedStoredThing | None, Depends(get_current_username)], 
+def read_items(username: Annotated[WrappedStoredThing, Depends(get_current_username)], 
                app, b, c=None, d=None, e=None):
     raise HTTPException(status_code=404, detail=f"Route being deprecated")
 
@@ -1094,7 +1090,7 @@ class AndroidShareIntent(BaseModel):
 
 @app.post("/save", tags=['android'])
 def android_share(data: Annotated[AndroidShareIntent, Form(media_type="multipart/form-data")],
-                  username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
+                  username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
 
     new_note = Note(
         title=data.title or "Untitled",
@@ -1102,8 +1098,6 @@ def android_share(data: Annotated[AndroidShareIntent, Form(media_type="multipart
             TextTag(key="status", val="Uncategorised"),
         ]
     )
-    if username is None:
-        raise HTTPException(status_code=403, detail="Unauthenticated")
     new_note.contents.append(MarkdownBlock(contents=(data.text or ""),
                                            author=username.thing.urn))
 
