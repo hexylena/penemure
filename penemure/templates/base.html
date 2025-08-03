@@ -115,6 +115,9 @@
 			<ul class="nav flex-column">
 				<li class="nav-item mb-2">EUPL-1.2</li>
 				<li class="nav-item mb-2">Rev <a href="https://github.com/hexylena/project-management/commit/{{ Config.VcsRev }}">{{ Config.VcsRev }}</a></li>
+				{% if Config.IsServing %}
+				<li class="nav-item mb-2"><a href="/server/currently">System Logs</a></li>
+				{% endif %}
 			</ul>
 		</div>
 
