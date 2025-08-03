@@ -460,6 +460,10 @@ class WrappedStoredThing(BaseModel):
     def full_path(self) -> str:
         return os.path.join(self.backend.path, self.thing.relative_path)
 
+    @property
+    def view_url(self) -> str:
+        return os.path.join('view', self.backend.name, self.thing.urn.urn)
+
     def clean_dict(self, oe: 'OverlayEngine', template=None):
         d = self.thing.data.model_dump()
         d['id'] = self.thing.urn.ident

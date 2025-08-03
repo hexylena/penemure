@@ -622,7 +622,7 @@ def save_edit(urn: str, data: Annotated[BaseFormData, Form(media_type="multipart
 
     orig.thing.data.touch()
 
-    return RedirectResponse(os.path.join(path, thing.thing.url), status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, thing.view_url), status_code=status.HTTP_302_FOUND)
 
 @app.get("/delete_question/{urn}", tags=['mutate'])
 def delete_question(urn: str, request: Request, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
@@ -745,7 +745,7 @@ def redir(urn: str):
     urn = urn.replace('.html', '')
     u = UniformReference.from_string(urn)
     note = oe.find_thing(u)
-    return RedirectResponse(os.path.join(path, note.thing.url), status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, note.view_url), status_code=status.HTTP_302_FOUND)
 
 
 
@@ -890,7 +890,7 @@ def patch_note_atts(data: Annotated[PatchNoteAttachments, Form()],
 
     note.thing.data.attachments = updated_atts
     note.save(fsync=False)
-    return RedirectResponse(os.path.join(path, note.thing.url), status_code=status.HTTP_200_OK)
+    return RedirectResponse(os.path.join(path, note.view_url), status_code=status.HTTP_200_OK)
 
 
 @app.get("/edit/{backend}/{urn}", response_class=HTMLResponse, tags=['mutate'])
@@ -977,6 +977,7 @@ def form_manifest(urn):
     return man
 
 
+@app.get("/view/{backend}/{urn}", response_class=HTMLResponse, tags=['print'])
 @app.get("/view/{backend}/{urn}.html", response_class=HTMLResponse, tags=['print'])
 def view_note(backend: str, urn: str, username: Annotated[WrappedStoredThing | None, Depends(get_current_username)]):
     be = oe.get_backend(backend)
