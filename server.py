@@ -159,7 +159,7 @@ def locate_account(username: str, name: str, namespace: str):
             return oe.add(acc, urn=acc.suggest_urn())
 
 
-def get_current_username(credentials: Annotated[PenemureCredentials, Depends(security)],) -> WrappedStoredThing:
+def get_current_username(credentials: Annotated[PenemureCredentials, Depends(security)],) -> Optional[WrappedStoredThing]:
     if credentials and credentials.username:
         acc = locate_account(credentials.username, credentials.name, credentials.namespace)
         return acc
@@ -437,7 +437,7 @@ class TimeFormData(BaseModel):
 
 
 def extract_contents(data: BaseFormData | TimeFormData, 
-                     username: UniformReference, 
+                     username: WrappedStoredThing,
                      original: List[MarkdownBlock] | None=None):
     res = []
     orig = {}
@@ -462,9 +462,15 @@ def extract_contents(data: BaseFormData | TimeFormData,
         if u in orig and orig[u].contents == n and orig[u].type == t:
             res.append(orig[u])
         else:
+            print({
+                'contents': n,
+                'author': username.thing.urn,
+                'type': BlockTypes.from_str(t),
+                'id': u
+            })
             res.append(MarkdownBlock.model_validate({
                 'contents': n,
-                'author': username,
+                'author': username.thing.urn,
                 'type': BlockTypes.from_str(t),
                 'id': u
             }))
