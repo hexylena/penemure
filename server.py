@@ -230,6 +230,18 @@ def reload(username: Annotated[WrappedStoredThing, Depends(get_current_username)
     pen.load()
     return [len(b.data.keys()) for b in oe.backends]
 
+@app.post("/api/sync/auto", tags=['system', 'api'])
+def api_sync_auto(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
+    log('system.sync.auto', f'Timer requested a sync')
+    pen.save()
+    for b in oe.backends:
+        if len(b.all_modified()):
+            log('system.sync.auto', f'{b} has modifications')
+            for line in b.sync(log):
+                log('system.sync', line)
+            b.load()
+    log('system.sync.auto', f'Sync complete')
+
 @app.post("/api/sync", tags=['system', 'api'])
 def api_sync(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     log('system.sync', f'{username.thing.urn.urn} requested a sync')
