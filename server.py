@@ -35,7 +35,7 @@ def log(logger, message, **kwargs):
 
 REPOS = os.environ.get('REPOS', '/home/user/projects/issues/:./pub:/home/user/projects/diary/.notes/').split(':')
 pen = Penemure.discover(REPOS)
-oe = pen.overlayengine
+oe: 'OverlayEngine' = pen.overlayengine
 oe.load()
 
 
