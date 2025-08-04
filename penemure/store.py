@@ -314,17 +314,10 @@ class BaseBackend(BaseModel):
             return att_urn
 
     def all_modified(self) -> list['WrappedStoredThing']:
-        res = []
-        for item in self.data.values():
-            if item.state != MutatedEnum.untouched:
-                res.append(item)
-        for item in self.blob.values():
-            if item.state != MutatedEnum.untouched:
-                res.append(item)
-        return res
+        return []
 
     def get_backend_modifications(self):
-        raise NotImplementedError()
+        return {}
 
     def load(self):
         self.data = {}
@@ -642,6 +635,16 @@ class GitJsonFilesBackend(BaseBackend):
             elif isinstance(v, StoredBlob):
                 self.save_blob(v, fsync=fsync)
 
+    def all_modified(self) -> list['WrappedStoredThing']:
+        res = []
+        for item in self.data.values():
+            if item.state != MutatedEnum.untouched:
+                res.append(item)
+        for item in self.blob.values():
+            if item.state != MutatedEnum.untouched:
+                res.append(item)
+        return res
+
     def get_backend_modifications(self):
         # Get statuses for existing files
         statuses = subprocess_check_output(['git', 'status', '-s', '.'], cwd=self.path).decode('utf-8')
@@ -673,9 +676,6 @@ class StaticFilesBackend(BaseBackend):
 
     def save(self, fsync=True):
         return
-
-    def get_backend_modifications(self):
-        return {}
 
 class OverlayEngine(BaseModel):
     backends: list[BaseBackend]
@@ -780,10 +780,11 @@ class OverlayEngine(BaseModel):
         return r
 
     def modified_count(self) -> int:
-        return len(self.all_modified())
+        return len(list(self.all_modified()))
 
-    def all_modified(self) -> list[WrappedStoredThing]:
-        return [x for x in self.all() if x.state != MutatedEnum.untouched]
+    def all_modified(self) -> Iterable[WrappedStoredThing]:
+        for be in self.backends:
+            yield from be.all_modified()
 
     def all_blobs(self):
         for backend in self.backends:
