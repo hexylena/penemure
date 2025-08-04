@@ -281,6 +281,45 @@ class TRLTag(EnumTag):
     typ: Literal['TRL'] = 'TRL'
 
 
+class IconTemplateTag(EnumTemplateTag):
+    key: str = 'icon'
+    title: str = 'Icon'
+    typ: Literal['IconTemplate'] = 'IconTemplate'
+    default: str = 'ph-article'
+    has_groups: bool = True
+
+    values: list[tuple] = [
+        # Category, Value, Color, Icon
+        ("Initial", "TRL-0 Not Started", "Gray", "❔"),
+        ("Initial", "TRL-1 Basic principles observed", "Gray", "🚧"),
+    ]
+
+class IconTag(EnumTag):
+    val: str
+    typ: Literal['Icon'] = 'Icon'
+
+    def render_input(self, current_value, oe):
+        return f"""
+<!-- Button trigger modal -->
+<input type="hidden" name="tag_v2_val" id="icon-value" value="{self.val}">
+<span id="icon-value-visible">
+    <i style="font-size:200%" class="ph {self.val}"></i>
+</span>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#iconSelection">
+  Icon Select
+</button>
+"""
+        out = '<select name="asdf">'
+        for cat, vs in itertools.groupby(self.values, lambda x: x[0]):
+            out += f'<optgroup label="{cat}">'
+            for x in vs:
+                (_, value, _, icon) = x
+                selected = ' selected ' if value == current_value else ''
+                out += f'<option value="{value}" {selected}>{icon} {value}</option>'
+            out += f'</optgroup>'
+        return out + '</select>'
+
+
 class TextTemplateTag(BaseTemplateTag):
     typ: Literal['TextTemplate'] = 'TextTemplate'
     default: str = ''
@@ -367,7 +406,7 @@ class HashtagsTag(BaseTag):
 
 TagV2 = Annotated[
     PastDateTimeTag | EnumTag | StatusTag | PriorityTag | TextTag |
-    ReferenceTag | HashtagsTag | TRLTag | URLTag,
+    ReferenceTag | HashtagsTag | TRLTag | URLTag | IconTag,
     Field(discriminator="typ")
 ]
 
@@ -375,7 +414,7 @@ TagV2 = Annotated[
 TemplateTagV2 = Annotated[
     PastDateTimeTemplateTag | EnumTemplateTag | StatusTemplateTag |
     PriorityTemplateTag | TextTemplateTag | ReferenceTemplateTag |
-    HashtagsTemplateTag | TRLTemplateTag | URLTemplateTag,
+    HashtagsTemplateTag | TRLTemplateTag | URLTemplateTag | IconTemplateTag,
     Field(discriminator="typ")
 ]
 

@@ -120,6 +120,7 @@
 				</div>
 			</div>
 
+			{% if note.thing.data.type != 'template' %}
 			<label for="tags">Tags</label>
 			<div id="tags_v2" name="tags_v2">
 				<table>
@@ -145,12 +146,19 @@
 								{# the hidden input is needed as disabled inputs aren't sent in forms. #}
 								<input type="hidden" name="tag_v2_typ" value="{{ tag.typ_real }}">
 							</td>
-							<td><input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/></td>
+							<td>
+								{% if tag.typ_real == "Icon" %}
+								<input type="text" placeholder="key" value="icon" disabled/>
+								<input type="hidden" name="tag_v2_key" value="icon" />
+								{% else %}
+								<input type="text" name="tag_v2_key" placeholder="key" value="{{ tag.key }}"/>
+								{% endif %}
+							</td>
 							<td>
 								{% if note_tpl and note_tpl.thing.data.relevant_tag(tag.key) %}
-									{{ tag.render_input(note_tpl.thing.data.relevant_tag(tag.key), oe) }}
+									{{ tag.render_input(note_tpl.thing.data.relevant_tag(tag.key), oe) | safe}}
 								{% else %}
-									{{ tag.render_input(None, oe) }}
+									{{ tag.render_input(None, oe) | safe }}
 								{% endif %}
 							</td>
 						</tr>
@@ -172,7 +180,7 @@
 				</table>
 				<button class="btn btn-outline-success" type="button" onclick="appendtag()">+</button>
 			</div>
-
+			{% else %}
 			<label for="tags">Template Tags</label>
 			<div id="template_tags_v2" name="template_tags_v2">
 				<table>
@@ -223,6 +231,7 @@
 				</table>
 				<button class="btn btn-outline-success" type="button" onclick="appendtag2()">+</button>
 			</div>
+			{% endif %}
 
 			<label for="attachments">Attachments</label>
 			<input type="file" id="attachments" name="attachments" multiple />
@@ -376,4 +385,102 @@ async function extractIssues(urn, be, bid){
 }
 
 </script>
+
+<!-- Modal -->
+<div class="modal modal-lg fade" id="iconSelection" tabindex="-1" aria-labelledby="iconSelectionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="iconSelectionLabel">Select an icon</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" placeholder="git" id="icon-search-input"/>
+        <div class="row" id="icon-search-results">
+            {% for icon in Config.data.phosphor.icons %}
+            <button class="col icon btn" data-tag="{% for x in icon['tags'] %}ph-{{ x }}{% endfor %}" data-bs-dismiss="modal">
+                <i style="font-size:350%" class="ph ph-{{ icon['id'] }}" data-tag="{% for x in icon['tags'] %}ph-{{ x }}{% endfor %}"></i>
+            </button>
+            {% endfor %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+HTMLCollection.prototype.forEach = Array.prototype.forEach;
+NodeList.prototype.forEach = Array.prototype.forEach;
+HTMLCollection.prototype.filter = Array.prototype.filter;
+NodeList.prototype.filter = Array.prototype.filter;
+HTMLCollection.prototype.map = Array.prototype.map;
+NodeList.prototype.map = Array.prototype.map;
+
+const DEBOUNCE_DURATION = 100; // in milliseconds
+
+var previousSearch = "";
+
+const rows = document.querySelectorAll("#icon-search-results .icon");
+
+function search(){
+	const textQuery = document.getElementById("icon-search-input").value.toLowerCase()
+
+	if (previousSearch == `${textQuery}`) {
+		console.log("Skipping search for the same query")
+		return
+	}
+
+	// Include search term in page title
+	console.log(`Searching! ${textQuery}`)
+
+	// Which should be hidden
+	var to_hide = rows.filter(row => {
+		if (textQuery != "") {
+			if(row.dataset.tag.indexOf(textQuery) == -1) {
+				return true;
+			}
+		}
+		return false;
+	});
+
+	// Display all
+	rows.forEach(r => r.style.display = "");
+	// Hide the rest
+	to_hide.map(r => r.style.display = "none");
+
+	previousSearch = `${textQuery}`
+}
+
+// Attribution: https://gist.github.com/beaucharman/1f93fdd7c72860736643d1ab274fee1a
+function debounce(callback, wait, context = this) {
+	let timeout = null;
+	let callbackArgs = null;
+
+	const later = () => callback.apply(context, callbackArgs);
+	return function() {
+		callbackArgs = arguments;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+}
+
+const onInputDebounced = debounce(_ => search(), DEBOUNCE_DURATION);
+
+document.getElementById("icon-search-input").addEventListener("keyup", (event) => {
+	search()
+});
+
+document.querySelectorAll("#icon-search-results button.icon").forEach((input) => {
+	input.addEventListener("click", (event) => {
+		let tag = event.target.dataset.tag;
+		document.getElementById("icon-value-visible").innerHTML = `<i style="font-size:200%" class="ph ${tag}"></i>`;
+		document.getElementById("icon-value").value = tag;
+	})
+});
+
+</script>
+
 {% endblock %}
