@@ -1,0 +1,38 @@
+{
+  "title": "Explore JS frameworks",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "e.g. https://unpoly.com/previews",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "d62fa369-1a9b-48aa-bfb2-cda6f271fa9c",
+      "created_unix": 1754228627.4148316,
+      "updated_unix": 1754229271.5492513
+    }
+  ],
+  "tags": [],
+  "tags_v2": [
+    {
+      "key": "status",
+      "val": "Uncategorised",
+      "typ": "Text"
+    }
+  ],
+  "version": 2,
+  "created_unix": 1754228600.8034108,
+  "updated_unix": 1754229271.5492253,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
