@@ -173,13 +173,18 @@ function syncIt(){
 	fetch('{{ Config.ExportPrefix }}api/sync/auto')
 		.then(response => response.text()) // send response body to next then chain
 		.then(body => {
-			if(body == "OK") {
-				document.querySelectorAll("#sync-status i")
+			console.log('here')
+			if(body == '"OK"' || body == '"SOON"') {
+				console.log("Done " + body)
+				document.querySelector("#sync-status i")
 					.classList = "ph ph-eye-closed"
+			} else  {
+				document.querySelector("#sync-status i")
+					.classList = "ph ph-eye-slash"
 			}
 		}) // you can use response body here
 }
-setInterval(() => syncIt, 1000 * 60 * 1);
+setInterval(syncIt, 1000 * 60 * 10);
 </script>
 {% endif %}
 		<!-- <link href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,MONO@-15..0,300..800,0..1,0..1&display=swap" rel="stylesheet"> -->
