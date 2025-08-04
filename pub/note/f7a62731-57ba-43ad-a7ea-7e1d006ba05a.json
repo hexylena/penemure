@@ -9,16 +9,16 @@
   ],
   "contents": [
     {
-      "contents": "I want an inbox that i can review daily, inbox zero style.\r\n\r\n- [ ] new tasks that have been added but not categorised\r\n- [ ] things that might need review (? what algo)\r\n- [ ] new files that were uploaded but not yet tagged/categoriesd.\r\n- [ ] new mentions of me (4.0)",
+      "contents": "I want an inbox that i can review daily, inbox zero style.\r\n\r\n- [ ] new tasks that have been added but not categorised (things sent via url share are tagged uncategorised by default)\r\n- [ ] things that might need review (? what algo)\r\n- [ ] new files that were uploaded but not yet tagged/categoriesd.\r\n- [ ] new mentions of me (4.0)\r\n\r\npurity is a challenge,\r\n\r\n- uncategorised is pure\r\n- 'new' mentions is impure, since there's the mention being generated and then separately the acknolwedgement of it.\r\n\r\nwhich leads to: model everything as if it were impure. have a table for notifications,,, which means they need to be stored somewhere. per user.\r\n\r\nthat's. not ideal. \r\n\r\neven, in conflict with design. will every user have a 'home' database where it would make sense? even i don't do that, sometimes I view subsets. i still want notifications to work.\r\n\r\nI guess each repo could have 'outgoing' notifs, just an append only list of mentions. can people acknowledge(?) mentions? close them out to never see them again? Does that require writing to the log and ack'ing? public read receipts of notifs? is that, acceptable? \r\n\r\nthe issues, project planning, etc are totally sensible to store in 'public', the mentions feel, less so. the outgoing are just a distilled version of the git log, it's the ack's that aren't.",
       "author": {
-        "app": "account",
-        "namespace": "projects",
-        "ident": "user"
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
       },
       "type": "markdown",
       "id": "e57bbdf2-866a-4c85-ab31-4f93df3b91bc",
-      "created_unix": 1740233376.5114195,
-      "updated_unix": 1740233376.511421
+      "created_unix": 1754330946.8200798,
+      "updated_unix": 1754330946.82008
     }
   ],
   "tags": [
@@ -27,13 +27,7 @@
       "val": "3.0"
     }
   ],
-  "tags_v2": [
-    {
-      "key": "milestone",
-      "val": "urn:penemure:90afa80f-85d8-4258-af18-687779a32f0a",
-      "typ": "Reference"
-    }
-  ],
+  "tags_v2": [],
   "version": 2,
   "created_unix": 1740233376.5114818,
   "updated_unix": 1740233376.511483,
