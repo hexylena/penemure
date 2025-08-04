@@ -2,7 +2,7 @@
   "title": "2.0",
   "parents": [
     {
-      "app": "note",
+      "app": "x",
       "namespace": null,
       "ident": "4d9fe953-c4d9-43d5-ba27-d86bd7d0eefe"
     }
@@ -18,7 +18,7 @@
       "type": "markdown",
       "id": "685eaf9a-6de2-44bf-b2e6-2849ce03e473",
       "created_unix": 1738864273.2439451,
-      "updated_unix": 1738864273.2439466
+      "updated_unix": 1754335365.8054554
     },
     {
       "contents": "SQL SELECT\n  title,\n  created,\n  updated,\n  milestone\nFROM __all__\nWHERE\n  ancestors LIKE '%self%'",
@@ -30,13 +30,20 @@
       "type": "query-table",
       "id": "a5eebfb2-3f23-43be-a056-05395a14dad3",
       "created_unix": 1738864273.244441,
-      "updated_unix": 1738864273.2444415
+      "updated_unix": 1754335365.8054714
     }
   ],
   "tags": [],
+  "tags_v2": [
+    {
+      "key": "icon",
+      "val": "ph-map-pin",
+      "typ": "Icon"
+    }
+  ],
   "version": 2,
   "created_unix": 1738864062.990989,
-  "updated_unix": 1738864102.770203,
+  "updated_unix": 1754335365.80541,
   "namespace": null,
   "type": "milestone",
   "attachments": []
