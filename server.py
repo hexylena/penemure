@@ -68,6 +68,7 @@ app = FastAPI(
     openapi_tags=tags_metadata
 )
 app.mount("/assets", StaticFiles(directory="assets"), name="static")
+app.LAST_SYNC_TIME = 0
 
 FastAPIInstrumentor.instrument_app(app)
 
@@ -230,9 +231,14 @@ def reload(username: Annotated[WrappedStoredThing, Depends(get_current_username)
     pen.load()
     return [len(b.data.keys()) for b in oe.backends]
 
-@app.post("/api/sync/auto", tags=['system', 'api'])
+
+@app.get("/api/sync/auto", tags=['system', 'api'])
 def api_sync_auto(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     log('system.sync.auto', f'Timer requested a sync')
+    if time.time() - app.LAST_SYNC_TIME < 600:
+        log('system.sync.auto', f'Auto-synced too recently')
+        return 'SOON'
+
     pen.save()
     for b in oe.backends:
         if len(b.all_modified()):
@@ -240,7 +246,9 @@ def api_sync_auto(username: Annotated[WrappedStoredThing, Depends(get_current_us
             for line in b.sync(log):
                 log('system.sync', line)
             b.load()
+    app.LAST_SYNC_TIME = time.time()
     log('system.sync.auto', f'Sync complete')
+    return 'OK'
 
 @app.post("/api/sync", tags=['system', 'api'])
 def api_sync(username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
