@@ -861,6 +861,18 @@ def fixed_page_list(request: Request, username: Annotated[WrappedStoredThing, De
     page = request.url.path.lstrip('/').replace('.html', '')
     return render_fixed(page + '.html', request, username=username)
 
+@app.get('/opensearch.xml', tags=['view'])
+def search():
+    data = f"""<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>{pen.title}</ShortName>
+  <Description>{pen.about}</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="16" height="16" type="image/x-icon">/assets/favicon@256.png</Image>
+  <Url type="text/html" method="get" template="/search.html?q={ '{searchTerms}' }"/>
+</OpenSearchDescription>"""
+
+    return Response(content=data, media_type="application/opensearchdescription+xml")
+
 @app.get("/{page}.html", response_class=HTMLResponse, tags=['view'])
 @app.get("/{page}", response_class=HTMLResponse, tags=['view'])
 @app.get("/", response_class=HTMLResponse, tags=['view'])
@@ -1086,22 +1098,6 @@ def read_items(username: Annotated[WrappedStoredThing, Depends(get_current_usern
 
     except KeyError:
         raise HTTPException(status_code=404, detail=f"URN {u} not found")
-
-@app.get('/sitesearch.xml', tags=['view'])
-def search():
-    data = f"""<?xml version="1.0"?>
-<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
-                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-  <ShortName>{pen.title}</ShortName>
-  <Description>{pen.about}</Description>
-  <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">/assets/favicon@256.png</Image>
-  <Url type="text/html" template="/search.html?q={ '{searchTerms}' }"/>
-  <Url type="application/opensearchdescription+xml" rel="self" template="/sitesearch.xml" />
-</OpenSearchDescription>
-    """
-    # <Url type="application/x-suggestions+json" template="[suggestionURL]"/>
-    return Response(content=data, media_type="application/opensearchdescription+xml")
 
 
 class AndroidShareIntent(BaseModel):
