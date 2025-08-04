@@ -230,7 +230,7 @@
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
-				<option value="{{ backend.name }}" {% if note.backend.name == backend.name %}selected{%endif%}>{{ backend.description }} ({{ backend.name }})</option>
+				<option value="{{ backend.name }}" {% if note.backend.name == backend.name %}selected{%endif%} {% if not backend.writable %}disabled{% endif %}>{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}
 			</select>
 

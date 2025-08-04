@@ -131,7 +131,6 @@ class StoredThing(StoredBlob):
             size=os.path.getsize(full_path)
         )
 
-
 class BaseBackend(BaseModel):
     path: str
     name: str
@@ -143,6 +142,7 @@ class BaseBackend(BaseModel):
     writable: bool = True
     last_update: Optional[PastDatetime] = None
     latest_commit: Optional[str] = None
+    dirty: int = 0
 
     data: Dict[str, 'WrappedStoredThing'] = Field(default_factory=dict)
     blob: Dict[str, 'WrappedStoredBlob'] = Field(default_factory=dict)
@@ -271,8 +271,8 @@ class BaseBackend(BaseModel):
     def backend_type(self):
         return self.__class__.__name__
 
-    def sync(self, log_fn):
-        raise NotImplementedError()
+    def sync(self, log_fn) -> Iterable[str]:
+        return []
 
     def find(self, identifier: UniformReference) -> 'WrappedStoredThing':
         if identifier.ident in self.data:
@@ -358,6 +358,14 @@ class BaseBackend(BaseModel):
                     print(f"Error loading: {path} {ve}")
 
     def report_metadata(self):
+        count = 0
+        for item in self.data.values():
+            if item.state != MutatedEnum.untouched:
+                count += 1
+        for item in self.blob.values():
+            if item.state != MutatedEnum.untouched:
+                count += 1
+
         data = [
             ('Type', self.__class__.__name__, 'str'),
             ('Path', self.path, 'code'),
@@ -370,10 +378,9 @@ class BaseBackend(BaseModel):
             ('Last Commit', self.latest_commit, 'code'),
             ('Item Count', len(self.data), 'int'),
             ('Blob Count', len(self.blob), 'int'),
+            ('Out of Sync', count, 'bool'),
         ]
         return data
-
-
 
 class WrappedStoredBlob(BaseModel):
     thing: StoredBlob
@@ -430,7 +437,6 @@ class WrappedStoredBlob(BaseModel):
         d['id'] = self.thing.urn.ident
         d['urn'] = self.thing.urn.urn
         return d
-
 
 class WrappedStoredThing(BaseModel):
     thing: StoredThing
@@ -534,8 +540,6 @@ class WrappedStoredThing(BaseModel):
                 raise Exception(f"Could not parse {k} as it is {type(v)}: {v}. {self}")
         return d
 
-
-
 class GitJsonFilesBackend(BaseBackend):
     lfs: bool = True
 
@@ -563,7 +567,7 @@ class GitJsonFilesBackend(BaseBackend):
         data.last_update = datetime.datetime.fromtimestamp(int(commitdate))
         return data
 
-    def sync(self, log_fn):
+    def sync(self, log_fn) -> Iterable[str]:
         if self.last_update is not None:
             pass # todo logic to not push/pull too frequently
 
@@ -572,7 +576,6 @@ class GitJsonFilesBackend(BaseBackend):
         if any([m.staged for m in mods]):
             log_fn(f'git.sync.{self.name}', f'git commit -m "automatic {self.name}" cwd={self.path}"')
             yield from subprocess_check_output(['git', 'commit', '-m', f'automatic {self.name}'], cwd=self.path).decode('utf-8').split('\n')
-            
 
         log_fn(f'git.sync.{self.name}', f'git pull --rebase cwd={self.path}"')
         yield from subprocess_check_output(['git', 'pull', '--rebase'], cwd=self.path).decode('utf-8').split('\n')
@@ -654,7 +657,6 @@ class GitJsonFilesBackend(BaseBackend):
             in map(MutatedEnum.parse, statuses)
         }
 
-
 class StaticFilesBackend(BaseBackend):
     writable:bool = False
 
@@ -666,7 +668,7 @@ class StaticFilesBackend(BaseBackend):
     def persist_meta(self):
         return # This seems to be called automatically on loading.
 
-    def sync(self, *args):
+    def sync(self, log_fn) -> Iterable[str]:
         return "n/a" # Not an error
 
     def save(self, fsync=True):
@@ -674,7 +676,6 @@ class StaticFilesBackend(BaseBackend):
 
     def get_backend_modifications(self):
         return {}
-
 
 class OverlayEngine(BaseModel):
     backends: list[BaseBackend]
@@ -777,6 +778,9 @@ class OverlayEngine(BaseModel):
                 if x.thing.data.has_tag('page_path'):
                     r.append(x)
         return r
+
+    def modified_count(self) -> int:
+        return len(self.all_modified())
 
     def all_modified(self) -> list[WrappedStoredThing]:
         return [x for x in self.all() if x.state != MutatedEnum.untouched]

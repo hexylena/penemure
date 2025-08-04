@@ -178,7 +178,7 @@
 			<label for="backend">Backend</label>
 			<select id="backend" name="backend">
 				{% for backend in oe.backends %}
-				<option data-backend="{{ backend.name }}" value="{{ backend.name }}">{{ backend.description }} ({{ backend.name }})</option>
+				<option data-backend="{{ backend.name }}" value="{{ backend.name }}" {% if not backend.writable %}disabled{% endif %}>{{ backend.description }} ({{ backend.name }})</option>
 				{% endfor %}
 			</select>
 			<script>

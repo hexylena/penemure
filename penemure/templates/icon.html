@@ -20,7 +20,7 @@
 <div class="col" class="icon">
 	<i style="font-size:350%" class="ph ph-{{ icon['id'] }}"></i>
 	{% for x in icon['tags'] %}
-	{{ x }}
+	ph-{{ x }}
 	{% endfor %}
 </div>
 {% endfor %}
@@ -38,9 +38,7 @@
 	<div>
 	<img src="/assets/healthicons/outline/{{ icon.path }}.svg" width="50" loading="lazy"/>
 	</div>
-	{% for x in icon['tags'] %}
-	{{ x }}
-	{% endfor %}
+	hi-{{ icon['id'] }}
 </div>
 {% endfor %}
 </div>

@@ -121,8 +121,14 @@ class Penemure(BaseModel):
             'data': self.data,
             # Gross.
             'TagTypes': sorted([x.replace('penemure.tags.', '')[:-3] 
-                                for x in str(TagV2.__args__[0]).split(' | ')])
+                                for x in str(TagV2.__args__[0]).split(' | ')]),
+            'sync_status': '0' if self.overlayengine.modified_count == 0 else 'T',
         }
+        if self.overlayengine.modified_count() == 0:
+            config['sync_status'] = icon_map(':ph-eye-closed:', xml=False)
+        else:
+            config['sync_status'] = icon_map(':ph-eye:', xml=False)
+
         if config['ExportPrefix'] == '//':
             config['ExportPrefix'] = '/'
 
@@ -348,20 +354,31 @@ class Penemure(BaseModel):
             ]
         )
 
+def icon_map(shortname, xml=True):
+    if shortname.startswith(':hi-'):
+        path = shortname.replace(':hi-', '').replace(':', '')
+        svg = f'/assets/healthicons/outline/{path.replace("-", "/", 1)}.svg'
+        alt = 'icon ' + path.replace('-', ' ')
+        attr = {'src': svg, 'loading':
+                'lazy', 'style': 'width: 1em', 'alt': alt}
+        if xml:
+            return etree.Element("img", attr)
+        else:
+            return f'<img src="{svg}" loading="lazy" style="width: 1em" alt="{alt}">'
+    elif shortname.startswith(':ph-'):
+        path = shortname.replace(':ph-', '').replace(':', '')
+        cl = f"ph ph-{path}"
+        if xml:
+            return etree.Element("i", {'class': cl})
+        else:
+            return f'<i class="{cl}"></i>'
+    else:
+        return shortname
+
 import xml.etree.ElementTree as etree
 def emoji_generator(index, shortname, alias, uc, alt, title, category, options, md):
     # emoji_generator ('pene', ':hi-vehicles-war:', None, None, ':hi-vehicles-war:', ':hi-vehicles-war:', 'vehicles', {}, <markdown.core.Markdown object at 0x788b846f0980>)
-    if shortname.startswith(':hi-'):
-        path = shortname.replace(':hi-', '').replace(':', '')
-        # f = f'<img src="" style="width: 1em;" loading="lazy"/>'
-        attr = {'src': f'/assets/healthicons/outline/{path.replace("-", "/", 1)}.svg', 'loading':
-                'lazy', 'style': 'width: 1em', 'alt': 'icon ' + path.replace('-', ' ')}
-        return etree.Element("img", attr)
-    elif shortname.startswith(':ph-'):
-        path = shortname.replace(':ph-', '').replace(':', '')
-        return etree.Element("i", {'class': f"ph ph-{path}"})
-
-    return shortname
+    return icon_map(shortname)
 
 
 import pymdownx.emoji

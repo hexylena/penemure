@@ -557,7 +557,7 @@ def save_new(data: Annotated[BaseFormData, Form()], username: Annotated[WrappedS
     obj = NoteFromForm(data, be, username=username)
     res = pen.overlayengine.add(obj, backend=be)
     # TODO: figure out why note was missing from URL
-    return RedirectResponse(os.path.join(path, res.thing.url), status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(os.path.join(path, res.view_url), status_code=status.HTTP_302_FOUND)
 
 
 def only_valid_attachments(atts: list[UploadFile] | None) -> list[UploadFile]:
