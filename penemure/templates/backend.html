@@ -1,0 +1,33 @@
+{% extends "base_edit.html" %}
+
+{% block title %}{{ thing.name }} | Backend Information{% endblock %}
+
+{% block main %}
+	<hgroup>
+		<h1>{{ thing.icon }} {{ thing.name }}: {{ thing.description }}</h1>
+		<p>{{ thing.__class__ }}</p>
+	</hgroup>
+
+	<table>
+		{% for row in thing.report_metadata() %}
+		<tr><td>{{ row.0 }}</td>
+			<td>
+			{% if row.2 == "code" %}
+				<code>{{ row.1 }}</code>
+			{% elif row.2 == "list" %}
+				<ul>
+				{% for x in row.1 %}
+				<li>{{ x }}</li>
+				{% endfor %}
+				</ul>
+			{% elif row.2 == "datetime" %}
+				<time class="relative" datetime="{{ row.1 }}" title="{{ row.1 }}">{{ row.1 }}</time>
+			{% else %}
+				{{ row.1 }}
+			{% endif %}
+
+			</td></tr>
+		{% endfor %}
+	</table>
+
+{% endblock %}
