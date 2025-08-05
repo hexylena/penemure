@@ -724,7 +724,7 @@ def _last_end():
     return max(times)
 
 @app.post("/time/continue/since", tags=['mutate'])
-def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
+def continue_time_since(data: Annotated[PatchTimeFormData, Form()], username: Annotated[WrappedStoredThing, Depends(get_current_username)]):
     u = UniformReference.from_string(data.urn)
     log = oe.find(u)
 
@@ -733,7 +733,7 @@ def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotate
     new_log = pen.overlayengine.add(new_log, backend=log.backend)
     new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
     new_log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=_last_end()))
-    new_log.thing.data.add_empty_markdown_if_empty(author=username)
+    new_log.thing.data.add_empty_markdown_if_empty(author=username.thing.urn)
     # Right, have to save after adding tags...
     new_log.save()
 
@@ -749,7 +749,7 @@ def continue_time(data: Annotated[PatchTimeFormData, Form()], username: Annotate
     new_log = pen.overlayengine.add(new_log, backend=log.backend)
     new_log.thing.data.set_parents(copy.copy(log.thing.data.parents) or [])
     new_log.thing.data.ensure_tag(PastDateTimeTag(key='start_date', val=time.time()))
-    new_log.thing.data.add_empty_markdown_if_empty(author=username)
+    new_log.thing.data.add_empty_markdown_if_empty(author=username.thing.urn)
     # Right, have to save after adding tags...
     new_log.save()
 
