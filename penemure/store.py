@@ -459,7 +459,7 @@ class WrappedStoredThing(BaseModel):
 
     @property
     def view_url(self) -> str:
-        return os.path.join('view', self.backend.name, self.thing.urn.urn)
+        return os.path.join('view', self.backend.name, self.thing.urn.urn) + '.html'
 
     def clean_dict(self, oe: 'OverlayEngine', template=None):
         d = self.thing.data.model_dump()

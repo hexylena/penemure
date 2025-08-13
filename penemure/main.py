@@ -157,6 +157,7 @@ class Penemure(BaseModel):
 
     def export(self, path, format='html'):
         config = self.get_config(serving=False)
+        print(f"Exporting to {path=}")
 
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
@@ -185,9 +186,9 @@ class Penemure(BaseModel):
         # print(env.join_path('assets/main'))
         for st in things:
             # p = os.path.join(path, st.thing.url.replace('.html', '.' + format))
-            p = os.path.join(path, self.urn_to_url_c(st.thing.urn, 'path'))
-            p.replace('.html', '.' + format)
-            print(p, )
+            p = os.path.join(path, self.urn_to_url_c(st.thing.urn, 'path').lstrip('/'))
+            # os.path.join('a', '/b') == '/b'
+            p = p.replace('.html', '.' + format)
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p), exist_ok=True)
 
@@ -266,7 +267,7 @@ class Penemure(BaseModel):
         elif format == "path":
             try:
                 ref = self.overlayengine.find_thing_or_blob(urn_ref)
-                return os.path.join('view', ref.backend.name, ref.thing.urn.urn) + '.html'
+                return os.path.join(self.real_path, ref.view_url)
             except KeyError:
                 return urn_ref.urn
         elif format == "link":
