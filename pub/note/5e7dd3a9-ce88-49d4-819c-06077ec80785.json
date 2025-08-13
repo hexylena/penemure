@@ -1,0 +1,32 @@
+{
+  "title": "TEST: url dereferncing",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "method | thing | blob\r\n--- | --- | ---\r\nurl | urn:penemure:a238ec94-5136-48c5-8567-7d2644fda113#url | urn:penemure:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#url\r\ntitle | urn:penemure:a238ec94-5136-48c5-8567-7d2644fda113#title | urn:penemure:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#title\r\ntxt_title | urn:penemure:a238ec94-5136-48c5-8567-7d2644fda113#txt_title | urn:penemure:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#txt_title\r\npath | urn:penemure:a238ec94-5136-48c5-8567-7d2644fda113#path | urn:penemure:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#path\r\nlink | urn:penemure:a238ec94-5136-48c5-8567-7d2644fda113#link | urn:penemure:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#link\r\nembed | urn:penemure:a238ec94-5136-48c5-8567-7d2644fda113#embed | urn:penemure:file:blob:45430ce3-fbbe-4075-9d69-5a53ec1521be.webp#embed",
+      "author": {
+        "app": "account",
+        "namespace": "projects",
+        "ident": "78ea3689-8615-4adc-a3c2-e5def762e8c3"
+      },
+      "type": "markdown",
+      "id": "09166f2f-53c4-49ca-8e47-3a8023ff7624",
+      "created_unix": 1755093406.0025473,
+      "updated_unix": 1755093406.0025477
+    }
+  ],
+  "tags": [],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1755093234.835088,
+  "updated_unix": 1755093345.9632597,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
