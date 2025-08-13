@@ -291,7 +291,7 @@ class Penemure(BaseModel):
             except KeyError:
                 try:
                     ref = self.overlayengine.find(urn_ref)
-                    url = os.path.join(self.real_path, ref.thing.url)
+                    url = os.path.join(self.real_path, ref.view_url)
                     return f'<a href="{url}">{ref.thing.html_title}</a>' 
 
                 except KeyError:
