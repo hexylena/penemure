@@ -530,6 +530,14 @@ def download_ident(ident: str):
     u = UniformReference(app='file', namespace='blob', ident=ident)
     return download_blob(u)
 
+
+@app.get("/blob/{backend}/{urn}", response_class=HTMLResponse, tags=['download'])
+def view_blob(backend: str, urn: str):
+    be = oe.get_backend(backend)
+    u = UniformReference.from_string(urn)
+    note = oe.find_blob_from_backend(u, backend=be)
+    return download_blob(u)
+
 # /file/blob is preferred so it matches static deployment.
 # @app.get("/download/{urn}", response_class=HTMLResponse, tags=['download'])
 # def download(urn: str):

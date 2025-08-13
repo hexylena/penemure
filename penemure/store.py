@@ -383,9 +383,6 @@ class WrappedStoredBlob(BaseModel):
     def save(self, fsync=False):
         self.backend.save_blob(self.thing, fsync=fsync)
 
-    def not_blob(self):
-        return False
-
     def queryable(self, id, note):
         if self.thing.urn.ext != 'csv':
             return None
@@ -425,6 +422,10 @@ class WrappedStoredBlob(BaseModel):
     def full_path(self) -> str:
         return os.path.join(self.backend.path, self.thing.urn.path)
 
+    @property
+    def view_url(self) -> str:
+        return os.path.join('blob', self.backend.name, self.thing.urn.urn)
+
     def clean_dict(self, oe=None, template=None):
         d = {}
         d['id'] = self.thing.urn.ident
@@ -435,9 +436,6 @@ class WrappedStoredThing(BaseModel):
     thing: StoredThing
     backend: BaseBackend
     state: MutatedEnum = MutatedEnum.untouched
-
-    def not_blob(self):
-        return True
 
     def save(self, fsync=False):
         self.backend.save_item(self.thing, fsync=fsync)
@@ -743,6 +741,9 @@ class OverlayEngine(BaseModel):
 
     def find_thing_from_backend(self, identifier: UniformReference, backend: BaseBackend) -> WrappedStoredThing:
         return backend.find(identifier)
+
+    def find_blob_from_backend(self, identifier: UniformReference, backend: BaseBackend) -> WrappedStoredBlob:
+        return backend.find_blob(identifier)
 
     def get_path(self, st: Union[StoredThing, WrappedStoredThing]) -> str:
         if isinstance(st, WrappedStoredThing):

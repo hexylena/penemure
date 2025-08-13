@@ -141,6 +141,10 @@ class StoredBlob(BaseModel):
     updated: Optional[float] = None
     size: Optional[int] = None
 
+    @property
+    def html_title(self):
+        return f'<span class="title">📃 {self.urn.urn}</span>'
+
     @computed_field
     @property
     def relative_path(self) -> str:

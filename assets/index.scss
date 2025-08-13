@@ -228,6 +228,10 @@ div.kanban {
 	}
 }
 
+img {
+  max-width: 100%;
+}
+
 fieldset {
 	border: .2rem solid var(--bs-border-color);
 	margin-bottom: 1em;

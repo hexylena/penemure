@@ -240,8 +240,8 @@ class Penemure(BaseModel):
 
     def urn_to_url(self, u: re.Match):
         urn_ref = UniformReference.from_string(u.group(1))
-        if urn_ref.urn != u.group(1):
-            raise Exception(f"Maybe mis-parsed URN, {urn_ref.urn} != {u.group(1)}")
+        # if urn_ref.urn != u.group(1):
+        #     raise Exception(f"Maybe mis-parsed URN, {urn_ref.urn} != {u.group(1)}")
         return self.urn_to_url_c(urn_ref, u.group(3))
 
     def urn_to_url_c(self, urn_ref: UniformReference, format='title'):
@@ -260,7 +260,7 @@ class Penemure(BaseModel):
         elif format == "url":
             try:
                 ref = self.overlayengine.find_thing_or_blob(urn_ref)
-                return os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn) + '.html'
+                return os.path.join(self.real_path, ref.view_url)
             except KeyError:
                 return urn_ref.urn
         elif format == "path":
@@ -271,17 +271,11 @@ class Penemure(BaseModel):
                 return urn_ref.urn
         elif format == "link":
             try:
-                ref = self.overlayengine.find(urn_ref)
-                url = os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
-                return f'<a href="{url}.html">{ref.thing.html_title}</a>'
+                ref = self.overlayengine.find_thing_or_blob(urn_ref)
+                url = os.path.join(self.real_path, ref.view_url)
+                return f'<a href="{url}">{ref.thing.html_title}</a>'
             except KeyError:
-                try:
-                    ref = self.overlayengine.find_blob(urn_ref)
-                    url = os.path.join(self.real_path, 'view', ref.backend.name, ref.thing.urn.urn)
-                    return f'<a href="{url}.html">{ref.thing.urn.urn}</a>'
-
-                except KeyError:
-                    return f'<a href="#">{urn_ref.urn}</a>' 
+                return f'<a href="#">{urn_ref.urn}</a>' 
         elif format == "embed":
             try:
                 ref = self.overlayengine.find_blob(urn_ref)
