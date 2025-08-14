@@ -7,27 +7,25 @@ services:
       - "${PWD}/repos:/repos"
       - "/root/.ssh/:/root/.ssh/"
       - "/root/.gitconfig:/root/.gitconfig"
-    container_name: web
-    hostname: web
-    ports:
-      - 8484:8000
     env_file: "prod.env"
+    network_mode: service:ts
+    depends_on:
+      - ts
 
   imgproxy:
     image: ghcr.io/imgproxy/imgproxy:latest
-    container_name: image
     environment:
-      IMGPROXY_BASE_URL: "http://web:8000/file/blob/"
+      IMGPROXY_BASE_URL: "http://localhost:8000/file/blob/"
       IMGPROXY_PATH_PREFIX: "/imgproxy"
       IMGPROXY_KEEP_ALIVE_TIMEOUT: 30
       IMGPROXY_DOWNLOAD_TIMEOUT: 10
     restart: unless-stopped
-    links:
-      - web:web
+    network_mode: service:ts
+    depends_on:
+      - ts
 
   ts:
     image: tailscale/tailscale:v1.76
-    container_name: ts-hxpm
     hostname: penemure 
     env_file: "prod.env"
     volumes:
