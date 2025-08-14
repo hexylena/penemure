@@ -488,6 +488,9 @@ class Note(ChangeDetectionMixin, BaseModel):
         return not(s is not None and e is not None)
 
     def cover_image(self, prefix, oe: 'store.OverlayEngine'):
-        if t := self.get_tag(key='cover'):
-            ref = oe.find_blob(t.val)
-            return os.path.join(prefix, ref.thing.url)
+        try:
+            if t := self.get_tag(key='cover'):
+                ref = oe.find_blob(t.val)
+                return os.path.join(prefix, ref.thing.url)
+        except Exception:
+            return ""
