@@ -1,0 +1,32 @@
+{
+  "title": "Laboratory Notebooks",
+  "parents": [
+    {
+      "app": "x",
+      "namespace": null,
+      "ident": "a238ec94-5136-48c5-8567-7d2644fda113"
+    }
+  ],
+  "contents": [
+    {
+      "contents": "I've been using this as a lab notebook for a while, it's rather useful for that.\r\n\r\nI find myself spacing out entries as paragraphs, none of it organised, just stream of consciousness a bit. as a lab notebook should be\r\n\r\nI should find a way to explicitly support that. similar to Time, maybe just a straight up fork of Time.\r\n\r\nexcept with a chat interface. every entry added as a new block. every entry uneditable. be sure before you hit send.\r\n\r\nI will think about my words more, less emotion.  wouldn't want that on the record\r\n\r\nbut the chat interface I think is important. a text field to add lines, and enter or ctrl return to persist. easy to attach photos.",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "e44fda22-f530-4062-97de-843fd3ab667a",
+      "created_unix": 1755248512.4331512,
+      "updated_unix": 1755248512.4331524
+    }
+  ],
+  "tags": [],
+  "tags_v2": [],
+  "version": 2,
+  "created_unix": 1755248512.433171,
+  "updated_unix": 1755248512.4331713,
+  "namespace": null,
+  "type": "note",
+  "attachments": []
+}
