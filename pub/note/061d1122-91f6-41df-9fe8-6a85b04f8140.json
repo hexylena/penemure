@@ -9,7 +9,7 @@
   ],
   "contents": [
     {
-      "contents": "I've been using this as a lab notebook for a while, it's rather useful for that.\r\n\r\nI find myself spacing out entries as paragraphs, none of it organised, just stream of consciousness a bit. as a lab notebook should be\r\n\r\nI should find a way to explicitly support that. similar to Time, maybe just a straight up fork of Time.\r\n\r\nexcept with a chat interface. every entry added as a new block. every entry uneditable. be sure before you hit send.\r\n\r\nI will think about my words more, less emotion.  wouldn't want that on the record\r\n\r\nbut the chat interface I think is important. a text field to add lines, and enter or ctrl return to persist. easy to attach photos.",
+      "contents": "I've been using this as a lab notebook for a while, it's rather useful for that.\r\n\r\nI find myself spacing out entries as paragraphs, none of it organised, just stream of consciousness a bit. as a lab notebook should be\r\n\r\nI should find a way to explicitly support that. similar to Time, maybe just a straight up fork of Time.\r\n\r\nexcept with a chat interface. every entry added as a new block. every entry uneditable. be sure before you hit send.\r\n\r\nI will think about my words more, less emotion.  wouldn't want that on the record\r\n\r\nbut the chat interface I think is important. a text field to add lines, and enter or ctrl return to persist. easy to attach photos.\r\n\r\nwe're not aiming for 21 CFR Part 11. the files in git will always be accessible (under the majority of deployment scenarios for myself.) git isn't immutable though that can be enforced server side i suppose, no rewrites, so, it would in theory be possible to get somewhat close?\r\n\r\ni can imagine two flavours, strict (WORM, and editable) i suppose 'editable' doesn't imply 'easily editable', but without that severe restriction is probably nice for some uses. (personal notebook)\r\n\r\nthis could just be the 'new' time, it could just be the default behaviour tbh, with different 'classes'. by backend? by type? i'll edit meeting notes on the fly to recontextualise them, but for laboratory things i'm not going to.",
       "author": {
         "app": "accountgithub",
         "namespace": "gh",
@@ -17,8 +17,8 @@
       },
       "type": "markdown",
       "id": "e44fda22-f530-4062-97de-843fd3ab667a",
-      "created_unix": 1755248512.4331512,
-      "updated_unix": 1755248512.4331524
+      "created_unix": 1755249988.5115223,
+      "updated_unix": 1755249988.5115225
     }
   ],
   "tags": [],
