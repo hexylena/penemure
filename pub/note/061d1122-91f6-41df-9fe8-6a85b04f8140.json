@@ -19,6 +19,18 @@
       "id": "e44fda22-f530-4062-97de-843fd3ab667a",
       "created_unix": 1755249988.5115223,
       "updated_unix": 1755249988.5115225
+    },
+    {
+      "contents": "there's also occasions where I don't want to start a formal time log, just wanna add some notes. it could be instantaneous for all I care. just popped into the office to check a print and made a photo, I have notes. wanna stash somewhere. it would be nice to pick the \"activity\" from a \"chat\" interface and add these notes.\r\n\r\nwould I add to the project? just make a new chat? continue the earlier one? then it's not time logs but an aggregation of them by title.\r\n\r\nthe aggregation is odd, or, maybe it's titling the logs that's odd. they're all direct children of a project, but there's a pseudo layer in there by title. subtasks that were never split out or aggregated. \r\n\r\nshould adding a time log auto create a task/note within a project? then I can \"continue\" more easily?",
+      "author": {
+        "app": "accountgithub",
+        "namespace": "gh",
+        "ident": "hexylena"
+      },
+      "type": "markdown",
+      "id": "2d3596e1-00ff-4b49-b04f-1f0ed9686b88",
+      "created_unix": 1755254065.9310105,
+      "updated_unix": 1755254065.9310114
     }
   ],
   "tags": [],
