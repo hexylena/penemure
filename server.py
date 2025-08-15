@@ -712,7 +712,7 @@ def patch_note(data: Annotated[PatchNoteContentsData, Form()], username: Annotat
     for block in log.thing.data.contents:
         if str(block.id) == data.block:
             block.contents = data.contents
-            block.author = username
+            block.author = username.thing.urn
             found = True
             print(block)
 
